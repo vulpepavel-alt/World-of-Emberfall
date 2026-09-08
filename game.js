@@ -242,6 +242,16 @@ const SPATIU_BUTOANE = 20;         // spatiul dintre doua butoane vecine
 const CULOARE_ABILITATE_GATA   = 0x2b3d6b;   // piatra albastra: abilitatea poate fi apasata
 const CULOARE_ABILITATE_STINSA = 0x241f19;   // piatra stinsa: n-ai mana sau rage
 
+// ---- Joystick-ul de pe telefon ----
+// Un cerc in stanga jos: pui degetul pe el si tragi incotro vrei
+// sa mergi. Cu cat tragi mai departe de mijloc, cu atat mai clar
+// e directia (viteza ramane aceeasi).
+const JOY_X = 116;
+const JOY_Y = INALTIME - 104;
+const JOY_RAZA = 58;             // cercul mare, de fundal
+const JOY_RAZA_MANETA = 26;      // bila pe care o tragi
+const JOY_ZONA_MOARTA = 9;       // sub atatia pixeli de la mijloc, nu te misti
+
 
 const config = {
   type: Phaser.AUTO,
@@ -296,6 +306,9 @@ let mobi = [];              // toti inamicii de pe harta
 let urmatorulAtac = 0;      // momentul cand ai voie sa lovesti din nou
 let mort = false;           // esti mort si astepti sa te intorci?
 let butoane = [];           // butoanele din dreapta jos
+let manetaJoystick;         // bila din mijlocul joystick-ului
+let degetJoystick = null;   // ce deget tine joystick-ul (pe telefon poti avea mai multe)
+let mersJoystick = { x: 0, y: 0 };
 
 // Bucatile din rama personajului, ca sa le putem schimba mai tarziu.
 let barViata;
@@ -437,8 +450,21 @@ function create() {
   // Tasta Spatiu = atac (pe calculator).
   this.input.keyboard.on('keydown-SPACE', () => ataca(this));
 
-  // Click / deget: intai vedem daca ai nimerit vreun buton.
+  // Pe telefon poti tine un deget pe joystick si apasa cu altul
+  // pe un buton, deci ii cerem lui Phaser sa urmareasca mai multe.
+  this.input.addPointer(2);
+
+  // Click / deget: intai joystick-ul, apoi butoanele, apoi harta.
   this.input.on('pointerdown', (pointer) => {
+
+    // Ai pus degetul pe joystick?
+    if (degetJoystick === null &&
+        Phaser.Math.Distance.Between(pointer.x, pointer.y, JOY_X, JOY_Y) <= JOY_RAZA + 14) {
+      degetJoystick = pointer.id;
+      mutaJoystick(pointer);
+      return;
+    }
+
     // Zonele de atins ale butoanelor se ating intre ele, ca sa nu
     // ramana gauri moarte. De aceea nu luam primul buton nimerit,
     // ci pe CEL MAI APROPIAT de locul unde ai pus degetul.
@@ -461,6 +487,14 @@ function create() {
     tinta = { x: pointer.worldX, y: pointer.worldY };
   });
 
+  this.input.on('pointermove', (pointer) => {
+    if (degetJoystick === pointer.id) mutaJoystick(pointer);
+  });
+
+  this.input.on('pointerup', (pointer) => {
+    if (degetJoystick === pointer.id) lasaJoystick();
+  });
+
   // Pe calculator: tastele 1, 2... pentru abilitati.
   this.input.keyboard.on('keydown-ONE', () => {
     if (personaj.abilitati[0]) folosesteAbilitate(this, personaj.abilitati[0]);
@@ -473,7 +507,8 @@ function create() {
   this.cameras.main.setBounds(0, 0, coloane * TILE, randuri * TILE);
   this.cameras.main.startFollow(jucator, true, 0.12, 0.12);
 
-  // --- Butoanele: ATTACK si abilitatile clasei ---
+  // --- Joystick-ul si butoanele ---
+  faJoystick(this);
   faButoane(this);
 
   // --- Rama personajului, stanga sus ---
@@ -736,6 +771,58 @@ function clipesteButonul(scena, b) {
     duration: 70,
     yoyo: true
   });
+}
+
+
+// Joystick-ul: cerc de piatra cu inel de alama si o bila in mijloc.
+function faJoystick(scena) {
+
+  const fundal = scena.add.circle(JOY_X, JOY_Y, JOY_RAZA, UI.alamaInchisa, 0.55);
+  const inel   = scena.add.circle(JOY_X, JOY_Y, JOY_RAZA - 3, UI.alama, 0.45);
+  const gaura  = scena.add.circle(JOY_X, JOY_Y, JOY_RAZA - 7, UI.piatra, 0.5);
+
+  manetaJoystick = scena.add.circle(JOY_X, JOY_Y, JOY_RAZA_MANETA, UI.alama, 0.9);
+  const lucire = scena.add.circle(JOY_X, JOY_Y, JOY_RAZA_MANETA - 8, UI.alamaLucioasa, 0.5);
+  manetaJoystick.lucire = lucire;
+
+  [fundal, inel, gaura, manetaJoystick, lucire].forEach(function (b) {
+    b.setScrollFactor(0).setDepth(1000);
+  });
+}
+
+
+// Muta bila dupa deget si afla incotro mergi.
+function mutaJoystick(pointer) {
+
+  let dx = pointer.x - JOY_X;
+  let dy = pointer.y - JOY_Y;
+  const lungime = Math.sqrt(dx * dx + dy * dy);
+
+  // Bila nu iese din cerc.
+  const maxim = JOY_RAZA - JOY_RAZA_MANETA + 6;
+  if (lungime > maxim) {
+    dx = dx / lungime * maxim;
+    dy = dy / lungime * maxim;
+  }
+
+  manetaJoystick.setPosition(JOY_X + dx, JOY_Y + dy);
+  manetaJoystick.lucire.setPosition(JOY_X + dx, JOY_Y + dy);
+
+  const acum = Math.sqrt(dx * dx + dy * dy);
+  if (acum < JOY_ZONA_MOARTA) {
+    mersJoystick = { x: 0, y: 0 };
+  } else {
+    mersJoystick = { x: dx / acum, y: dy / acum };
+  }
+}
+
+
+// Ridici degetul: bila sare inapoi in mijloc si te opresti.
+function lasaJoystick() {
+  degetJoystick = null;
+  mersJoystick = { x: 0, y: 0 };
+  manetaJoystick.setPosition(JOY_X, JOY_Y);
+  manetaJoystick.lucire.setPosition(JOY_X, JOY_Y);
 }
 
 
@@ -1341,6 +1428,13 @@ function update(time, delta) {
   if (taste.dreapta.isDown) dx += 1;
   if (taste.sus.isDown)     dy -= 1;
   if (taste.jos.isDown)     dy += 1;
+
+  // Daca nu apesi nicio tasta, ne uitam la joystick.
+  if (dx === 0 && dy === 0 && (mersJoystick.x !== 0 || mersJoystick.y !== 0)) {
+    dx = mersJoystick.x;
+    dy = mersJoystick.y;
+    tinta = null;
+  }
 
   if (dx !== 0 || dy !== 0) {
     tinta = null;
