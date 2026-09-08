@@ -59,11 +59,34 @@ function scrieMeniul() {
   scriePaginaCharacter();
   scriePaginaSpells();
   scriePaginaTalents();
+  scriePaginaInventory();
 }
 
 
 function randStat(eticheta, valoare) {
   return '<div class="rand-stat"><span>' + eticheta + '</span><span>' + valoare + '</span></div>';
+}
+
+
+function slotHtml(idSlot) {
+
+  const slot = gasesteSlot(idSlot);
+  const obiect = (personaj.echipament || {})[idSlot];
+
+  if (!obiect) {
+    return '<div class="slot gol">' +
+           '<span class="cutiuta"></span>' +
+           '<span class="text-slot"><span class="nume-slot">' + slot.nume + '</span>' +
+           '<span class="nume-obiect">Empty</span></span></div>';
+  }
+
+  return '<button class="slot" data-scoate="' + idSlot + '">' +
+         '<span class="cutiuta" style="background:' + obiect.culoare + '"></span>' +
+         '<span class="text-slot">' +
+         '<span class="nume-slot">' + slot.nume + '</span>' +
+         '<span class="nume-obiect" style="color:' + obiect.culoare + '">' + obiect.nume + '</span>' +
+         '<span class="stat-obiect">' + descriereObiect(obiect) + '</span>' +
+         '</span></button>';
 }
 
 
@@ -75,19 +98,34 @@ function scriePaginaCharacter() {
     ? Math.round(p.mana) + ' / ' + p.manaMaxima
     : Math.round(p.furie) + ' / 100';
 
-  let stanga = '<div class="cutie"><h3>' + p.nume + '</h3>' +
+  const stanga = SLOTURI.filter(function (s) { return s.coloana === 'stanga'; });
+  const dreapta = SLOTURI.filter(function (s) { return s.coloana === 'dreapta'; });
+  const jos = SLOTURI.filter(function (s) { return s.coloana === 'jos'; });
+
+  let html = '<div class="foaie-personaj">';
+
+  html += '<div class="coloana-sloturi">' +
+          stanga.map(function (s) { return slotHtml(s.id); }).join('') + '</div>';
+
+  // Silueta are nevoie de invelisul ei: bucatile din ea sunt asezate
+  // fata de el, iar fara el nu se vede nimic.
+  html += '<div class="mijloc-personaj"><div class="silueta">' + htmlSilueta(p) + '</div></div>';
+
+  html += '<div class="coloana-sloturi">' +
+          dreapta.map(function (s) { return slotHtml(s.id); }).join('') + '</div>';
+
+  // Panoul cu statistici, in dreapta de tot.
+  let stat = '<div class="cutie"><h3>' + p.nume + '</h3>' +
     randStat(TEXT.LEVEL, p.nivel) +
     randStat('Race', p.rasa) +
     randStat('Class', p.clasa) +
-    randStat('Faction', p.factiune) +
     randStat('Health', Math.round(p.viata) + ' / ' + p.viataMaxima) +
     randStat(resursa, valoareResursa) +
     randStat('Experience', (p.nivel >= NIVEL_MAXIM)
-      ? TEXT.MAX_LEVEL
-      : Math.floor(p.xp) + ' / ' + p.xpNecesar) +
+      ? TEXT.MAX_LEVEL : Math.floor(p.xp) + ' / ' + p.xpNecesar) +
     '</div>';
 
-  stanga += '<div class="cutie"><h3>Attributes</h3>' +
+  stat += '<div class="cutie"><h3>Attributes</h3>' +
     randStat('Strength', p.atribute.str) +
     randStat('Agility', p.atribute.agi) +
     randStat('Stamina', p.atribute.sta) +
@@ -95,29 +133,30 @@ function scriePaginaCharacter() {
     randStat('Spirit', p.atribute.spi) +
     '</div>';
 
-  let dreapta = '<div class="cutie"><h3>Combat</h3>' +
+  stat += '<div class="cutie"><h3>Combat</h3>' +
     randStat('Attack Power', p.attackPower) +
     (p.attackPowerDistanta !== null ? randStat('Ranged Attack Power', p.attackPowerDistanta) : '') +
     randStat('Armor', p.armura) +
     randStat('Critical', p.critical.toFixed(2) + '%') +
     '</div>';
 
-  dreapta += '<div class="cutie"><h3>Weapon</h3>';
-  Object.keys(p.arme).forEach(function (fel) {
-    const a = p.arme[fel];
-    dreapta += randStat(a.nume + ((fel === 'distanta') ? ' (ranged)' : ' (melee)'),
-                        a.dmgMin + '-' + a.dmgMax + ' dmg, ' + a.viteza.toFixed(1) + 's');
-  });
-  dreapta += '</div>';
+  html += '<div class="coloana-stat">' + stat + '</div>';
 
-  dreapta += '<div class="cutie"><h3>Racial Traits</h3><ul>';
-  p.pasiveRasa.forEach(function (pasiva) {
-    dreapta += '<li><b>' + pasiva.nume + '</b> &ndash; ' + pasiva.descriere + '</li>';
-  });
-  dreapta += '</ul></div>';
+  // Randul de jos: talisman si armele.
+  html += '<div class="sub-personaj">' +
+          jos.map(function (s) { return slotHtml(s.id); }).join('') + '</div>';
 
-  document.getElementById('pagina-character').innerHTML =
-    '<div class="doua-coloane"><div>' + stanga + '</div><div>' + dreapta + '</div></div>';
+  html += '</div>';
+  document.getElementById('pagina-character').innerHTML = html;
+
+  document.querySelectorAll('[data-scoate]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (dezechipeaza(personaj, b.dataset.scoate)) {
+        aplicaTalentele();
+        scrieMeniul();
+      }
+    });
+  });
 }
 
 
@@ -223,6 +262,44 @@ function scriePaginaTalents() {
 }
 
 
+function scriePaginaInventory() {
+
+  const obiecte = personaj.inventar || [];
+
+  if (obiecte.length === 0) {
+    document.getElementById('pagina-inventory').innerHTML =
+      '<div class="cutie"><h3>Inventory</h3>' +
+      '<div class="inventar-gol">Nothing yet. Enemies sometimes drop items when they die.</div>' +
+      '</div>';
+    return;
+  }
+
+  let html = '<div class="cutie"><h3>Inventory &mdash; ' + obiecte.length + ' items</h3>' +
+             '<div class="grila-inventar">';
+
+  obiecte.forEach(function (o) {
+    const slot = gasesteSlot(o.slot);
+    html += '<button class="obiect-inv" data-echipeaza="' + o.id + '">' +
+            '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume + '</span>' +
+            '<span class="unde">' + slot.nume + ' &middot; ' + TEXT.LEVEL + ' ' + o.nivel + '</span>' +
+            '<span class="stat-obiect">' + descriereObiect(o) + '</span>' +
+            '</button>';
+  });
+
+  html += '</div></div>';
+  document.getElementById('pagina-inventory').innerHTML = html;
+
+  document.querySelectorAll('[data-echipeaza]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (echipeaza(personaj, Number(b.dataset.echipeaza))) {
+        aplicaTalentele();
+        scrieMeniul();
+      }
+    });
+  });
+}
+
+
 // ----------------------------------------------------------
 //  Filele de sus
 // ----------------------------------------------------------
@@ -233,7 +310,7 @@ document.querySelectorAll('[data-fila]').forEach(function (buton) {
     document.querySelectorAll('[data-fila]').forEach(function (b) {
       b.classList.toggle('aleasa', b.dataset.fila === filaCurenta);
     });
-    ['character', 'spells', 'talents'].forEach(function (nume) {
+    ['character', 'spells', 'talents', 'inventory'].forEach(function (nume) {
       document.getElementById('pagina-' + nume).classList.toggle('ascuns', nume !== filaCurenta);
     });
   });

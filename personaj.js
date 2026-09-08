@@ -446,6 +446,8 @@ function calculeazaPersonaj(idRasa, idClasa, infatisare, nivel) {
     xpNecesar: xpPentruNivel(nivelul),
     puncteTalent: puncteTalentLaNivel(nivelul),
     talente: {},
+    echipament: {},
+    inventar: [],
     rasa: rasa.nume,
     clasa: clasa.nume,
     factiune: rasa.factiune,

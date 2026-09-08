@@ -566,3 +566,63 @@
 .talent .rang-t { display: block; font-size: 10px; color: #d9b555; margin-top: 2px; }
 .talent .desc-t { display: block; font-size: 10px; color: #96805c; margin-top: 3px; line-height: 1.3; }
 .talent.blocat .motiv-t { display: block; font-size: 9.5px; color: #c9744f; margin-top: 3px; }
+
+
+/* ---- fila Character: sloturi in stanga si dreapta, personajul la mijloc ---- */
+.foaie-personaj {
+  display: grid;
+  grid-template-columns: 150px 1fr 150px 300px;
+  grid-template-rows: 1fr auto;
+  gap: 9px; height: 100%;
+}
+.coloana-sloturi { display: flex; flex-direction: column; gap: 5px; }
+/* Coloana din dreapta se deruleaza in ea, ca sa nu impinga
+   randul de jos (Trinket, Main Hand, Off Hand) in afara paginii. */
+.foaie-personaj > * { min-height: 0; }
+.coloana-stat { overflow-y: auto; }
+
+.slot {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 7px; min-height: 37px;
+  border: 2px solid #4d3c22; border-radius: 2px;
+  background: #1b1510;
+  font-family: inherit; text-align: left; cursor: pointer;
+  color: #cdbb9a;
+}
+.slot:hover { border-color: #c9a961; }
+.slot.gol { cursor: default; opacity: .65; }
+.slot .cutiuta {
+  flex: 0 0 auto; width: 26px; height: 26px;
+  border: 1px solid #6b5326; border-radius: 2px; background: #100c08;
+}
+.slot .text-slot { min-width: 0; }
+.slot .nume-slot { display: block; font-size: 9.5px; color: #7a6748; }
+.slot .nume-obiect {
+  display: block; font-size: 11px; line-height: 1.2;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.slot .stat-obiect { display: block; font-size: 9.5px; color: #96805c; }
+
+.mijloc-personaj {
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid #4d3c22; background: #14100c;
+}
+.mijloc-personaj .silueta { transform: scale(.62); }
+
+.sub-personaj { grid-column: 1 / 4; display: flex; gap: 7px; justify-content: center; }
+.sub-personaj .slot { flex: 0 0 190px; }
+
+/* ---- fila Inventory ---- */
+.grila-inventar {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+}
+.obiect-inv {
+  border: 2px solid #4d3c22; border-radius: 2px;
+  background: #1b1510; padding: 7px 9px;
+  font-family: inherit; text-align: left; cursor: pointer; color: #cdbb9a;
+}
+.obiect-inv:hover { border-color: #c9a961; }
+.obiect-inv .nume-obiect { display: block; font-size: 11.5px; line-height: 1.25; }
+.obiect-inv .unde { display: block; font-size: 9.5px; color: #7a6748; margin-top: 2px; }
+.obiect-inv .stat-obiect { display: block; font-size: 10px; color: #96805c; margin-top: 3px; }
+.inventar-gol { color: #7a6748; font-size: 13px; padding: 10px; }

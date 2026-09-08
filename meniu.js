@@ -190,7 +190,9 @@ function scrieInfatisarea() {
 // ----------------------------------------------------------
 //  Desenam personajul din forme colorate
 // ----------------------------------------------------------
-function deseneazaSilueta(p) {
+// Silueta ca text HTML. O foloseste si ecranul de creare, si
+// fila Character din meniul de joc.
+function htmlSilueta(p) {
 
   const pielea = p.aspect.piele;
   const parul = p.aspect.par;
@@ -228,7 +230,12 @@ function deseneazaSilueta(p) {
     html += '<div class="par" style="background:' + parul + '"></div>';
   }
 
-  silueta.innerHTML = html;
+  return html;
+}
+
+
+function deseneazaSilueta(p) {
+  silueta.innerHTML = htmlSilueta(p);
 }
 
 

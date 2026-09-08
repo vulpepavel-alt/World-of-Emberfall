@@ -1054,20 +1054,36 @@ function aplicaTalentele() {
 
   const baza = calculeazaPersonaj(personaj.idRasa, personaj.idClasa,
                                  personaj.infatisare, personaj.nivel);
+  const dinEchipament = bonusEchipament(personaj);
+  const clasa = CLASE[personaj.idClasa];
 
-  // Cat la suta din viata ai acum - o pastram dupa recalculare.
+  // Cat la suta din viata si din resursa ai acum - le pastram.
   const parteViata = personaj.viataMaxima ? personaj.viata / personaj.viataMaxima : 1;
   const parteMana = personaj.manaMaxima ? personaj.mana / personaj.manaMaxima : 1;
 
-  personaj.viataMaxima = Math.round(baza.viataMaxima * inmultitorTalent(personaj, 'viata'));
-  personaj.armura     = Math.round(baza.armura * inmultitorTalent(personaj, 'armura'));
-  personaj.critical   = baza.critical + bonusTalent(personaj, 'critic');
+  // Atributele: cele de baza plus ce aduce echipamentul.
+  personaj.atribute = {
+    str: baza.atribute.str + dinEchipament.str,
+    agi: baza.atribute.agi + dinEchipament.agi,
+    sta: baza.atribute.sta + dinEchipament.sta,
+    int: baza.atribute.int + dinEchipament.int,
+    spi: baza.atribute.spi + dinEchipament.spi
+  };
+
+  // Din atribute ies restul, cu formulele din specificatia ta.
+  const atr = personaj.atribute;
+  personaj.viataMaxima = Math.round(calculeazaViata(atr.sta) * inmultitorTalent(personaj, 'viata'));
+  personaj.manaMaxima  = calculeazaMana(atr.int, personaj.resursa);
+  personaj.attackPower = calculeazaAttackPower(atr, clasa);
+  personaj.attackPowerDistanta = calculeazaAttackPowerDistanta(atr, clasa);
+  personaj.armura   = Math.round((calculeazaArmura(atr.agi) + dinEchipament.armura) *
+                                 inmultitorTalent(personaj, 'armura'));
+  personaj.critical = calculeazaCritical(atr.agi) + bonusTalent(personaj, 'critic');
 
   personaj.viata = Math.max(1, Math.min(personaj.viataMaxima,
                             Math.round(personaj.viataMaxima * parteViata)));
 
   if (personaj.resursa === 'mana') {
-    personaj.manaMaxima = baza.manaMaxima;
     personaj.mana = Math.min(personaj.manaMaxima, Math.round(personaj.manaMaxima * parteMana));
   }
 
@@ -2108,6 +2124,14 @@ function loveste(scena, mob, damageBrut, critic) {
 
     // Experienta pentru inamicul ucis.
     primesteXp(scena, xpDeLaMob(mob.fel.stats.nivel, personaj.nivel));
+
+    // ...si, uneori, un obiect.
+    const lasat = obiectDeLaMob(mob.fel.stats.nivel);
+    if (lasat) {
+      personaj.inventar = personaj.inventar || [];
+      personaj.inventar.push(lasat);
+      aratacuvant(scena, mob.x, mob.y - 30, lasat.nume, lasat.culoare);
+    }
 
     // CANNIBALIZE (Undead): dupa ce omori ceva, te refaci 10 secunde.
     if (personaj.idRasa === 'undead') {
