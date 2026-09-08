@@ -1020,6 +1020,39 @@ function faRamaPersonaj(scena) {
 
 
 // ================================================
+//  TALENTELE, PUSE IN JOC
+//
+//  Talentele nu schimba fisierul personajului, ci se aplica
+//  PESTE statisticile lui de baza. De aceea, ori de cate ori
+//  cheltuiesti sau resetezi puncte, recalculam totul de la zero.
+// ================================================
+function aplicaTalentele() {
+
+  const baza = calculeazaPersonaj(personaj.idRasa, personaj.idClasa,
+                                 personaj.infatisare, personaj.nivel);
+
+  // Cat la suta din viata ai acum - o pastram dupa recalculare.
+  const parteViata = personaj.viataMaxima ? personaj.viata / personaj.viataMaxima : 1;
+  const parteMana = personaj.manaMaxima ? personaj.mana / personaj.manaMaxima : 1;
+
+  personaj.viataMaxima = Math.round(baza.viataMaxima * inmultitorTalent(personaj, 'viata'));
+  personaj.armura     = Math.round(baza.armura * inmultitorTalent(personaj, 'armura'));
+  personaj.critical   = baza.critical + bonusTalent(personaj, 'critic');
+
+  personaj.viata = Math.max(1, Math.min(personaj.viataMaxima,
+                            Math.round(personaj.viataMaxima * parteViata)));
+
+  if (personaj.resursa === 'mana') {
+    personaj.manaMaxima = baza.manaMaxima;
+    personaj.mana = Math.min(personaj.manaMaxima, Math.round(personaj.manaMaxima * parteMana));
+  }
+
+  actualizeazaBaraViata();
+  actualizeazaBaraResursa();
+}
+
+
+// ================================================
 //  EXPERIENTA SI NIVELURILE
 // ================================================
 
@@ -1083,6 +1116,8 @@ function urcaInNivel(scena) {
   if (personaj.resursa === 'mana') personaj.mana = personaj.manaMaxima;
   else personaj.furie = 0;
 
+  aplicaTalentele();
+  personaj.viata = personaj.viataMaxima;
   actualizeazaBaraViata();
   actualizeazaBaraResursa();
   aratacuvant(scena, jucator.x, jucator.y - 74, TEXT.LEVEL_UP, '#ffd76b');
@@ -1243,9 +1278,16 @@ function poateFolosi(scena, ab) {
   if (mort) return false;
   if (abilitateInCurs) return false;
   if (scena.time.now < (pauzaAbilitati[ab.id] || 0)) return false;
-  if (ab.costMana > 0 && personaj.mana < ab.costMana) return false;
-  if (ab.costRage > 0 && personaj.furie < ab.costRage) return false;
+  if (ab.costMana > 0 && personaj.mana < costulAbilitatii(ab, 'mana')) return false;
+  if (ab.costRage > 0 && personaj.furie < costulAbilitatii(ab, 'rage')) return false;
   return true;
+}
+
+
+// Cat costa o abilitate, dupa ce talentele o ieftinesc.
+function costulAbilitatii(ab, fel) {
+  const brut = (fel === 'mana') ? ab.costMana : ab.costRage;
+  return Math.round(brut * reducereTalent(personaj, 'costResursa'));
 }
 
 
@@ -1273,12 +1315,12 @@ function folosesteAbilitate(scena, ab) {
   }
   if (ab.fel !== 'vindecare' && !tintaAb) return;   // n-ai pe cine
 
-  // Se plateste.
-  if (ab.costMana > 0) personaj.mana = personaj.mana - ab.costMana;
-  if (ab.costRage > 0) personaj.furie = personaj.furie - ab.costRage;
+  // Se plateste, cu reducerea de la talente.
+  if (ab.costMana > 0) personaj.mana = personaj.mana - costulAbilitatii(ab, 'mana');
+  if (ab.costRage > 0) personaj.furie = personaj.furie - costulAbilitatii(ab, 'rage');
   actualizeazaBaraResursa();
 
-  pauzaAbilitati[ab.id] = scena.time.now + ab.pauza;
+  pauzaAbilitati[ab.id] = scena.time.now + ab.pauza * reducereTalent(personaj, 'pauza');
   intraInLupta(scena);
   numeleAbilitatii(scena, ab.nume);
 
@@ -1304,7 +1346,8 @@ function porneisteEfectul(scena, ab, tintaAb) {
   if (ab.fel === 'lovitura') {
     animatiaSabiei(scena);
     const lovitura = damageulTau(armaDeAtac(), attackPowerFolosit(scena, false));
-    loveste(scena, tintaAb, lovitura.damage * ab.inmultit, lovitura.critic);
+    const sporAb = inmultitorTalent(personaj, 'dmgAbilitate');
+    loveste(scena, tintaAb, lovitura.damage * ab.inmultit * sporAb, lovitura.critic);
 
   } else if (ab.fel === 'sageata') {
     intoarceTeSpre(tintaAb.x, tintaAb.y);
@@ -1314,10 +1357,13 @@ function porneisteEfectul(scena, ab, tintaAb) {
   } else if (ab.fel === 'vraja') {
     if (!tintaAb || !tintaAb.viu) return;
     intoarceTeSpre(tintaAb.x, tintaAb.y);
-    trimiteGlob(scena, tintaAb, Phaser.Math.Between(ab.dmgMin, ab.dmgMax), ab.culoare);
+    const damageVraja = Phaser.Math.Between(ab.dmgMin, ab.dmgMax) *
+                        inmultitorTalent(personaj, 'dmgAbilitate');
+    trimiteGlob(scena, tintaAb, Math.round(damageVraja), ab.culoare);
 
   } else if (ab.fel === 'vindecare') {
-    const cat = Phaser.Math.Between(ab.vindecaMin, ab.vindecaMax);
+    const cat = Math.round(Phaser.Math.Between(ab.vindecaMin, ab.vindecaMax) *
+                           inmultitorTalent(personaj, 'vindecare'));
     personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + cat);
     actualizeazaBaraViata();
     aratacifraVerde(scena, jucator.x, jucator.y - 44, cat);
@@ -1425,8 +1471,9 @@ function ratezi() {
 
 // QUICKNESS (Night Elf): sansa sa eviti complet o lovitura.
 function evitiLovitura() {
-  if (personaj.idRasa !== 'nightelf') return false;
-  return (Math.random() * 100) < QUICKNESS_DODGE;
+  let sansa = bonusTalent(personaj, 'dodge');
+  if (personaj.idRasa === 'nightelf') sansa += QUICKNESS_DODGE;
+  return sansa > 0 && (Math.random() * 100) < sansa;
 }
 
 
@@ -1481,7 +1528,8 @@ function regenerareViata(scena, delta) {
   let castig = 0;
 
   if (!esteInLupta(scena)) {
-    castig += (personaj.atribute.spi / REGEN_VIATA_SPIRIT) * secunde;
+    castig += (personaj.atribute.spi / REGEN_VIATA_SPIRIT) * secunde *
+              inmultitorTalent(personaj, 'regen');
   }
 
   if (personaj.idRasa === 'undead') {
@@ -1549,7 +1597,8 @@ function actualizeazaResursa(scena, delta) {
     }
   } else {
     if (personaj.mana < personaj.manaMaxima) {
-      const castig = (personaj.atribute.spi / SPIRIT_PER_MANA) * secunde;
+      const castig = (personaj.atribute.spi / SPIRIT_PER_MANA) * secunde *
+                     inmultitorTalent(personaj, 'regen');
       personaj.mana = Math.min(personaj.manaMaxima, personaj.mana + castig);
       actualizeazaBaraResursa();
     }
@@ -1655,7 +1704,7 @@ function ataca(scena) {
     const tintaLovita = celMaiApropiatMob(jucator.x, jucator.y, RAZA_ATAC_DISTANTA);
     if (!tintaLovita) return;          // fara tinta nu se trage degeaba
 
-    urmatorulAtac = scena.time.now + (arma.viteza * 1000) / LOVITURI_MAI_DESE;
+    urmatorulAtac = scena.time.now + pauzaIntreLovituri(arma);
     intoarceTeSpre(tintaLovita.x, tintaLovita.y);
     animatiaArcului(scena);
     intraInLupta(scena);
@@ -1671,7 +1720,7 @@ function ataca(scena) {
 
   } else {
     // ---- CELELALTE CLASE: lovitura corp la corp, in fata ta ----
-    urmatorulAtac = scena.time.now + (arma.viteza * 1000) / LOVITURI_MAI_DESE;
+    urmatorulAtac = scena.time.now + pauzaIntreLovituri(arma);
     animatiaSabiei(scena);
 
     const p = punctInFata();
@@ -1690,6 +1739,12 @@ function ataca(scena) {
     const lovitura = damageulTau(arma, attackPowerFolosit(scena, false));
     loveste(scena, tintaLovita, lovitura.damage, lovitura.critic);
   }
+}
+
+
+// Cat astepti intre doua lovituri. Talentele de viteza o scurteaza.
+function pauzaIntreLovituri(arma) {
+  return (arma.viteza * 1000) / LOVITURI_MAI_DESE * reducereTalent(personaj, 'viteza');
 }
 
 
@@ -1774,6 +1829,7 @@ function tragiSageata(scena, tintaLovita, arma, inmultit) {
 
   // HUNTER'S EYE: in primele secunde de lupta, sageata loveste mai tare.
   lovitura.damage = lovitura.damage * (1 + sporHuntersEye(scena)) * inmultit;
+  if (inmultit > 1) lovitura.damage *= inmultitorTalent(personaj, 'dmgAbilitate');
 
   const cat = Phaser.Math.Distance.Between(plecX, plecY, tintaLovita.x, tintaLovita.y);
 
@@ -1817,6 +1873,9 @@ function damageulTau(arma, attackPower) {
   // Lovesti de LOVITURI_MAI_DESE ori mai des, deci fiecare lovitura
   // face de atatea ori mai putin. Pe secunda iese acelasi damage.
   let damage = (dinArma + dinAP) / LOVITURI_MAI_DESE;
+
+  // Talentele care cresc damage-ul cu arma.
+  damage = damage * inmultitorTalent(personaj, 'dmgArma');
 
   const critic = (Math.random() * 100) < personaj.critical;
   if (critic) damage = damage * 2;
@@ -2180,7 +2239,8 @@ function mobTeLoveste(scena, mob) {
     if (personaj.idRasa === 'orc') brut = brut * (1 - HARDINESS_REDUCERE);
   }
 
-  let damage = Math.max(1, Math.round(dupaArmura(brut, personaj.armura)));
+  let damage = Math.max(1, Math.round(dupaArmura(brut, personaj.armura) *
+                                      reducereTalent(personaj, 'damageIncasat')));
 
   // ARCANE BARRIER: scutul inghite primul, pana se termina.
   damage = scutulInghite(scena, damage);
