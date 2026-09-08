@@ -252,6 +252,12 @@ const JOY_RAZA = 58;             // cercul mare, de fundal
 const JOY_RAZA_MANETA = 26;      // bila pe care o tragi
 const JOY_ZONA_MOARTA = 9;       // sub atatia pixeli de la mijloc, nu te misti
 
+// ---- Miniharta din dreapta sus ----
+const MINI_LAT = 132;                    // latura ferestrei
+const MINI_X = LATIME - MINI_LAT - 12;
+const MINI_Y = 12;
+const MINI_SCARA = 0.17;                 // cat de mult se micsoreaza harta in ea
+
 
 const config = {
   type: Phaser.AUTO,
@@ -309,6 +315,9 @@ let butoane = [];           // butoanele din dreapta jos
 let manetaJoystick;         // bila din mijlocul joystick-ului
 let degetJoystick = null;   // ce deget tine joystick-ul (pe telefon poti avea mai multe)
 let mersJoystick = { x: 0, y: 0 };
+let npci = [];              // personajele prietenoase, ca sa le punem pe miniharta
+let terenMic;               // harta micsorata, din care decupam miniharta
+let minihartaPanza;         // fereastra minihartii
 
 // Bucatile din rama personajului, ca sa le putem schimba mai tarziu.
 let barViata;
@@ -435,6 +444,7 @@ function create() {
   zona.mobi.forEach(loc => creeazaMob(this, loc));
 
   // --- Personajele prietenoase din zona ---
+  npci = [];
   (zona.npci || []).forEach(loc => creeazaNpc(this, loc));
 
   // --- Comenzi ---
@@ -507,9 +517,10 @@ function create() {
   this.cameras.main.setBounds(0, 0, coloane * TILE, randuri * TILE);
   this.cameras.main.startFollow(jucator, true, 0.12, 0.12);
 
-  // --- Joystick-ul si butoanele ---
+  // --- Joystick-ul, butoanele si miniharta ---
   faJoystick(this);
   faButoane(this);
+  faMiniharta(this);
 
   // --- Rama personajului, stanga sus ---
   faRamaPersonaj(this);
@@ -560,6 +571,11 @@ function deseneazaTerenul(scena, coloane, randuri) {
 
   panza.refresh();
   scena.add.image(0, 0, cheie).setOrigin(0, 0).setDepth(0);
+
+  // Aceeasi harta, micsorata. Nu se vede pe ecran - din ea decupam
+  // in fiecare clipa bucata care intra in miniharta.
+  terenMic = scena.add.image(0, 0, cheie)
+    .setOrigin(0, 0).setScale(MINI_SCARA).setVisible(false);
 
   // Cat a durat sa construim harta. Se face o singura data, la intrare.
   window.__timpTeren = Math.round(performance.now() - inceput);
@@ -771,6 +787,50 @@ function clipesteButonul(scena, b) {
     duration: 70,
     yoyo: true
   });
+}
+
+
+// ================================================
+//  MINIHARTA
+//
+//  O fereastra in dreapta sus care arata bucata de harta din
+//  jurul tau. Tu esti mereu in mijloc. Punctele rosii sunt
+//  inamici, cele aurii personajele prietenoase.
+// ================================================
+function faMiniharta(scena) {
+
+  // rama de piatra cu alama, ca restul interfetei
+  faPanou(scena, MINI_X - 5, MINI_Y - 5, MINI_LAT + 10, MINI_LAT + 10)
+    .forEach(function (b) { b.setScrollFactor(0).setDepth(1200); });
+
+  minihartaPanza = scena.add.renderTexture(MINI_X, MINI_Y, MINI_LAT, MINI_LAT)
+    .setOrigin(0, 0).setScrollFactor(0).setDepth(1201);
+}
+
+
+function actualizeazaMiniharta() {
+
+  if (!minihartaPanza || !terenMic) return;
+
+  const mijloc = MINI_LAT / 2;
+
+  // Mutam harta micsorata astfel incat tu sa cazi fix in mijloc.
+  minihartaPanza.clear();
+  minihartaPanza.draw(terenMic,
+    mijloc - jucator.x * MINI_SCARA,
+    mijloc - jucator.y * MINI_SCARA);
+
+  // Un punct pentru fiecare lucru viu, daca incape in fereastra.
+  function pune(x, y, culoare, marime) {
+    const px = mijloc + (x - jucator.x) * MINI_SCARA;
+    const py = mijloc + (y - jucator.y) * MINI_SCARA;
+    if (px < marime || py < marime || px > MINI_LAT - marime || py > MINI_LAT - marime) return;
+    minihartaPanza.fill(culoare, 1, px - marime / 2, py - marime / 2, marime, marime);
+  }
+
+  npci.forEach(function (p) { pune(p.x, p.y, 0xd9b555, 5); });
+  mobi.forEach(function (m) { if (m.viu) pune(m.x, m.y, 0xcc3322, 5); });
+  pune(jucator.x, jucator.y, 0xf2e6c8, 7);
 }
 
 
@@ -1484,6 +1544,7 @@ function update(time, delta) {
   regenerareViata(this, delta);
   shadowmeld(this);
   actualizeazaAbilitati(this);
+  actualizeazaMiniharta();
 }
 
 
@@ -1825,6 +1886,7 @@ function creeazaNpc(scena, loc) {
   }).setOrigin(0.5));
 
   p.setDepth(9);
+  npci.push(p);
 }
 
 
