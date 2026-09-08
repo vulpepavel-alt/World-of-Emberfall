@@ -13,6 +13,7 @@ const TEXT = {
   LEVEL_UP:  'Level up!',
   MAX_LEVEL: 'Max level',
   ATTACK: 'ATTACK',
+  MENU:   'MENU',
 
   // Numele inamicilor
   WOLF:     'Wolf',

@@ -258,6 +258,11 @@ const MINI_X = LATIME - MINI_LAT - 12;
 const MINI_Y = 12;
 const MINI_SCARA = 0.17;                 // cat de mult se micsoreaza harta in ea
 
+// ---- Butonul care deschide meniul, sub miniharta ----
+const MENU_RAZA = 30;
+const MENU_X = MINI_X + MINI_LAT / 2;
+const MENU_Y = MINI_Y + MINI_LAT + 30;
+
 
 const config = {
   type: Phaser.AUTO,
@@ -728,6 +733,25 @@ function faButoane(scena) {
     x: BUTON_X, y: BUTON_Y, raza: BUTON_RAZA + MARGINE_ATINGERE,
     cerc: atac,
     apasa: function (sc) { ataca(sc); }
+  });
+
+  // --- butonul MENU, sub miniharta ---
+  const meniu = scena.add.container(MENU_X, MENU_Y);
+  meniu.add(scena.add.circle(0, 0, MENU_RAZA, UI.alamaInchisa));
+  meniu.add(scena.add.circle(0, 0, MENU_RAZA - 3, UI.alama));
+  meniu.add(scena.add.circle(0, 0, MENU_RAZA - 7, 0x2b2114));
+  meniu.add(scena.add.text(0, 0, TEXT.MENU, {
+    fontFamily: UI.FONT,
+    fontSize: '13px',
+    fontStyle: 'bold',
+    color: UI.text
+  }).setOrigin(0.5));
+  meniu.setScrollFactor(0).setDepth(1000);
+
+  butoane.push({
+    x: MENU_X, y: MENU_Y, raza: MENU_RAZA + MARGINE_ATINGERE,
+    cerc: meniu,
+    apasa: function () { comutaMeniul(); }
   });
 
   // --- cate un buton pentru fiecare abilitate ---
@@ -1610,6 +1634,17 @@ function actualizeazaResursa(scena, delta) {
 //  update - de ~60 de ori pe secunda
 // ================================================
 function update(time, delta) {
+
+  // Cat timp e meniul deschis, jocul merge mai departe, dar
+  // tastele si joystick-ul nu te mai misca.
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) {
+    miscaMobii(this, delta);
+    actualizeazaResursa(this, delta);
+    regenerareViata(this, delta);
+    actualizeazaAbilitati(this);
+    actualizeazaMiniharta();
+    return;
+  }
 
   // Cat esti mort nu te poti misca. Inamicii se misca in continuare:
   // ei trebuie sa se linisteasca si sa se intoarca la locul lor.
