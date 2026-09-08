@@ -1,0 +1,455 @@
+/* ==========================================================
+   ECRANUL DE CREARE A PERSONAJULUI
+
+   Totul e desenat intr-o "scena" de 1280x720 (orizontala).
+   meniu.js o micsoreaza cu transform:scale ca sa incapa pe
+   orice ecran, la fel cum face Phaser cu jocul.
+   ========================================================== */
+
+#ecran-creare {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #070503;
+  color: #e8dcc0;
+  font-family: Georgia, 'Palatino Linotype', 'Times New Roman', serif;
+}
+
+#ecran-creare.ascuns { display: none; }
+
+#scena {
+  position: relative;
+  width: 1280px;
+  height: 720px;
+  flex: 0 0 auto;
+  transform-origin: center center;
+}
+
+/* ---- Fundalul desenat din forme ---- */
+.fundal { position: absolute; inset: 0; overflow: hidden; }
+.cer {
+  position: absolute; inset: 0;
+  background: linear-gradient(#0d0a08 0%, #1d1611 42%, #3a2618 78%, #5c3a1e 100%);
+}
+.munte {
+  position: absolute; bottom: 150px;
+  background: #100c09;
+}
+.munte.m1 { left: 120px;  width: 520px; height: 330px; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.munte.m2 { left: 520px;  width: 700px; height: 420px; clip-path: polygon(50% 0, 100% 100%, 0 100%); background: #0a0806; }
+.munte.m3 { left: 880px;  width: 460px; height: 260px; clip-path: polygon(50% 0, 100% 100%, 0 100%); background: #16100b; }
+.pamant {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 180px;
+  background: linear-gradient(#241a12, #0e0a07);
+}
+
+/* ==========================================================
+   RAME COMUNE
+   ========================================================== */
+.panou-stanga,
+.panou {
+  background: rgba(20, 16, 12, 0.94);
+  background-image:
+    radial-gradient(circle 3px at 8px 8px, #c9a961 60%, transparent 62%),
+    radial-gradient(circle 3px at calc(100% - 8px) 8px, #c9a961 60%, transparent 62%),
+    radial-gradient(circle 3px at 8px calc(100% - 8px), #c9a961 60%, transparent 62%),
+    radial-gradient(circle 3px at calc(100% - 8px) calc(100% - 8px), #c9a961 60%, transparent 62%);
+  border: 2px solid #8a6a2f;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px #16202e, 0 10px 26px rgba(0, 0, 0, .6);
+}
+
+/* ==========================================================
+   PANOUL DIN STANGA
+   ========================================================== */
+.panou-stanga {
+  position: absolute;
+  left: 14px; top: 14px;
+  width: 300px; height: 692px;
+  box-sizing: border-box;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.steaguri { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.steag {
+  border-radius: 6px;
+  padding: 6px;
+  border: 1px solid #2c3d52;
+}
+.steag.alianta { background: linear-gradient(#1a1a2c, #0b0b14); border-color: #5c6a94; }
+.steag.hoarda  { background: linear-gradient(#2c1210, #150807); border-color: #8f4232; }
+
+.titlu-steag {
+  font-family: 'Palatino', 'Georgia', serif;
+  font-size: 15px;
+  text-align: center;
+  margin-bottom: 6px;
+  letter-spacing: .5px;
+}
+.steag.alianta .titlu-steag { color: #b8c4e0; }
+.steag.hoarda  .titlu-steag { color: #d99a80; }
+
+.tiles { display: grid; gap: 6px; justify-items: center; }
+
+/* Un patratel cu chipul rasei */
+.tile {
+  width: 62px; height: 62px;
+  border: 2px solid #6b5326;
+  border-radius: 2px;
+  background: #241c12;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .12s, transform .08s, box-shadow .12s;
+}
+.tile:hover { border-color: #c9a961; }
+.tile:active { transform: scale(.95); }
+.tile.aleasa {
+  border-color: #e0c070;
+  box-shadow: 0 0 0 2px rgba(240, 200, 96, .35), 0 0 12px rgba(240, 200, 96, .3);
+}
+
+/* Chipul: par + cap, din culorile rasei */
+.fata { position: relative; width: 46px; height: 46px; }
+.fata .c {
+  position: absolute; left: 50%; top: 11px; transform: translateX(-50%);
+  width: 32px; height: 32px; border-radius: 50%;
+}
+.fata .p {
+  position: absolute; left: 50%; top: 4px; transform: translateX(-50%);
+  width: 34px; height: 13px; border-radius: 7px 7px 2px 2px;
+}
+
+.eticheta-aleasa {
+  text-align: center;
+  font-family: 'Palatino', 'Georgia', serif;
+  font-size: 19px;
+  color: #d9b555;
+  min-height: 22px;
+}
+
+.titlu-mic {
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: #a08a63;
+  font-weight: 700;
+  text-align: center;
+}
+
+.tiles-clase { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+
+.tile-clasa {
+  height: 60px;
+  border: 2px solid #6b5326;
+  border-radius: 2px;
+  background: #241c12;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .12s, transform .08s, box-shadow .12s;
+}
+.tile-clasa:hover { border-color: #c9a961; }
+.tile-clasa:active { transform: scale(.95); }
+.tile-clasa.aleasa {
+  border-color: #e0c070;
+  box-shadow: 0 0 0 2px rgba(240, 200, 96, .35), 0 0 12px rgba(240, 200, 96, .3);
+}
+.tile-clasa .patura { position: absolute; inset: 0; opacity: .34; }
+.icon-arma { position: absolute; inset: 0; }
+
+/* ---- Randurile de infatisare: sunt doar de decor, nu fac nimic ---- */
+.infatisare { margin-top: auto; display: grid; gap: 6px; }
+
+.rand-infatisare {
+  display: flex; align-items: center; gap: 6px;
+  height: 28px;
+}
+.rand-infatisare span {
+  flex: 1;
+  height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid #232f3f;
+  border-radius: 4px;
+  background: #0b111a;
+  color: #4d5c6e;
+  font-size: 12px;
+}
+.rand-infatisare i {
+  width: 26px; height: 28px;
+  border: 1px solid #232f3f;
+  border-radius: 4px;
+  background: #0b111a;
+}
+
+.buton-mort {
+  border: 1px solid #232f3f;
+  border-radius: 4px;
+  background: #0b111a;
+  color: #4d5c6e;
+  font-size: 12px;
+  text-align: center;
+  padding: 7px 0;
+  cursor: default;
+  user-select: none;
+}
+.buton-mort.lat { width: 100%; box-sizing: border-box; }
+.buton-mort.sageata { width: 40px; padding: 5px 0; font-size: 14px; }
+
+/* ==========================================================
+   MIJLOCUL: PERSONAJUL
+   ========================================================== */
+.mijloc {
+  position: absolute;
+  left: 328px; top: 14px;
+  width: 492px; height: 692px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scena-personaj {
+  width: 100%;
+  height: 470px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 30px;
+  box-sizing: border-box;
+}
+
+.silueta { position: relative; width: 200px; height: 316px; }
+.silueta .par {
+  position: absolute; left: 50%; top: 13px; transform: translateX(-50%);
+  width: 86px; height: 27px; border-radius: 13px 13px 5px 5px;
+}
+.silueta .cap {
+  position: absolute; left: 50%; top: 27px; transform: translateX(-50%);
+  width: 80px; height: 80px; border-radius: 50%;
+}
+
+/* ---- Infatisarea: par, ochi, barba ---- */
+
+/* parul lung: doua suvite pe langa obraji */
+.silueta .suvita {
+  position: absolute; top: 36px; width: 17px; height: 68px; border-radius: 8px;
+}
+.silueta .suvita.st { left: 50%; margin-left: -49px; }
+.silueta .suvita.dr { left: 50%; margin-left:  32px; }
+
+/* parul tepos */
+.silueta .par.tepi { top: 20px; height: 18px; border-radius: 5px; }
+.silueta .tep {
+  position: absolute; top: 2px; width: 15px; height: 24px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.silueta .tep.a { left: 50%; margin-left: -34px; }
+.silueta .tep.b { left: 50%; margin-left:  -8px; }
+.silueta .tep.c { left: 50%; margin-left:  19px; }
+
+/* ochii */
+.silueta .ochi { position: absolute; background: #16120f; }
+.silueta .ochi.st { left: 50%; margin-left: -25px; }
+.silueta .ochi.dr { left: 50%; margin-left:   8px; }
+
+.silueta .ochi.rotunda { top: 58px; width: 17px; height: 17px; border-radius: 50%; }
+.silueta .ochi.ingusta { top: 63px; width: 19px; height: 7px;  border-radius: 4px; }
+.silueta .ochi.lata    { top: 55px; width: 22px; height: 22px; border-radius: 50%; }
+
+/* barba */
+.silueta .barba { position: absolute; left: 50%; transform: translateX(-50%); }
+.silueta .barba.mustata { top: 86px; width: 40px; height: 10px; border-radius: 5px; }
+.silueta .barba.barba   { top: 84px; width: 62px; height: 34px; border-radius: 8px 8px 26px 26px; }
+.silueta .corp {
+  position: absolute; left: 50%; top: 110px; transform: translateX(-50%);
+  width: 103px; height: 126px; border-radius: 15px 15px 8px 8px;
+}
+.silueta .picior {
+  position: absolute; top: 233px; width: 33px; height: 66px;
+  border-radius: 6px; background: #2b241b;
+}
+.silueta .picior.st { left: 55px; }
+.silueta .picior.dr { right: 55px; }
+
+/* Armele: fiecare clasa are alta forma */
+.arma { position: absolute; right: 10px; top: 100px; }
+
+.arma[data-arma="sabie"] { width: 10px; height: 140px; background: #c8cbd2; border-radius: 3px; }
+.arma[data-arma="sabie"]::before {
+  content: ''; position: absolute; left: -15px; top: 100px;
+  width: 40px; height: 8px; background: #9c7d3a; border-radius: 3px;
+}
+
+.arma[data-arma="arc"] {
+  width: 66px; height: 160px;
+  border: 8px solid #6b4a28; border-radius: 50%;
+  border-right-color: transparent; border-top-color: transparent; border-bottom-color: transparent;
+  background: transparent;
+}
+.arma[data-arma="arc"]::after {
+  content: ''; position: absolute; left: -4px; top: -5px;
+  width: 3px; height: 154px; background: #d8cdb4;
+}
+
+.arma[data-arma="toiag"] { width: 12px; height: 173px; background: #6a5232; border-radius: 5px; }
+.arma[data-arma="toiag"]::before {
+  content: ''; position: absolute; left: -11px; top: -23px;
+  width: 33px; height: 33px; border-radius: 50%;
+  background: #63b6ff; box-shadow: 0 0 22px #63b6ff;
+}
+
+.arma[data-arma="buzdugan"] { width: 12px; height: 123px; background: #6a7688; border-radius: 5px; }
+.arma[data-arma="buzdugan"]::before {
+  content: ''; position: absolute; left: -10px; top: -23px;
+  width: 31px; height: 31px; border-radius: 8px; background: #b9c2d0;
+}
+
+/* Aceleasi arme, micsorate, ca iconita pe butonul de clasa */
+.icon-arma .arma {
+  right: auto; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(.36);
+}
+
+/* ---- Numele, sub personaj ---- */
+.zona-nume {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.eticheta-nume {
+  font-family: 'Palatino', 'Georgia', serif;
+  font-size: 22px;
+  color: #d9b555;
+  text-shadow: 0 2px 6px #000;
+}
+#nume {
+  width: 230px;
+  padding: 9px 12px;
+  font-size: 15px;
+  font-family: inherit;
+  text-align: center;
+  color: #e8dcc0;
+  background: #100c08;
+  border: 1px solid #8a6a2f;
+  border-radius: 2px;
+}
+#nume:focus { outline: none; border-color: #c9a961; box-shadow: 0 0 0 2px rgba(201,169,97,.25); }
+#nume::placeholder { color: #6b5c44; }
+
+#mesaj-nume {
+  font-size: 12px; color: #c9744f; margin: 0;
+  min-height: 15px; text-align: center; max-width: 340px;
+}
+
+.sageti { display: flex; gap: 10px; }
+
+/* ==========================================================
+   PANOURILE DIN DREAPTA
+   ========================================================== */
+.coloana-dreapta {
+  position: absolute;
+  left: 834px; top: 14px;
+  width: 432px; height: 692px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panou { display: flex; flex-direction: column; overflow: hidden; }
+.coloana-dreapta .panou:nth-child(1) { height: 162px; }
+.coloana-dreapta .panou:nth-child(2) { height: 244px; }
+.coloana-dreapta .panou:nth-child(3) { flex: 1; min-height: 0; }
+
+.cap-panou {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 12px;
+  border-bottom: 1px solid #6b5326;
+  background: linear-gradient(#3a2c16, #1b1510);
+  font-family: 'Palatino', 'Georgia', serif;
+  font-size: 18px;
+  color: #d9b555;
+  flex: 0 0 auto;
+}
+
+.portret {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid #8a6a2f;
+  flex: 0 0 auto;
+}
+.portret.patrat { border-radius: 2px; }
+
+.corp-panou {
+  padding: 7px 10px;
+  overflow-y: auto;
+  font-size: 11px;
+  line-height: 1.38;
+  color: #cdbb9a;
+}
+
+.corp-panou ul { margin: 0; padding-left: 15px; }
+.corp-panou li { margin-bottom: 3px; }
+.corp-panou li b { color: #d9b555; font-weight: 700; }
+.corp-panou .nota {
+  margin-top: 6px; padding-top: 6px;
+  border-top: 1px dashed #4d3c22;
+  color: #96805c; font-size: 11px;
+}
+
+/* ---- Statisticile, in doua coloane ---- */
+.blocuri { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.stat {
+  display: flex; justify-content: space-between; align-items: baseline;
+  gap: 5px;
+  padding: 2px 6px;
+  background: #1b1510;
+  border: 1px solid #4d3c22;
+  border-radius: 2px;
+  font-size: 11.5px;
+}
+.stat .eticheta { color: #a08a63; }
+.stat .valoare { font-weight: 700; color: #e8dcc0; }
+.stat.lat { grid-column: 1 / -1; }
+
+/* ---- Accept si Back ---- */
+.butoane-jos { display: grid; gap: 8px; flex: 0 0 auto; }
+
+.buton {
+  border-radius: 2px;
+  border: 1px solid #8a6a2f;
+  background: #2b2114;
+  color: #e8dcc0;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.buton:hover { border-color: #c9a961; background: #3d2f1b; }
+.buton.mic { padding: 7px 18px; font-size: 13px; }
+
+.buton.mare {
+  padding: 11px 0;
+  font-size: 17px;
+  font-family: 'Palatino', 'Georgia', serif;
+  letter-spacing: 1px;
+  background: linear-gradient(#7d6029, #4a3716);
+  border-color: #c9a961;
+  color: #f2e6c8;
+}
+.buton.mare:hover { background: linear-gradient(#96742f, #5c451c); }
+.buton.mare:disabled {
+  background: #191309; border-color: #3d3020; color: #6b5c44;
+  cursor: not-allowed;
+}

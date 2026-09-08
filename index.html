@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>My RPG Game</title>
+  <link rel="stylesheet" href="meniu.css">
+  <style>
+    /* Fundalul negru din jurul jocului si centrarea lui pe ecran */
+    body {
+      margin: 0;
+      background: #111111;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    /* Impiedica telefonul sa faca zoom cand tragi cu degetul peste joc */
+    canvas {
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============ ECRANUL DE CREARE A PERSONAJULUI ============ -->
+  <div id="ecran-creare">
+
+    <!-- Scena are marime fixa 1280x720 si se micsoreaza singura ca sa incapa. -->
+    <div id="scena">
+
+      <!-- Fundalul: cer, munti, pamant. Desenat din forme, nu din poze. -->
+      <div class="fundal">
+        <div class="cer"></div>
+        <div class="munte m1"></div>
+        <div class="munte m2"></div>
+        <div class="munte m3"></div>
+        <div class="pamant"></div>
+      </div>
+
+      <!-- ---------- PANOUL DIN STANGA ---------- -->
+      <div class="panou-stanga">
+
+        <div class="steaguri">
+          <div class="steag alianta">
+            <div class="titlu-steag">Alliance</div>
+            <div class="tiles" id="tiles-alianta"></div>
+          </div>
+          <div class="steag hoarda">
+            <div class="titlu-steag">Horde</div>
+            <div class="tiles" id="tiles-hoarda"></div>
+          </div>
+        </div>
+
+        <div class="eticheta-aleasa" id="nume-rasa"></div>
+
+        <div class="titlu-mic" id="titlu-clasa">Class</div>
+        <div class="tiles-clase" id="grila-clase"></div>
+
+        <!-- Randurile de infatisare se construiesc din meniu.js,
+             dupa listele fiecarei rase. -->
+        <div class="infatisare" id="infatisare"></div>
+
+      </div>
+
+      <!-- ---------- MIJLOCUL: PERSONAJUL ---------- -->
+      <div class="mijloc">
+        <div class="scena-personaj">
+          <div class="silueta" id="silueta"></div>
+        </div>
+
+        <div class="zona-nume">
+          <div class="eticheta-nume">Name</div>
+          <input id="nume" type="text" maxlength="12" autocomplete="off"
+                 spellcheck="false" placeholder="Character name">
+          <button class="buton mic" id="zar">Randomize</button>
+          <p id="mesaj-nume"></p>
+          <div class="sageti">
+            <div class="buton-mort sageata">&#8592;</div>
+            <div class="buton-mort sageata">&#8594;</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---------- PANOURILE DIN DREAPTA ---------- -->
+      <div class="coloana-dreapta">
+
+        <div class="panou">
+          <div class="cap-panou">
+            <span class="portret" id="portret-rasa"></span>
+            <span id="titlu-rasa">Race</span>
+          </div>
+          <div class="corp-panou" id="corp-rasa"></div>
+        </div>
+
+        <div class="panou">
+          <div class="cap-panou">
+            <span class="portret patrat" id="portret-clasa"></span>
+            <span id="titlu-clasa-panou">Class</span>
+          </div>
+          <div class="corp-panou" id="corp-clasa"></div>
+        </div>
+
+        <div class="panou">
+          <div class="cap-panou"><span>Stats</span></div>
+          <div class="corp-panou" id="blocuri-stats"></div>
+        </div>
+
+        <div class="butoane-jos">
+          <button class="buton mare" id="intra" disabled>Accept</button>
+          <div class="buton-mort lat">Back</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Cutia cu unelte Phaser, adusa de pe internet -->
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+
+  <!-- Toate cuvintele care se vad in joc, intr-un singur loc -->
+  <script src="texte.js"></script>
+
+  <!-- Tabelele cu rase si clase + calculul statisticilor -->
+  <script src="personaj.js"></script>
+
+  <!-- Felurile de inamici: cum arata si ce statistici au -->
+  <script src="mobi.js"></script>
+
+  <!-- Personajele prietenoase (NPC) -->
+  <script src="npc.js"></script>
+
+  <!-- Zonele. O zona = un fisier. Ca sa adaugi una noua,
+       pui fisierul in dosarul "zone" si il adaugi aici. -->
+  <script src="zone/lista-zone.js"></script>
+  <script src="zone/zona-greenvale.js"></script>
+  <script src="zone/zona-redwaste.js"></script>
+
+  <!-- Jocul (asteapta sa fie pornit din meniu) -->
+  <script src="game.js"></script>
+
+  <!-- Meniul de creare (porneste jocul cand apesi "Accept") -->
+  <script src="meniu.js"></script>
+
+</body>
+</html>

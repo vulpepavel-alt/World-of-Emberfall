@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificare statistici - toate cele 16 combinatii</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #15171c;
+      color: #e8e8ea;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    }
+    h1 { font-size: 22px; margin: 0 0 4px; }
+    .subtitlu { color: #9aa0aa; font-size: 14px; margin-bottom: 20px; }
+
+    #rezumat {
+      display: inline-block;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 22px;
+    }
+    .totul-bine { background: #17381f; color: #7ee29a; border: 1px solid #2f6b3f; }
+    .probleme   { background: #3d1a1a; color: #ff9b9b; border: 1px solid #7a2f2f; }
+
+    .tabel-container { overflow-x: auto; }
+    table { border-collapse: collapse; font-size: 14px; min-width: 900px; }
+    th, td { padding: 8px 11px; text-align: right; border-bottom: 1px solid #2a2e37; }
+    th {
+      background: #1e222a; color: #9aa0aa; text-align: right;
+      font-weight: 600; position: sticky; top: 0;
+      font-size: 12px; text-transform: uppercase; letter-spacing: .4px;
+    }
+    td.text, th.text { text-align: left; }
+    tr:hover td { background: #1b1f27; }
+
+    .grup-alianta td.text:first-child { color: #6ba8ff; }
+    .grup-hoarda  td.text:first-child { color: #ff8a6b; }
+
+    .sep td { border-bottom: 2px solid #3a4050; }
+    .atribut { color: #c9cdd6; }
+    .calculat { font-weight: 600; color: #ffffff; }
+    .gol { color: #5a6070; }
+
+    .stare { font-weight: 700; }
+    .ok    { color: #62d68a; }
+    .eroare{ color: #ff7070; }
+    .detaliu-eroare { color: #ff9b9b; font-size: 12px; }
+
+    footer { margin-top: 28px; color: #6d7482; font-size: 13px; line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+  <h1>Verificare statistici &mdash; toate cele 16 combinatii</h1>
+  <div class="subtitlu">
+    Valorile din coloanele albe sunt calculate de <code>personaj.js</code>.
+    Sunt comparate automat cu lista din specificatie.
+  </div>
+
+  <div id="rezumat">se calculeaza...</div>
+
+  <div class="tabel-container">
+    <table id="tabel">
+      <thead>
+        <tr>
+          <th class="text">Rasa</th>
+          <th class="text">Clasa</th>
+          <th>Str</th>
+          <th>Agi</th>
+          <th>Sta</th>
+          <th>Int</th>
+          <th>Spi</th>
+          <th>Viata</th>
+          <th>Mana</th>
+          <th>AP</th>
+          <th>AP dist.</th>
+          <th>Armura</th>
+          <th>Crit</th>
+          <th class="text">Verificare</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer>
+    Warrior nu are mana (are furie), deci coloana Mana ramane goala.<br>
+    Coloana &bdquo;AP dist.&rdquo; are sens doar pentru Hunter &mdash; restul claselor nu trag la distanta.
+  </footer>
+
+  <script src="personaj.js"></script>
+  <script>
+    // ==========================================================
+    //  Lista TA din specificatie, exact asa cum ai scris-o.
+    //  Singura corectie agreata: Undead Hunter 63 -> 64.
+    // ==========================================================
+    const ASTEPTAT = {
+      'human/warrior':    { viata: 60,               ap: 46, armura: 40 },
+      'human/hunter':     { viata: 50, mana: 300, apDist: 66, armura: 46 },
+      'human/mage':       { viata: 40, mana: 345, ap: 20, armura: 40 },
+      'human/priest':     { viata: 40, mana: 330, ap: 20, armura: 40 },
+
+      'nightelf/warrior': { viata: 50,               ap: 42, armura: 48 },
+      'nightelf/hunter':  { viata: 40, mana: 300, apDist: 72, armura: 54 },
+      'nightelf/mage':    { viata: 39, mana: 345, ap: 18, armura: 48 },
+      'nightelf/priest':  { viata: 39, mana: 330, ap: 18, armura: 48 },
+
+      'orc/warrior':      { viata: 80,               ap: 52, armura: 36 },
+      'orc/hunter':       { viata: 70, mana: 270, apDist: 65, armura: 42 },
+      'orc/mage':         { viata: 60, mana: 315, ap: 23, armura: 36 },
+      'orc/priest':       { viata: 60, mana: 300, ap: 23, armura: 36 },
+
+      'undead/warrior':   { viata: 70,               ap: 46, armura: 38 },
+      'undead/hunter':    { viata: 60, mana: 285, apDist: 64, armura: 44 },
+      'undead/mage':      { viata: 50, mana: 330, ap: 20, armura: 38 },
+      'undead/priest':    { viata: 50, mana: 315, ap: 20, armura: 38 }
+    };
+
+    const corp = document.querySelector('#tabel tbody');
+    let totalProbleme = 0;
+
+    ID_RASE.forEach(function (idRasa, indexRasa) {
+      ID_CLASE.forEach(function (idClasa, indexClasa) {
+
+        const p = calculeazaPersonaj(idRasa, idClasa);
+        const cheie = idRasa + '/' + idClasa;
+        const e = ASTEPTAT[cheie];
+
+        // Comparam fiecare valoare pe care ai dat-o in lista.
+        const probleme = [];
+        if (e.viata  !== undefined && p.viata  !== e.viata)  probleme.push('viata ' + p.viata + ' in loc de ' + e.viata);
+        if (e.mana   !== undefined && p.mana   !== e.mana)   probleme.push('mana ' + p.mana + ' in loc de ' + e.mana);
+        if (e.ap     !== undefined && p.attackPower !== e.ap) probleme.push('AP ' + p.attackPower + ' in loc de ' + e.ap);
+        if (e.apDist !== undefined && p.attackPowerDistanta !== e.apDist) probleme.push('AP dist. ' + p.attackPowerDistanta + ' in loc de ' + e.apDist);
+        if (e.armura !== undefined && p.armura !== e.armura) probleme.push('armura ' + p.armura + ' in loc de ' + e.armura);
+
+        if (probleme.length > 0) totalProbleme++;
+
+        const rand = document.createElement('tr');
+        rand.className = (p.factiune === 'Alianta') ? 'grup-alianta' : 'grup-hoarda';
+        if (indexClasa === ID_CLASE.length - 1 && indexRasa < ID_RASE.length - 1) {
+          rand.className += ' sep';
+        }
+
+        const gol = '<span class="gol">&mdash;</span>';
+
+        rand.innerHTML =
+          '<td class="text">' + p.rasa + '</td>' +
+          '<td class="text">' + p.clasa + '</td>' +
+          '<td class="atribut">' + p.atribute.str + '</td>' +
+          '<td class="atribut">' + p.atribute.agi + '</td>' +
+          '<td class="atribut">' + p.atribute.sta + '</td>' +
+          '<td class="atribut">' + p.atribute.int + '</td>' +
+          '<td class="atribut">' + p.atribute.spi + '</td>' +
+          '<td class="calculat">' + p.viata + '</td>' +
+          '<td class="calculat">' + (p.mana === null ? gol : p.mana) + '</td>' +
+          '<td class="calculat">' + p.attackPower + '</td>' +
+          '<td class="calculat">' + (p.attackPowerDistanta === null ? gol : p.attackPowerDistanta) + '</td>' +
+          '<td class="calculat">' + p.armura + '</td>' +
+          '<td class="calculat">' + p.critical.toFixed(2) + '%</td>' +
+          '<td class="text stare ' + (probleme.length ? 'eroare' : 'ok') + '">' +
+            (probleme.length
+              ? 'GRESIT <span class="detaliu-eroare">(' + probleme.join('; ') + ')</span>'
+              : 'corect') +
+          '</td>';
+
+        corp.appendChild(rand);
+      });
+    });
+
+    const rezumat = document.getElementById('rezumat');
+    if (totalProbleme === 0) {
+      rezumat.className = 'totul-bine';
+      rezumat.textContent = 'Toate cele 16 combinatii ies exact cum trebuie.';
+    } else {
+      rezumat.className = 'probleme';
+      rezumat.textContent = totalProbleme + ' combinatie/combinatii nu ies. Vezi randurile rosii.';
+    }
+  </script>
+
+</body>
+</html>

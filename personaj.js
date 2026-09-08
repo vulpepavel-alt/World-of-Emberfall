@@ -1,0 +1,426 @@
+// ==========================================================
+//  PERSONAJUL - rase, clase si calculul statisticilor
+// ==========================================================
+//
+//  Statisticile se calculeaza in doua straturi:
+//
+//     statistici finale = statistici de baza ale RASEI
+//                       + modificatori de CLASA
+//
+//  Ca sa adaugi o rasa noua, copiaza un bloc de mai jos si
+//  completeaza cinci numere si doua pasive. Nimic altceva.
+//  Ca sa adaugi o clasa noua, la fel: modificatorii, arma
+//  de start, pasiva si abilitatea.
+// ==========================================================
+
+
+// ---------- INFATISAREA ----------
+// Stilurile sunt aceleasi pentru toate rasele; doar CULORILE
+// difera de la o rasa la alta (vezi "optiuni" la fiecare rasa).
+//   id   - dupa el stie codul ce sa deseneze
+//   nume - ce scrie pe ecran (textul sta in texte.js)
+
+const STILURI_PAR = [
+  { id: 'scurt', nume: TEXT.HAIR_SHORT },
+  { id: 'lung',  nume: TEXT.HAIR_LONG  },
+  { id: 'tepi',  nume: TEXT.HAIR_SPIKY },
+  { id: 'chel',  nume: TEXT.HAIR_BALD  }
+];
+
+const STILURI_FATA = [
+  { id: 'rotunda', nume: TEXT.FACE_ROUND  },
+  { id: 'ingusta', nume: TEXT.FACE_NARROW },
+  { id: 'lata',    nume: TEXT.FACE_WIDE   }
+];
+
+const STILURI_BARBA = [
+  { id: 'fara',    nume: TEXT.BEARD_NONE      },
+  { id: 'mustata', nume: TEXT.BEARD_MOUSTACHE },
+  { id: 'barba',   nume: TEXT.BEARD_FULL      }
+];
+
+
+// ---------- CELE 4 RASE ----------
+// baza = Strength / Agility / Stamina / Intellect / Spirit
+// Factiunea este deocamdata doar o eticheta, nu are efect in joc.
+// Cele doua pasive ale fiecarei rase functioneaza in joc.
+
+const RASE = {
+
+  human: {
+    nume: 'Human',
+    factiune: 'Alliance',
+    baza: { str: 20, agi: 20, sta: 20, int: 20, spi: 20 },
+    optiuni: {
+      piele: ['#f0c9a6', '#e3b78f', '#cf9a69', '#b07d57', '#8d5f3f'],
+      par:   ['#3d2b1c', '#1b1512', '#7a4a24', '#caa96b', '#8d8d95']
+    },
+    nume_exemplu: ['Aldric', 'Elena', 'Marcus', 'Isolde', 'Roland', 'Brianna'],
+    pasive: [
+      { nume: 'The Human Spirit',  descriere: '+5% Spirit, rounded down' },
+      { nume: 'Weapon Training',   descriere: '+3% chance to hit' }
+    ]
+  },
+
+  nightelf: {
+    nume: 'Night Elf',
+    factiune: 'Alliance',
+    baza: { str: 18, agi: 24, sta: 19, int: 20, spi: 20 },
+    optiuni: {
+      piele: ['#9d7fd8', '#8f6fce', '#b192e6', '#7d5fb8', '#c7aef0'],
+      par:   ['#2f7f76', '#1f5f58', '#4aa89c', '#6f4fa8', '#d8dce8']
+    },
+    nume_exemplu: ['Shaeya', 'Talyndris', 'Ilyana', 'Kaelen', 'Nyssara', 'Faerin'],
+    pasive: [
+      { nume: 'Quickness',  descriere: '+5% chance to fully dodge an incoming hit' },
+      { nume: 'Shadowmeld', descriere: 'Stand still for 2 seconds: mobs lose track of you and you leave combat' }
+    ]
+  },
+
+  orc: {
+    nume: 'Orc',
+    factiune: 'Horde',
+    baza: { str: 23, agi: 18, sta: 22, int: 18, spi: 22 },
+    optiuni: {
+      piele: ['#5f9e63', '#4e8552', '#6faf72', '#3f6d45', '#84bd84'],
+      par:   ['#24331f', '#131a10', '#4a3a22', '#6b6b60', '#8f2f2f']
+    },
+    nume_exemplu: ['Grokar', 'Murgash', 'Uzrek', 'Kagra', 'Thruk', 'Zolga'],
+    pasive: [
+      { nume: 'Blood Fury', descriere: '+50% Attack Power for 15 seconds, once every 2 minutes' },
+      { nume: 'Hardiness',  descriere: 'Takes 15% less damage from critical hits' }
+    ]
+  },
+
+  undead: {
+    nume: 'Undead',
+    factiune: 'Horde',
+    baza: { str: 20, agi: 19, sta: 21, int: 19, spi: 24 },
+    optiuni: {
+      piele: ['#adc0bb', '#98aca7', '#c3d2cd', '#8195a0', '#6f8188'],
+      par:   ['#3a3a44', '#1c1c22', '#5c4a3a', '#8a2f3a', '#c9c9d2']
+    },
+    nume_exemplu: ['Mordris', 'Nezra', 'Ossian', 'Valka', 'Cryven', 'Gwynn'],
+    pasive: [
+      { nume: 'Cannibalize',        descriere: 'After killing a mob, recovers 30% of maximum health over 10 seconds' },
+      { nume: 'Will of the Forsaken', descriere: 'Regenerates 1% of maximum health per second, even in combat' }
+    ]
+  }
+};
+
+
+// ---------- CELE 4 CLASE ----------
+// modificatori = cat se ADUNA peste statisticile rasei
+// apPerStr     = cat Attack Power da fiecare punct de Strength
+// apPerAgi     = cat Attack Power da fiecare punct de Agility
+//                (doar pentru atacul la distanta; 0 daca clasa nu trage)
+// resursa      = 'mana' sau 'furie'
+//
+// Fiecare abilitate isi are TOATE cifrele scrise langa ea:
+//   fel        - 'lovitura' (cu arma), 'sageata', 'vraja', 'vindecare'
+//   costMana / costRage - cat te costa
+//   pauza      - cate milisecunde pana o poti folosi din nou
+//   incantare  - cat dureaza pregatirea ei (0 = instant)
+//   inmultit   - de cate ori mai mult damage decat o lovitura normala
+//   dmgMin/dmgMax sau vindecaMin/vindecaMax - pentru vraji si vindecari
+
+const CLASE = {
+
+  warrior: {
+    nume: 'Warrior',
+    culoare: '#a04747',
+    modificatori: { str: 3, sta: 2 },
+    resursa: 'furie',
+    apPerStr: 2,
+    apPerAgi: 0,
+    arme: {
+      corpLaCorp: { nume: 'Sword', dmgMin: 3, dmgMax: 6, viteza: 2.0 }
+    },
+    pasiva: {
+      nume: 'Battle Fury',
+      descriere: 'Generates up to 50% more rage while below 30% health'
+    },
+    abilitati: [
+      {
+        id: 'heavyStrike',
+        nume: 'Heavy Strike',
+        descriere: 'Costs 25 rage. Lands a hit for double damage',
+        costRage: 25, costMana: 0, pauza: 0, incantare: 0,
+        fel: 'lovitura', inmultit: 2
+      }
+    ]
+  },
+
+  hunter: {
+    nume: 'Hunter',
+    culoare: '#4e8f6a',
+    modificatori: { agi: 3, sta: 1, spi: 1 },
+    resursa: 'mana',
+    apPerStr: 1,
+    apPerAgi: 2,
+    // Hunter lupta DOAR cu arcul. Pumnalul a fost scos: nu-l mai
+    // foloseste nicaieri, deci n-are ce cauta scris in meniu.
+    arme: {
+      distanta: { nume: 'Bow', dmgMin: 3, dmgMax: 5, viteza: 2.4 }
+    },
+    pasiva: {
+      nume: 'Hunter\'s Eye',
+      descriere: 'For the first 3 seconds of combat, ranged damage is increased by 25%'
+    },
+    abilitati: [
+      {
+        id: 'aimedShot',
+        nume: 'Aimed Shot',
+        descriere: 'Costs 25 mana, 6 second cooldown. A charged arrow for double damage',
+        costRage: 0, costMana: 25, pauza: 6000, incantare: 0,
+        fel: 'sageata', inmultit: 2
+      }
+    ]
+  },
+
+  mage: {
+    nume: 'Mage',
+    culoare: '#4a6fd6',
+    modificatori: { int: 3, spi: 2 },
+    resursa: 'mana',
+    apPerStr: 1,
+    apPerAgi: 0,
+    arme: {
+      corpLaCorp: { nume: 'Staff', dmgMin: 2, dmgMax: 4, viteza: 2.6 }
+    },
+    pasiva: {
+      nume: 'Arcane Barrier',
+      descriere: 'At the start of every fight gains a shield that absorbs 15 damage; it refreshes out of combat'
+    },
+    abilitati: [
+      {
+        id: 'arcaneBolt',
+        nume: 'Arcane Bolt',
+        descriere: 'Costs 20 mana, 3 second cooldown, 1.5 second cast. Deals 8-12 damage',
+        costRage: 0, costMana: 20, pauza: 3000, incantare: 1500,
+        fel: 'vraja', dmgMin: 8, dmgMax: 12, raza: 200, culoare: 0x2f6fd0
+      }
+    ]
+  },
+
+  priest: {
+    nume: 'Priest',
+    culoare: '#e2e6f0',
+    modificatori: { int: 2, spi: 3 },
+    resursa: 'mana',
+    apPerStr: 1,
+    apPerAgi: 0,
+    arme: {
+      corpLaCorp: { nume: 'Staff', dmgMin: 2, dmgMax: 4, viteza: 2.4 }
+    },
+    pasiva: {
+      nume: 'Inner Will',
+      descriere: 'Regenerates 2 mana per second even in combat'
+    },
+    abilitati: [
+      {
+        id: 'holySpark',
+        nume: 'Holy Spark',
+        descriere: 'Costs 18 mana, 2.5 second cooldown. Deals 6-10 damage',
+        costRage: 0, costMana: 18, pauza: 2500, incantare: 0,
+        fel: 'vraja', dmgMin: 6, dmgMax: 10, raza: 200, culoare: 0xe8c15a
+      },
+      {
+        id: 'mendWounds',
+        nume: 'Mend Wounds',
+        descriere: 'Costs 25 mana, 6 second cooldown. Heals 15-20 health',
+        costRage: 0, costMana: 25, pauza: 6000, incantare: 0,
+        fel: 'vindecare', vindecaMin: 15, vindecaMax: 20
+      }
+    ]
+  }
+};
+
+
+// ==========================================================
+//  CONVERSIILE
+//  Formulele exacte cerute in specificatie. Nu le modifica
+//  fara sa reverifici cele 16 rezultate.
+// ==========================================================
+
+// Viata = 20 de baza
+//       + primele 20 de Stamina dau cate 1 viata
+//       + fiecare Stamina peste 20 da 10 viata
+// Verificare: 22 Stamina = 20 + 20 + 20 = 60 viata.
+function calculeazaViata(stamina) {
+  const primele = Math.min(stamina, 20);
+  const peste = Math.max(0, stamina - 20);
+  return 20 + primele + peste * 10;
+}
+
+// Mana = Intellect x 15. Warrior nu are mana, are furie.
+function calculeazaMana(intellect, resursa) {
+  if (resursa !== 'mana') return null;
+  return intellect * 15;
+}
+
+// Attack Power corp la corp = Strength x cat da clasa per Strength.
+function calculeazaAttackPower(atribute, clasa) {
+  return atribute.str * clasa.apPerStr;
+}
+
+// Attack Power la distanta = cel corp la corp + Agility x apPerAgi.
+// Are sens doar pentru clasele care trag (Hunter). Pentru restul: null.
+function calculeazaAttackPowerDistanta(atribute, clasa) {
+  if (clasa.apPerAgi === 0) return null;
+  return atribute.str * clasa.apPerStr + atribute.agi * clasa.apPerAgi;
+}
+
+// Armura = Agility x 2.
+function calculeazaArmura(agilitate) {
+  return agilitate * 2;
+}
+
+// Sansa de critical = 5% + (Agility / 20)%. Critical = damage dublu.
+function calculeazaCritical(agilitate) {
+  return 5 + agilitate / 20;
+}
+
+
+// ==========================================================
+//  INFATISAREA ALEASA
+//
+//  O infatisare e o cutie cu cinci numere: al catelea lucru
+//  ai ales din fiecare lista. { piele: 0, fata: 2, ... }
+//  Numerele astea se pastreaza si in joc.
+// ==========================================================
+
+// Toate listele din care poti alege, pentru o rasa anume.
+function optiuniInfatisare(idRasa) {
+  const rasa = RASE[idRasa];
+  return {
+    piele:      rasa.optiuni.piele,
+    fata:       STILURI_FATA,
+    parStil:    STILURI_PAR,
+    parCuloare: rasa.optiuni.par,
+    barba:      STILURI_BARBA
+  };
+}
+
+// Infatisarea de pornire: primul lucru din fiecare lista.
+function infatisareImplicita() {
+  return { piele: 0, fata: 0, parStil: 0, parCuloare: 0, barba: 0 };
+}
+
+// O infatisare la intamplare.
+function infatisareLaIntamplare(idRasa) {
+  const op = optiuniInfatisare(idRasa);
+  const iaUna = lista => Math.floor(Math.random() * lista.length);
+  return {
+    piele:      iaUna(op.piele),
+    fata:       iaUna(op.fata),
+    parStil:    iaUna(op.parStil),
+    parCuloare: iaUna(op.parCuloare),
+    barba:      iaUna(op.barba)
+  };
+}
+
+// Daca o alegere iese din lista (de ex. ai schimbat rasa),
+// o aducem inapoi inauntru, ca sa nu ramana nimic gol.
+function potrivesteInfatisarea(idRasa, inf) {
+  const op = optiuniInfatisare(idRasa);
+  const bun = {};
+  Object.keys(op).forEach(function (cheie) {
+    const i = inf && typeof inf[cheie] === 'number' ? inf[cheie] : 0;
+    bun[cheie] = Math.min(Math.max(0, i), op[cheie].length - 1);
+  });
+  return bun;
+}
+
+
+// ==========================================================
+//  FUNCTIA PRINCIPALA
+//  Ii dai numele scurt al rasei si al clasei ('human', 'warrior')
+//  si iti da inapoi personajul complet, cu tot ce s-a calculat.
+// ==========================================================
+function calculeazaPersonaj(idRasa, idClasa, infatisare) {
+
+  const rasa = RASE[idRasa];
+  const clasa = CLASE[idClasa];
+
+  if (!rasa)  throw new Error('Nu exista rasa: ' + idRasa);
+  if (!clasa) throw new Error('Nu exista clasa: ' + idClasa);
+
+  // --- Stratul 1: statisticile de baza ale rasei ---
+  const atribute = {
+    str: rasa.baza.str,
+    agi: rasa.baza.agi,
+    sta: rasa.baza.sta,
+    int: rasa.baza.int,
+    spi: rasa.baza.spi
+  };
+
+  // --- Stratul 2: se adauga modificatorii clasei ---
+  for (const numeAtribut of Object.keys(clasa.modificatori)) {
+    atribute[numeAtribut] = atribute[numeAtribut] + clasa.modificatori[numeAtribut];
+  }
+
+  // --- Pasiva de rasa care schimba chiar statisticile ---
+  // THE HUMAN SPIRIT: +5% Spirit, rotunjit in jos.
+  // Se aplica AICI, ca sa intre si in mana si in regenerare.
+  if (idRasa === 'human') {
+    atribute.spi = Math.floor(atribute.spi * 1.05);
+  }
+
+  // --- Infatisarea aleasa in meniu ---
+  const inf = potrivesteInfatisarea(idRasa, infatisare || infatisareImplicita());
+  const op = optiuniInfatisare(idRasa);
+  const aspect = {
+    piele:   op.piele[inf.piele],
+    par:     op.parCuloare[inf.parCuloare],
+    fata:    op.fata[inf.fata].id,
+    parStil: op.parStil[inf.parStil].id,
+    barba:   op.barba[inf.barba].id
+  };
+
+  // --- Peste rezultat se aplica formulele de conversie ---
+  return {
+    idRasa: idRasa,
+    idClasa: idClasa,
+    rasa: rasa.nume,
+    clasa: clasa.nume,
+    factiune: rasa.factiune,
+
+    // Numele scris de jucator se completeaza mai tarziu, din meniu.
+    nume: '',
+
+    // Cum arata personajul: culorile si stilurile alese in meniu.
+    aspect: aspect,
+    infatisare: inf,
+    culoareClasa: clasa.culoare || '#3355cc',
+
+    atribute: atribute,
+
+    viata: calculeazaViata(atribute.sta),
+    viataMaxima: calculeazaViata(atribute.sta),
+
+    resursa: clasa.resursa,
+    mana: calculeazaMana(atribute.int, clasa.resursa),
+    manaMaxima: calculeazaMana(atribute.int, clasa.resursa),
+    furie: clasa.resursa === 'furie' ? 0 : null,
+
+    attackPower: calculeazaAttackPower(atribute, clasa),
+    attackPowerDistanta: calculeazaAttackPowerDistanta(atribute, clasa),
+
+    armura: calculeazaArmura(atribute.agi),
+    critical: calculeazaCritical(atribute.agi),
+
+    arme: clasa.arme,
+
+    // Cele trei pasive: doua de la rasa, una de la clasa.
+    // Deocamdata sunt doar text - nu au inca efect in joc.
+    pasiveRasa: rasa.pasive,
+    pasivaClasa: clasa.pasiva,
+    abilitati: clasa.abilitati
+  };
+}
+
+
+// Lista de nume scurte, ca sa putem parcurge toate combinatiile.
+const ID_RASE = Object.keys(RASE);
+const ID_CLASE = Object.keys(CLASE);
