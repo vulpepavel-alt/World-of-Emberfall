@@ -316,6 +316,9 @@ let manetaJoystick;         // bila din mijlocul joystick-ului
 let degetJoystick = null;   // ce deget tine joystick-ul (pe telefon poti avea mai multe)
 let mersJoystick = { x: 0, y: 0 };
 let npci = [];              // personajele prietenoase, ca sa le punem pe miniharta
+let nivelText;              // scrisul cu nivelul, din rama
+let barXp;                  // bara de experienta
+let textXp;
 let terenMic;               // harta micsorata, din care decupam miniharta
 let minihartaPanza;         // fereastra minihartii
 
@@ -325,6 +328,7 @@ let textViata;
 let barResursa;
 let textResursa;
 const LATIME_BARA = 130;    // lungimea barei cand esti plin
+const LATIME_BARA_XP = 182;  // lungimea barei de experienta cand e plina
 
 // Cand ai lovit ultima oara. Din asta stim daca esti "in lupta".
 let ultimaLupta = -99999;
@@ -919,7 +923,7 @@ function actualizeazaButoane(scena) {
 function faRamaPersonaj(scena) {
 
   const rama = scena.add.container(8, 8);
-  const bucati = faPanou(scena, 0, 0, 204, 82);
+  const bucati = faPanou(scena, 0, 0, 204, 96);
 
   // --- Portretul, intr-o firida de piatra ---
   const firida = scena.add.rectangle(8, 8, 46, 46, UI.piatraMoale).setOrigin(0, 0);
@@ -936,12 +940,12 @@ function faRamaPersonaj(scena) {
     color: UI.textAuriu
   }).setOrigin(0, 0));
 
-  // Nivelul e fix 1 deocamdata - nu avem inca experienta si niveluri.
-  bucati.push(scena.add.text(196, 11, TEXT.LEVEL + ' 1', {
+  nivelText = scena.add.text(196, 11, '', {
     fontFamily: UI.FONT,
     fontSize: '11px',
     color: UI.textStins
-  }).setOrigin(1, 0));
+  }).setOrigin(1, 0);
+  bucati.push(nivelText);
 
   // --- Bara de viata ---
   bucati.push(faSantBara(scena, 62, 28, 134, 16));
@@ -981,6 +985,20 @@ function faRamaPersonaj(scena) {
   }).setOrigin(1, 0);
   bucati.push(textScut);
 
+  // --- Bara de experienta, subtire, jos de tot ---
+  bucati.push(faSantBara(scena, 10, 78, 186, 10));
+  barXp = scena.add.rectangle(12, 80, LATIME_BARA_XP, 6, 0x8a5fbf).setOrigin(0, 0);
+  bucati.push(barXp);
+
+  textXp = scena.add.text(103, 83, '', {
+    fontFamily: UI.FONT,
+    fontSize: '9px',
+    color: UI.text,
+    stroke: '#000000',
+    strokeThickness: 3
+  }).setOrigin(0.5, 0.5);
+  bucati.push(textXp);
+
   // --- Rasa si clasa, scris marunt jos ---
   bucati.push(scena.add.text(10, 64, personaj.rasa + ' ' + personaj.clasa, {
     fontFamily: UI.FONT,
@@ -997,6 +1015,79 @@ function faRamaPersonaj(scena) {
   actualizeazaBaraViata();
   actualizeazaBaraResursa();
   actualizeazaScut();
+  actualizeazaNivelul();
+}
+
+
+// ================================================
+//  EXPERIENTA SI NIVELURILE
+// ================================================
+
+// Scrie nivelul si bara de experienta din rama.
+function actualizeazaNivelul() {
+  if (!nivelText) return;
+
+  nivelText.setText(TEXT.LEVEL + ' ' + personaj.nivel);
+
+  if (personaj.nivel >= NIVEL_MAXIM) {
+    barXp.setDisplaySize(LATIME_BARA_XP, 6);
+    textXp.setText(TEXT.MAX_LEVEL);
+    return;
+  }
+
+  const parte = Math.min(1, personaj.xp / personaj.xpNecesar);
+  barXp.setDisplaySize(LATIME_BARA_XP * parte, 6);
+  textXp.setText(Math.floor(personaj.xp) + ' / ' + personaj.xpNecesar);
+}
+
+
+// Primesti experienta. Daca ajunge, urci in nivel - poate chiar
+// de mai multe ori, daca ai primit dintr-o data foarte multa.
+function primesteXp(scena, cat) {
+
+  if (personaj.nivel >= NIVEL_MAXIM || cat <= 0) return;
+
+  personaj.xp += cat;
+  aratacuvant(scena, jucator.x, jucator.y - 56, '+' + cat + ' XP', '#c9a0e8');
+
+  while (personaj.nivel < NIVEL_MAXIM && personaj.xp >= personaj.xpNecesar) {
+    personaj.xp -= personaj.xpNecesar;
+    urcaInNivel(scena);
+  }
+
+  actualizeazaNivelul();
+}
+
+
+// Un nivel in plus: statisticile se recalculeaza, viata si resursa
+// se umplu la loc, iar de la nivelul 10 primesti si un punct de talent.
+function urcaInNivel(scena) {
+
+  const nivelNou = personaj.nivel + 1;
+  const proaspat = calculeazaPersonaj(personaj.idRasa, personaj.idClasa,
+                                      personaj.infatisare, nivelNou);
+
+  // Pastram ce e al tau: numele, experienta si talentele cheltuite.
+  const numeSalvat = personaj.nume;
+  const xpSalvat = personaj.xp;
+  const talenteSalvate = personaj.talente;
+
+  Object.keys(proaspat).forEach(function (cheie) { personaj[cheie] = proaspat[cheie]; });
+
+  personaj.nume = numeSalvat;
+  personaj.xp = xpSalvat;
+  if (talenteSalvate) personaj.talente = talenteSalvate;
+
+  // La nivel nou esti ca nou.
+  personaj.viata = personaj.viataMaxima;
+  if (personaj.resursa === 'mana') personaj.mana = personaj.manaMaxima;
+  else personaj.furie = 0;
+
+  actualizeazaBaraViata();
+  actualizeazaBaraResursa();
+  aratacuvant(scena, jucator.x, jucator.y - 74, TEXT.LEVEL_UP, '#ffd76b');
+
+  scena.tweens.add({ targets: jucator, scale: 1.25, duration: 180, yoyo: true });
 }
 
 
@@ -1921,6 +2012,9 @@ function loveste(scena, mob, damageBrut, critic) {
   if (mob.viata <= 0) {
     mob.viu = false;
 
+    // Experienta pentru inamicul ucis.
+    primesteXp(scena, xpDeLaMob(mob.fel.stats.nivel, personaj.nivel));
+
     // CANNIBALIZE (Undead): dupa ce omori ceva, te refaci 10 secunde.
     if (personaj.idRasa === 'undead') {
       canibalizarePanaLa = scena.time.now + CANIBALIZARE_SECUNDE * 1000;
@@ -2194,6 +2288,7 @@ function reinvie(scena) {
   actualizeazaBaraViata();
   actualizeazaBaraResursa();
   actualizeazaScut();
+  actualizeazaNivelul();
 }
 
 

@@ -9,7 +9,9 @@
 // ==========================================================
 
 const TEXT = {
-  LEVEL:  'Level',
+  LEVEL:     'Level',
+  LEVEL_UP:  'Level up!',
+  MAX_LEVEL: 'Max level',
   ATTACK: 'ATTACK',
 
   // Numele inamicilor

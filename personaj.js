@@ -130,6 +130,9 @@ const CLASE = {
     nume: 'Warrior',
     culoare: '#a04747',
     modificatori: { str: 3, sta: 2 },
+    // Cat creste fiecare statistica LA FIECARE NIVEL.
+    // Numere alese de mine - le poti regla oricand.
+    crestere: { str: 1.2, agi: 0.6, sta: 1.2, int: 0.2, spi: 0.4 },
     resursa: 'furie',
     apPerStr: 2,
     apPerAgi: 0,
@@ -155,6 +158,9 @@ const CLASE = {
     nume: 'Hunter',
     culoare: '#4e8f6a',
     modificatori: { agi: 3, sta: 1, spi: 1 },
+    // Cat creste fiecare statistica LA FIECARE NIVEL.
+    // Numere alese de mine - le poti regla oricand.
+    crestere: { str: 0.5, agi: 1.3, sta: 0.9, int: 0.4, spi: 0.6 },
     resursa: 'mana',
     apPerStr: 1,
     apPerAgi: 2,
@@ -182,6 +188,9 @@ const CLASE = {
     nume: 'Mage',
     culoare: '#4a6fd6',
     modificatori: { int: 3, spi: 2 },
+    // Cat creste fiecare statistica LA FIECARE NIVEL.
+    // Numere alese de mine - le poti regla oricand.
+    crestere: { str: 0.3, agi: 0.5, sta: 0.7, int: 1.4, spi: 0.9 },
     resursa: 'mana',
     apPerStr: 1,
     apPerAgi: 0,
@@ -207,6 +216,9 @@ const CLASE = {
     nume: 'Priest',
     culoare: '#e2e6f0',
     modificatori: { int: 2, spi: 3 },
+    // Cat creste fiecare statistica LA FIECARE NIVEL.
+    // Numere alese de mine - le poti regla oricand.
+    crestere: { str: 0.3, agi: 0.4, sta: 0.7, int: 1.2, spi: 1.2 },
     resursa: 'mana',
     apPerStr: 1,
     apPerAgi: 0,
@@ -235,6 +247,46 @@ const CLASE = {
     ]
   }
 };
+
+
+// ==========================================================
+//  EXPERIENTA SI NIVELURILE
+//
+//  Nivel maxim 60, ca in WoW Classic. Primul punct de talent la
+//  nivelul 10, apoi cate unul la fiecare nivel: 51 de puncte la 60.
+//
+//  Curba de experienta e a noastra, nu a Blizzard - creste lin.
+//  Daca ti se pare prea lenta sau prea rapida, schimba cele doua
+//  numere de mai jos si se schimba tot tabelul.
+// ==========================================================
+
+const NIVEL_MAXIM = 60;
+const NIVEL_PRIMUL_TALENT = 10;
+
+const XP_BAZA = 60;      // cat experienta cere trecerea de la nivelul 1 la 2
+const XP_PUTERE = 1.7;   // cat de repede creste cerinta de la un nivel la altul
+
+// Cata experienta iti trebuie ca sa treci DE LA nivelul asta la urmatorul.
+function xpPentruNivel(nivel) {
+  if (nivel >= NIVEL_MAXIM) return Infinity;   // la 60 nu mai creste
+  return Math.round(XP_BAZA * Math.pow(nivel, XP_PUTERE) / 5) * 5;
+}
+
+// Cate puncte de talent ai in total la un nivel anume.
+function puncteTalentLaNivel(nivel) {
+  if (nivel < NIVEL_PRIMUL_TALENT) return 0;
+  return nivel - NIVEL_PRIMUL_TALENT + 1;
+}
+
+// Cata experienta da un inamic. Unul mult sub nivelul tau nu mai da nimic.
+const XP_MOB_BAZA = 45;
+
+function xpDeLaMob(nivelMob, nivelJucator) {
+  const diferenta = nivelMob - nivelJucator;
+  if (diferenta <= -6) return 0;
+  const spor = Math.max(0.15, 1 + diferenta * 0.12);
+  return Math.max(1, Math.round(XP_MOB_BAZA * nivelMob * spor));
+}
 
 
 // ==========================================================
@@ -338,7 +390,7 @@ function potrivesteInfatisarea(idRasa, inf) {
 //  Ii dai numele scurt al rasei si al clasei ('human', 'warrior')
 //  si iti da inapoi personajul complet, cu tot ce s-a calculat.
 // ==========================================================
-function calculeazaPersonaj(idRasa, idClasa, infatisare) {
+function calculeazaPersonaj(idRasa, idClasa, infatisare, nivel) {
 
   const rasa = RASE[idRasa];
   const clasa = CLASE[idClasa];
@@ -358,6 +410,13 @@ function calculeazaPersonaj(idRasa, idClasa, infatisare) {
   // --- Stratul 2: se adauga modificatorii clasei ---
   for (const numeAtribut of Object.keys(clasa.modificatori)) {
     atribute[numeAtribut] = atribute[numeAtribut] + clasa.modificatori[numeAtribut];
+  }
+
+  // --- Stratul 3: cresterea de la niveluri ---
+  // La nivelul 1 nu se adauga nimic; la nivelul 60 se aduna de 59 de ori.
+  const nivelul = Math.max(1, Math.min(NIVEL_MAXIM, nivel || 1));
+  for (const numeAtribut of Object.keys(clasa.crestere)) {
+    atribute[numeAtribut] += Math.floor(clasa.crestere[numeAtribut] * (nivelul - 1));
   }
 
   // --- Pasiva de rasa care schimba chiar statisticile ---
@@ -382,6 +441,10 @@ function calculeazaPersonaj(idRasa, idClasa, infatisare) {
   return {
     idRasa: idRasa,
     idClasa: idClasa,
+    nivel: nivelul,
+    xp: 0,
+    xpNecesar: xpPentruNivel(nivelul),
+    puncteTalent: puncteTalentLaNivel(nivelul),
     rasa: rasa.nume,
     clasa: clasa.nume,
     factiune: rasa.factiune,
