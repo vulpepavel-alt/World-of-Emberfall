@@ -533,6 +533,14 @@ function create() {
   this.cameras.main.setBounds(0, 0, coloane * TILE, randuri * TILE);
   this.cameras.main.startFollow(jucator, true, 0.12, 0.12);
 
+  // Punem camera pe tine ACUM, nu la primul cadru: altfel primele
+  // bucati de harta s-ar desena in coltul din stanga sus, unde nu esti.
+  this.cameras.main.centerOn(jucator.x, jucator.y);
+
+  // Bucatile din jurul tau se deseneaza inainte de primul cadru, ca
+  // sa nu intri intr-o zona goala. Cele mai departate vin din mers.
+  actualizeazaTerenul(this, true);
+
   // --- Joystick-ul, butoanele si miniharta ---
   faJoystick(this);
   faButoane(this);
@@ -544,56 +552,215 @@ function create() {
 
 
 // ================================================
-//  DESENAREA TERENULUI
+//  DESENAREA TERENULUI, PE BUCATI
+//
+//  Pana acum desenam TOATA harta intr-o singura poza, la intrare.
+//  Mergea pentru o harta mica. La o harta cat Elwynn Forest, poza
+//  ar avea 22.000 x 14.800 de pixeli - peste un gigabait de
+//  memorie. Telefonul s-ar inchide.
+//
+//  Acum harta e taiata in bucati patrate de cate 8 casute.
+//  Desenam doar bucatile din jurul tau, iar pe cele ramase mult
+//  in urma le stergem. Pe ecran arata exact la fel; diferenta e
+//  ca jocul nu mai tine minte decat o mana de bucati o data.
 // ================================================
-function deseneazaTerenul(scena, coloane, randuri) {
+const CHUNK = 8;                    // cate casute are o bucata pe latura
+const CHUNK_PX = CHUNK * TILE;      // 256 de pixeli
+const MARGINE_CHUNK = 1;            // cate bucati tinem gata in jurul ecranului
+const MARGINE_STERGERE = 3;         // dincolo de atatea bucati, stergem
+const MILISECUNDE_PE_CADRU = 4;     // cat lucram la bucati noi intr-un cadru
 
-  const cheie = 'teren-' + zona.nume;
+let bucatiTeren = {};      // 'coloana,rand' -> imaginea acelei bucati
+let coadaBucati = [];      // bucatile care mai trebuie desenate
+let paleteTeren = {};      // nuantele fiecarei litere, socotite o data
+
+
+function cheiaBucatii(bc, br) {
+  return 'teren-' + zona.nume + '-' + bc + '-' + br;
+}
+
+
+// Deseneaza o singura bucata de harta si o pune pe ecran.
+function construiesteBucata(scena, bc, br) {
+
+  const nume = bc + ',' + br;
+  if (bucatiTeren[nume]) return;
+
+  const coloane = zona.harta[0].length;
+  const randuri = zona.harta.length;
+
+  const cheie = cheiaBucatii(bc, br);
   if (scena.textures.exists(cheie)) scena.textures.remove(cheie);
 
-  const inceput = performance.now();
-  const panza = scena.textures.createCanvas(cheie, coloane * TILE, randuri * TILE);
+  const panza = scena.textures.createCanvas(cheie, CHUNK_PX, CHUNK_PX);
   const ctx = panza.getContext();
 
-  // Nuantele fiecarei litere se calculeaza o singura data, nu la
-  // fiecare pixel - altfel ar dura mult prea mult.
-  const palete = {};
-  Object.keys(zona.teren).forEach(function (litera) {
-    palete[litera] = paletaTexturii(zona.teren[litera]);
-  });
+  for (let r = br * CHUNK; r < (br + 1) * CHUNK; r++) {
+    if (r >= randuri) break;
 
-  for (let r = 0; r < randuri; r++) {
-    for (let c = 0; c < coloane; c++) {
+    for (let c = bc * CHUNK; c < (bc + 1) * CHUNK; c++) {
+      if (c >= coloane) break;
 
       const litera = zona.harta[r][c];
       const felul = zona.teren[litera];
       if (!felul) continue;
 
-      const paleta = palete[litera];
+      const paleta = paleteTeren[litera];
       const textura = felul.textura || 'neted';
+
+      // Unde cade casuta INAUNTRUL bucatii.
+      const localX = (c - bc * CHUNK) * TILE;
+      const localY = (r - br * CHUNK) * TILE;
 
       for (let sy = 0; sy < PIXELI_PE_CASUTA; sy++) {
         for (let sx = 0; sx < PIXELI_PE_CASUTA; sx++) {
 
+          // Zgomotul se socoteste dupa locul de pe TOATA harta, nu
+          // dupa cel din bucata. Altfel s-ar vedea cusatura dintre
+          // bucati, fiindca fiecare ar incepe textura de la capat.
           const gx = c * PIXELI_PE_CASUTA + sx;
           const gy = r * PIXELI_PE_CASUTA + sy;
 
           ctx.fillStyle = paleta[nuantaPixelului(textura, sx, sy, gx, gy, zgomot(gx, gy))];
-          ctx.fillRect(c * TILE + sx * PIXEL, r * TILE + sy * PIXEL, PIXEL, PIXEL);
+          ctx.fillRect(localX + sx * PIXEL, localY + sy * PIXEL, PIXEL, PIXEL);
         }
       }
     }
   }
 
   panza.refresh();
-  scena.add.image(0, 0, cheie).setOrigin(0, 0).setDepth(0);
+  bucatiTeren[nume] = scena.add.image(bc * CHUNK_PX, br * CHUNK_PX, cheie)
+    .setOrigin(0, 0).setDepth(0);
+}
 
-  // Aceeasi harta, micsorata. Nu se vede pe ecran - din ea decupam
-  // in fiecare clipa bucata care intra in miniharta.
+
+// Sterge o bucata si elibereaza memoria ei.
+function stergeBucata(scena, nume) {
+  const imagine = bucatiTeren[nume];
+  if (!imagine) return;
+  const cheie = imagine.texture.key;
+  imagine.destroy();
+  delete bucatiTeren[nume];
+  if (scena.textures.exists(cheie)) scena.textures.remove(cheie);
+}
+
+
+// Ce bucati se vad acum, cu totul cu marginea de siguranta.
+function bucatileDinJur(scena, margine) {
+  const cam = scena.cameras.main;
+  return {
+    c1: Math.floor(cam.scrollX / CHUNK_PX) - margine,
+    c2: Math.floor((cam.scrollX + cam.width) / CHUNK_PX) + margine,
+    r1: Math.floor(cam.scrollY / CHUNK_PX) - margine,
+    r2: Math.floor((cam.scrollY + cam.height) / CHUNK_PX) + margine
+  };
+}
+
+
+// Se cheama in fiecare cadru: cere bucatile noi si le sterge pe
+// cele ramase departe in urma.
+// totOdata = true doar la intrarea in zona: atunci le desenam pe
+// toate dintr-un foc, ca sa nu apuci sa vezi harta pe jumatate goala.
+function actualizeazaTerenul(scena, totOdata) {
+
+  if (!zona) return;
+
+  const ultimaColoana = Math.ceil(zona.harta[0].length / CHUNK) - 1;
+  const ultimulRand   = Math.ceil(zona.harta.length / CHUNK) - 1;
+
+  // --- ce ne trebuie ---
+  const nevoie = bucatileDinJur(scena, MARGINE_CHUNK);
+  coadaBucati = [];
+
+  for (let br = Math.max(0, nevoie.r1); br <= Math.min(ultimulRand, nevoie.r2); br++) {
+    for (let bc = Math.max(0, nevoie.c1); bc <= Math.min(ultimaColoana, nevoie.c2); bc++) {
+      if (!bucatiTeren[bc + ',' + br]) coadaBucati.push([bc, br]);
+    }
+  }
+
+  // --- desenam cat apucam intr-un cadru ---
+  const inceput = performance.now();
+  while (coadaBucati.length > 0 &&
+         (totOdata || performance.now() - inceput < MILISECUNDE_PE_CADRU)) {
+    const b = coadaBucati.shift();
+    construiesteBucata(scena, b[0], b[1]);
+  }
+
+  // --- ce e departe, aruncam ---
+  const pastram = bucatileDinJur(scena, MARGINE_STERGERE);
+  Object.keys(bucatiTeren).forEach(function (nume) {
+    const parti = nume.split(',');
+    const bc = Number(parti[0]);
+    const br = Number(parti[1]);
+    if (bc < pastram.c1 || bc > pastram.c2 || br < pastram.r1 || br > pastram.r2) {
+      stergeBucata(scena, nume);
+    }
+  });
+}
+
+
+// ================================================
+//  HARTA MICA, PENTRU MINIHARTA
+//
+//  O poza in care o casuta intreaga e doar 2 pixeli. Pentru o
+//  harta uriasa iese o poza mica si usoara, si o putem tine
+//  toata in memorie ca sa avem mereu miniharta completa.
+// ================================================
+const MINI_PIXEL_PE_CASUTA = 2;
+
+function faHartaMica(scena) {
+
+  const coloane = zona.harta[0].length;
+  const randuri = zona.harta.length;
+
+  const cheie = 'harta-mica-' + zona.nume;
+  if (terenMic) { terenMic.destroy(); terenMic = null; }
+  if (scena.textures.exists(cheie)) scena.textures.remove(cheie);
+
+  const panza = scena.textures.createCanvas(cheie,
+    coloane * MINI_PIXEL_PE_CASUTA, randuri * MINI_PIXEL_PE_CASUTA);
+  const ctx = panza.getContext();
+
+  for (let r = 0; r < randuri; r++) {
+    for (let c = 0; c < coloane; c++) {
+      const felul = zona.teren[zona.harta[r][c]];
+      if (!felul) continue;
+      ctx.fillStyle = catreCss(felul.culoare);
+      ctx.fillRect(c * MINI_PIXEL_PE_CASUTA, r * MINI_PIXEL_PE_CASUTA,
+                   MINI_PIXEL_PE_CASUTA, MINI_PIXEL_PE_CASUTA);
+    }
+  }
+  panza.refresh();
+
+  // O casuta are TILE pixeli in joc si MINI_PIXEL_PE_CASUTA in poza
+  // asta, deci o marim de atatea ori ca socoteala minihartii sa ramana
+  // aceeasi: un pixel de joc inseamna MINI_SCARA pixeli de miniharta.
   terenMic = scena.add.image(0, 0, cheie)
-    .setOrigin(0, 0).setScale(MINI_SCARA).setVisible(false);
+    .setOrigin(0, 0)
+    .setScale(TILE * MINI_SCARA / MINI_PIXEL_PE_CASUTA)
+    .setVisible(false);
+}
 
-  // Cat a durat sa construim harta. Se face o singura data, la intrare.
+
+// Se cheama o data, la intrarea in zona.
+function deseneazaTerenul(scena, coloane, randuri) {
+
+  const inceput = performance.now();
+
+  // Daca venim dintr-o alta zona, aruncam tot ce era desenat.
+  Object.keys(bucatiTeren).forEach(function (nume) { stergeBucata(scena, nume); });
+  bucatiTeren = {};
+  coadaBucati = [];
+
+  // Nuantele fiecarei litere se calculeaza o singura data, nu la
+  // fiecare pixel - altfel ar dura mult prea mult.
+  paleteTeren = {};
+  Object.keys(zona.teren).forEach(function (litera) {
+    paleteTeren[litera] = paletaTexturii(zona.teren[litera]);
+  });
+
+  faHartaMica(scena);
+
   window.__timpTeren = Math.round(performance.now() - inceput);
 }
 
@@ -1637,6 +1804,10 @@ function actualizeazaResursa(scena, delta) {
 //  update - de ~60 de ori pe secunda
 // ================================================
 function update(time, delta) {
+
+  // Harta se deseneaza pe bucati, pe masura ce te apropii de ele.
+  // Se face in orice situatie - si cu meniul deschis, si cat esti mort.
+  actualizeazaTerenul(this);
 
   // Cat timp e meniul deschis, jocul merge mai departe, dar
   // tastele si joystick-ul nu te mai misca.
