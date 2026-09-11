@@ -52,9 +52,13 @@ const PIXELI_PE_CASUTA = TILE / PIXEL;   // 8
 // Zgomot statornic: acelasi loc da mereu acelasi numar intre 0 si 1.
 // Asa textura nu "fierbe" cand misti camera.
 function zgomot(x, y) {
-  let n = (x * 374761393 + y * 668265263) | 0;
-  n = (n ^ (n >> 13)) * 1274126177;
-  return ((n ^ (n >> 16)) >>> 0) / 4294967295;
+  // Math.imul inmulteste numere intregi FARA sa piarda cifre.
+  // Cu inmultirea obisnuita, numarul iesea prea mare, se rotunjea,
+  // si zgomotul nu trecea niciodata de 0,5 - adica jumatate din
+  // nuantele fiecarei texturi nu se foloseau niciodata.
+  let n = (Math.imul(x, 374761393) + Math.imul(y, 668265263)) | 0;
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967295;
 }
 
 // Face o culoare mai deschisa (cat pozitiv) sau mai inchisa (negativ).
@@ -457,7 +461,10 @@ function create() {
 
   // --- Inamicii, exact unde ii scrie zona ---
   mobi = [];
-  zona.mobi.forEach(loc => creeazaMob(this, loc));
+  // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
+  // de harta. Aici doar stergem semnele ramase de la o intrare veche.
+  zona.mobi.forEach(function (loc) { loc.aparut = false; loc.mortPanaLa = 0; });
+  actualizeazaMobii(this);
 
   // --- Personajele prietenoase din zona ---
   npci = [];
@@ -965,6 +972,53 @@ function clipesteButonul(scena, b) {
     scale: 0.88,
     duration: 70,
     yoyo: true
+  });
+}
+
+
+// ================================================
+//  INAMICII APAR DOAR IN JURUL TAU
+//
+//  O zona mare are cateva sute de inamici. Daca i-am face pe toti
+//  la intrare, telefonul ar desena cateva mii de bucatele in
+//  fiecare clipa, degeaba: nu vezi decat ce e pe ecran.
+//
+//  Asa ca fiecare inamic din fisierul zonei e doar o insemnare:
+//  "aici sta un lup de nivel 3". Se face cu adevarat abia cand
+//  te apropii, si se sterge cand te departezi. Unul care se bate
+//  cu tine nu se sterge niciodata.
+// ================================================
+const RAZA_APARITIE = 700;     // de la ce distanta se face un inamic
+const RAZA_DISPARITIE = 1100;  // de la ce distanta il stergem la loc
+
+function actualizeazaMobii(scena) {
+
+  if (!zona || !jucator) return;
+
+  // --- ce trebuie sa apara ---
+  zona.mobi.forEach(function (loc) {
+
+    if (loc.aparut) return;
+    if (loc.mortPanaLa && scena.time.now < loc.mortPanaLa) return;
+
+    const x = loc.col * TILE + TILE / 2;
+    const y = loc.rand * TILE + TILE / 2;
+    if (Phaser.Math.Distance.Between(x, y, jucator.x, jucator.y) > RAZA_APARITIE) return;
+
+    creeazaMob(scena, loc);
+  });
+
+  // --- ce a ramas mult in urma ---
+  mobi = mobi.filter(function (mob) {
+
+    if (!mob.viu || mob.furios) return true;
+    if (Phaser.Math.Distance.Between(mob.casaX, mob.casaY, jucator.x, jucator.y) <= RAZA_DISPARITIE) {
+      return true;
+    }
+
+    if (mob.locul) mob.locul.aparut = false;
+    mob.destroy();
+    return false;
   });
 }
 
@@ -1805,9 +1859,11 @@ function actualizeazaResursa(scena, delta) {
 // ================================================
 function update(time, delta) {
 
-  // Harta se deseneaza pe bucati, pe masura ce te apropii de ele.
-  // Se face in orice situatie - si cu meniul deschis, si cat esti mort.
+  // Harta se deseneaza pe bucati, pe masura ce te apropii de ele,
+  // iar inamicii apar si dispar la fel. Se face in orice situatie -
+  // si cu meniul deschis, si cat esti mort.
   actualizeazaTerenul(this);
+  actualizeazaMobii(this);
 
   // Cat timp e meniul deschis, jocul merge mai departe, dar
   // tastele si joystick-ul nu te mai misca.
@@ -2162,6 +2218,10 @@ function creeazaMob(scena, loc) {
     return;
   }
 
+  // Nivelul e scris la fiecare inamic in fisierul zonei. Daca nu
+  // scrie nimic, e nivel 1 - ca sa mearga si zonele vechi.
+  const stats = statsPentruNivel(loc.nivel || 1);
+
   const x = loc.col * TILE + TILE / 2;
   const y = loc.rand * TILE + TILE / 2;
 
@@ -2172,7 +2232,7 @@ function creeazaMob(scena, loc) {
   deseneazaForme(scena, fel.forme).forEach(function (bucata) { mob.add(bucata); });
 
   // Numele si nivelul, deasupra capului.
-  mob.add(scena.add.text(0, -40, fel.nume + ' (' + TEXT.LEVEL + ' ' + fel.stats.nivel + ')', {
+  mob.add(scena.add.text(0, -40, fel.nume + ' (' + TEXT.LEVEL + ' ' + stats.nivel + ')', {
     fontFamily: UI.FONT,
     fontSize: '10px',
     color: UI.text,
@@ -2189,11 +2249,13 @@ function creeazaMob(scena, loc) {
 
   // Ce tine minte fiecare inamic.
   mob.fel = fel;
-  mob.viataMaxima = fel.stats.viata;
-  mob.viata = fel.stats.viata;
+  mob.stats = stats;
+  mob.viataMaxima = stats.viata;
+  mob.viata = stats.viata;
   mob.viu = true;
   mob.bara = bara;
   mob.locul = loc;          // de unde a pornit, ca sa reapara tot acolo
+  loc.aparut = true;
   mob.casaX = x;
   mob.casaY = y;
   mob.dx = 0;
@@ -2265,7 +2327,7 @@ function actualizeazaBaraMob(mob) {
 function loveste(scena, mob, damageBrut, critic) {
 
   // Armura lui ii taie o parte din damage.
-  const damage = Math.max(1, Math.round(dupaArmura(damageBrut, mob.fel.stats.armura)));
+  const damage = Math.max(1, Math.round(dupaArmura(damageBrut, mob.stats.armura)));
 
   mob.viata -= damage;
   actualizeazaBaraMob(mob);
@@ -2286,10 +2348,10 @@ function loveste(scena, mob, damageBrut, critic) {
     mob.viu = false;
 
     // Experienta pentru inamicul ucis.
-    primesteXp(scena, xpDeLaMob(mob.fel.stats.nivel, personaj.nivel));
+    primesteXp(scena, xpDeLaMob(mob.stats.nivel, personaj.nivel));
 
     // ...si, uneori, un obiect.
-    const lasat = obiectDeLaMob(mob.fel.stats.nivel);
+    const lasat = obiectDeLaMob(mob.stats.nivel);
     if (lasat) {
       personaj.inventar = personaj.inventar || [];
       personaj.inventar.push(lasat);
@@ -2317,8 +2379,10 @@ function loveste(scena, mob, damageBrut, critic) {
       }
     });
 
-    // Peste cateva secunde reapare, in acelasi loc.
-    scena.time.delayedCall(TIMP_REAPARITIE, function () { creeazaMob(scena, locul); });
+    // Locul lui se elibereaza. Reapare singur, dupa ce trece timpul
+    // si daca esti destul de aproape ca sa merite desenat.
+    locul.aparut = false;
+    locul.mortPanaLa = scena.time.now + TIMP_REAPARITIE;
   }
 }
 
@@ -2385,7 +2449,7 @@ function miscaMobii(scena, delta) {
         mob.dx = 0;
         mob.dy = 0;
         if (scena.time.now >= mob.urmatoareaLovitura) {
-          mob.urmatoareaLovitura = scena.time.now + mob.fel.stats.viteza * 1000;
+          mob.urmatoareaLovitura = scena.time.now + mob.stats.viteza * 1000;
           mobTeLoveste(scena, mob);
         }
       } else {
@@ -2450,7 +2514,7 @@ function mobTeLoveste(scena, mob) {
     return;
   }
 
-  const s = mob.fel.stats;
+  const s = mob.stats;
   let brut = Phaser.Math.Between(s.dmgMin, s.dmgMax);
 
   // Si inamicii dau critical, ca sa aiba ce reduce Hardiness.

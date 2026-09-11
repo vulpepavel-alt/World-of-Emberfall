@@ -17,10 +17,12 @@
 // ==========================================================
 
 
-// Statisticile de nivel 1, in stilul World of Warcraft.
-// ATENTIE: numerele astea sunt scrise din memorie, nu verificate
-// in joc. Sunt aceleasi pentru toate felurile, cum ai cerut la
-// inceput - le echilibram mai tarziu, fel cu fel.
+// Statisticile inamicilor, dupa nivel.
+//
+// ATENTIE: numerele astea sunt scrise din memorie, nu copiate din
+// joc. Un inamic de nivel 1 are 42 de viata si loveste cu 1-3,
+// iar unul de nivel 10 ajunge pe la 217 viata si 8-13 damage.
+// Le putem regla oricand, dintr-un singur loc.
 const STATS_NIVEL_1 = {
   nivel: 1,
   viata: 42,
@@ -29,6 +31,23 @@ const STATS_NIVEL_1 = {
   viteza: 2.0,   // secunde intre doua lovituri
   armura: 20
 };
+
+// Acelasi fel de inamic, dar de alt nivel. Fiecare nivel il face
+// cam cu o cincime mai rezistent si putin mai dureros.
+function statsPentruNivel(nivel) {
+
+  const n = Math.max(1, Math.round(nivel || 1));
+  if (n === 1) return STATS_NIVEL_1;
+
+  return {
+    nivel:  n,
+    viata:  Math.round(STATS_NIVEL_1.viata * Math.pow(1.20, n - 1)),
+    dmgMin: Math.round(STATS_NIVEL_1.dmgMin + (n - 1) * 0.8),
+    dmgMax: Math.round(STATS_NIVEL_1.dmgMax + (n - 1) * 1.1),
+    viteza: STATS_NIVEL_1.viteza,
+    armura: STATS_NIVEL_1.armura + (n - 1) * 5
+  };
+}
 
 
 const MOBI = {
@@ -78,6 +97,39 @@ const MOBI = {
     ]
   },
 
+  // Sobolanul de camp: cel mai slab lucru din zona, chiar langa sat.
+  rat: {
+    nume: TEXT.RAT,
+    stats: STATS_NIVEL_1,
+    forme: [
+      { fel: 'dr',   x:  11, y:  4, w:  9, h:  2, culoare: 0xa08a72 },  // coada
+      { fel: 'dr',   x:   0, y:  4, w: 16, h:  9, culoare: 0x6e5f4e },  // trup
+      { fel: 'dr',   x:  -7, y: -3, w:  3, h:  4, culoare: 0x7d6d59 },  // urechi
+      { fel: 'dr',   x:  -2, y: -3, w:  3, h:  4, culoare: 0x7d6d59 },
+      { fel: 'dr',   x:  -7, y:  2, w:  9, h:  7, culoare: 0x7d6d59 },  // cap
+      { fel: 'dr',   x: -13, y:  4, w:  5, h:  4, culoare: 0x8d7c66 },  // bot
+      { fel: 'dr',   x:  -8, y:  0, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+    ]
+  },
+
+  // Paianjenul de padure: picioare lungi, trup rotund.
+  spider: {
+    nume: TEXT.SPIDER,
+    stats: STATS_NIVEL_1,
+    forme: [
+      { fel: 'dr',   x:  -9, y: -6, w: 12, h:  2, culoare: 0x2b2028 },  // picioarele
+      { fel: 'dr',   x:   9, y: -6, w: 12, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x: -11, y:  2, w: 14, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x:  11, y:  2, w: 14, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x:  -9, y: 10, w: 12, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x:   9, y: 10, w: 12, h:  2, culoare: 0x2b2028 },
+      { fel: 'cerc', x:   6, y:  3, r: 10,        culoare: 0x4a3550 },  // abdomen
+      { fel: 'cerc', x:  -7, y:  1, r:  7,        culoare: 0x5b4362 },  // cap
+      { fel: 'dr',   x: -10, y: -2, w:  2, h:  2, culoare: 0xd8d0a0 },  // ochii
+      { fel: 'dr',   x:  -6, y: -2, w:  2, h:  2, culoare: 0xd8d0a0 }
+    ]
+  },
+
   // ---------- REDWASTE ----------
 
   scorpid: {
@@ -108,6 +160,37 @@ const MOBI = {
       { fel: 'dr',   x: -21, y:  1, w:  5, h:  3, culoare: 0xece5d2 },  // colti
       { fel: 'dr',   x: -21, y: 11, w:  5, h:  3, culoare: 0xece5d2 },
       { fel: 'dr',   x: -13, y:  0, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+    ]
+  },
+
+  // Vulturul de praf: aripi late, gat golas.
+  vulture: {
+    nume: TEXT.VULTURE,
+    stats: STATS_NIVEL_1,
+    forme: [
+      { fel: 'dr',   x:   0, y:  2, w: 34, h:  5, culoare: 0x3f372e },  // aripile intinse
+      { fel: 'dr',   x: -14, y: -1, w:  9, h:  4, culoare: 0x4b4239 },
+      { fel: 'dr',   x:  14, y: -1, w:  9, h:  4, culoare: 0x4b4239 },
+      { fel: 'dr',   x:   0, y:  7, w: 14, h: 12, culoare: 0x554a3d },  // trup
+      { fel: 'dr',   x:  -1, y: -3, w:  4, h:  7, culoare: 0xa38f6a },  // gat
+      { fel: 'cerc', x:  -1, y: -8, r:  5,        culoare: 0xb09a72 },  // cap
+      { fel: 'dr',   x:  -7, y: -7, w:  5, h:  3, culoare: 0xe0b055 },  // cioc
+      { fel: 'dr',   x:  -2, y: -9, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+    ]
+  },
+
+  // Sarpele de nisip: incolacit, cu capul ridicat.
+  serpent: {
+    nume: TEXT.SERPENT,
+    stats: STATS_NIVEL_1,
+    forme: [
+      { fel: 'dr',   x:   8, y: 12, w: 20, h:  5, culoare: 0x6b7a3a },  // coada incolacita
+      { fel: 'dr',   x:  -4, y:  8, w: 22, h:  6, culoare: 0x7a8b43 },
+      { fel: 'dr',   x:   2, y:  1, w: 18, h:  6, culoare: 0x7a8b43 },
+      { fel: 'dr',   x:  -4, y: -5, w:  6, h: 13, culoare: 0x87994b },  // gatul ridicat
+      { fel: 'cerc', x:  -4, y:-11, r:  6,        culoare: 0x95a855 },  // cap
+      { fel: 'dr',   x: -11, y: -9, w:  5, h:  2, culoare: 0xd85a4a },  // limba
+      { fel: 'dr',   x:  -6, y:-12, w:  2, h:  2, culoare: 0xe8c84a }   // ochi
     ]
   },
 

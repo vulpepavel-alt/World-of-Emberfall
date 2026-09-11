@@ -22,6 +22,10 @@ const TEXT = {
   SCORPID:  'Scorpid',
   BOAR:     'Boar',
   RAIDER:   'Raider',
+  RAT:      'Field Rat',
+  SPIDER:   'Forest Spider',
+  VULTURE:  'Dust Vulture',
+  SERPENT:  'Sand Serpent',
 
   // Moartea si reinvierea
   YOU_DIED:   'You have died',
