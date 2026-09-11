@@ -561,6 +561,7 @@ function curataZonaVeche(scena) {
   pescuitul = null;
   capcane = [];
   scutAbilitate = 0;
+  animalul = null;
 
   Object.keys(bucatiTeren).forEach(function (nume) {
     const imagine = bucatiTeren[nume];
@@ -1269,6 +1270,256 @@ function actualizeazaCapcanele(scena) {
 
 
 // ==========================================================
+//  ANIMALUL DE COMPANIE (Hunter)
+//
+//  Il imblanzesti dintr-o fiara de pe harta, il chemi, te urmeaza,
+//  loveste ce lovesti si tu, si poate fi lovit el in locul tau cand
+//  e mai aproape de inamic decat esti tu.
+//
+//  Daca moare, ramane mort pana il invii. Daca ii scade fericirea,
+//  loveste mai slab - de aceea il hranesti.
+//
+//  Ce stie personajul se tine in personaj.animal, deci se salveaza
+//  odata cu restul.
+// ==========================================================
+
+const RAZA_ANIMAL = 70;            // cat de aproape te urmeaza
+const RAZA_ATAC_ANIMAL = 34;
+const VITEZA_ANIMAL = 150;         // ceva mai iute decat tine, ca sa tina pasul
+const FERICIRE_PE_MINUT = 4;       // cat scade fericirea, pe minut
+const FERICIRE_LA_MANCARE = 35;
+
+let animalul = null;               // desenul lui, cand e chemat
+let scadereFericirii = 0;
+
+
+// Cat de tare loveste, dupa cat de multumit e.
+function sporulFericirii(a) {
+  if (a.fericire >= 70) return 1.15;
+  if (a.fericire >= 35) return 1;
+  return 0.75;
+}
+
+
+function statsleAnimalului(fel, nivel) {
+  const s = statsPentruNivel(nivel, 'normal');
+  // ATENTIE: campurile se cheama dmgMin si dmgMax, nu damageMin.
+  // Cu numele gresite, damage-ul animalului iesea NaN si inamicul
+  // ramanea cu viata "NaN" - adica invincibil.
+  return {
+    viataMaxima: Math.round(s.viata * 1.3),
+    dmgMin: Math.round(s.dmgMin * 0.8),
+    dmgMax: Math.round(s.dmgMax * 0.8),
+    viteza: 2.0
+  };
+}
+
+
+// ---- imblanzirea ----
+function imblanzeste(scena, mob) {
+
+  if (personaj.idClasa !== 'hunter') return;
+  if (!mob || !mob.viu || mob.fel.neam !== 'fiara') {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.NOT_A_BEAST, '#e06a5a');
+    return;
+  }
+  if (mob.stats.nivel > personaj.nivel) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.BEAST_TOO_STRONG, '#e06a5a');
+    return;
+  }
+
+  const st = statsleAnimalului(mob.felul, mob.stats.nivel);
+  personaj.animal = {
+    fel: mob.felul,
+    nume: mob.fel.nume,
+    nivel: mob.stats.nivel,
+    viata: st.viataMaxima,
+    viataMaxima: st.viataMaxima,
+    fericire: 100,
+    chemat: true
+  };
+
+  // Fiara imblanzita dispare de pe harta: e a ta acum.
+  mob.viu = false;
+  const ea = mob;
+  scena.tweens.add({
+    targets: ea, scale: 0, alpha: 0, duration: 300,
+    onComplete: function () {
+      mobi = mobi.filter(function (m) { return m !== ea; });
+      ea.destroy();
+    }
+  });
+
+  cheamaAnimalul(scena);
+  aratacuvant(scena, jucator.x, jucator.y - 60,
+              TEXT.TAMED.replace('{p}', personaj.animal.nume), UI.textAuriu);
+  salveaza();
+}
+
+
+// ---- chematul si trimisul ----
+function cheamaAnimalul(scena) {
+
+  const a = personaj.animal;
+  if (!a) return;
+  if (animalul) stergeAnimalul();
+
+  const fel = MOBI[a.fel];
+  if (!fel) return;
+
+  const p = scena.add.container(jucator.x - 40, jucator.y + 10);
+  p.add(faUmbra(scena, 22));
+  deseneazaForme(scena, fel.forme).forEach(function (b) { p.add(b); });
+
+  p.add(scena.add.text(0, -34, a.nume, {
+    fontFamily: UI.FONT, fontSize: '10px', color: '#8fd08f',
+    stroke: '#000000', strokeThickness: 3
+  }).setOrigin(0.5));
+
+  // bara lui de viata, mai mica decat a inamicilor
+  const fundal = scena.add.rectangle(0, -26, 30, 4, 0x2a1206);
+  const bara = scena.add.rectangle(-15, -26, 30, 3, 0x5fbf5f).setOrigin(0, 0.5);
+  p.add(fundal); p.add(bara);
+
+  p.setDepth(8);
+  p.bara = bara;
+  p.urmatoareaLovitura = 0;
+  animalul = p;
+
+  a.chemat = true;
+  actualizeazaBaraAnimalului();
+}
+
+
+function trimiteAnimalul() {
+  if (personaj.animal) personaj.animal.chemat = false;
+  stergeAnimalul();
+  salveaza();
+}
+
+
+function stergeAnimalul() {
+  if (animalul) animalul.destroy();
+  animalul = null;
+}
+
+
+function actualizeazaBaraAnimalului() {
+  if (!animalul || !personaj.animal) return;
+  const parte = Math.max(0, personaj.animal.viata) / personaj.animal.viataMaxima;
+  animalul.bara.setDisplaySize(30 * parte, 3);
+  animalul.bara.setFillStyle(parte > 0.3 ? 0x5fbf5f : 0xc2543f);
+}
+
+
+// ---- invierea si hranitul ----
+function inviaAnimalul(scena) {
+  const a = personaj.animal;
+  if (!a || a.viata > 0) return;
+  a.viata = Math.round(a.viataMaxima * 0.5);
+  a.fericire = Math.max(10, a.fericire - 15);
+  cheamaAnimalul(scena);
+  aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.PET_REVIVED, '#8fd08f');
+  salveaza();
+}
+
+
+// Se cheama din rucsac, cand dai mancare animalului.
+function hranesteAnimalul(scena, obiect) {
+  const a = personaj.animal;
+  if (!a) return { gresit: TEXT.NO_PET };
+  a.fericire = Math.min(100, a.fericire + FERICIRE_LA_MANCARE);
+  a.viata = Math.min(a.viataMaxima, a.viata + Math.round(a.viataMaxima * 0.25));
+  actualizeazaBaraAnimalului();
+  aratacuvant(scena, jucator.x, jucator.y - 44, TEXT.PET_FED, '#8fd08f');
+  return { folosit: obiect.nume };
+}
+
+
+// ---- ce face la fiecare cadru ----
+function actualizeazaAnimalul(scena, delta) {
+
+  const a = personaj && personaj.animal;
+  if (!a || !a.chemat || !animalul) return;
+
+  if (a.viata <= 0) { stergeAnimalul(); return; }
+
+  // fericirea scade incet, cat timp e afara
+  scadereFericirii += delta;
+  if (scadereFericirii > 60000) {
+    scadereFericirii = 0;
+    a.fericire = Math.max(0, a.fericire - FERICIRE_PE_MINUT);
+  }
+
+  // pe cine loveste: cel mai apropiat inamic furios
+  const tinta = mobi.find(function (m) {
+    return m.viu && m.furios &&
+      Phaser.Math.Distance.Between(animalul.x, animalul.y, m.x, m.y) < 260;
+  });
+
+  let spreX, spreY;
+  if (tinta) {
+    spreX = tinta.x; spreY = tinta.y;
+  } else {
+    // fara lupta, te urmeaza pe tine
+    spreX = jucator.x - 40; spreY = jucator.y + 10;
+  }
+
+  const cat = Phaser.Math.Distance.Between(animalul.x, animalul.y, spreX, spreY);
+  const opreste = tinta ? RAZA_ATAC_ANIMAL - 6 : 10;
+
+  if (cat > opreste) {
+    const pas = VITEZA_ANIMAL * (delta / 1000);
+    const vx = (spreX - animalul.x) / cat, vy = (spreY - animalul.y) / cat;
+    const nouX = animalul.x + vx * pas, nouY = animalul.y + vy * pas;
+    if (potMerge(nouX, animalul.y)) animalul.x = nouX;
+    if (potMerge(animalul.x, nouY)) animalul.y = nouY;
+    // se prea departeaza de tine? il aducem inapoi
+    if (Phaser.Math.Distance.Between(animalul.x, animalul.y, jucator.x, jucator.y) > 500) {
+      animalul.x = jucator.x - 40; animalul.y = jucator.y + 10;
+    }
+  }
+
+  // loveste
+  if (tinta && cat <= RAZA_ATAC_ANIMAL && scena.time.now >= animalul.urmatoareaLovitura) {
+    const st = statsleAnimalului(a.fel, a.nivel);
+    animalul.urmatoareaLovitura = scena.time.now + st.viteza * 1000;
+    const cat2 = Phaser.Math.Between(st.dmgMin, st.dmgMax) * sporulFericirii(a);
+    loveste(scena, tinta, Math.round(cat2), false);
+  }
+}
+
+
+// Inamicul loveste animalul, cand animalul e mai aproape de el decat tu.
+function animalulTeAcopera(mob) {
+  if (!animalul || !personaj.animal || personaj.animal.viata <= 0) return false;
+  const laAnimal = Phaser.Math.Distance.Between(mob.x, mob.y, animalul.x, animalul.y);
+  const laTine = Phaser.Math.Distance.Between(mob.x, mob.y, jucator.x, jucator.y);
+  return laAnimal < laTine && laAnimal <= RAZA_ATAC_MOB;
+}
+
+
+function mobLovesteAnimalul(scena, mob) {
+
+  const a = personaj.animal;
+  if (!a) return;
+
+  const brut = Phaser.Math.Between(mob.stats.damageMin, mob.stats.damageMax);
+  const damage = Math.max(1, Math.round(brut * 0.8));
+  a.viata = Math.max(0, a.viata - damage);
+  actualizeazaBaraAnimalului();
+  aratacifraRosie(scena, animalul.x, animalul.y - 34, damage);
+
+  if (a.viata <= 0) {
+    aratacuvant(scena, jucator.x, jucator.y - 60,
+                TEXT.PET_DIED.replace('{p}', a.nume), '#e06a5a');
+    stergeAnimalul();
+    salveaza();
+  }
+}
+
+
+// ==========================================================
 //  STALPII DE LA IESIRILE DIN ZONA
 //
 //  Marginea unei zone e zid pe toata lungimea ei, in afara de UN
@@ -1560,11 +1811,18 @@ function create() {
   // --- Stalpii de la portile catre zonele vecine ---
   faSemneleTrecerilor(this);
 
+  // --- Animalul, daca il aveai chemat ---
+  stergeAnimalul();
+  if (personaj.animal && personaj.animal.chemat && personaj.animal.viata > 0) {
+    cheamaAnimalul(this);
+  }
+
   // --- Bara care se umple cand culegi minereu sau plante ---
   nodurileDeFata = [];
   pescuitul = null;
   capcane = [];
   scutAbilitate = 0;
+  animalul = null;
   opresteCulesul();
   faBaraDeCules(this);
 
@@ -3374,6 +3632,10 @@ function folosesteAbilitate(scena, ab) {
   // ATENTIE: saritura la tinta trebuie si ea sa-si caute tinta. Fara
   // randul asta, "Bull Rush" nu gasea pe nimeni si nu sarea nicaieri
   // - cautarea de mai sus e doar pentru lovituri, sageti si vraji.
+  if (ab.fel === 'imblanzire') {
+    tintaAb = celMaiApropiatMob(jucator.x, jucator.y, ab.raza || 220);
+  }
+
   if (ab.fel === 'farmec' || ab.fel === 'frica' || ab.fel === 'slabire' ||
       (ab.fel === 'saritura' && ab.laTinta)) {
     // O saritura ajunge departe: daca n-are raza scrisa, cautam in
@@ -3389,6 +3651,7 @@ function folosesteAbilitate(scena, ab) {
                      ab.fel === 'intarire' || ab.fel === 'val' ||
                      ab.fel === 'scut' || ab.fel === 'capcana' ||
                      ab.fel === 'mortPrefacut' || ab.fel === 'refacere' ||
+                     ab.fel === 'cheama' || ab.fel === 'invie' ||
                      (ab.fel === 'saritura' && !ab.laTinta));
   if (!faraTinta && !tintaAb) return;   // n-ai pe cine
 
@@ -3470,6 +3733,18 @@ function porneisteEfectul(scena, ab, tintaAb) {
     loveste(scena, tintaAb, ab.peTura, false);
 
   } else if (ab.fel === 'alinare') {
+    // "Tend Companion" vindeca animalul; restul te vindeca pe tine.
+    if (ab.peAnimal) {
+      const a = personaj.animal;
+      if (!a || a.viata <= 0) {
+        aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.NO_PET, '#e06a5a');
+        return;
+      }
+      a.viata = Math.min(a.viataMaxima, a.viata + ab.peTura * 5);
+      actualizeazaBaraAnimalului();
+      aratacuvant(scena, jucator.x, jucator.y - 60, ab.nume, '#8fd08f');
+      return;
+    }
     puneAlinare(scena, ab);
     aratacuvant(scena, jucator.x, jucator.y - 60, ab.nume, '#7ad07a');
 
@@ -3512,6 +3787,24 @@ function porneisteEfectul(scena, ab, tintaAb) {
       if (Phaser.Math.Distance.Between(jucator.x, jucator.y, m.x, m.y) > (ab.raza || 150)) return;
       sperieMobul(scena, m, ab.tine);
     });
+
+  } else if (ab.fel === 'imblanzire') {
+    imblanzeste(scena, tintaAb);
+
+  } else if (ab.fel === 'cheama') {
+    // Acelasi buton il cheama si il trimite.
+    if (!personaj.animal) {
+      aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.NO_PET, '#e06a5a');
+    } else if (animalul) {
+      trimiteAnimalul();
+    } else if (personaj.animal.viata > 0) {
+      cheamaAnimalul(scena);
+    } else {
+      aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.PET_IS_DEAD, '#e06a5a');
+    }
+
+  } else if (ab.fel === 'invie') {
+    inviaAnimalul(scena);
 
   } else if (ab.fel === 'slabire') {
     if (!tintaAb) return;
@@ -3788,6 +4081,7 @@ function update(time, delta) {
   actualizeazaCulesul(this);
   actualizeazaPescuitul(this);
   actualizeazaCapcanele(this);
+  actualizeazaAnimalul(this, delta);
   // Ce tine in timp: ranile care dor, alinarile si intaririle.
   actualizeazaRanile(this);
   actualizeazaAlinarile(this);
@@ -4510,6 +4804,13 @@ function miscaMobii(scena, delta) {
         if (scena.time.now >= mob.urmatoareaLovitura) {
           mob.urmatoareaLovitura = scena.time.now + mob.stats.viteza * 1000;
           mobTeLoveste(scena, mob);
+        }
+      } else if (animalulTeAcopera(mob)) {
+        // Animalul e intre tine si el: il loveste pe el.
+        mob.dx = 0; mob.dy = 0;
+        if (scena.time.now >= mob.urmatoareaLovitura) {
+          mob.urmatoareaLovitura = scena.time.now + mob.stats.viteza * 1000;
+          mobLovesteAnimalul(scena, mob);
         }
       } else {
         const vx = jucator.x - mob.x;

@@ -129,6 +129,7 @@ function salveaza() {
     // Ce abilitati ai invatat la antrenor, si cum ti-ai asezat bara.
     stiute: personaj.stiute || {},
     meserii: personaj.meserii || {},
+    animal: personaj.animal || null,
     bara: personaj.bara || null,
 
     // ca obiectele noi sa nu primeasca numere deja folosite
@@ -189,6 +190,7 @@ function faPersonajulDinSalvare(s) {
     ? s.stiute : daTotCeSeCuvine(p);
 
   p.meserii = s.meserii || {};
+  p.animal = s.animal || null;
   p.bara = (s.bara && s.bara.length === LOCURI_IN_BARA) ? s.bara : faBaraGoala();
   Object.keys(p.stiute).forEach(function (id) { asazaPeBaraDacaIncape(p, id); });
 

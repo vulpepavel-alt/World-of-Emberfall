@@ -353,6 +353,31 @@ const ABILITATI = [
 
   // ---- Hunter, restul ----
   {
+    id: 'hunter_mend_01', clasa: 'hunter', nume: 'Tend Companion',
+    descriere: 'Binds your beast\'s wounds. Only works on the beast.',
+    fel: 'alinare', peAnimal: true, nivel: 12, laCateNiveluri: 8, ranguri: 6,
+    crestere: 1.2, costRage: 0, costMana: 30, pauza: 6000, incantare: 0,
+    tine: 0, laCat: 0, peTura: 12
+  },
+  {
+    id: 'hunter_tame_01', clasa: 'hunter', nume: 'Bind Beast',
+    descriere: 'Bind a beast to you. It must be no higher level than you are.',
+    fel: 'imblanzire', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 0, pauza: 20000, incantare: 4000, raza: 220
+  },
+  {
+    id: 'hunter_call_01', clasa: 'hunter', nume: 'Call Companion',
+    descriere: 'Calls your beast to your side, or sends it away again.',
+    fel: 'cheama', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 10, pauza: 4000, incantare: 0
+  },
+  {
+    id: 'hunter_revive_01', clasa: 'hunter', nume: 'Rouse Companion',
+    descriere: 'Brings your beast back on its feet, half mended.',
+    fel: 'invie', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 40, pauza: 30000, incantare: 3000
+  },
+  {
     id: 'hunter_mark_01', clasa: 'hunter', nume: 'Marked Quarry',
     descriere: 'You mark it. Its guard drops for half a minute.',
     fel: 'slabire', nivel: 6, laCateNiveluri: 14, ranguri: 4, crestere: 1.15,

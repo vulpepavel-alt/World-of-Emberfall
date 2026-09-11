@@ -198,6 +198,18 @@ const TEXT = {
   TRAPPED:          'Caught!',
   PLAYING_DEAD:     'Playing dead',
   TOO_HEALTHY:      'Not weak enough yet',
+
+  // Animalul de companie
+  NOT_A_BEAST:      'Only a beast can be bound',
+  BEAST_TOO_STRONG: 'It is stronger than you',
+  TAMED:            '{p} is yours',
+  NO_PET:           'You have no beast',
+  PET_IS_DEAD:      'Your beast is down',
+  PET_DIED:         '{p} has fallen',
+  PET_REVIVED:      'Back on its feet',
+  PET_FED:          'Fed',
+  PET:              'Companion',
+  HAPPINESS:        'Happiness',
   SKIN:             'Skin',
   NO_PROFESSIONS:   'You have no trade yet. Trainers wait in the cities.',
 
