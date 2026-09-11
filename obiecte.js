@@ -91,6 +91,12 @@ const DA_ARMURA = ['cap', 'umeri', 'spate', 'piept', 'incheieturi',
 
 let urmatorulIdObiect = 1;
 
+// Cand incarcam un personaj salvat, numerele obiectelor noi trebuie
+// sa continue de unde a ramas, nu de la 1.
+function pornesteIdurileObiectelor(deLa) {
+  urmatorulIdObiect = Math.max(urmatorulIdObiect, deLa || 1);
+}
+
 // Face un obiect nou pentru slotul dat.
 function faObiect(idSlot, nivel, idRaritate) {
 

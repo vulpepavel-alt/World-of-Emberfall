@@ -777,3 +777,33 @@
 .misiune-carnet .text-misiune { margin-bottom: 5px; }
 
 .misiuni-predate { font-size: 12px; color: #7a6748; line-height: 1.6; }
+
+
+/* ==========================================================
+   "WELCOME BACK" - panoul care apare daca ai un personaj salvat
+   ========================================================== */
+#ecran-reluare {
+  /* Peste ecranul de creare, care sta la 100. Cu mai putin de atat,
+     panoul se desena in spatele lui si nu se vedea deloc. */
+  position: fixed; inset: 0; z-index: 120;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6, 4, 2, .82);
+}
+
+.cutie-reluare {
+  width: 330px; padding: 22px 26px;
+  background: #14100c;
+  border: 3px solid #8a6a2f;
+  box-shadow: 0 0 0 3px #2e2311, 0 10px 34px rgba(0, 0, 0, .8);
+  font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+  color: #e8dcc0; text-align: center;
+}
+.cutie-reluare h2 {
+  margin: 0 0 12px; font-size: 20px; font-weight: normal; color: #d9b555;
+}
+.cutie-reluare p { margin: 0 0 16px; font-size: 14px; line-height: 1.55; }
+.cutie-reluare .stins-reluare { font-size: 12px; color: #8d7a58; }
+.cutie-reluare .buton { display: block; width: 100%; margin-bottom: 8px; }
+.cutie-reluare .nota-reluare {
+  margin: 10px 0 0; font-size: 11px; color: #7a6748; font-style: italic;
+}

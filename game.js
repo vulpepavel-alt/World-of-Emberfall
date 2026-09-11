@@ -384,9 +384,25 @@ const config = {
 // ATENTIE: jocul NU mai porneste singur.
 // Porneste abia cand apesi "Intra in lume" in meniul de creare,
 // care apeleaza functia porneste() de mai jos cu personajul ales.
-function porneste(personajAles) {
+// salvarea (optional) spune in ce zona erai si pe ce loc de pe harta.
+let locDePornire = null;
+
+function porneste(personajAles, salvarea) {
+
   personaj = personajAles;
-  zona = alegeZona(personaj.factiune);
+
+  // Daca vii dintr-o salvare, te intorci in zona in care erai -
+  // nu in cea a factiunii, ca sa nu te mute jocul din greseala.
+  const dupaNume = salvarea && salvarea.zona
+    ? ZONE.find(function (z) { return z.nume === salvarea.zona; })
+    : null;
+
+  zona = dupaNume || alegeZona(personaj.factiune);
+
+  locDePornire = (salvarea && salvarea.x !== null && salvarea.x !== undefined)
+    ? { x: salvarea.x, y: salvarea.y }
+    : null;
+
   new Phaser.Game(config);
 }
 
@@ -521,8 +537,8 @@ function create() {
 
   // --- Personajul tau ---
   jucator = this.add.container(
-    zona.start.col * TILE + TILE / 2,
-    zona.start.rand * TILE + TILE / 2
+    locDePornire ? locDePornire.x : zona.start.col * TILE + TILE / 2,
+    locDePornire ? locDePornire.y : zona.start.rand * TILE + TILE / 2
   );
   // Culorile si infatisarea vin din meniul de creare.
   const umbraJucator = faUmbra(this, 22);
@@ -657,6 +673,20 @@ function create() {
 
   // --- Rama personajului, stanga sus ---
   faRamaPersonaj(this);
+
+  // Statisticile se socotesc din nou acum, la sfarsit.
+  //
+  // Conteaza mai ales cand vii dintr-o salvare: personajul incarcat
+  // are echipamentul pe el, dar cifrele lui erau inca cele de la un
+  // personaj gol. Fara randul asta, intrai cu un coif care iti dadea
+  // +5 Strength si +2 Stamina scrise in meniu, dar cu viata si
+  // attack power ca si cum n-ai fi avut nimic pe tine.
+  aplicaTalentele();
+  personaj.viata = personaj.viataMaxima;
+  if (personaj.resursa === 'mana') personaj.mana = personaj.manaMaxima;
+  actualizeazaBaraViata();
+  actualizeazaBaraResursa();
+  actualizeazaNivelul();
 }
 
 
@@ -1542,6 +1572,9 @@ function aplicaTalentele() {
 
   // Echipamentul nu schimba doar cifrele: se si vede pe personaj.
   reconstruiestePersonaj();
+
+  // S-a schimbat ceva important: salvam pe loc, sa nu se piarda.
+  if (typeof salveaza === 'function') salveaza();
 }
 
 
@@ -1617,6 +1650,8 @@ function urcaInNivel(scena) {
   aratacuvant(scena, jucator.x, jucator.y - 74, TEXT.LEVEL_UP, '#ffd76b');
 
   scena.tweens.add({ targets: jucator, scale: 1.25, duration: 180, yoyo: true });
+
+  if (typeof salveaza === 'function') salveaza();
 }
 
 
@@ -2111,6 +2146,7 @@ function update(time, delta) {
   actualizeazaTerenul(this);
   actualizeazaMobii(this);
   actualizeazaSacii(this);
+  salveazaDinCandInCand();
 
   // Cat timp e meniul deschis, jocul merge mai departe, dar
   // tastele si joystick-ul nu te mai misca.
@@ -2598,6 +2634,7 @@ function actualizeazaSemnul(p) {
 function actualizeazaSemnele() {
   tinteDeMisiune = null;      // se socoteste din nou la prima nevoie
   npci.forEach(actualizeazaSemnul);
+  if (typeof salveaza === 'function') salveaza();
 }
 
 

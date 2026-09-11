@@ -116,6 +116,18 @@
     </div>
   </div>
 
+  <!-- ============ "BINE AI REVENIT" ============ -->
+  <!-- Se vede peste ecranul de creare, doar daca ai un personaj salvat. -->
+  <div id="ecran-reluare" class="ascuns">
+    <div class="cutie-reluare">
+      <h2>Welcome back</h2>
+      <p id="text-reluare"></p>
+      <button class="buton mare" id="continua">Continue</button>
+      <button class="buton" id="personaj-nou">New character</button>
+      <p class="nota-reluare">Starting a new character erases the saved one.</p>
+    </div>
+  </div>
+
   <!-- ============ MENIUL DIN JOC (Character / Spells / Talents) ============ -->
   <!-- Sta ascuns pana apesi butonul MENU din joc. -->
   <div id="ecran-meniu" class="ascuns">
@@ -168,6 +180,9 @@
 
   <!-- Tabelele cu rase si clase + calculul statisticilor -->
   <script src="personaj.js"></script>
+
+  <!-- Salvarea personajului in telefon -->
+  <script src="salvare.js"></script>
 
   <!-- Talentele: arborii si regulile lor -->
   <script src="talente.js"></script>
