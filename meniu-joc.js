@@ -124,10 +124,22 @@ function htmlFisa(obiect) {
   // O vechitura n-are slot, n-are statistici si n-are nivel cerut.
   // Are doar un pret - de-aia o tii.
   if (obiect.vechitura) {
-    return '<div class="fisa-nume" style="color:' + obiect.culoare + '">' + obiect.nume +
-           (obiect.cate > 1 ? ' <span class="stins">x' + obiect.cate + '</span>' : '') + '</div>' +
-           '<div class="fisa-rand stins">Junk</div>' +
-           '<div class="fisa-rand stins">Sell price: ' + baniHtml(pretDeVandut(obiect)) + '</div>';
+    const cap = '<div class="fisa-nume" style="color:' + obiect.culoare + '">' + obiect.nume +
+                (obiect.cate > 1 ? ' <span class="stins">x' + obiect.cate + '</span>' : '') + '</div>';
+    const pret = '<div class="fisa-rand stins">Sell price: ' +
+                 baniHtml(pretDeVandut(obiect)) + '</div>';
+
+    // Ce se bea sau se mananca spune ce face, si ca se foloseste
+    // dintr-o apasare. Un material spune doar ca e material.
+    if (obiect.consumabil) {
+      return cap +
+             '<div class="fisa-rand bun">' + obiect.consumabil.descriere + '</div>' +
+             '<div class="fisa-rand stins">Tap to use</div>' + pret;
+    }
+    if (obiect.material) {
+      return cap + '<div class="fisa-rand stins">Trade material</div>' + pret;
+    }
+    return cap + '<div class="fisa-rand stins">Junk</div>' + pret;
   }
 
   const slot = gasesteSlot(obiect.slot);
@@ -305,6 +317,11 @@ function scriePaginaCharacter() {
 
   legafisele(document.getElementById('pagina-character'));
 
+  // Apesi meseria si se deschide fereastra ei de facut lucruri.
+  document.querySelectorAll('[data-meserie]').forEach(function (b) {
+    b.addEventListener('click', function () { deschideMeseria(b.dataset.meserie); });
+  });
+
   document.querySelectorAll('[data-scoate]').forEach(function (b) {
     b.addEventListener('click', function () {
       ascundeFisa();
@@ -342,9 +359,10 @@ function htmlMeseriile() {
     const plafon = plafonulTau(personaj, id);
     const treapta = TREPTE_MESERIE[treaptaTa(personaj, id) - 1];
 
-    html += '<div class="rand-detaliu"><span><b>' + m.nume + '</b></span>' +
-            '<span>' + skill + ' / ' + plafon +
-            ' <span class="stins">' + (treapta ? treapta.nume : '') + '</span></span></div>';
+    html += '<button class="o-stiuta" data-meserie="' + id + '">' +
+            '<span><b>' + m.nume + '</b> <span class="stins">' +
+            (treapta ? treapta.nume : '') + '</span></span>' +
+            '<span>' + skill + ' / ' + plafon + '</span></button>';
     html += '<div class="bara-skill"><span style="width:' +
             Math.round(skill / plafon * 100) + '%"></span></div>';
   });
@@ -588,7 +606,8 @@ function scriePaginaInventory() {
     // lui nu mai echipeaza nimic - intreaba daca sa-l arunce.
     const semnX = modAruncare ? '<span class="semn-arunca">&times;</span>' : '';
     const ceFace = modAruncare ? ' data-arunca="' + o.id + '"'
-                               : (o.vechitura ? '' : ' data-echipeaza="' + o.id + '"');
+                 : o.consumabil ? ' data-folosesc="' + o.id + '"'
+                 : (o.vechitura ? '' : ' data-echipeaza="' + o.id + '"');
 
     if (o.vechitura) {
       html += '<button class="loc-rucsac vechitura"' + ceFace +
@@ -624,6 +643,19 @@ function scriePaginaInventory() {
         aplicaTalentele();
         scrieMeniul();
       }
+    });
+  });
+
+  // ---- bautura si mancarea: se folosesc dintr-o apasare ----
+  pagina.querySelectorAll('[data-folosesc]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      ascundeFisa();
+      const r = folosesteConsumabil(Number(b.dataset.folosesc));
+      if (r && r.gresit) {
+        document.querySelector('.ajutor-rucsac').textContent = r.gresit;
+        return;
+      }
+      scrieMeniul();
     });
   });
 

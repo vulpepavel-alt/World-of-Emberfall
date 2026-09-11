@@ -192,6 +192,20 @@ const TEXT = {
   SKIN:             'Skin',
   NO_PROFESSIONS:   'You have no trade yet. Trainers wait in the cities.',
 
+  // Facutul lucrurilor
+  CRAFT:            'Craft',
+  CRAFT_ALL:        'Craft All',
+  NEED_STATION:     'Needs {s}',
+  NEED_MATERIALS:   'You lack materials',
+  MADE:             'Made',
+  NO_RECIPES:       'Your trainer has taught you nothing yet.',
+  RECIPES:          'What you can make',
+  USE:              'Use',
+  BANDAGE_SOON:     'Another bandage in {n}s',
+  ALREADY_FULL:     'You are already full',
+  NOT_FOR_YOU:      'That does nothing for you',
+  NOTHING_HAPPENS:  'Nothing happens',
+
   // Antrenorul de clasa
   TRAIN:            'Train',
   LEARN:            'Learn',

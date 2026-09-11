@@ -232,6 +232,7 @@ function obiectDeLaMob(nivelMob) {
 const SANSA_VECHITURA = 55;        // din 100
 const CULOARE_VECHITURA = '#9d9d9d';
 const CULOARE_MATERIAL  = '#6fa8c0';   // materialele de meserie, albastrui
+const CULOARE_CONSUMABIL = '#7ad07a';  // ce se bea sau se mananca, verzui
 const MAXIM_PE_GRAMADA = 20;
 
 function vechituraDeLaMob(nivelMob, felulMobului) {
@@ -272,6 +273,23 @@ function faMaterial(nume, valoare) {
 }
 
 
+// Un consumabil: se apasa in rucsac si se foloseste. Ce face scrie
+// in reteta din care a iesit.
+function faConsumabil(ce) {
+  return {
+    id: urmatorulIdObiect++,
+    vechitura: true,          // se aduna in gramada
+    material: true,           // nu e gunoi
+    consumabil: ce,           // ce se intampla cand il folosesti
+    nume: ce.nume,
+    nivel: 1,
+    culoare: CULOARE_CONSUMABIL,
+    cate: 1,
+    valoare: Math.max(1, ce.valoare || 1)
+  };
+}
+
+
 // TOT ce lasa un inamic cand moare: bani si obiecte, la un loc.
 // Asta ajunge in trupul lui, de unde iei tu ce vrei - nu mai intra
 // singur in inventar, ca in WoW.
@@ -293,11 +311,28 @@ function pradaDeLaMob(nivelMob, esteUmanoid) {
 
 // Acelasi lucru, dar stiind si ce fel de inamic a fost - ca sa
 // putem pune si vechitura potrivita in trupul lui.
+// Panza pentru croitorie NU se strange din noduri: cade de la
+// umanoizi, ca in Classic. Bandit, raider si ceilalti care poarta
+// haine au ce sa lase in urma.
+const SANSA_PANZA = 38;        // din 100, de la un umanoid
+
+function panzaDeLaUmanoid() {
+  if (Math.random() * 100 >= SANSA_PANZA) return null;
+  return faMaterial('Coarse Cloth', 6);
+}
+
+
 function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang) {
 
   const prada = pradaDeLaMob(nivelMob, esteUmanoid);
   const vechitura = vechituraDeLaMob(nivelMob, felulMobului);
   if (vechitura) prada.obiecte.push(vechitura);
+
+  // Panza, numai de la cei care poarta haine.
+  if (esteUmanoid) {
+    const panza = panzaDeLaUmanoid();
+    if (panza) prada.obiecte.push(panza);
+  }
 
   // Cei rari si cei elit lasa INTOTDEAUNA ceva bun - de aceea ii
   // cauti. Un rar da sigur verde, uneori albastru. Un elit da sigur

@@ -71,44 +71,44 @@ const MESERII = {
   smithing: {
     id: 'smithing', nume: 'Smithing', fel: 'facut', principala: true,
     descriere: 'Beating ore into something that holds an edge.',
-    statie: 'Anvil', antrenor: 'antrenorFierarie', gata: false
+    statie: 'Anvil', antrenor: 'antrenorFierarie', gata: true
   },
   brewing: {
     id: 'brewing', nume: 'Brewing', fel: 'facut', principala: true,
     descriere: 'Boiling plants down into something you can drink.',
-    statie: null, antrenor: 'antrenorAlchimie', gata: false
+    statie: null, antrenor: 'antrenorAlchimie', gata: true
   },
   runecarving: {
     id: 'runecarving', nume: 'Runecarving', fel: 'facut', principala: true,
     descriere: 'Cutting marks into gear so it carries more than metal.',
-    statie: 'Rune Table', antrenor: 'antrenorVrajire', gata: false
+    statie: 'Rune Table', antrenor: 'antrenorVrajire', gata: true
   },
   tinkering: {
     id: 'tinkering', nume: 'Tinkering', fel: 'facut', principala: true,
     descriere: 'Small machines that mostly work.',
-    statie: 'Anvil', antrenor: 'antrenorInginerie', gata: false
+    statie: 'Anvil', antrenor: 'antrenorInginerie', gata: true
   },
   tanning: {
     id: 'tanning', nume: 'Tanning', fel: 'facut', principala: true,
     descriere: 'Turning raw hide into leather that lasts.',
-    statie: null, antrenor: 'antrenorPielarie', gata: false
+    statie: null, antrenor: 'antrenorPielarie', gata: true
   },
   weaving: {
     id: 'weaving', nume: 'Weaving', fel: 'facut', principala: true,
     descriere: 'Cloth, thread and everything cut from them.',
-    statie: null, antrenor: 'antrenorCroitorie', gata: false
+    statie: null, antrenor: 'antrenorCroitorie', gata: true
   },
 
   // ---- de pe langa casa, fara limita de numar ----
   cookery: {
     id: 'cookery', nume: 'Cookery', fel: 'langaCasa', principala: false,
     descriere: 'Food that keeps you standing longer. Needs a cookfire.',
-    statie: 'Cookfire', antrenor: 'antrenorGatit', gata: false
+    statie: 'Cookfire', antrenor: 'antrenorGatit', gata: true
   },
   bandaging: {
     id: 'bandaging', nume: 'Bandaging', fel: 'langaCasa', principala: false,
     descriere: 'Cloth bindings that close a wound while you walk.',
-    statie: null, antrenor: 'antrenorPrimAjutor', gata: false
+    statie: null, antrenor: 'antrenorPrimAjutor', gata: true
   },
   angling: {
     id: 'angling', nume: 'Angling', fel: 'langaCasa', principala: false,

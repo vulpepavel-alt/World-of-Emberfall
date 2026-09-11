@@ -640,6 +640,111 @@ function verificaTrecerea() {
 
 
 // ==========================================================
+//  STATIILE DE MESERIE
+//
+//  Nicovala, masa de rune si focul de gatit sunt casute pe harta,
+//  nu obiecte. Ca sa stim daca esti langa una, ne uitam la literele
+//  din jurul tau.
+// ==========================================================
+const RAZA_STATIE = 3;      // in casute
+
+const LITERA_STATIEI = {
+  'Anvil': 'nicovala',
+  'Rune Table': 'masaRune',
+  'Cookfire': 'foc'
+};
+
+
+function estiLangaStatie(numeStatie) {
+
+  if (!numeStatie) return true;                 // reteta n-are nevoie de nimic
+  if (!zona || !zona.harta) return false;
+
+  const cheie = LITERA_STATIEI[numeStatie];
+  const litera = LITERE[cheie];
+  if (!litera) return false;
+
+  const c0 = Math.round(jucator.x / TILE);
+  const r0 = Math.round(jucator.y / TILE);
+
+  for (let r = r0 - RAZA_STATIE; r <= r0 + RAZA_STATIE; r++) {
+    if (r < 0 || r >= zona.RND) continue;
+    for (let c = c0 - RAZA_STATIE; c <= c0 + RAZA_STATIE; c++) {
+      if (c < 0 || c >= zona.COL) continue;
+      if (zona.harta[r][c] === litera) return true;
+    }
+  }
+  return false;
+}
+
+
+// ==========================================================
+//  FOLOSITUL UNUI CONSUMABIL
+//
+//  Se apasa in rucsac. Ce face scrie in obiectul insusi, asa cum a
+//  iesit din reteta - deci o bautura noua nu cere cod nou.
+// ==========================================================
+let bandajPanaLa = 0;
+
+function folosesteConsumabil(idObiect) {
+
+  const scena = jucator && jucator.scene;
+  if (!scena || mort) return null;
+
+  const o = (personaj.inventar || []).find(function (x) { return x.id === idObiect; });
+  if (!o || !o.consumabil) return null;
+
+  const ce = o.consumabil;
+
+  // Bandajele au o pauza intre ele, ca sa nu te legi la nesfarsit.
+  if (ce.efect === 'alinare') {
+    if (scena.time.now < bandajPanaLa) {
+      return { gresit: TEXT.BANDAGE_SOON.replace('{n}',
+        Math.ceil((bandajPanaLa - scena.time.now) / 1000)) };
+    }
+    bandajPanaLa = scena.time.now + PAUZA_BANDAJ;
+  }
+
+  if (ce.efect === 'vindecare') {
+    if (personaj.viata >= personaj.viataMaxima) return { gresit: TEXT.ALREADY_FULL };
+    personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + ce.cat);
+    actualizeazaBaraViata();
+    aratacifraVerde(scena, jucator.x, jucator.y - 44, ce.cat);
+
+  } else if (ce.efect === 'mana') {
+    if (personaj.resursa !== 'mana') return { gresit: TEXT.NOT_FOR_YOU };
+    if (personaj.mana >= personaj.manaMaxima) return { gresit: TEXT.ALREADY_FULL };
+    personaj.mana = Math.min(personaj.manaMaxima, personaj.mana + ce.cat);
+    actualizeazaBaraResursa();
+    aratacuvant(scena, jucator.x, jucator.y - 44, '+' + ce.cat, '#6f9ed0');
+
+  } else if (ce.efect === 'alinare') {
+    puneAlinare(scena, { id: 'bandaj', nume: o.nume, tine: ce.tine,
+                         laCat: ce.laCat, peTura: ce.peTura });
+    aratacuvant(scena, jucator.x, jucator.y - 60, o.nume, '#7ad07a');
+
+  } else if (ce.efect === 'intarire') {
+    pumIntarire(scena, { id: 'mancare', nume: o.nume, tine: ce.tine, da: ce.da });
+
+  } else if (ce.efect === 'val') {
+    loveaTotInJur(scena, ce);
+
+  } else {
+    return { gresit: TEXT.NOTHING_HAPPENS };
+  }
+
+  // S-a consumat una din gramada.
+  o.cate = (o.cate || 1) - 1;
+  if (o.cate <= 0) {
+    const unde = personaj.inventar.indexOf(o);
+    if (unde >= 0) personaj.inventar.splice(unde, 1);
+  }
+  salveaza();
+  return { folosit: o.nume };
+}
+
+
+// ==========================================================
 //  STRANSUL DE PE HARTA
 //
 //  Minereu si plante. Se vad ca niste gramajoare colorate, apar si

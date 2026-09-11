@@ -26,6 +26,7 @@ let mesajFereastra = '';
 let npcCuMisiuni = null;       // cu cine vorbesti
 let antrenorulDeschis = null;  // la ce antrenor te uiti
 let intrebamDeLasat = null;    // la ce meserie te intreaba daca renunti
+let meseriaDeschisa = null;    // ce fereastra de meserie e deschisa
 let misiuneaAratata = null;    // ce misiune se vede acum
 let rasplataAleasa = null;     // ce obiect ai ales din rasplata
 
@@ -45,6 +46,7 @@ function inchideFereastraDeschisa() {
   misiuneaAratata = null;
   rasplataAleasa = null;
   antrenorulDeschis = null;
+  meseriaDeschisa = null;
   intrebamDeLasat = null;
   mesajFereastra = '';
   ecranFereastra.classList.add('ascuns');
@@ -694,6 +696,149 @@ function scrieAntrenorulDeMeserie(id) {
   if (nuLas) nuLas.addEventListener('click', function () {
     intrebamDeLasat = null; scrieAntrenorul();
   });
+}
+
+
+// ==========================================================
+//  FEREASTRA DE FACUT LUCRURI
+//
+//  Se deschide din meniu, apasand pe meseria ta. Arata retetele pe
+//  care le stii, colorate dupa cat mai ai de invatat din ele, cu
+//  materialele scrise "ai / trebuie".
+//
+//  "Craft" face una. "Craft All" face cate poti cu ce ai in rucsac.
+// ==========================================================
+function deschideMeseria(id) {
+
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+
+  fereastraDeschisa = 'meserie';
+  meseriaDeschisa = id;
+  mesajFereastra = '';
+
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+  scrieMeseria();
+}
+
+
+function scrieMeseria() {
+
+  const id = meseriaDeschisa;
+  const m = MESERII[id];
+  const skill = skillulTau(personaj, id);
+  const plafon = plafonulTau(personaj, id);
+
+  titluFereastra.textContent = m.nume + '  \u2014  ' + skill + ' / ' + plafon;
+
+  const stiute = reteteleStiute(personaj, id);
+
+  let html = '<div class="cutie">';
+  html += '<div class="bara-skill"><span style="width:' +
+          Math.round(skill / plafon * 100) + '%"></span></div>';
+
+  if (mesajFereastra) {
+    html += '<div class="mesaj-fereastra">' + mesajFereastra + '</div>';
+  }
+
+  if (!stiute.length) {
+    html += '<div class="gol-fereastra">' + TEXT.NO_RECIPES + '</div></div>';
+    corpFereastra.innerHTML = html;
+    return;
+  }
+
+  html += '<div class="lista-invatat">';
+
+  stiute.forEach(function (r) {
+
+    const culoare = culoareaGreutatii(r.praguri, skill);
+    const areMat = aiMaterialele(personaj, r);
+    const areStatie = estiLangaStatie(r.statie);
+    const poate = areMat && areStatie;
+    const deCateOri = deCateOriPoti(personaj, r);
+
+    html += '<div class="rand-invatat' + (poate ? '' : ' nu-poti') + '">';
+    html += '<div class="cap-invatat"><b class="greu-' + culoare + '">' +
+            r.nume + '</b>' +
+            '<span class="stins">' + (r.statie || '') + '</span></div>';
+
+    // materialele: ai / trebuie
+    html += '<div class="desc-invatat">';
+    html += r.cere.map(function (c) {
+      const am = cateAi(personaj, c.nume);
+      const bun = am >= c.cate;
+      return '<span class="' + (bun ? '' : 'rau') + '">' +
+             c.nume + ' ' + am + '/' + c.cate + '</span>';
+    }).join(' &middot; ');
+    html += '</div>';
+
+    html += '<div class="jos-invatat">';
+    if (!areStatie) {
+      html += '<span class="rau">' + TEXT.NEED_STATION.replace('{s}', r.statie) + '</span>';
+    } else if (!areMat) {
+      html += '<span class="rau">' + TEXT.NEED_MATERIALS + '</span>';
+    } else {
+      html += '<span class="stins">x' + deCateOri + '</span>' +
+              '<span><button class="buton mic" data-fac="' + r.id + '">' +
+              TEXT.CRAFT + '</button> ' +
+              '<button class="buton mic" data-factot="' + r.id + '">' +
+              TEXT.CRAFT_ALL + '</button></span>';
+    }
+    html += '</div></div>';
+  });
+
+  html += '</div></div>';
+  corpFereastra.innerHTML = html;
+
+  corpFereastra.querySelectorAll('[data-fac]').forEach(function (b) {
+    b.addEventListener('click', function () { faci(b.dataset.fac, 1); });
+  });
+  corpFereastra.querySelectorAll('[data-factot]').forEach(function (b) {
+    b.addEventListener('click', function () { faci(b.dataset.factot, 999); });
+  });
+}
+
+
+// Face reteta de cate ori se poate, pana la "cate" ori.
+function faci(idReteta, cate) {
+
+  const r = gasesteReteta(idReteta);
+  if (!r) return;
+
+  let facute = 0, crescut = 0;
+
+  for (let i = 0; i < cate; i++) {
+    if (!aiMaterialele(personaj, r)) break;
+    if (!estiLangaStatie(r.statie)) break;
+    if (!maiEsteLocInRucsac(personaj)) { mesajFereastra = TEXT.BAG_FULL; break; }
+
+    iaMaterialele(personaj, r);
+
+    // Ce iese: material, echipament sau ceva de baut.
+    const ce = r.face;
+    if (ce.fel === 'material') {
+      for (let k = 0; k < (ce.cate || 1); k++) {
+        pomeneInRucsac(personaj, faMaterial(ce.nume, ce.valoare));
+      }
+    } else if (ce.fel === 'echipament') {
+      pomeneInRucsac(personaj, faObiect(ce.slot, ce.nivel, ce.raritate));
+    } else if (ce.fel === 'consumabil') {
+      for (let k = 0; k < (ce.cate || 1); k++) {
+        pomeneInRucsac(personaj, faConsumabil(ce));
+      }
+    }
+
+    if (adaugaSkill(personaj, r.meserie, r.praguri)) crescut++;
+    facute++;
+  }
+
+  if (facute > 0) {
+    mesajFereastra = TEXT.MADE + ': ' + r.nume + (facute > 1 ? ' x' + facute : '') +
+                     (crescut ? '  \u00b7  ' + MESERII[r.meserie].nume + ' ' +
+                                skillulTau(personaj, r.meserie) : '');
+    salveaza();
+  }
+  scrieMeseria();
 }
 
 

@@ -14,7 +14,10 @@ const LITERE = {
   fond: '.', petec: 'f', inalt: 'h', apa: 'W', malApa: 'm',
   pod: 'B', drum: 'P', des: 'T', marunt: 's', stanca: 'r',
   zid: 'X', acoperis: 'R', perete: 'H', usa: 'D', piatra: 'S',
-  palisada: 'w', cort: 'A', foc: 'F', gaura: 'c'
+  palisada: 'w', cort: 'A', foc: 'F', gaura: 'c',
+  // Statiile de meserie. Focul de gatit exista deja ca 'F' - il
+  // folosim pe acela; astea doua sunt noi.
+  nicovala: 'N', masaRune: 'U'
 };
 
 
@@ -47,6 +50,8 @@ function faClimat(op) {
   adauga('A', op.cort,   true,  'lemn');
   adauga('F', op.foc,    true,  'foc');
   adauga('c', op.gaura,  true,  'neted');
+  adauga('N', op.nicovala || 0x4a4a52, true, 'piatra');
+  adauga('U', op.masaRune || 0x3a4a5c, true, 'lemn');
 
   return t;
 }

@@ -272,7 +272,15 @@ function construiesteOras(reteta) {
   dreptunghi(t, cPoarta + 6, RND - M - 8, 7, 12, L.piatra);
   zona.poarta = { col: cPoarta, rand: rPoarta };
 
-  // ---- 8. felinare pe marginea strazilor mari ----
+  // ---- 8. statiile de meserie ----
+  //
+  // Nicovala si masa de rune stau in piata, unde ajunge oricine.
+  // Focul de gatit e chiar fantana... nu: il punem langa ea.
+  if (L.nicovala) dreptunghi(t, cPiata - 20, rPiata + 14, 3, 2, L.nicovala);
+  if (L.masaRune) dreptunghi(t, cPiata + 18, rPiata + 14, 3, 2, L.masaRune);
+  if (L.foc) pune(t, cPiata, rPiata + 20, L.foc);
+
+  // ---- 9. felinare pe marginea strazilor mari ----
   for (let r = marginea + BLOC_R + 3; r < RND - marginea; r += PAS_R) {
     for (let c = marginea + 6; c < COL - marginea; c += 16) {
       if (ia(t, c, r) === L.drum) pune(t, c, r, L.piatra);
@@ -517,12 +525,17 @@ function faLocul(zona, loc) {
       break;
     }
 
+    // O nicovala langa fiecare sat: fara ea nu se poate forja nimic.
     case 'sat':
       dreptunghi(t, c - 26, r - 20, 56, 44, L.fond);
       LOCURI_CASE.forEach(function (x) { faCasa(t, c + x[0], r + x[1], L); });
       disc(t, c, r - 3, 3, L.piatra || L.perete);
       if (L.apa) disc(t, c, r - 3, 1, L.apa);
       zona.drumOrizontal(r, c, Math.round(zona.COL * 0.20) + 6);
+      // Nicovala si focul, PESTE sat - daca le puneam inainte, le
+      // acoperea chiar pamantul satului, desenat dupa ele.
+      if (L.nicovala) dreptunghi(t, c + 2, r + 9, 3, 2, L.nicovala);
+      if (L.foc) pune(t, c - 4, r + 10, L.foc);
       break;
 
     case 'tabara':
@@ -532,6 +545,7 @@ function faLocul(zona, loc) {
       dreptunghi(t, c - 24, r - 18, 1, 37, L.palisada);
       dreptunghi(t, c + 27, r - 18, 1, 37, L.palisada);
       dreptunghi(t, c + 27, r - 2, 1, 5, L.fond);              // poarta
+      if (L.nicovala) dreptunghi(t, c + 2, r + 14, 3, 2, L.nicovala);
       [[-20, -14], [-10, -14], [2, -14], [12, -14],
        [-20,   2], [-10,   2],          [12,   2],
        [-20,  10], [-10,  10], [2,  10], [12,  10]].forEach(function (x) {
