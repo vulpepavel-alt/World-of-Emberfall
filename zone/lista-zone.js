@@ -28,8 +28,13 @@ function leagaZonele() {
 
   ZONE.forEach(function (z) { z.vecini = {}; });
 
+  // Orasele NU stau pe grila: nu au vecini pe laturi, se intra in
+  // ele pe poarta din zona-mama. Sar peste ele aici, altfel ar
+  // cauta o casuta pe harta lumii pe care n-o au.
   ZONE.forEach(function (a) {
+    if (a.esteOras) return;
     ZONE.forEach(function (b) {
+      if (b.esteOras) return;
       if (a === b || a.continent !== b.continent) return;
 
       const dc = b.peHarta.c - a.peHarta.c;
@@ -68,8 +73,19 @@ const CONTINENTE = [
     descriere: 'Canion rosu, coasta si gheata. Aici incep Orc si Night Elf.' }
 ];
 
+// Zonele de pe grila unui continent. Orasele nu intra aici: harta
+// lumii le arata ca semn in zona-mama, nu ca o casuta a lor.
 function zoneleContinentului(idContinent) {
-  return ZONE.filter(function (z) { return z.continent === idContinent; });
+  return ZONE.filter(function (z) {
+    return z.continent === idContinent && !z.esteOras;
+  });
+}
+
+// Orasele principale ale unui continent.
+function oraseleContinentului(idContinent) {
+  return ZONE.filter(function (z) {
+    return z.continent === idContinent && z.esteOras;
+  });
 }
 
 
@@ -86,5 +102,12 @@ function undePotiMerge(idZona) {
   if (z.port) {
     drumuri.push({ fel: z.port.fel, catre: z.port.catre, la: z.port.la });
   }
+
+  // portile catre orase, si poarta orasului inapoi spre zona
+  (z.intrari || []).forEach(function (i) {
+    drumuri.push({ fel: 'poarta', catre: i.catre, la: i.la });
+  });
+  if (z.iesire) drumuri.push({ fel: 'poarta', catre: z.iesire.catre });
+
   return drumuri;
 }

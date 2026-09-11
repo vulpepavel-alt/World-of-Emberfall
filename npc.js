@@ -201,6 +201,120 @@ const NPC = {
     nume: TEXT.CAPTAIN_NAME, titlu: TEXT.CAPTAIN_TITLE,
     forme: faOmulet({ piele: 0x5f9e63, haina: 0x6b2f22, accent: 0xb8bcc4,
                       par: 0x1a1410, tine: 'topor', colti: true, casca: true })
+  },
+// ==========================================================
+  //  OAMENII ORASULUI
+  //
+  //  Antrenorii de clasa si de meserie, plus negustorii care tin
+  //  unelte si materiale. Stau numai in orasele principale.
+  //
+  //  Deocamdata ei NU invata nimic pe nimeni: antrenamentul se face
+  //  la pasul urmator. Campul "invata" spune ce vor preda, iar cand
+  //  vorbesti cu ei iti spun asta cinstit, in loc sa taca.
+  //
+  //  Numele meseriilor de mai jos sunt cuvinte obisnuite (fierar,
+  //  tabacar, tesator). Numele SISTEMULUI de meserii il alegi tu
+  //  la Pasul 2; pana atunci n-am bagat niciunul in joc.
+  // ==========================================================
+
+  // ---------- antrenori de clasa ----------
+  antrenorRazboinic: {
+    nume: TEXT.TR_WARRIOR_NAME, titlu: TEXT.TR_WARRIOR_TITLE, invata: 'warrior',
+    forme: faOmulet({ piele: 0xe8bd94, haina: 0x6b2f22, accent: 0xb8bcc4,
+                      par: 0x2e2418, tine: 'topor', casca: true })
+  },
+  antrenorVanator: {
+    nume: TEXT.TR_HUNTER_NAME, titlu: TEXT.TR_HUNTER_TITLE, invata: 'hunter',
+    forme: faOmulet({ piele: 0xd8a87c, haina: 0x3a5a30, accent: 0x8a6a3a,
+                      par: 0x4a3520, tine: 'arc', gluga: true })
+  },
+  antrenorMag: {
+    nume: TEXT.TR_MAGE_NAME, titlu: TEXT.TR_MAGE_TITLE, invata: 'mage',
+    forme: faOmulet({ piele: 0xf0c9a6, haina: 0x2f3f7a, accent: 0x6f8ad0,
+                      par: 0xcfc6b4, tine: 'toiag', gluga: true })
+  },
+  antrenorPreot: {
+    nume: TEXT.TR_PRIEST_NAME, titlu: TEXT.TR_PRIEST_TITLE, invata: 'priest',
+    forme: faOmulet({ piele: 0xefc49e, haina: 0xd8d2c4, accent: 0xc9a961,
+                      par: 0x8a7a5a, tine: 'toiag' })
+  },
+
+  // ---------- antrenori de meserii care se strang ----------
+  antrenorMinerit: {
+    nume: TEXT.TR_MINING_NAME, titlu: TEXT.TR_MINING_TITLE, invata: 'minerit',
+    forme: faOmulet({ piele: 0xd8a87c, haina: 0x4a4038, accent: 0x8a7a4a,
+                      par: 0x2e2418, tine: 'tarnacop', casca: true })
+  },
+  antrenorIerburi: {
+    nume: TEXT.TR_HERB_NAME, titlu: TEXT.TR_HERB_TITLE, invata: 'ierburi',
+    forme: faOmulet({ piele: 0xefc49e, haina: 0x4f7a3c, accent: 0x9ac46a,
+                      par: 0x6a8a3a, tine: 'furca' })
+  },
+  antrenorJupuit: {
+    nume: TEXT.TR_SKIN_NAME, titlu: TEXT.TR_SKIN_TITLE, invata: 'jupuit',
+    forme: faOmulet({ piele: 0xd8a87c, haina: 0x6b4a28, accent: 0xa8763a,
+                      par: 0x3a2c1c, tine: 'pumnal' })
+  },
+
+  // ---------- antrenori de meserii care fac lucruri ----------
+  antrenorFierarie: {
+    nume: TEXT.TR_SMITH_NAME, titlu: TEXT.TR_SMITH_TITLE, invata: 'fierarie',
+    forme: faOmulet({ piele: 0xc9906a, haina: 0x3a2e22, accent: 0xb8bcc4,
+                      par: 0x1f1812, tine: 'topor' })
+  },
+  antrenorAlchimie: {
+    nume: TEXT.TR_ALCH_NAME, titlu: TEXT.TR_ALCH_TITLE, invata: 'alchimie',
+    forme: faOmulet({ piele: 0xefc49e, haina: 0x4a2f5c, accent: 0x9a6fd0,
+                      par: 0xcfc6b4, tine: 'toiag', gluga: true })
+  },
+  antrenorVrajire: {
+    nume: TEXT.TR_ENCH_NAME, titlu: TEXT.TR_ENCH_TITLE, invata: 'vrajire',
+    forme: faOmulet({ piele: 0xf0c9a6, haina: 0x2a4a5c, accent: 0x6fd0c0,
+                      par: 0xb4c6cf, tine: 'pumnal', gluga: true })
+  },
+  antrenorInginerie: {
+    nume: TEXT.TR_ENGI_NAME, titlu: TEXT.TR_ENGI_TITLE, invata: 'inginerie',
+    forme: faOmulet({ piele: 0xd8a87c, haina: 0x5a4a2c, accent: 0xc9a961,
+                      par: 0x8a6a32, tine: 'tarnacop' })
+  },
+  antrenorPielarie: {
+    nume: TEXT.TR_LEATHER_NAME, titlu: TEXT.TR_LEATHER_TITLE, invata: 'pielarie',
+    forme: faOmulet({ piele: 0xc9906a, haina: 0x7c5a32, accent: 0xa8763a,
+                      par: 0x3a2c1c, tine: 'pumnal' })
+  },
+  antrenorCroitorie: {
+    nume: TEXT.TR_TAILOR_NAME, titlu: TEXT.TR_TAILOR_TITLE, invata: 'croitorie',
+    forme: faOmulet({ piele: 0xefc49e, haina: 0x8a3f5c, accent: 0xd8a8c0,
+                      par: 0x5a4a2c, tine: 'furca' })
+  },
+
+  // ---------- meseriile de pe langa casa ----------
+  antrenorGatit: {
+    nume: TEXT.TR_COOK_NAME, titlu: TEXT.TR_COOK_TITLE, invata: 'gatit',
+    forme: faOmulet({ piele: 0xe8bd94, haina: 0xd8d2c4, accent: 0x8a5a2f,
+                      par: 0x6a5a3a, tine: 'furca' })
+  },
+  antrenorPrimAjutor: {
+    nume: TEXT.TR_MEDIC_NAME, titlu: TEXT.TR_MEDIC_TITLE, invata: 'primAjutor',
+    forme: faOmulet({ piele: 0xf0c9a6, haina: 0xe4e0d4, accent: 0xc2543f,
+                      par: 0x8a7a5a, tine: 'pumnal' })
+  },
+  antrenorPescuit: {
+    nume: TEXT.TR_FISH_NAME, titlu: TEXT.TR_FISH_TITLE, invata: 'pescuit',
+    forme: faOmulet({ piele: 0xc9906a, haina: 0x3a5a6a, accent: 0x6fa8c0,
+                      par: 0x4a4038, tine: 'furca' })
+  },
+
+  // ---------- negustorii orasului ----------
+  negustorUnelte: {
+    nume: TEXT.TR_TOOLS_NAME, titlu: TEXT.TR_TOOLS_TITLE, vinde: 'arma',
+    forme: faOmulet({ piele: 0xd8a87c, haina: 0x5a4a2c, accent: 0xb8bcc4,
+                      par: 0x2e2418, tine: 'tarnacop' })
+  },
+  negustorMateriale: {
+    nume: TEXT.TR_GOODS_NAME, titlu: TEXT.TR_GOODS_TITLE, vinde: 'armura',
+    forme: faOmulet({ piele: 0xefc49e, haina: 0x6b5a3a, accent: 0xc9a961,
+                      par: 0x8a6a32, tine: 'furca' })
   }
 };
 

@@ -68,7 +68,9 @@ function deschideHarta() {
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
   if (typeof fereastraDeschisa !== 'undefined' && fereastraDeschisa) inchideFereastraDeschisa();
 
-  ceAratam = 'lume';
+  // Daca esti intr-un oras, deschidem direct harta orasului: harta
+  // lumii n-are unde sa-l arate, si oricum aia vrei s-o vezi.
+  ceAratam = zona.esteOras ? zona.id : 'lume';
   zonaAleasa = zona.id;
   ecranHarta.classList.remove('ascuns');
   faMeniulHartii();
@@ -88,6 +90,13 @@ function faMeniulHartii() {
 
   CONTINENTE.forEach(function (c) {
     html += '<optgroup label="' + c.nume + '">';
+
+    // intai orasele principale, ca sa le gasesti primele
+    oraseleContinentului(c.id).forEach(function (o) {
+      html += '<option value="' + o.id + '">' + o.nume + '  (city)' +
+              (zona && o.id === zona.id ? '  ★' : '') + '</option>';
+    });
+
     zoneleContinentului(c.id).forEach(function (z) {
       html += '<option value="' + z.id + '">' + z.nume +
               '  (' + z.nivelDeLa + '–' + z.nivelPanaLa + ')' +
@@ -527,6 +536,18 @@ function semnulLocului(g, fel, x, y, m) {
       for (let i = 0; i < 4; i++) g.fillRect(1, -4 + i * 3, 11, 1.6);
       break;
 
+    case 'cartier':                    // trei case stranse, un cartier
+      g.fillStyle = '#b0402f';
+      g.beginPath(); g.moveTo(-12, -1); g.lineTo(-7, -8); g.lineTo(-2, -1); g.fill();
+      g.beginPath(); g.moveTo(-1, -3); g.lineTo(4, -10); g.lineTo(9, -3); g.fill();
+      g.fillStyle = '#d6c8a8';
+      g.fillRect(-11, -1, 8, 8);
+      g.fillRect(0, -3, 8, 10);
+      g.fillStyle = negru;
+      g.fillRect(-8, 3, 3, 4);
+      g.fillRect(3, 1, 3, 6);
+      break;
+
     case 'poiana':                     // cerc de iarba deschisa
       g.fillStyle = '#c9d46b';
       g.beginPath(); g.arc(0, 0, 8, 0, Math.PI * 2); g.fill();
@@ -632,9 +653,15 @@ function faHartaZonei(id) {
   const z = (zona && zona.id === id) ? zona : faZona(retetaZonei(id));
 
   const COL = z.COL, RND = z.RND;
+
+  // Un oras are cam un sfert din casutele unei zone, deci harta lui
+  // iesea mica si numele cartierelor se calcau unele pe altele. Il
+  // desenam la dublu: doi pixeli pe casuta in loc de unul.
+  const ori = z.esteOras ? 2 : 1;
+
   const panza = document.createElement('canvas');
-  panza.width = COL;
-  panza.height = RND;
+  panza.width = COL * ori;
+  panza.height = RND * ori;
   const g = panza.getContext('2d');
 
   // ---- terenul, un pixel pe casuta ----
@@ -657,13 +684,34 @@ function faHartaZonei(id) {
       d[i + 3] = 255;
     }
   }
-  g.putImageData(poza, 0, 0);
+  if (ori === 1) {
+    g.putImageData(poza, 0, 0);
+  } else {
+    // putImageData nu stie sa mareasca, asa ca trecem printr-o panza
+    // mica si o desenam marita peste cea mare.
+    const mica = document.createElement('canvas');
+    mica.width = COL; mica.height = RND;
+    mica.getContext('2d').putImageData(poza, 0, 0);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(mica, 0, 0, COL * ori, RND * ori);
+    g.imageSmoothingEnabled = true;
+  }
+
+  // De aici incolo desenam in casute, nu in pixeli de panza.
+  g.save();
+  g.scale(ori, ori);
 
   // ---- locurile care conteaza ----
+  // In oras totul e desenat la dublu, deci semnele si scrisul pot fi
+  // mai mici in casute si sa iasa la fel de mari pe ecran.
+  const marimeSemn = z.esteOras ? 1.0 : 1.9;
+  const marimeScris = z.esteOras ? 10 : 17;
+
   (z.locuri || []).forEach(function (loc) {
-    semnulLocului(g, loc.fel, loc.col, loc.rand, 1.9);
+    semnulLocului(g, loc.fel, loc.col, loc.rand, marimeSemn);
     // Numele lui adevarat - acelasi pe care ti-l spune si misiunea.
-    eticheta(g, loc.nume || numeleStructurii(loc.fel), loc.col, loc.rand + 34, COL, RND);
+    eticheta(g, loc.nume || numeleStructurii(loc.fel), loc.col, loc.rand + 18,
+             COL, RND, marimeScris);
   });
 
   // ---- oamenii cu care poti vorbi ----
@@ -684,7 +732,8 @@ function faHartaZonei(id) {
     g.beginPath();
     g.arc(tr.col, tr.rand, 7, 0, Math.PI * 2);
     g.fill();
-    eticheta(g, (v ? v.nume : tr.catre) + ' →', tr.col, tr.rand - 18, COL, RND);
+    eticheta(g, (v ? v.nume : tr.catre) + ' →', tr.col, tr.rand - 18, COL, RND,
+             z.esteOras ? 10 : 17);
   });
 
   // ---- portul ----
@@ -730,9 +779,10 @@ function faHartaZonei(id) {
     g.fillStyle = '#ffd34d';
     g.beginPath(); g.arc(c, r, 5, 0, Math.PI * 2); g.fill();
 
-    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND);
+    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND, z.esteOras ? 10 : 17);
   }
 
+  g.restore();
   return panza;
 }
 
@@ -755,9 +805,9 @@ function seLovesc(a, b) {
   return !(a.x2 < b.x1 || b.x2 < a.x1 || a.y2 < b.y1 || b.y2 < a.y1);
 }
 
-function eticheta(g, text, x, y, lat, inalt) {
+function eticheta(g, text, x, y, lat, inalt, marime) {
 
-  g.font = '600 17px Georgia, serif';
+  g.font = '600 ' + (marime || 17) + 'px Georgia, serif';
   g.textAlign = 'center';
   g.textBaseline = 'middle';
 
@@ -793,7 +843,7 @@ function numeleStructurii(fel) {
     oras: TEXT.PLACE_CITY, sat: TEXT.PLACE_VILLAGE, tabara: TEXT.PLACE_CAMP,
     corturi: TEXT.PLACE_CAMP, pestera: TEXT.PLACE_CAVE, mina: TEXT.PLACE_MINE,
     cetate: TEXT.PLACE_KEEP, post: TEXT.PLACE_OUTPOST, ferma: TEXT.PLACE_FARM,
-    poiana: TEXT.PLACE_CLEARING
+    poiana: TEXT.PLACE_CLEARING, cartier: TEXT.PLACE_DISTRICT
   }[fel] || fel;
 }
 
@@ -809,9 +859,15 @@ function scrieDetaliile() {
   const continent = CONTINENTE.find(function (c) { return c.id === z.continent; });
 
   let html = '<h3>' + z.nume + '</h3>';
-  html += '<div class="rand-detaliu"><span>' + TEXT.LEVEL + '</span><span style="color:' +
-          (CULOAREA_NIVELULUI[culoareaZonei(z)] || '#cdbb9a') + '">' +
-          z.nivelDeLa + ' &ndash; ' + z.nivelPanaLa + '</span></div>';
+
+  if (z.esteOras) {
+    html += '<div class="rand-detaliu"><span>' + TEXT.PLACE_CITY + '</span><span>' +
+            TEXT.CITY_SAFE + '</span></div>';
+  } else {
+    html += '<div class="rand-detaliu"><span>' + TEXT.LEVEL + '</span><span style="color:' +
+            (CULOAREA_NIVELULUI[culoareaZonei(z)] || '#cdbb9a') + '">' +
+            z.nivelDeLa + ' &ndash; ' + z.nivelPanaLa + '</span></div>';
+  }
   html += '<div class="rand-detaliu"><span>Continent</span><span>' +
           (continent ? continent.nume : '') + '</span></div>';
   html += '<div class="rand-detaliu"><span>Home of</span><span>' +
@@ -840,6 +896,7 @@ function scrieDetaliile() {
     if (!catre) return;
     const cum = d.fel === 'drum' ? ('road ' + LATURA_IN_ENGLEZA[d.latura])
               : d.fel === 'corabie' ? 'by ship'
+              : d.fel === 'poarta' ? 'through the gate'
               : 'by zeppelin';
     html += '<li><b>' + catre.nume + '</b> <span class="stins">(' +
             catre.nivelDeLa + '&ndash;' + catre.nivelPanaLa + ') &middot; ' + cum + '</span></li>';

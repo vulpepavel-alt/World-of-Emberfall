@@ -409,6 +409,41 @@ window.addEventListener('keydown', function (e) {
 //    - te ASTEAPTA cu una terminata: alegi rasplata si o predai
 //    - n-are nimic nou: iti arata la ce esti in mijloc
 // ==========================================================
+// ==========================================================
+//  ANTRENORUL
+//
+//  Deocamdata NU invata pe nimeni nimic: invatatul abilitatilor si
+//  al meseriilor se face la pasul urmator. Fereastra asta e starea
+//  LUI GOALA - ce vezi cand omul n-are inca nimic de predat.
+//
+//  Am facut-o acum, in loc sa-l las mut, pentru ca un om cu titlu
+//  de antrenor care raspunde "Nothing for you right now" te pune pe
+//  ganduri degeaba: crezi ca e stricat.
+// ==========================================================
+function deschideAntrenorul(npcul) {
+
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+
+  fereastraDeschisa = 'antrenor';
+  const cine = npcul.cine;
+
+  // Titlul e "Warrior Trainer", deci randul "Teaches: Warrior Trainer"
+  // spunea acelasi cuvant de doua ori. Taiem "Trainer" de la coada.
+  const ceStie = cine.titlu.replace(/\s*Trainer$/, '');
+
+  titluFereastra.textContent = cine.nume + '  <' + cine.titlu + '>';
+  corpFereastra.innerHTML =
+    '<div class="cutie">' +
+      '<div class="rand-detaliu"><span>' + TEXT.TRAINER_TEACHES + '</span>' +
+      '<span>' + ceStie + '</span></div>' +
+      '<div class="gol-fereastra">' + TEXT.TRAINER_SOON + '</div>' +
+    '</div>';
+
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+}
+
+
 function deschideMisiunile(npcul) {
 
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();

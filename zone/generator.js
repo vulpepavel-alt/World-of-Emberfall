@@ -120,7 +120,181 @@ function dreptunghi(t, c0, r0, lat, inalt, litera) {
 // ==========================================================
 //  CONSTRUIREA UNEI ZONE DIN RETETA EI
 // ==========================================================
+// ==========================================================
+//  ORASUL, CA HARTA A LUI
+//
+//  Un oras principal nu e un loc pe harta unei zone. E o harta a
+//  lui, in care intri pe poarta, la fel cum treci dintr-o zona in
+//  alta: acelasi drum prin cod, doar ca harta de dincolo e facuta
+//  din strazi si case in loc de padure.
+//
+//  Ce are altfel fata de o zona obisnuita:
+//    - nu are inamici deloc (asazaMobii se opreste din prima)
+//    - nu are margini spre vecini, are O POARTA inapoi in zona
+//    - pamantul lui e pavaj, nu iarba
+//
+//  Ce are LA FEL: aceleasi litere, acelasi tabel de teren, aceleasi
+//  personaje, aceeasi miniharta, aceeasi harta din meniu. Tot ce
+//  stie jocul despre o zona stie si despre un oras.
+// ==========================================================
+
+
+// O casa de oras: acoperis, perete si o usa pe latura de miazazi.
+function faCasaOras(t, c, r, lat, inalt, L) {
+  dreptunghi(t, c, r, lat, inalt - 2, L.acoperis);
+  dreptunghi(t, c, r + inalt - 2, lat, 2, L.perete);
+  pune(t, c + Math.floor(lat / 2), r + inalt - 1, L.usa);
+}
+
+
+// Un cvartal: cate case incap intre doua strazi, insirate.
+function faCvartal(t, c0, r0, lat, inalt, L, zar) {
+  let c = c0;
+  while (c + 9 <= c0 + lat) {
+    const w = 8 + Math.floor(zar() * 3);          // 8, 9 sau 10 casute
+    if (c + w > c0 + lat) break;
+    let r = r0;
+    while (r + 7 <= r0 + inalt) {
+      const h = 6 + Math.floor(zar() * 2);
+      if (r + h > r0 + inalt) break;
+      faCasaOras(t, c, r, w - 1, h, L);
+      r += h + 2;                                  // ulita din spate
+    }
+    c += w + 2;                                    // ulita dintre case
+  }
+}
+
+
+function construiesteOras(reteta) {
+
+  const COL = reteta.COL, RND = reteta.RND;
+  const L = reteta.litere;
+  const zar = faZaruri(reteta.samanta);
+
+  // In afara zidului nu se poate merge.
+  const t = faTabla(COL, RND, L.zid);
+
+  const zona = {
+    id: reteta.id, nume: reteta.nume, continent: reteta.continent,
+    factiune: reteta.factiune || null, esteOras: true,
+    nivelDeLa: reteta.nivelDeLa, nivelPanaLa: reteta.nivelPanaLa,
+    vecini: {}, peHarta: reteta.peHarta || null,
+    teren: reteta.teren, harta: null,
+    COL: COL, RND: RND, tabla: t, npci: [], mobi: []
+  };
+
+  // ---- 1. zidul, si pavajul dinauntru ----
+  const M = 5;
+  dreptunghi(t, M, M, COL - M * 2, RND - M * 2, L.piatra);
+  dreptunghi(t, M + 3, M + 3, COL - M * 2 - 6, RND - M * 2 - 6, L.drum);
+
+  const turn = function (c, r) { dreptunghi(t, c - 4, r - 4, 8, 8, L.piatra); };
+  [[M, M], [COL - M, M], [M, RND - M], [COL - M, RND - M],
+   [Math.round(COL / 2), M], [Math.round(COL / 2), RND - M],
+   [M, Math.round(RND / 2)], [COL - M, Math.round(RND / 2)]]
+    .forEach(function (p) { turn(p[0], p[1]); });
+
+  // ---- 2. locurile care nu primesc case ----
+  const cPiata = Math.round(COL / 2);
+  const rPiata = Math.round(RND * 0.46);
+  const RAZA_PIATA = 26;
+  const rCetate = M + 14, INALT_CETATE = 26, LAT_CETATE = 54;
+
+  // ---- 3. cvartalele ----
+  //
+  // Strazile NU se deseneaza: pavajul e deja peste tot, iar strazile
+  // sunt chiar golurile dintre cvartale. Asa nu se mai poate intampla
+  // ca o strada si un cvartal sa fie socotite din doua colturi
+  // diferite si sa ramana petece mari de pavaj gol intre ele.
+  const PAS_C = 34, PAS_R = 28;          // cvartal + strada
+  const BLOC_C = 27, BLOC_R = 21;        // cat tine cvartalul
+  const marginea = M + 5;
+
+  for (let r = marginea; r + BLOC_R <= RND - marginea; r += PAS_R) {
+    for (let c = marginea; c + BLOC_C <= COL - marginea; c += PAS_C) {
+
+      const mc = c + BLOC_C / 2, mr = r + BLOC_R / 2;
+
+      // piata din mijloc
+      if (Math.abs(mc - cPiata) < RAZA_PIATA + BLOC_C / 2 &&
+          Math.abs(mr - rPiata) < RAZA_PIATA + BLOC_R / 2) continue;
+      // bulevardul de la poarta in sus
+      if (Math.abs(mc - cPiata) < BLOC_C / 2 + 6 && mr > rPiata) continue;
+      // curtea cetatii
+      if (Math.abs(mc - cPiata) < LAT_CETATE / 2 + BLOC_C / 2 &&
+          mr < rCetate + INALT_CETATE + BLOC_R / 2) continue;
+
+      // Unul din cinci cvartale e gradina, nu case. Fara ele orasul
+      // ar fi o lespede de piatra de la un zid la altul.
+      if (zar() < 0.2 && L.petec) {
+        dreptunghi(t, c + 1, r + 1, BLOC_C - 2, BLOC_R - 2, L.petec);
+        for (let i = 0; i < 5; i++) {
+          disc(t, c + 3 + Math.floor(zar() * (BLOC_C - 6)),
+                  r + 3 + Math.floor(zar() * (BLOC_R - 6)), 2, L.des || L.piatra);
+        }
+        continue;
+      }
+
+      faCvartal(t, c, r, BLOC_C, BLOC_R, L, zar);
+    }
+  }
+
+  // ---- 4. bulevardul de la poarta pana in piata ----
+  dreptunghi(t, cPiata - 6, rPiata, 13, RND - M - rPiata, L.drum);
+
+  // ---- 5. cetatea, la miazanoapte ----
+  dreptunghi(t, cPiata - LAT_CETATE / 2, rCetate, LAT_CETATE, INALT_CETATE, L.piatra);
+  dreptunghi(t, cPiata - LAT_CETATE / 2 + 5, rCetate + 4, LAT_CETATE - 10, INALT_CETATE - 9, L.drum);
+  dreptunghi(t, cPiata - 4, rCetate + INALT_CETATE - 5, 9, 5, L.usa);
+  // drumul de la cetate spre piata - se opreste INAINTE de fantana,
+  // altfel o taia in doua si apa ramanea in doua bucati laterale
+  dreptunghi(t, cPiata - 4, rCetate + INALT_CETATE,
+             9, (rPiata - RAZA_PIATA) - (rCetate + INALT_CETATE), L.drum);
+
+  // ---- 6. piata, cu fantana la mijloc ----
+  disc(t, cPiata, rPiata, RAZA_PIATA, L.drum);
+  if (L.petec) {
+    // patru petece de iarba in colturile pietei
+    [[-17, -13], [17, -13], [-17, 13], [17, 13]].forEach(function (p) {
+      disc(t, cPiata + p[0], rPiata + p[1], 5, L.petec);
+    });
+  }
+  disc(t, cPiata, rPiata, 9, L.piatra);
+  disc(t, cPiata, rPiata, 7, L.drum);
+  disc(t, cPiata, rPiata, 4, L.piatra);
+  disc(t, cPiata, rPiata, 3, L.apa);
+
+  // ---- 7. poarta de la miazazi ----
+  const cPoarta = cPiata;
+  const rPoarta = RND - M - 1;
+  dreptunghi(t, cPoarta - 6, RND - M - 4, 13, 8, L.drum);
+  dreptunghi(t, cPoarta - 13, RND - M - 8, 7, 12, L.piatra);
+  dreptunghi(t, cPoarta + 6, RND - M - 8, 7, 12, L.piatra);
+  zona.poarta = { col: cPoarta, rand: rPoarta };
+
+  // ---- 8. felinare pe marginea strazilor mari ----
+  for (let r = marginea + BLOC_R + 3; r < RND - marginea; r += PAS_R) {
+    for (let c = marginea + 6; c < COL - marginea; c += 16) {
+      if (ia(t, c, r) === L.drum) pune(t, c, r, L.piatra);
+    }
+  }
+
+  zona.drumOrizontal = function (rand, c1, c2) {
+    dreptunghi(t, Math.min(c1, c2), rand - 1, Math.abs(c2 - c1), 3, L.drum);
+  };
+  zona.drumVertical = function (col, r1, r2) {
+    dreptunghi(t, col - 1, Math.min(r1, r2), 3, Math.abs(r2 - r1), L.drum);
+  };
+
+  return zona;
+}
+
+
 function construiesteZona(reteta) {
+
+  // Un oras principal are harta lui, facuta din strazi si case.
+  // Mai departe merge prin exact acelasi cod ca orice zona.
+  if (reteta.esteOras) return construiesteOras(reteta);
 
   const COL = reteta.COL, RND = reteta.RND, S = reteta.samanta;
   const L = reteta.litere;          // ce litera inseamna ce, in zona asta
@@ -311,61 +485,35 @@ function faLocul(zona, loc) {
     //  Cate unul pe continent, in zona de langa cele doua tabere de
     //  inceput - ca sa poti ajunge la el de devreme, ca in WoW.
     // ==========================================================
+    // ==========================================================
+    //  POARTA ORASULUI
+    //
+    //  Pana acum tot orasul era desenat AICI, pe harta zonei. Acum
+    //  orasul are harta lui, si ce ramane in zona e poarta prin care
+    //  intri in el: un zid cu doua turnuri si o bolta.
+    //
+    //  Asa se ajunge la oras la fel cum se trece dintr-o zona in
+    //  alta - te duci la poarta si intri.
+    // ==========================================================
     case 'oras': {
-
-      const LAT = 78, INALT = 62;      // cat tine orasul, in casute
+      const LAT = 46, INALT = 16;
       const c0 = c - LAT / 2, r0 = r - INALT / 2;
 
-      // curatam locul si punem pamant batatorit peste tot
-      dreptunghi(t, c0 - 4, r0 - 4, LAT + 8, INALT + 8, L.fond);
-      dreptunghi(t, c0, r0, LAT, INALT, L.drum);
+      // pamant curatat in fata portii
+      dreptunghi(t, c0 - 10, r0 - 10, LAT + 20, INALT + 26, L.fond);
+      dreptunghi(t, c0 - 10, r0 + INALT, LAT + 20, 16, L.drum);
 
-      // zidul de piatra, gros de doua casute
-      dreptunghi(t, c0, r0, LAT, 2, L.piatra);
-      dreptunghi(t, c0, r0 + INALT - 2, LAT, 2, L.piatra);
-      dreptunghi(t, c0, r0, 2, INALT, L.piatra);
-      dreptunghi(t, c0 + LAT - 2, r0, 2, INALT, L.piatra);
+      // zidul, cu bolta la mijloc
+      dreptunghi(t, c0, r0, LAT, INALT - 4, L.piatra);
+      dreptunghi(t, c - 5, r0, 10, INALT, L.drum);
 
-      // turnuri in colturi
-      [[0, 0], [LAT - 6, 0], [0, INALT - 6], [LAT - 6, INALT - 6]].forEach(function (x) {
-        dreptunghi(t, c0 + x[0], r0 + x[1], 6, 6, L.piatra);
-      });
+      // doua turnuri de poarta
+      dreptunghi(t, c - 13, r0 - 5, 8, INALT + 5, L.piatra);
+      dreptunghi(t, c + 5, r0 - 5, 8, INALT + 5, L.piatra);
 
-      // patru porti, cate una pe fiecare latura
-      dreptunghi(t, c0 + LAT / 2 - 3, r0, 6, 2, L.drum);
-      dreptunghi(t, c0 + LAT / 2 - 3, r0 + INALT - 2, 6, 2, L.drum);
-      dreptunghi(t, c0, r0 + INALT / 2 - 3, 2, 6, L.drum);
-      dreptunghi(t, c0 + LAT - 2, r0 + INALT / 2 - 3, 2, 6, L.drum);
-
-      // piata din mijloc, cu fantana
-      disc(t, c, r, 9, L.piatra);
-      disc(t, c, r, 7, L.drum);
-      disc(t, c, r, 3, L.piatra);
-      if (L.apa) disc(t, c, r, 2, L.apa);
-
-      // casele, insirate pe strazi. Fiecare cvartal are patru case
-      // lipite spate in spate, ca intr-un oras adevarat.
-      const cvartale = [
-        [-32, -24], [-19, -24], [6, -24], [19, -24],
-        [-32, -10], [-19, -10], [19, -10],
-        [-32,   6], [-19,   6], [19,   6],
-        [-32,  17], [-19,  17], [6,  17], [19,  17]
-      ];
-      cvartale.forEach(function (x) {
-        faCasa(t, c + x[0], r + x[1], L);
-        faCasa(t, c + x[0], r + x[1] + 6, L);
-      });
-
-      // felinare pe strada principala
-      for (let i = -30; i <= 30; i += 10) {
-        if (Math.abs(i) < 11) continue;
-        pune(t, c + i, r - 12, L.foc);
-        pune(t, c + i, r + 12, L.foc);
-      }
-
-      // drumul care intra in oras
-      zona.drumOrizontal(r, c, Math.round(zona.COL * 0.20) + 6);
-      zona.drumVertical(c, r, Math.round(zona.RND * 0.22));
+      // drumurile care duc la ea
+      zona.drumVertical(c, r + INALT, Math.round(zona.RND * 0.55));
+      zona.drumOrizontal(r + INALT + 8, c - 40, c + 40);
       break;
     }
 
@@ -456,6 +604,12 @@ function faLocul(zona, loc) {
     case 'poiana':
       disc(t, c, r, loc.raza || 12, L.fond);
       if (L.foc) pune(t, c, r, L.foc);
+      break;
+
+    // Un cartier de oras nu se deseneaza aici: orasul e desenat deja,
+    // cu strazi si case. Cartierul e doar un punct de care se agata
+    // oamenii, ca sa stim unde sta fierarul si unde negustorul.
+    case 'cartier':
       break;
   }
 
@@ -565,6 +719,9 @@ function sapaSprePuncte(zona, reteta, ajuns, start) {
 // ==========================================================
 function asazaMobii(zona, reteta, ajuns, start) {
 
+  // Intr-un oras nu intra fiarele. Nici sobolani, nici talhari.
+  if (reteta.esteOras) return [];
+
   const zar = faZaruri(reteta.samanta + 4242);
   const mobi = [];
   const maxDist = Math.sqrt(zona.COL * zona.COL + zona.RND * zona.RND);
@@ -640,6 +797,8 @@ function asazaMobii(zona, reteta, ajuns, start) {
 //  ies din samanta zonei, deci ii gasesti mereu in acelasi loc.
 // ==========================================================
 function asazaRariiSiElitul(zona, reteta, ajuns, start, mobi) {
+
+  if (reteta.esteOras) return [];
 
   const zar = faZaruri(reteta.samanta + 777);
   const cei = [];
@@ -773,6 +932,32 @@ function faZona(reteta) {
                       col: unde.col, rand: unde.rand };
       disc(zona.tabla, unde.col, unde.rand, 3, reteta.litere.drum);
     }
+  }
+
+  // ---- intrarile in orase si iesirea din ele ----
+  //
+  // Nu e un sistem nou: le punem in ACEEASI lista zona.treceri in
+  // care stau portile catre zonele vecine. Asa merg din prima si
+  // verificarea din joc, si stalpul cu numele, si semnul de pe
+  // miniharta, si harta din meniu - nimic de racordat.
+  (reteta.intrari || []).forEach(function (intrare) {
+    const unde = asezate[intrare.la];
+    if (!unde) return;
+    zona.treceri.push({
+      latura: 'poarta', catre: intrare.catre,
+      col: unde.col, rand: unde.rand,
+      // cand te intorci din oras, apari in fata portii, nu in ea
+      spreInauntruC: 0, spreInauntruR: 1
+    });
+  });
+
+  if (reteta.iesire && zona.poarta) {
+    zona.treceri.push({
+      latura: 'poarta', catre: reteta.iesire.catre,
+      col: zona.poarta.col, rand: zona.poarta.rand,
+      // cand intri in oras, apari inauntrul lui, la nord de poarta
+      spreInauntruC: 0, spreInauntruR: -1
+    });
   }
 
   // ce e liber si la ce se poate ajunge

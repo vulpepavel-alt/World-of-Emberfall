@@ -754,6 +754,9 @@ function faMisiunileZonei(reteta) {
 // Se cheama o singura data, dupa ce s-au incarcat toate zonele.
 function faMisiunileTuturorZonelor() {
   ZONE.forEach(function (reteta) {
+    // Intr-un oras nu se omoara nimic, deci n-are ce misiune sa
+    // primeasca de aici. Antrenorii lui vin la pasul urmator.
+    if (reteta.esteOras) return;
     faMisiunileZonei(reteta).forEach(function (m) { MISIUNI.push(m); });
   });
 }

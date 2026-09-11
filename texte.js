@@ -60,6 +60,8 @@ const TEXT = {
   PLACE_OUTPOST:  'Outpost',
   PLACE_FARM:     'Farm',
   PLACE_CLEARING: 'Clearing',
+  PLACE_DISTRICT: 'District',
+  CITY_SAFE:      'No enemies here',
   PLACE_PEOPLE:   'People you can talk to',
   PLACE_GATE:     'Gate',
   PLACE_PORT:     'Port',
@@ -135,6 +137,45 @@ const TEXT = {
   DROP_ASK:      'Throw away {item}?',
   YES_DROP:      'Throw away',
 
+  // ==========================================================
+  //  OAMENII ORASULUI
+  //
+  //  Numele lor se schimba de la un oras la altul (le face jocul);
+  //  ce scrie aici e doar de rezerva. Titlurile raman.
+  //
+  //  ATENTIE: meseriile de mai jos sunt cuvinte obisnuite - fierar,
+  //  tabacar, tesator. Numele SISTEMULUI de meserii se alege la
+  //  Pasul 2 si inca nu e nimic ales, deci nimic din el n-a intrat
+  //  in joc.
+  // ==========================================================
+  TR_WARRIOR_NAME: 'Warmaster',      TR_WARRIOR_TITLE: 'Warrior Trainer',
+  TR_HUNTER_NAME:  'Bowmaster',      TR_HUNTER_TITLE:  'Hunter Trainer',
+  TR_MAGE_NAME:    'Arcanist',       TR_MAGE_TITLE:    'Mage Trainer',
+  TR_PRIEST_NAME:  'Confessor',      TR_PRIEST_TITLE:  'Priest Trainer',
+
+  TR_MINING_NAME:  'Prospector',     TR_MINING_TITLE:  'Mining Trainer',
+  TR_HERB_NAME:    'Herb Gatherer',  TR_HERB_TITLE:    'Herb Trainer',
+  TR_SKIN_NAME:    'Skinner',        TR_SKIN_TITLE:    'Skinning Trainer',
+
+  TR_SMITH_NAME:   'Forge Master',   TR_SMITH_TITLE:   'Smithing Trainer',
+  TR_ALCH_NAME:    'Brewer',         TR_ALCH_TITLE:    'Brewing Trainer',
+  TR_ENCH_NAME:    'Runecarver',     TR_ENCH_TITLE:    'Runecarving Trainer',
+  TR_ENGI_NAME:    'Tinker',         TR_ENGI_TITLE:    'Tinkering Trainer',
+  TR_LEATHER_NAME: 'Tanner',         TR_LEATHER_TITLE: 'Tanning Trainer',
+  TR_TAILOR_NAME:  'Weaver',         TR_TAILOR_TITLE:  'Weaving Trainer',
+
+  TR_COOK_NAME:    'Cook',           TR_COOK_TITLE:    'Cooking Trainer',
+  TR_MEDIC_NAME:   'Field Medic',    TR_MEDIC_TITLE:   'Bandaging Trainer',
+  TR_FISH_NAME:    'Angler',         TR_FISH_TITLE:    'Fishing Trainer',
+
+  TR_TOOLS_NAME:   'Toolwright',     TR_TOOLS_TITLE:   'Tools and Gear',
+  TR_GOODS_NAME:   'Supplier',       TR_GOODS_TITLE:   'Trade Supplies',
+
+  // Ce spun antrenorii pana cand invatatul chiar se poate face
+  TRAINER_SOON:    'I will teach you my trade. Not yet, though \u2014 come ' +
+                   'back when the guilds open their books.',
+  TRAINER_TEACHES: 'Teaches',
+  CITY_GATE:       'City gate',
   // Prada de la inamici
   LOOT:          'Loot',
   TAKE_ALL:      'Take All',

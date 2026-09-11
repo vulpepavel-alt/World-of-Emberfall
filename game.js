@@ -1495,6 +1495,7 @@ function atingiCeva(scena, x, y) {
     }
     // Cine are marfa deschide taraba; ceilalti, misiunile.
     if (cineva.marfa) deschideTaraba(cineva);
+    else if (cineva.cine && cineva.cine.invata) deschideAntrenorul(cineva);
     else deschideMisiunile(cineva);
     return true;
   }
@@ -1523,6 +1524,7 @@ function interactioneaza(scena) {
 
   if (gasit.fel === 'sac') { deschidePrada(gasit.ce); return; }
   if (gasit.ce.marfa) deschideTaraba(gasit.ce);
+  else if (gasit.ce.cine && gasit.ce.cine.invata) deschideAntrenorul(gasit.ce);
   else deschideMisiunile(gasit.ce);
 }
 

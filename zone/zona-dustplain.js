@@ -48,6 +48,13 @@ inregistreazaZona({
     { fel: 'mina', id: 'mina', nume: 'Deep Cistern', c: 0.74, r: 0.8 }
   ],
 
+  // Poarta orasului duce pe harta lui, care e un fisier separat.
+  // Se pune in ACEEASI lista de treceri ca portile catre zonele
+  // vecine, deci merge prin acelasi cod.
+  intrari: [
+    { la: 'oras', catre: 'karrakhold' }
+  ],
+
   npci: [
     { fel: 'chief', la: 'oras', dc: 4, dr: 1 },
     { fel: 'negustorOrc', la: 'oras', dc: -22, dr: -2 },
