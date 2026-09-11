@@ -334,6 +334,27 @@ const RETETE = [
   },
 
 
+  // ---- din peste iese mancare buna ----
+  {
+    id: 'cook_fish_01', meserie: 'cookery', nume: 'Fried Minnow',
+    cere: [{ nume: 'Silver Minnow', cate: 2 }], statie: 'Cookfire',
+    praguri: { portocaliu: 20, galben: 45, verde: 65, gri: 90 },
+    face: { fel: 'consumabil', nume: 'Fried Minnow', valoare: 16,
+            efect: 'intarire', tine: 900000, da: { agi: 6 },
+            descriere: 'Agility rises for fifteen minutes.' },
+    invatataLa: 20
+  },
+  {
+    id: 'cook_fish_02', meserie: 'cookery', nume: 'Pike Steak',
+    cere: [{ nume: 'Deepwater Pike', cate: 1 }, { nume: 'Fieldleaf', cate: 1 }],
+    statie: 'Cookfire',
+    praguri: { portocaliu: 160, galben: 185, verde: 205, gri: 235 },
+    face: { fel: 'consumabil', nume: 'Pike Steak', valoare: 74,
+            efect: 'intarire', tine: 900000, da: { str: 12, sta: 12 },
+            descriere: 'Strength and stamina rise for fifteen minutes.' },
+    invatataLa: 160
+  },
+
   // ==========================================================
   //  BANDAGING - legaturi care inchid o rana in mers
   // ==========================================================

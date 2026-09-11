@@ -190,6 +190,9 @@ const TEXT = {
   NEED_SKILL:       'Needs skill {n}',
   CANNOT_GATHER:    'You cannot gather this',
   GATHER_STOPPED:   'Interrupted',
+  BITE:             'A bite!',
+  TOO_SOON:         'Too soon',
+  GOT_AWAY:         'It got away',
   SKIN:             'Skin',
   NO_PROFESSIONS:   'You have no trade yet. Trainers wait in the cities.',
 

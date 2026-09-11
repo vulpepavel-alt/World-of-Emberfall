@@ -558,6 +558,7 @@ function curataZonaVeche(scena) {
   alinariInTimp = [];
   nodurileDeFata = [];
   culesulInCurs = null;
+  pescuitul = null;
 
   Object.keys(bucatiTeren).forEach(function (nume) {
     const imagine = bucatiTeren[nume];
@@ -583,6 +584,7 @@ function curataZonaVeche(scena) {
   alinariInTimp = [];
   nodurileDeFata = [];
   culesulInCurs = null;
+  pescuitul = null;
   butonInteract = null;
   tinteDeMisiune = null;
 }
@@ -961,6 +963,141 @@ function terminaCulesul(scena, loc) {
 
 
 // ==========================================================
+//  PESCUITUL
+//
+//  Nu are noduri: apa e peste tot unde e apa. Te asezi pe mal,
+//  apesi, si plutitorul cade in apa. Dupa cateva secunde musca -
+//  plutitorul se scufunda si ai o clipa sa apesi din nou.
+//
+//  Daca apesi prea devreme sau prea tarziu, pestele pleaca. Daca
+//  te misti, la fel.
+// ==========================================================
+const RAZA_APA = 5;               // in casute, cat de aproape de apa
+const ASTEAPTA_MIN = 2000;        // cat astepti pana musca
+const ASTEAPTA_MAX = 6500;
+const CAT_TII_UNDITA = 1600;      // cat ai la dispozitie sa apesi
+
+let pescuitul = null;             // { faza, cand, x, y, plutitor }
+
+
+// Esti langa apa? Ne uitam la literele din jurul tau.
+function estiLangaApa() {
+  if (!zona || !zona.harta) return null;
+
+  const litera = LITERE.apa;
+  const c0 = Math.round(jucator.x / TILE);
+  const r0 = Math.round(jucator.y / TILE);
+
+  for (let r = r0 - RAZA_APA; r <= r0 + RAZA_APA; r++) {
+    if (r < 0 || r >= zona.RND) continue;
+    for (let c = c0 - RAZA_APA; c <= c0 + RAZA_APA; c++) {
+      if (c < 0 || c >= zona.COL) continue;
+      if (zona.harta[r][c] === litera) return { col: c, rand: r };
+    }
+  }
+  return null;
+}
+
+
+function arunciUndita(scena, undeEApa) {
+
+  if (!aiMeseria(personaj, 'angling')) {
+    aratacuvant(scena, jucator.x, jucator.y - 60,
+      TEXT.NEED_PROFESSION.replace('{p}', MESERII.angling.nume), '#e06a5a');
+    return;
+  }
+  if (!maiEsteLocInRucsac(personaj)) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.BAG_FULL, '#e06a5a');
+    return;
+  }
+
+  const x = undeEApa.col * TILE + TILE / 2;
+  const y = undeEApa.rand * TILE + TILE / 2;
+
+  const plutitor = scena.add.container(x, y);
+  plutitor.add(scena.add.circle(0, 0, 4, 0xc2543f));
+  plutitor.add(scena.add.circle(0, -2, 2, 0xf0e4c8));
+  plutitor.setDepth(6);
+
+  scena.tweens.add({ targets: plutitor, y: y - 3, duration: 900,
+                     yoyo: true, repeat: -1 });
+
+  pescuitul = {
+    faza: 'astept',
+    cand: scena.time.now + Phaser.Math.Between(ASTEAPTA_MIN, ASTEAPTA_MAX),
+    x: jucator.x, y: jucator.y,
+    plutitor: plutitor
+  };
+}
+
+
+function stergePlutitorul() {
+  if (pescuitul && pescuitul.plutitor) pescuitul.plutitor.destroy();
+  pescuitul = null;
+}
+
+
+// Apesi a doua oara: ori tragi la timp, ori strici pescuitul.
+function tragiUndita(scena) {
+
+  if (!pescuitul) return;
+
+  if (pescuitul.faza !== 'musca') {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.TOO_SOON, '#e06a5a');
+    stergePlutitorul();
+    return;
+  }
+
+  const skill = skillulTau(personaj, 'angling');
+  const p = pestelePrins(skill);
+
+  pomeneInRucsac(personaj, faMaterial(p.nume, p.valoare));
+  aratacuvant(scena, jucator.x, jucator.y - 60, '+1 ' + p.nume, '#6fa8c0');
+
+  if (adaugaSkill(personaj, 'angling', p.praguri)) {
+    scena.time.delayedCall(600, function () {
+      aratacuvant(scena, jucator.x, jucator.y - 44,
+        MESERII.angling.nume + ' ' + skillulTau(personaj, 'angling'), UI.textAuriu);
+    });
+  }
+
+  stergePlutitorul();
+  salveaza();
+}
+
+
+function actualizeazaPescuitul(scena) {
+
+  if (!pescuitul) return;
+
+  // Te-ai miscat sau ai murit: pleaca pestele.
+  const cat = Phaser.Math.Distance.Between(jucator.x, jucator.y,
+                                           pescuitul.x, pescuitul.y);
+  if (mort || cat > 12) { stergePlutitorul(); return; }
+
+  if (pescuitul.faza === 'astept' && scena.time.now >= pescuitul.cand) {
+    // Musca: plutitorul se scufunda si se face galben.
+    pescuitul.faza = 'musca';
+    pescuitul.cand = scena.time.now + CAT_TII_UNDITA;
+    scena.tweens.killTweensOf(pescuitul.plutitor);
+    pescuitul.plutitor.list.forEach(function (b) {
+      if (b.setFillStyle) b.setFillStyle(0xffd34d);
+    });
+    scena.tweens.add({ targets: pescuitul.plutitor, scale: 1.6,
+                       duration: 180, yoyo: true, repeat: -1 });
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.BITE, UI.textAuriu);
+    return;
+  }
+
+  // Ai lasat-o prea mult: a plecat.
+  if (pescuitul.faza === 'musca' && scena.time.now >= pescuitul.cand) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.GOT_AWAY, '#e06a5a');
+    stergePlutitorul();
+  }
+}
+
+
+// ==========================================================
 //  STALPII DE LA IESIRILE DIN ZONA
 //
 //  Marginea unei zone e zid pe toata lungimea ei, in afara de UN
@@ -1234,6 +1371,7 @@ function create() {
   alinariInTimp = [];
   nodurileDeFata = [];
   culesulInCurs = null;
+  pescuitul = null;
   saci.forEach(function (sac) { sac.destroy(); });
   saci = [];
   // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
@@ -1251,6 +1389,7 @@ function create() {
 
   // --- Bara care se umple cand culegi minereu sau plante ---
   nodurileDeFata = [];
+  pescuitul = null;
   opresteCulesul();
   faBaraDeCules(this);
 
@@ -1937,6 +2076,14 @@ function ceEDeschisLangaTine() {
   const nod = (typeof nodulDeLangaTine === 'function') ? nodulDeLangaTine() : null;
   if (nod) return { fel: 'nod', ce: nod };
 
+  // Tot butonul asta arunca undita, daca stii sa pescuiesti si esti
+  // langa apa. Si tot el trage, cand plutitorul s-a scufundat.
+  if (pescuitul) return { fel: 'tragUndita' };
+  if (aiMeseria(personaj, 'angling')) {
+    const apa = estiLangaApa();
+    if (apa) return { fel: 'apa', ce: apa };
+  }
+
   return null;
 }
 
@@ -1947,6 +2094,8 @@ function interactioneaza(scena) {
 
   if (gasit.fel === 'sac') { deschidePrada(gasit.ce); return; }
   if (gasit.fel === 'nod') { incepeCulesul(scena, gasit.ce); return; }
+  if (gasit.fel === 'apa') { arunciUndita(scena, gasit.ce); return; }
+  if (gasit.fel === 'tragUndita') { tragiUndita(scena); return; }
   if (gasit.ce.marfa) deschideTaraba(gasit.ce);
   else if (gasit.ce.cine && gasit.ce.cine.invata) deschideAntrenorul(gasit.ce);
   else deschideMisiunile(gasit.ce);
@@ -3392,6 +3541,7 @@ function update(time, delta) {
   actualizeazaNpcii(this, delta);
   actualizeazaNoduri(this);
   actualizeazaCulesul(this);
+  actualizeazaPescuitul(this);
   // Ce tine in timp: ranile care dor, alinarile si intaririle.
   actualizeazaRanile(this);
   actualizeazaAlinarile(this);

@@ -113,7 +113,8 @@ const MESERII = {
   angling: {
     id: 'angling', nume: 'Angling', fel: 'langaCasa', principala: false,
     descriere: 'Standing at the water with a line in it.',
-    unealta: 'Fishing Rod', antrenor: 'antrenorPescuit', gata: false
+    unealta: 'Fishing Rod', antrenor: 'antrenorPescuit', gata: true,
+    laApa: true
   }
 };
 
@@ -374,4 +375,34 @@ function adaugaSkill(personajul, id, praguri) {
   if (!poateCresteSkillul(personajul, id, praguri)) return false;
   personajul.meserii[id].skill += 1;
   return true;
+}
+
+
+// ----------------------------------------------------------
+//  PESCUITUL
+//
+//  Nu are noduri pe harta: apa e peste tot unde e apa. Ce scoti
+//  depinde de skill, si ce scoti se gateste.
+// ----------------------------------------------------------
+const PESTII = [
+  { nume: 'Silver Minnow', minim: 1,   valoare: 5,
+    praguri: { portocaliu: 1, galben: 30, verde: 55, gri: 100 } },
+  { nume: 'Reed Carp',     minim: 50,  valoare: 14,
+    praguri: { portocaliu: 50, galben: 80, verde: 105, gri: 150 } },
+  { nume: 'Deepwater Pike', minim: 120, valoare: 34,
+    praguri: { portocaliu: 120, galben: 150, verde: 175, gri: 220 } },
+  { nume: 'Glass Eel',     minim: 200, valoare: 72,
+    praguri: { portocaliu: 200, galben: 230, verde: 255, gri: 295 } }
+];
+
+
+// Ce prinzi acum: cel mai bun peste pe care il poate scoate skill-ul
+// tau, dar nu de fiecare data - uneori iese unul mai marunt.
+function pestelePrins(skill) {
+  const potriviti = PESTII.filter(function (p) { return skill >= p.minim; });
+  if (!potriviti.length) return PESTII[0];
+  // Cu cat esti mai bun, cu atat mai des iese cel bun.
+  const zar = Math.random();
+  if (zar < 0.55) return potriviti[potriviti.length - 1];
+  return potriviti[Math.floor(Math.random() * potriviti.length)];
 }
