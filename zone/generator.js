@@ -292,6 +292,75 @@ function faLocul(zona, loc) {
 
   switch (loc.fel) {
 
+    // ==========================================================
+    //  ORASUL
+    //
+    //  Un oras nu e un sat mai mare. E altceva: zid de piatra de jur
+    //  imprejur, patru porti, strazi care se taie in cruce, un piata
+    //  cu fantana la mijloc, si case insirate pe strazi in loc de
+    //  imprastiate pe camp.
+    //
+    //  Cate unul pe continent, in zona de langa cele doua tabere de
+    //  inceput - ca sa poti ajunge la el de devreme, ca in WoW.
+    // ==========================================================
+    case 'oras': {
+
+      const LAT = 78, INALT = 62;      // cat tine orasul, in casute
+      const c0 = c - LAT / 2, r0 = r - INALT / 2;
+
+      // curatam locul si punem pamant batatorit peste tot
+      dreptunghi(t, c0 - 4, r0 - 4, LAT + 8, INALT + 8, L.fond);
+      dreptunghi(t, c0, r0, LAT, INALT, L.drum);
+
+      // zidul de piatra, gros de doua casute
+      dreptunghi(t, c0, r0, LAT, 2, L.piatra);
+      dreptunghi(t, c0, r0 + INALT - 2, LAT, 2, L.piatra);
+      dreptunghi(t, c0, r0, 2, INALT, L.piatra);
+      dreptunghi(t, c0 + LAT - 2, r0, 2, INALT, L.piatra);
+
+      // turnuri in colturi
+      [[0, 0], [LAT - 6, 0], [0, INALT - 6], [LAT - 6, INALT - 6]].forEach(function (x) {
+        dreptunghi(t, c0 + x[0], r0 + x[1], 6, 6, L.piatra);
+      });
+
+      // patru porti, cate una pe fiecare latura
+      dreptunghi(t, c0 + LAT / 2 - 3, r0, 6, 2, L.drum);
+      dreptunghi(t, c0 + LAT / 2 - 3, r0 + INALT - 2, 6, 2, L.drum);
+      dreptunghi(t, c0, r0 + INALT / 2 - 3, 2, 6, L.drum);
+      dreptunghi(t, c0 + LAT - 2, r0 + INALT / 2 - 3, 2, 6, L.drum);
+
+      // piata din mijloc, cu fantana
+      disc(t, c, r, 9, L.piatra);
+      disc(t, c, r, 7, L.drum);
+      disc(t, c, r, 3, L.piatra);
+      if (L.apa) disc(t, c, r, 2, L.apa);
+
+      // casele, insirate pe strazi. Fiecare cvartal are patru case
+      // lipite spate in spate, ca intr-un oras adevarat.
+      const cvartale = [
+        [-32, -24], [-19, -24], [6, -24], [19, -24],
+        [-32, -10], [-19, -10], [19, -10],
+        [-32,   6], [-19,   6], [19,   6],
+        [-32,  17], [-19,  17], [6,  17], [19,  17]
+      ];
+      cvartale.forEach(function (x) {
+        faCasa(t, c + x[0], r + x[1], L);
+        faCasa(t, c + x[0], r + x[1] + 6, L);
+      });
+
+      // felinare pe strada principala
+      for (let i = -30; i <= 30; i += 10) {
+        if (Math.abs(i) < 11) continue;
+        pune(t, c + i, r - 12, L.foc);
+        pune(t, c + i, r + 12, L.foc);
+      }
+
+      // drumul care intra in oras
+      zona.drumOrizontal(r, c, Math.round(zona.COL * 0.20) + 6);
+      zona.drumVertical(c, r, Math.round(zona.RND * 0.22));
+      break;
+    }
+
     case 'sat':
       dreptunghi(t, c - 26, r - 20, 56, 44, L.fond);
       LOCURI_CASE.forEach(function (x) { faCasa(t, c + x[0], r + x[1], L); });

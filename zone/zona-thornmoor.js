@@ -3,6 +3,8 @@
 //
 //  Campie intinsa de ierburi uscate si maracini.
 //
+//  Aici e ORASUL Ambervault, unul din cele doua orase mari ale lumii.
+//
 //  Harta NU e scrisa aici. Fisierul asta e o RETETA: cat e de mare,
 //  ce culori are si unde stau locurile care conteaza. Harta se
 //  construieste cand intri in zona, din samanta de mai jos - aceeasi
@@ -38,7 +40,7 @@ inregistreazaZona({
   port: { fel: 'zeppelin', catre: 'dustplain', la: 'mina' },
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.18, r: 0.5 },
+    { fel: 'oras', id: 'oras', c: 0.30, r: 0.46 },
     { fel: 'corturi', id: 'tabara', c: 0.66, r: 0.32 },
     { fel: 'pestera', id: 'vizuina', c: 0.4, r: 0.76 },
     { fel: 'post', id: 'post', c: 0.82, r: 0.56 },
@@ -46,9 +48,15 @@ inregistreazaZona({
   ],
 
   npci: [
-    { fel: 'marshal', la: 'sat', dc: 4, dr: 1 },
-    { fel: 'negustor', la: 'sat', dc: -8, dr: -1 },
-    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 }
+    { fel: 'marshal', la: 'oras', dc: 4, dr: 1 },
+    { fel: 'negustor', la: 'oras', dc: -22, dr: -2 },
+    { fel: 'armurier', la: 'oras', dc: 22, dr: -2 },
+    { fel: 'negustor', la: 'oras', dc: -22, dr: 14 },
+    { fel: 'armurier', la: 'oras', dc: 22, dr: 14 },
+    { fel: 'cavaler', la: 'oras', dc: 0, dr: -16 },
+    { fel: 'padurar', la: 'oras', dc: -14, dr: 18 },
+    { fel: 'miner', la: 'oras', dc: 14, dr: 18 },
+    { fel: 'taran', la: 'oras', dc: -30, dr: 4 }
   ],
 
   tabere: 50,
@@ -63,5 +71,5 @@ inregistreazaZona({
     return ['raider', 'bandit'];
   },
 
-  start: { la: 'sat', dc: 6, dr: 1 }
+  start: { la: 'oras', dc: 6, dr: 14 }
 });

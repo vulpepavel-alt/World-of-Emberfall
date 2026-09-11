@@ -317,3 +317,64 @@ function numeDeRar(samanta) {
 function numeDeElit(samanta, numeFel) {
   return NUME_ELITE[samanta % NUME_ELITE.length] + ' of the ' + numeFel;
 }
+
+
+// ==========================================================
+//  VIETATILE MARUNTE
+//
+//  Iepuri, soparle, gandaci. Nu se bat, nu dau experienta, nu lasa
+//  nimic si mor dintr-o lovitura. N-au niciun rost in joc.
+//
+//  Exact asta e rostul lor: o lume in care singurele lucruri vii
+//  sunt cele care vor sa te omoare nu se simte ca o lume. WoW e
+//  plin de broaste si de veverite din acelasi motiv.
+// ==========================================================
+const VIETATI = {
+
+  iepure: {
+    nume: 'Rabbit',
+    forme: [
+      { fel: 'dr',   x:  5, y:  2, w:  3, h:  3, culoare: 0xe8e2d8 },  // coada
+      { fel: 'dr',   x:  0, y:  2, w: 10, h:  6, culoare: 0xa89880 },  // trup
+      { fel: 'dr',   x: -5, y: -4, w:  2, h:  5, culoare: 0xb8a890 },  // urechi
+      { fel: 'dr',   x: -2, y: -4, w:  2, h:  5, culoare: 0xb8a890 },
+      { fel: 'dr',   x: -5, y:  1, w:  6, h:  5, culoare: 0xb8a890 },  // cap
+      { fel: 'dr',   x: -6, y:  0, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+    ]
+  },
+
+  soparla: {
+    nume: 'Lizard',
+    forme: [
+      { fel: 'dr',   x:  7, y:  1, w:  8, h:  2, culoare: 0x6a8a52 },  // coada
+      { fel: 'dr',   x:  0, y:  1, w: 11, h:  4, culoare: 0x7a9a5c },  // trup
+      { fel: 'dr',   x: -4, y:  4, w:  3, h:  2, culoare: 0x6a8a52 },  // picioare
+      { fel: 'dr',   x:  3, y:  4, w:  3, h:  2, culoare: 0x6a8a52 },
+      { fel: 'dr',   x: -6, y:  0, w:  5, h:  4, culoare: 0x8aaa6c },  // cap
+      { fel: 'dr',   x: -7, y: -1, w:  2, h:  2, culoare: 0x120f0c }
+    ]
+  },
+
+  gandac: {
+    nume: 'Beetle',
+    forme: [
+      { fel: 'cerc', x:  1, y:  1, r:  5,        culoare: 0x3a3a44 },  // carapace
+      { fel: 'dr',   x:  1, y:  1, w:  2, h:  9, culoare: 0x24242c },  // dunga
+      { fel: 'dr',   x: -6, y: -2, w:  3, h:  2, culoare: 0x2a2a32 },  // antene
+      { fel: 'dr',   x: -6, y:  3, w:  3, h:  2, culoare: 0x2a2a32 }
+    ]
+  },
+
+  pasare: {
+    nume: 'Sparrow',
+    forme: [
+      { fel: 'dr',   x:  4, y:  0, w:  5, h:  2, culoare: 0x6a5a48 },  // coada
+      { fel: 'cerc', x:  0, y:  0, r:  4,        culoare: 0x8a7a62 },  // trup
+      { fel: 'dr',   x: -4, y: -1, w:  3, h:  3, culoare: 0x9a8a72 },  // cap
+      { fel: 'dr',   x: -6, y:  0, w:  2, h:  1, culoare: 0xd8a84a },  // cioc
+      { fel: 'dr',   x: -4, y: -2, w:  1, h:  1, culoare: 0x120f0c }
+    ]
+  }
+};
+
+const ID_VIETATI = Object.keys(VIETATI);

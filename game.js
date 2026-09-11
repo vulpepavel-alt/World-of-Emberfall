@@ -552,6 +552,8 @@ function treciInZona(idZona, dinspre) {
 // raman acolo pentru totdeauna si se aduna la fiecare zona.
 function curataZonaVeche(scena) {
 
+  vietati = [];
+
   Object.keys(bucatiTeren).forEach(function (nume) {
     const imagine = bucatiTeren[nume];
     const cheie = imagine && imagine.texture && imagine.texture.key;
@@ -570,6 +572,7 @@ function curataZonaVeche(scena) {
   mobi = [];
   npci = [];
   saci = [];
+  vietati = [];
   butonInteract = null;
   tinteDeMisiune = null;
 }
@@ -778,6 +781,7 @@ function create() {
 
   // --- Inamicii, exact unde ii scrie zona ---
   mobi = [];
+  vietati = [];
   saci.forEach(function (sac) { sac.destroy(); });
   saci = [];
   // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
@@ -1407,6 +1411,164 @@ function actualizeazaButonulInteract() {
   const areCeva = ceEDeschisLangaTine() !== null;
   butonInteract.piatra.setFillStyle(areCeva ? CULOARE_INTERACT_GATA : CULOARE_INTERACT_STINS);
   butonInteract.cerc.setAlpha(areCeva ? 1 : 0.55);
+}
+
+
+// ================================================
+//  VIETATILE MARUNTE SI OAMENII CARE SE PLIMBA
+//
+//  Nimic din ce e aici nu schimba jocul. Un iepure care traverseaza
+//  poteca si un taran care se plimba prin sat nu-ti dau nimic si nu
+//  te pot rani.
+//
+//  Dar o lume in care singurul lucru care se misca in afara de tine
+//  e ceva care vrea sa te omoare nu se simte ca o lume. De aceea
+//  sunt aici.
+// ================================================
+const CATE_VIETATI = 14;        // cate se plimba odata in jurul tau
+const RAZA_VIETATI = 620;       // cat de departe de tine se nasc
+const VITEZA_VIETATE = 26;
+
+let vietati = [];
+
+
+function faVietate(scena, x, y) {
+
+  const fel = VIETATI[ID_VIETATI[Math.floor(Math.random() * ID_VIETATI.length)]];
+  const v = scena.add.container(x, y);
+
+  v.add(faUmbra(scena, 12));
+  deseneazaForme(scena, fel.forme).forEach(function (b) { v.add(b); });
+  v.setScale(0.75);
+  v.setDepth(7);
+
+  v.fel = fel;
+  v.tinta = null;
+  v.asteaptaPanaLa = 0;
+  vietati.push(v);
+  return v;
+}
+
+
+function stergeVietate(v) {
+  vietati = vietati.filter(function (x) { return x !== v; });
+  v.destroy();
+}
+
+
+// Se nasc in jurul tau, se plimba fara rost, si dispar cand te
+// departezi. Nu se tin minte nicaieri: la fiecare intrare in zona
+// sunt altele, si nu conteaza.
+function actualizeazaVietatile(scena, delta) {
+
+  if (!zona || !jucator) return;
+
+  // ---- se nasc ----
+  while (vietati.length < CATE_VIETATI) {
+
+    const unghi = Math.random() * Math.PI * 2;
+    const raza = 260 + Math.random() * (RAZA_VIETATI - 260);
+    const x = jucator.x + Math.cos(unghi) * raza;
+    const y = jucator.y + Math.sin(unghi) * raza;
+
+    const col = Math.floor(x / TILE), rand = Math.floor(y / TILE);
+    if (rand < 0 || col < 0 || rand >= zona.harta.length || col >= zona.harta[0].length) break;
+    if (esteBlocat(zona.harta[rand][col])) break;
+
+    faVietate(scena, x, y);
+  }
+
+  // ---- se plimba ----
+  const pas = VITEZA_VIETATE * (delta / 1000);
+
+  vietati.slice().forEach(function (v) {
+
+    if (Phaser.Math.Distance.Between(v.x, v.y, jucator.x, jucator.y) > RAZA_VIETATI + 200) {
+      stergeVietate(v);
+      return;
+    }
+
+    // Cand te apropii, fuge. Ca in viata.
+    const panaLaTine = Phaser.Math.Distance.Between(v.x, v.y, jucator.x, jucator.y);
+    if (panaLaTine < 70) {
+      const unghi = Math.atan2(v.y - jucator.y, v.x - jucator.x);
+      v.tinta = { x: v.x + Math.cos(unghi) * 140, y: v.y + Math.sin(unghi) * 140 };
+      v.asteaptaPanaLa = 0;
+    }
+
+    if (scena.time.now < v.asteaptaPanaLa) return;
+
+    if (!v.tinta) {
+      const unghi = Math.random() * Math.PI * 2;
+      const cat = 40 + Math.random() * 90;
+      v.tinta = { x: v.x + Math.cos(unghi) * cat, y: v.y + Math.sin(unghi) * cat };
+    }
+
+    const dx = v.tinta.x - v.x, dy = v.tinta.y - v.y;
+    const d = Math.sqrt(dx * dx + dy * dy);
+
+    if (d < 4) {
+      v.tinta = null;
+      v.asteaptaPanaLa = scena.time.now + 800 + Math.random() * 2600;
+      return;
+    }
+
+    const nx = v.x + (dx / d) * pas;
+    const ny = v.y + (dy / d) * pas;
+
+    const col = Math.floor(nx / TILE), rand = Math.floor(ny / TILE);
+    if (rand < 0 || col < 0 || rand >= zona.harta.length || col >= zona.harta[0].length ||
+        esteBlocat(zona.harta[rand][col])) {
+      v.tinta = null;
+      return;
+    }
+
+    v.x = nx;
+    v.y = ny;
+    v.setScale(0.75 * (v.x < jucator.x ? 1 : 1));     // ramane la fel; loc de intors mai tarziu
+  });
+}
+
+
+// Oamenii din sate nu mai stau ca niste stalpi: fac cativa pasi in
+// jurul locului lor si se opresc, apoi iar.
+const RAZA_PLIMBARE_NPC = 46;
+
+function actualizeazaNpcii(scena, delta) {
+
+  const pas = 18 * (delta / 1000);
+
+  npci.forEach(function (p) {
+
+    if (p.acasaX === undefined) { p.acasaX = p.x; p.acasaY = p.y; }
+    if (scena.time.now < (p.asteaptaPanaLa || 0)) return;
+
+    if (!p.tinta) {
+      const unghi = Math.random() * Math.PI * 2;
+      const cat = Math.random() * RAZA_PLIMBARE_NPC;
+      p.tinta = { x: p.acasaX + Math.cos(unghi) * cat,
+                  y: p.acasaY + Math.sin(unghi) * cat };
+    }
+
+    const dx = p.tinta.x - p.x, dy = p.tinta.y - p.y;
+    const d = Math.sqrt(dx * dx + dy * dy);
+
+    if (d < 3) {
+      p.tinta = null;
+      p.asteaptaPanaLa = scena.time.now + 2000 + Math.random() * 5000;
+      return;
+    }
+
+    const nx = p.x + (dx / d) * pas, ny = p.y + (dy / d) * pas;
+    const col = Math.floor(nx / TILE), rand = Math.floor(ny / TILE);
+    if (rand < 0 || col < 0 || rand >= zona.harta.length || col >= zona.harta[0].length ||
+        esteBlocat(zona.harta[rand][col])) {
+      p.tinta = null;
+      return;
+    }
+    p.x = nx;
+    p.y = ny;
+  });
 }
 
 
@@ -2425,6 +2587,8 @@ function update(time, delta) {
   actualizeazaTerenul(this);
   actualizeazaMobii(this);
   actualizeazaSacii(this);
+  actualizeazaVietatile(this, delta);
+  actualizeazaNpcii(this, delta);
   actualizeazaButonulInteract();
   salveazaDinCandInCand();
 
