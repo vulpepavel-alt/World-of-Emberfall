@@ -32,6 +32,7 @@ function potrivesteFereastra() {
 
 
 function inchideFereastraDeschisa() {
+  if (typeof ascundeFisa === 'function') ascundeFisa();
   fereastraDeschisa = null;
   saculDeschis = null;
   negustorulDeschis = null;
@@ -44,6 +45,11 @@ function inchideFereastraDeschisa() {
 //  PRADA
 // ==========================================================
 function deschidePrada(sac) {
+
+  // Doar o fereastra odata: pe telefon, doua una peste alta
+  // nu se mai inteleg.
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+
   fereastraDeschisa = 'prada';
   saculDeschis = sac;
   mesajFereastra = '';
@@ -69,14 +75,14 @@ function scriePrada() {
 
   if (prada.bani > 0) {
     html += '<button class="rand-prada" data-bani="1">' +
-            '<span class="cutiuta" style="background:' + CULOARE_AUR + '"></span>' +
+            '<span class="cutie-obiect punga-mica"></span>' +
             '<span class="text-prada"><span class="nume-obiect">' +
             baniHtml(prada.bani) + '</span></span></button>';
   }
 
   prada.obiecte.forEach(function (o) {
-    html += '<button class="rand-prada" data-iau="' + o.id + '">' +
-            '<span class="cutiuta" style="background:' + o.culoare + '"></span>' +
+    html += '<button class="rand-prada" data-iau="' + o.id + '" data-fisa="' + o.id + '">' +
+            cutieObiect(o, 30) +
             '<span class="text-prada">' +
             '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume + '</span>' +
             '<span class="stat-obiect">' + descriereObiect(o) + '</span>' +
@@ -84,10 +90,14 @@ function scriePrada() {
   });
 
   html += '</div>';
-  html += '<div class="jos-fereastra"><button class="buton" id="ia-tot">' +
-          TEXT.TAKE_ALL + '</button></div>';
+  html += '<div class="jos-fereastra">' +
+          '<button class="buton" id="ia-tot">' + TEXT.TAKE_ALL + '</button>' +
+          (mesajFereastra ? '<span class="mesaj-fereastra">' + mesajFereastra + '</span>' : '') +
+          '<span class="punga">' + locuriLibere(personaj) + ' / ' + LOCURI_IN_RUCSAC + '</span>' +
+          '</div>';
 
   corpFereastra.innerHTML = html;
+  legafisele(corpFereastra);
 
   const banii = corpFereastra.querySelector('[data-bani]');
   if (banii) banii.addEventListener('click', function () { iaBaniiDinSac(); });
@@ -114,9 +124,13 @@ function iaTotDinSac() {
     sac.prada.bani = 0;
   }
 
-  personaj.inventar = personaj.inventar || [];
-  sac.prada.obiecte.forEach(function (o) { personaj.inventar.push(o); });
-  sac.prada.obiecte = [];
+  // Luam cat incape. Ce nu incape ramane in sac.
+  const ramase = [];
+  sac.prada.obiecte.forEach(function (o) {
+    if (!pomeneInRucsac(personaj, o)) ramase.push(o);
+  });
+  sac.prada.obiecte = ramase;
+  mesajFereastra = ramase.length > 0 ? TEXT.BAG_FULL : '';
 
   dupaCeAiLuat();
 }
@@ -136,8 +150,13 @@ function iaObiectulDinSac(idObiect) {
   const unde = lista.findIndex(function (o) { return o.id === idObiect; });
   if (unde < 0) return;
 
-  personaj.inventar = personaj.inventar || [];
-  personaj.inventar.push(lista[unde]);
+  if (!pomeneInRucsac(personaj, lista[unde])) {
+    mesajFereastra = TEXT.BAG_FULL;
+    scriePrada();
+    return;
+  }
+
+  mesajFereastra = '';
   lista.splice(unde, 1);
   dupaCeAiLuat();
 }
@@ -182,6 +201,11 @@ function faMarfa(ceVinde) {
 
 
 function deschideTaraba(npcul) {
+
+  // Doar o fereastra odata: pe telefon, doua una peste alta
+  // nu se mai inteleg.
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+
   fereastraDeschisa = 'taraba';
   negustorulDeschis = npcul;
   filaTarabei = 'buy';
@@ -212,8 +236,8 @@ function scrieTaraba() {
       const pret = pretDeCumparat(o);
       const potPlati = aiDestuiBani(personaj, pret);
       html += '<button class="rand-prada' + (potPlati ? '' : ' scump') +
-              '" data-cumpar="' + o.id + '">' +
-              '<span class="cutiuta" style="background:' + o.culoare + '"></span>' +
+              '" data-cumpar="' + o.id + '" data-fisa="' + o.id + '">' +
+              cutieObiect(o, 30) +
               '<span class="text-prada">' +
               '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume + '</span>' +
               '<span class="stat-obiect">' + descriereObiect(o) + '</span>' +
@@ -228,8 +252,8 @@ function scrieTaraba() {
       html += '<div class="gol-fereastra">' + TEXT.NOTHING_TO_SELL + '</div>';
     }
     ale.forEach(function (o) {
-      html += '<button class="rand-prada" data-vand="' + o.id + '">' +
-              '<span class="cutiuta" style="background:' + o.culoare + '"></span>' +
+      html += '<button class="rand-prada" data-vand="' + o.id + '" data-fisa="' + o.id + '">' +
+              cutieObiect(o, 30) +
               '<span class="text-prada">' +
               '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume + '</span>' +
               '<span class="stat-obiect">' + descriereObiect(o) + '</span>' +
@@ -242,10 +266,13 @@ function scrieTaraba() {
 
   html += '<div class="jos-fereastra">' +
           (mesajFereastra ? '<span class="mesaj-fereastra">' + mesajFereastra + '</span>' : '<span></span>') +
-          '<span class="punga">' + TEXT.YOUR_MONEY + ': ' + baniHtml(personaj.bani || 0) + '</span>' +
+          '<span class="punga">' + locuriLibere(personaj) + ' / ' + LOCURI_IN_RUCSAC +
+          ' &middot; ' + TEXT.YOUR_MONEY + ': ' + baniHtml(personaj.bani || 0) + '</span>' +
           '</div>';
 
   corpFereastra.innerHTML = html;
+
+  legafisele(corpFereastra);
 
   corpFereastra.querySelectorAll('[data-fila-taraba]').forEach(function (b) {
     b.addEventListener('click', function () {
@@ -274,6 +301,12 @@ function cumpara(idObiect) {
   const obiect = marfa[unde];
   const pret = pretDeCumparat(obiect);
 
+  if (!maiEsteLocInRucsac(personaj)) {
+    mesajFereastra = TEXT.BAG_FULL;
+    scrieTaraba();
+    return;
+  }
+
   if (!dauBani(personaj, pret)) {
     mesajFereastra = TEXT.NOT_ENOUGH;
     scrieTaraba();
@@ -282,8 +315,7 @@ function cumpara(idObiect) {
 
   // Ce cumperi pleaca de pe taraba si ajunge la tine.
   marfa.splice(unde, 1);
-  personaj.inventar = personaj.inventar || [];
-  personaj.inventar.push(obiect);
+  pomeneInRucsac(personaj, obiect);
 
   mesajFereastra = TEXT.BOUGHT + ': ' + obiect.nume;
   scrieTaraba();

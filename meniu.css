@@ -542,10 +542,6 @@
 }
 .slot:hover { border-color: #c9a961; }
 .slot.gol { cursor: default; opacity: .65; }
-.slot .cutiuta {
-  flex: 0 0 auto; width: 26px; height: 26px;
-  border: 1px solid #6b5326; border-radius: 2px; background: #100c08;
-}
 .slot .text-slot { min-width: 0; }
 .slot .nume-slot { display: block; font-size: 9.5px; color: #7a6748; }
 .slot .nume-obiect {
@@ -564,19 +560,7 @@
 .sub-personaj .slot { flex: 0 0 190px; }
 
 /* ---- fila Inventory ---- */
-.grila-inventar {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-}
-.obiect-inv {
-  border: 2px solid #4d3c22; border-radius: 2px;
-  background: #1b1510; padding: 7px 9px;
-  font-family: inherit; text-align: left; cursor: pointer; color: #cdbb9a;
-}
-.obiect-inv:hover { border-color: #c9a961; }
-.obiect-inv .nume-obiect { display: block; font-size: 11.5px; line-height: 1.25; }
-.obiect-inv .unde { display: block; font-size: 9.5px; color: #7a6748; margin-top: 2px; }
-.obiect-inv .stat-obiect { display: block; font-size: 10px; color: #96805c; margin-top: 3px; }
-.inventar-gol { color: #7a6748; font-size: 13px; padding: 10px; }
+
 
 
 /* ==========================================================
@@ -638,10 +622,6 @@
 .rand-prada.scump { opacity: .45; }
 .rand-prada.scump:hover { border-color: #7a3128; }
 
-.rand-prada .cutiuta {
-  flex: 0 0 auto; width: 26px; height: 26px;
-  border: 2px solid #4d3c22; border-radius: 2px;
-}
 .rand-prada .text-prada { flex: 1; min-width: 0; }
 .rand-prada .nume-obiect {
   display: block; font-size: 13px; line-height: 1.25;
@@ -665,3 +645,71 @@
   padding: 26px 10px; text-align: center;
   color: #96805c; font-size: 13px; font-style: italic;
 }
+
+
+/* ==========================================================
+   CUTIA UNUI OBIECT, RUCSACUL SI FISA
+   ========================================================== */
+
+/* Patratul cu icoana. Chenarul are culoarea raritatii. */
+.cutie-obiect {
+  position: relative; display: inline-block; flex: 0 0 auto;
+  background: #0f0c08;
+  border: 2px solid #4d3c22;
+  box-sizing: content-box;
+}
+.cutie-obiect.goala { background: #171209; border-style: dashed; }
+.cutie-obiect i { display: block; }
+
+/* punga de bani din fereastra de prada */
+.cutie-obiect.punga-mica {
+  width: 30px; height: 30px; border-color: #e6c669;
+  background: radial-gradient(circle at 50% 40%, #e6c669 0 30%, #7a5c1e 31% 100%);
+}
+
+/* ---- rucsacul: patrate, ca in WoW ---- */
+.ajutor-rucsac { font-size: 11px; color: #7a6748; margin-bottom: 9px; }
+
+.grila-rucsac {
+  display: grid; grid-template-columns: repeat(10, 52px); gap: 6px;
+}
+
+.loc-rucsac {
+  position: relative;
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0; margin: 0;
+  background: #1b1510;
+  border: 2px solid #3a2d19;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.loc-rucsac.gol { cursor: default; background: #150f0a; }
+.loc-rucsac:not(.gol):hover { border-color: #c9a961; }
+
+/* Ce nu poti purta inca sta stins, cu nivelul cerut in colt. */
+.loc-rucsac.preaMic .cutie-obiect { opacity: .4; }
+.loc-rucsac .semn-nivel {
+  position: absolute; right: 2px; bottom: 1px;
+  font-size: 10px; font-weight: 700; color: #e06a5a;
+  text-shadow: 0 0 3px #000;
+}
+
+/* ---- fisa obiectului ---- */
+#fisa-obiect {
+  position: fixed; z-index: 90;
+  min-width: 190px; max-width: 280px;
+  padding: 9px 11px;
+  background: #0c0906;
+  border: 2px solid #8a6a2f;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .8);
+  font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+  color: #e8dcc0;
+  pointer-events: none;
+}
+#fisa-obiect .fisa-nume { font-size: 14px; line-height: 1.25; margin-bottom: 4px; }
+#fisa-obiect .fisa-rand { font-size: 12px; line-height: 1.45; }
+#fisa-obiect .fisa-doua { display: flex; justify-content: space-between; gap: 12px; }
+#fisa-obiect .stins { color: #8d7a58; }
+#fisa-obiect .bun   { color: #6fd06f; }
+#fisa-obiect .rau   { color: #e06a5a; }

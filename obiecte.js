@@ -121,6 +121,7 @@ function faObiect(idSlot, nivel, idRaritate) {
     slot: idSlot,
     nume: adjectiv + ' ' + NUME_PIESA[idSlot] + ' ' + coada.text,
     nivel: nivel,
+    nivelCerut: nivel,    // de la ce nivel il poti pune pe tine
     raritate: raritate.id,
     culoare: raritate.culoare,
     statistici: statistici,
@@ -183,6 +184,31 @@ function pradaAreCeva(prada) {
 
 
 // ==========================================================
+//  RUCSACUL
+//
+//  Nu mai incape orice, oricat. Rucsacul are un numar de locuri,
+//  ca in WoW, si cand se umple nu mai poti lua nimic de pe jos.
+// ==========================================================
+const LOCURI_IN_RUCSAC = 20;
+
+function locuriLibere(personajul) {
+  return LOCURI_IN_RUCSAC - (personajul.inventar || []).length;
+}
+
+function maiEsteLocInRucsac(personajul) {
+  return locuriLibere(personajul) > 0;
+}
+
+// Pune un obiect in rucsac. Da inapoi false daca nu mai e loc.
+function pomeneInRucsac(personajul, obiect) {
+  personajul.inventar = personajul.inventar || [];
+  if (!maiEsteLocInRucsac(personajul)) return false;
+  personajul.inventar.push(obiect);
+  return true;
+}
+
+
+// ==========================================================
 //  ECHIPAREA
 // ==========================================================
 
@@ -206,6 +232,16 @@ function bonusEchipament(personajul) {
 
 // Pui un obiect pe tine. Ce aveai in slotul ala se intoarce in
 // inventar. Da inapoi true daca a mers.
+// Esti destul de mare ca sa porti obiectul asta?
+function nivelulCerut(obiect) {
+  return obiect.nivelCerut || obiect.nivel || 1;
+}
+
+function poateFiEchipat(personajul, obiect) {
+  return personajul.nivel >= nivelulCerut(obiect);
+}
+
+
 function echipeaza(personajul, idObiect) {
 
   personajul.inventar = personajul.inventar || [];
@@ -215,6 +251,9 @@ function echipeaza(personajul, idObiect) {
   if (locInInventar < 0) return false;
 
   const obiect = personajul.inventar[locInInventar];
+
+  // Prea mic pentru el: ramane in rucsac.
+  if (!poateFiEchipat(personajul, obiect)) return false;
   const vechi = personajul.echipament[obiect.slot] || null;
 
   personajul.inventar.splice(locInInventar, 1);

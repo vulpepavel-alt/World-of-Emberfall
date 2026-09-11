@@ -34,6 +34,10 @@ function potrivesteMeniul() {
 //  Deschide / inchide
 // ----------------------------------------------------------
 function deschideMeniul() {
+  // Daca era deschisa prada sau taraba, o inchidem: una odata.
+  if (typeof fereastraDeschisa !== 'undefined' && fereastraDeschisa) {
+    inchideFereastraDeschisa();
+  }
   meniuDeschis = true;
   ecranMeniu.classList.remove('ascuns');
   potrivesteMeniul();
@@ -41,6 +45,7 @@ function deschideMeniul() {
 }
 
 function inchideMeniul() {
+  ascundeFisa();
   meniuDeschis = false;
   ecranMeniu.classList.add('ascuns');
 }
@@ -63,6 +68,127 @@ function scrieMeniul() {
 }
 
 
+// ==========================================================
+//  CUTIA UNUI OBIECT SI FISA LUI
+//
+//  Cutia = patratul cu icoana, cu chenar de culoarea raritatii.
+//  Fisa  = ce scrie despre obiect cand tii apasat pe el.
+//  Le folosesc si meniul, si prada, si taraba negustorului.
+// ==========================================================
+
+// Cauta un obiect dupa numarul lui, oriunde s-ar afla: in rucsac,
+// pe tine, intr-un sac de prada sau pe taraba negustorului.
+function gasesteObiectDupaId(id) {
+
+  const locuri = [];
+  locuri.push(personaj.inventar || []);
+  locuri.push(Object.values(personaj.echipament || {}).filter(Boolean));
+  if (typeof saculDeschis !== 'undefined' && saculDeschis) {
+    locuri.push(saculDeschis.prada.obiecte);
+  }
+  if (typeof negustorulDeschis !== 'undefined' && negustorulDeschis) {
+    locuri.push(negustorulDeschis.marfa);
+  }
+
+  for (const lista of locuri) {
+    const gasit = lista.find(function (o) { return o.id === id; });
+    if (gasit) return gasit;
+  }
+  return null;
+}
+
+
+function cutieObiect(obiect, latura) {
+  if (!obiect) {
+    return '<span class="cutie-obiect goala" style="width:' + latura +
+           'px;height:' + latura + 'px"></span>';
+  }
+  return '<span class="cutie-obiect" style="width:' + latura + 'px;height:' + latura +
+         'px;border-color:' + obiect.culoare + '">' +
+         htmlIcoana(obiect, latura) + '</span>';
+}
+
+
+// Ce scrie pe fisa obiectului, in ordinea din WoW: numele colorat
+// dupa raritate, unde se poarta, nivelul obiectului, armura,
+// statisticile, nivelul cerut si cat face la negustor.
+function htmlFisa(obiect) {
+
+  const slot = gasesteSlot(obiect.slot);
+  const raritate = gasesteRaritate(obiect.raritate);
+  const preaMic = personaj.nivel < nivelulCerut(obiect);
+
+  let html = '<div class="fisa-nume" style="color:' + obiect.culoare + '">' +
+             obiect.nume + '</div>';
+  html += '<div class="fisa-rand fisa-doua"><span>' + raritate.nume + '</span>' +
+          '<span>' + slot.nume + '</span></div>';
+  html += '<div class="fisa-rand stins">Item Level ' + obiect.nivel + '</div>';
+
+  if (obiect.armura > 0) {
+    html += '<div class="fisa-rand">' + obiect.armura + ' Armor</div>';
+  }
+  Object.keys(obiect.statistici).forEach(function (a) {
+    html += '<div class="fisa-rand bun">+' + obiect.statistici[a] + ' ' + NUME_ATRIBUT[a] + '</div>';
+  });
+
+  html += '<div class="fisa-rand' + (preaMic ? ' rau' : '') + '">Requires Level ' +
+          nivelulCerut(obiect) + '</div>';
+  html += '<div class="fisa-rand stins">Sell price: ' + baniHtml(pretDeVandut(obiect)) + '</div>';
+  return html;
+}
+
+
+// ----------------------------------------------------------
+//  Aratarea fisei: cu mouse-ul treci peste, pe telefon TII APASAT
+// ----------------------------------------------------------
+const fisaObiect = document.getElementById('fisa-obiect');
+let ceasFisa = null;
+
+function aratafisa(obiect, element) {
+  fisaObiect.innerHTML = htmlFisa(obiect);
+  fisaObiect.classList.remove('ascuns');
+
+  // O asezam langa obiect, dar fara sa iasa din ecran.
+  const cutie = element.getBoundingClientRect();
+  const a = fisaObiect.getBoundingClientRect();
+  let st = cutie.right + 10;
+  let sus = cutie.top;
+  if (st + a.width > window.innerWidth - 6) st = cutie.left - a.width - 10;
+  if (st < 6) st = 6;
+  if (sus + a.height > window.innerHeight - 6) sus = window.innerHeight - a.height - 6;
+  if (sus < 6) sus = 6;
+  fisaObiect.style.left = st + 'px';
+  fisaObiect.style.top = sus + 'px';
+}
+
+function ascundeFisa() {
+  if (ceasFisa) { clearTimeout(ceasFisa); ceasFisa = null; }
+  fisaObiect.classList.add('ascuns');
+}
+
+// Leaga fisa de toate elementele dintr-o bucata de pagina care au
+// scris pe ele data-fisa="<numarul obiectului>".
+function legafisele(radacina) {
+
+  radacina.querySelectorAll('[data-fisa]').forEach(function (el) {
+
+    const obiect = gasesteObiectDupaId(Number(el.dataset.fisa));
+    if (!obiect) return;
+
+    // pe calculator: treci cu mouse-ul peste
+    el.addEventListener('mouseenter', function () { aratafisa(obiect, el); });
+    el.addEventListener('mouseleave', ascundeFisa);
+
+    // pe telefon: tii degetul apasat o jumatate de secunda
+    el.addEventListener('touchstart', function () {
+      ceasFisa = setTimeout(function () { aratafisa(obiect, el); }, 450);
+    }, { passive: true });
+    el.addEventListener('touchend', ascundeFisa);
+    el.addEventListener('touchmove', ascundeFisa, { passive: true });
+  });
+}
+
+
 function randStat(eticheta, valoare) {
   return '<div class="rand-stat"><span>' + eticheta + '</span><span>' + valoare + '</span></div>';
 }
@@ -74,14 +200,13 @@ function slotHtml(idSlot) {
   const obiect = (personaj.echipament || {})[idSlot];
 
   if (!obiect) {
-    return '<div class="slot gol">' +
-           '<span class="cutiuta"></span>' +
+    return '<div class="slot gol">' + cutieObiect(null, 26) +
            '<span class="text-slot"><span class="nume-slot">' + slot.nume + '</span>' +
            '<span class="nume-obiect">Empty</span></span></div>';
   }
 
-  return '<button class="slot" data-scoate="' + idSlot + '">' +
-         '<span class="cutiuta" style="background:' + obiect.culoare + '"></span>' +
+  return '<button class="slot" data-scoate="' + idSlot + '" data-fisa="' + obiect.id + '">' +
+         cutieObiect(obiect, 26) +
          '<span class="text-slot">' +
          '<span class="nume-slot">' + slot.nume + '</span>' +
          '<span class="nume-obiect" style="color:' + obiect.culoare + '">' + obiect.nume + '</span>' +
@@ -150,8 +275,11 @@ function scriePaginaCharacter() {
   html += '</div>';
   document.getElementById('pagina-character').innerHTML = html;
 
+  legafisele(document.getElementById('pagina-character'));
+
   document.querySelectorAll('[data-scoate]').forEach(function (b) {
     b.addEventListener('click', function () {
+      ascundeFisa();
       if (dezechipeaza(personaj, b.dataset.scoate)) {
         aplicaTalentele();
         scrieMeniul();
@@ -266,32 +394,38 @@ function scriePaginaTalents() {
 function scriePaginaInventory() {
 
   const obiecte = personaj.inventar || [];
+  const libere = locuriLibere(personaj);
 
-  if (obiecte.length === 0) {
-    document.getElementById('pagina-inventory').innerHTML =
-      '<div class="cutie"><h3>Inventory</h3>' +
-      '<div class="inventar-gol">Nothing yet. Enemies sometimes drop items when they die.</div>' +
-      '</div>';
-    return;
-  }
+  let html = '<div class="cutie"><h3>Backpack &mdash; ' + obiecte.length + ' / ' +
+             LOCURI_IN_RUCSAC + '</h3>';
+  html += '<div class="ajutor-rucsac">Tap an item to equip it. ' +
+          'Press and hold to see what it does.</div>';
+  html += '<div class="grila-rucsac">';
 
-  let html = '<div class="cutie"><h3>Inventory &mdash; ' + obiecte.length + ' items</h3>' +
-             '<div class="grila-inventar">';
-
+  // Intai lucrurile tale, apoi locurile goale ramase - ca sa se vada
+  // cat mai ai loc, la fel ca rucsacul din WoW.
   obiecte.forEach(function (o) {
-    const slot = gasesteSlot(o.slot);
-    html += '<button class="obiect-inv" data-echipeaza="' + o.id + '">' +
-            '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume + '</span>' +
-            '<span class="unde">' + slot.nume + ' &middot; ' + TEXT.LEVEL + ' ' + o.nivel + '</span>' +
-            '<span class="stat-obiect">' + descriereObiect(o) + '</span>' +
+    const preaMic = personaj.nivel < nivelulCerut(o);
+    html += '<button class="loc-rucsac' + (preaMic ? ' preaMic' : '') +
+            '" data-echipeaza="' + o.id + '" data-fisa="' + o.id + '">' +
+            cutieObiect(o, 44) +
+            (preaMic ? '<span class="semn-nivel">' + nivelulCerut(o) + '</span>' : '') +
             '</button>';
   });
+
+  for (let i = 0; i < libere; i++) {
+    html += '<span class="loc-rucsac gol"></span>';
+  }
 
   html += '</div></div>';
   document.getElementById('pagina-inventory').innerHTML = html;
 
-  document.querySelectorAll('[data-echipeaza]').forEach(function (b) {
+  const pagina = document.getElementById('pagina-inventory');
+  legafisele(pagina);
+
+  pagina.querySelectorAll('[data-echipeaza]').forEach(function (b) {
     b.addEventListener('click', function () {
+      ascundeFisa();
       if (echipeaza(personaj, Number(b.dataset.echipeaza))) {
         aplicaTalentele();
         scrieMeniul();
