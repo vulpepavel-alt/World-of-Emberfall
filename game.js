@@ -556,6 +556,8 @@ function curataZonaVeche(scena) {
   semneTreceri = [];
   raniInTimp = [];
   alinariInTimp = [];
+  nodurileDeFata = [];
+  culesulInCurs = null;
 
   Object.keys(bucatiTeren).forEach(function (nume) {
     const imagine = bucatiTeren[nume];
@@ -579,6 +581,8 @@ function curataZonaVeche(scena) {
   semneTreceri = [];
   raniInTimp = [];
   alinariInTimp = [];
+  nodurileDeFata = [];
+  culesulInCurs = null;
   butonInteract = null;
   tinteDeMisiune = null;
 }
@@ -632,6 +636,222 @@ function verificaTrecerea() {
 
   // Te-ai departat de toate portile: de acum te pot lua din nou.
   if (abiaAmIntrat && !langaVreoPoarta) abiaAmIntrat = false;
+}
+
+
+// ==========================================================
+//  STRANSUL DE PE HARTA
+//
+//  Minereu si plante. Se vad ca niste gramajoare colorate, apar si
+//  dispar dupa cum te apropii - la fel ca inamicii - si dupa ce le
+//  culegi reapar peste cateva minute.
+//
+//  Culesul are o bara care se umple. Daca te misti sau lovesti ceva
+//  in timpul ei, se opreste si nu primesti nimic.
+// ==========================================================
+
+const RAZA_NODURI = 620;          // de la ce distanta se deseneaza
+const RAZA_CULES = 52;            // de cat de aproape il poti atinge
+const DUREAZA_CULESUL = 2600;     // milisecunde
+
+let nodurileDeFata = [];          // ce e desenat acum
+let culesulInCurs = null;         // { nod, gataLa, pornitLa, x, y }
+let baraCules = null;
+let fundalCules = null;
+
+
+function faBaraDeCules(scena) {
+  fundalCules = scena.add.rectangle(0, 0, 86, 10, 0x1a1206).setDepth(1100)
+    .setScrollFactor(0).setVisible(false);
+  baraCules = scena.add.rectangle(0, 0, 0, 6, 0xc9a961).setDepth(1101)
+    .setScrollFactor(0).setOrigin(0, 0.5).setVisible(false);
+}
+
+
+// Un nod desenat: o gramajoara de bucati, din culoarea lui.
+function faNodul(scena, loc) {
+
+  const fel = NODURI[loc.fel];
+  if (!fel) return null;
+
+  const x = loc.col * TILE + TILE / 2;
+  const y = loc.rand * TILE + TILE / 2;
+  const p = scena.add.container(x, y);
+
+  p.add(faUmbra(scena, 18));
+  p.add(scena.add.ellipse(0, 4, 26, 12, 0x2a2118));
+  [[-6, 0, 9], [5, -2, 8], [0, -7, 7]].forEach(function (b) {
+    p.add(scena.add.circle(b[0], b[1], b[2] + 1, 0x120d08));
+    p.add(scena.add.circle(b[0], b[1], b[2], fel.culoare));
+  });
+
+  p.setDepth(4);
+  p.loc = loc;
+  p.fel = fel;
+  return p;
+}
+
+
+function stergeNodul(n) {
+  if (n && n.destroy) n.destroy();
+}
+
+
+// Se cheama la fiecare cadru: aduce nodurile aproape, le duce pe
+// cele departate si le face la loc pe cele culese demult.
+function actualizeazaNoduri(scena) {
+
+  if (!zona || !zona.noduri) return;
+
+  zona.noduri.forEach(function (loc) {
+
+    const x = loc.col * TILE + TILE / 2;
+    const y = loc.rand * TILE + TILE / 2;
+    const cat = Phaser.Math.Distance.Between(jucator.x, jucator.y, x, y);
+
+    // Cules de curand? Ramane gol pana trece timpul.
+    if (loc.culesLa && scena.time.now - loc.culesLa < REAPARITIE_NOD) {
+      if (loc.desenat) { stergeNodul(loc.desenat); loc.desenat = null; }
+      return;
+    }
+    if (loc.culesLa) loc.culesLa = 0;
+
+    if (cat <= RAZA_NODURI && !loc.desenat) {
+      loc.desenat = faNodul(scena, loc);
+      if (loc.desenat) nodurileDeFata.push(loc.desenat);
+    } else if (cat > RAZA_NODURI + 160 && loc.desenat) {
+      nodurileDeFata = nodurileDeFata.filter(function (n) { return n !== loc.desenat; });
+      stergeNodul(loc.desenat);
+      loc.desenat = null;
+    }
+  });
+}
+
+
+// Nodul cel mai apropiat de tine, daca e destul de aproape.
+function nodulDeLangaTine() {
+  if (!zona || !zona.noduri) return null;
+  let celMaiBun = null, celMaiAproape = RAZA_CULES;
+  zona.noduri.forEach(function (loc) {
+    if (!loc.desenat) return;
+    const x = loc.col * TILE + TILE / 2;
+    const y = loc.rand * TILE + TILE / 2;
+    const cat = Phaser.Math.Distance.Between(jucator.x, jucator.y, x, y);
+    if (cat < celMaiAproape) { celMaiAproape = cat; celMaiBun = loc; }
+  });
+  return celMaiBun;
+}
+
+
+// De ce NU poti culege nodul asta. Null inseamna ca poti.
+function deCeNuPotiCulege(loc) {
+
+  const fel = NODURI[loc.fel];
+  if (!fel) return TEXT.CANNOT_GATHER;
+
+  const meserie = MESERII[fel.meserie];
+  if (!aiMeseria(personaj, fel.meserie)) {
+    return TEXT.NEED_PROFESSION.replace('{p}', meserie.nume);
+  }
+  if (skillulTau(personaj, fel.meserie) < fel.minim) {
+    return TEXT.NEED_SKILL.replace('{n}', fel.minim);
+  }
+  return null;
+}
+
+
+// ----------------------------------------------------------
+//  Culesul
+// ----------------------------------------------------------
+function incepeCulesul(scena, loc) {
+
+  const motiv = deCeNuPotiCulege(loc);
+  if (motiv) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, motiv, '#e06a5a');
+    return;
+  }
+  if (!maiEsteLocInRucsac(personaj)) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.BAG_FULL, '#e06a5a');
+    return;
+  }
+
+  culesulInCurs = {
+    loc: loc,
+    pornitLa: scena.time.now,
+    gataLa: scena.time.now + DUREAZA_CULESUL,
+    x: jucator.x, y: jucator.y
+  };
+
+  fundalCules.setVisible(true);
+  baraCules.setVisible(true);
+}
+
+
+function opresteCulesul() {
+  culesulInCurs = null;
+  if (fundalCules) fundalCules.setVisible(false);
+  if (baraCules) baraCules.setVisible(false);
+}
+
+
+function actualizeazaCulesul(scena) {
+
+  if (!culesulInCurs) return;
+
+  // Te-ai miscat sau ai fost lovit? Se pierde.
+  const cat = Phaser.Math.Distance.Between(jucator.x, jucator.y,
+                                           culesulInCurs.x, culesulInCurs.y);
+  if (mort || cat > 12) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.GATHER_STOPPED, '#e06a5a');
+    opresteCulesul();
+    return;
+  }
+
+  const parte = Math.min(1, 1 - (culesulInCurs.gataLa - scena.time.now) / DUREAZA_CULESUL);
+
+  fundalCules.setPosition(LATIME / 2, INALTIME - 96);
+  baraCules.setPosition(LATIME / 2 - 41, INALTIME - 96);
+  baraCules.setDisplaySize(82 * parte, 6);
+
+  if (scena.time.now < culesulInCurs.gataLa) return;
+
+  terminaCulesul(scena, culesulInCurs.loc);
+  opresteCulesul();
+}
+
+
+function terminaCulesul(scena, loc) {
+
+  const fel = NODURI[loc.fel];
+  const cate = Phaser.Math.Between(fel.cat[0], fel.cat[1]);
+
+  // Materialul intra in rucsac, in gramada, ca vechiturile.
+  let puse = 0;
+  for (let i = 0; i < cate; i++) {
+    if (pomeneInRucsac(personaj, faMaterial(fel.material, fel.valoare))) puse++;
+  }
+
+  aratacuvant(scena, jucator.x, jucator.y - 60,
+              '+' + puse + ' ' + fel.material, '#d9b555');
+
+  // Skill-ul creste dupa culoarea nodului.
+  if (adaugaSkill(personaj, fel.meserie, fel.praguri)) {
+    scena.time.delayedCall(600, function () {
+      aratacuvant(scena, jucator.x, jucator.y - 44,
+        MESERII[fel.meserie].nume + ' ' + skillulTau(personaj, fel.meserie),
+        UI.textAuriu);
+    });
+  }
+
+  // Nodul se goleste si reapare peste cateva minute.
+  loc.culesLa = scena.time.now;
+  if (loc.desenat) {
+    nodurileDeFata = nodurileDeFata.filter(function (n) { return n !== loc.desenat; });
+    stergeNodul(loc.desenat);
+    loc.desenat = null;
+  }
+
+  salveaza();
 }
 
 
@@ -907,11 +1127,14 @@ function create() {
   semneTreceri = [];
   raniInTimp = [];
   alinariInTimp = [];
+  nodurileDeFata = [];
+  culesulInCurs = null;
   saci.forEach(function (sac) { sac.destroy(); });
   saci = [];
   // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
   // de harta. Aici doar stergem semnele ramase de la o intrare veche.
   zona.mobi.forEach(function (loc) { loc.aparut = false; loc.mortPanaLa = 0; });
+  (zona.noduri || []).forEach(function (loc) { loc.desenat = null; loc.culesLa = 0; });
   actualizeazaMobii(this);
 
   // --- Personajele prietenoase din zona ---
@@ -920,6 +1143,11 @@ function create() {
 
   // --- Stalpii de la portile catre zonele vecine ---
   faSemneleTrecerilor(this);
+
+  // --- Bara care se umple cand culegi minereu sau plante ---
+  nodurileDeFata = [];
+  opresteCulesul();
+  faBaraDeCules(this);
 
   // --- Comenzi ---
   // Mersul se face din W A S D. Fiecare litera primeste un nume
@@ -1598,6 +1826,12 @@ function ceEDeschisLangaTine() {
   const cineva = npcDeLangaTine(jucator.x, jucator.y);
   if (cineva) return { fel: 'npc', ce: cineva };
 
+  // Acelasi buton culege si minereul sau planta de langa tine. Pe
+  // telefon nu e loc de inca un buton, si oricum e acelasi gest:
+  // "fa ceva cu lucrul de langa mine".
+  const nod = (typeof nodulDeLangaTine === 'function') ? nodulDeLangaTine() : null;
+  if (nod) return { fel: 'nod', ce: nod };
+
   return null;
 }
 
@@ -1607,6 +1841,7 @@ function interactioneaza(scena) {
   if (!gasit) return;
 
   if (gasit.fel === 'sac') { deschidePrada(gasit.ce); return; }
+  if (gasit.fel === 'nod') { incepeCulesul(scena, gasit.ce); return; }
   if (gasit.ce.marfa) deschideTaraba(gasit.ce);
   else if (gasit.ce.cine && gasit.ce.cine.invata) deschideAntrenorul(gasit.ce);
   else deschideMisiunile(gasit.ce);
@@ -3050,6 +3285,8 @@ function update(time, delta) {
   actualizeazaSacii(this);
   actualizeazaVietatile(this, delta);
   actualizeazaNpcii(this, delta);
+  actualizeazaNoduri(this);
+  actualizeazaCulesul(this);
   // Ce tine in timp: ranile care dor, alinarile si intaririle.
   actualizeazaRanile(this);
   actualizeazaAlinarile(this);
@@ -3656,6 +3893,12 @@ function loveste(scena, mob, damageBrut, critic) {
 
     // Lucrurile cerute de misiuni cad in acelasi trup.
     prada.obiecteMisiune = obiecteDeMisiuneDeLa(personaj, mob.felul);
+
+    // O fiara se poate jupui, daca ai meseria. Sacul tine minte ce
+    // fel de inamic a fost, ca sa stie fereastra de prada.
+    if (mob.fel.neam === 'fiara') {
+      prada.deJupuit = { nivel: mob.stats.nivel, nume: mob.fel.nume };
+    }
 
     if (pradaAreCeva(prada)) faSac(scena, mob.x, mob.y, prada);
 

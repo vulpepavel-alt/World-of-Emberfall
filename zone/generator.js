@@ -717,6 +717,53 @@ function sapaSprePuncte(zona, reteta, ajuns, start) {
 //  intre nivelDeLa si nivelPanaLa. Asa fiecare zona are un colt
 //  bland si un colt care te omoara, ca in WoW.
 // ==========================================================
+// ==========================================================
+//  NODURILE DE STRANS
+//
+//  Minereu si plante, imprastiate pe teren la care se poate ajunge.
+//  Nu se aduna gramada si nu cad in casute blocate: se aseaza la
+//  fel ca inamicii, pe ce s-a dovedit deja ca e umblabil.
+//
+//  Ce noduri intra intr-o zona depinde de nivelul ei: intr-o zona
+//  de inceput n-are rost sa fie minereu pe care nu-l poate atinge
+//  nimeni de nivelul ala.
+// ==========================================================
+function asazaNodurile(zona, reteta, ajuns) {
+
+  if (reteta.esteOras) return [];                 // in oras nu sapi
+  if (typeof NODURI === 'undefined') return [];   // fara meserii, fara noduri
+
+  const feluri = nodurilePotriviteZonei(reteta.nivelDeLa);
+  if (!feluri.length) return [];
+
+  const zar = faZaruri(reteta.samanta + 9191);
+  const noduri = [];
+  const cate = reteta.noduri || 70;
+
+  let incercari = 0;
+  while (noduri.length < cate && incercari < cate * 400) {
+    incercari++;
+
+    const c = Math.floor(zar() * zona.COL);
+    const r = Math.floor(zar() * zona.RND);
+    if (!ajuns[r][c]) continue;
+
+    // Nu doua noduri unul in altul.
+    const inghesuit = noduri.some(function (n) {
+      return Math.abs(n.col - c) < 14 && Math.abs(n.rand - r) < 14;
+    });
+    if (inghesuit) continue;
+
+    noduri.push({
+      fel: feluri[Math.floor(zar() * feluri.length)],
+      col: c, rand: r
+    });
+  }
+
+  return noduri;
+}
+
+
 function asazaMobii(zona, reteta, ajuns, start) {
 
   // Intr-un oras nu intra fiarele. Nici sobolani, nici talhari.
@@ -974,6 +1021,9 @@ function faZona(reteta) {
   if (astupate > 0) ajuns = undeSePoateAjunge(zona, start);
 
   zona.mobi = asazaMobii(zona, reteta, ajuns, start);
+
+  // Minereul si plantele, pe acelasi teren umblabil.
+  zona.noduri = asazaNodurile(zona, reteta, ajuns);
 
   // Cei trei rari si elitul, pe deasupra.
   zona.mobi = zona.mobi.concat(asazaRariiSiElitul(zona, reteta, ajuns, start, zona.mobi));

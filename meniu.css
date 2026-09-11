@@ -1142,3 +1142,17 @@
 .o-stiuta:hover { border-color: #8a6a2f; }
 .o-stiuta.aleasa { border-color: #c9a961; background: #241c12; }
 .o-stiuta b { color: #d9b555; }
+
+/* ---- bara de skill la meserii ---- */
+.bara-skill {
+  height: 8px; margin: 6px 0;
+  background: #120d08; border: 1px solid #3a2d19; border-radius: 2px;
+  overflow: hidden;
+}
+.bara-skill span { display: block; height: 100%; background: #c9a961; }
+
+/* culorile de greutate, aceleasi peste tot */
+.greu-portocaliu { color: #e8862f; }
+.greu-galben     { color: #e0c15a; }
+.greu-verde      { color: #6fd06f; }
+.greu-gri        { color: #8d7a58; }

@@ -231,6 +231,7 @@ function obiectDeLaMob(nivelMob) {
 // ----------------------------------------------------------
 const SANSA_VECHITURA = 55;        // din 100
 const CULOARE_VECHITURA = '#9d9d9d';
+const CULOARE_MATERIAL  = '#6fa8c0';   // materialele de meserie, albastrui
 const MAXIM_PE_GRAMADA = 20;
 
 function vechituraDeLaMob(nivelMob, felulMobului) {
@@ -250,6 +251,23 @@ function vechituraDeLaMob(nivelMob, felulMobului) {
     culoare: CULOARE_VECHITURA,
     cate: 1,
     valoare: Math.max(1, Math.round(nivel * 1.8 + 2))
+  };
+}
+
+
+// Un material de meserie: minereu, planta, piele. Se poarta ca o
+// vechitura - se aduna in gramada si se vinde - dar are culoarea
+// lui, ca sa nu-l arunci din greseala cu "Drop all junk".
+function faMaterial(nume, valoare) {
+  return {
+    id: urmatorulIdObiect++,
+    vechitura: true,          // ca sa mearga gramezile si vanzarea
+    material: true,           // dar NU e gunoi: nu se arunca la gramada
+    nume: nume,
+    nivel: 1,
+    culoare: CULOARE_MATERIAL,
+    cate: 1,
+    valoare: Math.max(1, valoare)
   };
 }
 
@@ -308,7 +326,13 @@ function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang) {
 
 // Are ceva de luat, sau e un trup gol?
 function pradaAreCeva(prada) {
+
   if (!prada) return false;
+
+  // O fiara pe care inca n-ai jupuit-o are ceva de dat, chiar daca
+  // nu i-a cazut nici ban, nici obiect.
+  if (prada.deJupuit) return true;
+
   const deMisiune = (prada.obiecteMisiune || []).length;
   return prada.bani > 0 || prada.obiecte.length > 0 || deMisiune > 0;
 }
@@ -377,6 +401,7 @@ function aruncaVechiturile(personajul) {
 
   for (let i = inventar.length - 1; i >= 0; i--) {
     if (!inventar[i].vechitura) continue;
+    if (inventar[i].material) continue;   // materialele nu sunt gunoi
     cate += (inventar[i].cate || 1);
     inventar.splice(i, 1);
   }

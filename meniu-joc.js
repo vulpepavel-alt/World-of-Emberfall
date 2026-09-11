@@ -297,6 +297,10 @@ function scriePaginaCharacter() {
           jos.map(function (s) { return slotHtml(s.id); }).join('') + '</div>';
 
   html += '</div>';
+
+  // Meseriile, sub personaj.
+  html += htmlMeseriile();
+
   document.getElementById('pagina-character').innerHTML = html;
 
   legafisele(document.getElementById('pagina-character'));
@@ -310,6 +314,43 @@ function scriePaginaCharacter() {
       }
     });
   });
+}
+
+
+// ----------------------------------------------------------
+//  MESERIILE, in fila Character
+//
+//  Nu i-am facut o fila a ei: doua-trei randuri incap sub
+//  statistici, si asa nu mai e inca un buton de apasat.
+// ----------------------------------------------------------
+function htmlMeseriile() {
+
+  const ale = meseriileTale(personaj);
+  const id_uri = Object.keys(ale);
+
+  let html = '<div class="cutie"><h3>' + TEXT.PROFESSIONS + '</h3>';
+
+  if (!id_uri.length) {
+    html += '<div class="ajutor-rucsac">' + TEXT.NO_PROFESSIONS + '</div></div>';
+    return html;
+  }
+
+  id_uri.forEach(function (id) {
+    const m = MESERII[id];
+    if (!m) return;
+    const skill = skillulTau(personaj, id);
+    const plafon = plafonulTau(personaj, id);
+    const treapta = TREPTE_MESERIE[treaptaTa(personaj, id) - 1];
+
+    html += '<div class="rand-detaliu"><span><b>' + m.nume + '</b></span>' +
+            '<span>' + skill + ' / ' + plafon +
+            ' <span class="stins">' + (treapta ? treapta.nume : '') + '</span></span></div>';
+    html += '<div class="bara-skill"><span style="width:' +
+            Math.round(skill / plafon * 100) + '%"></span></div>';
+  });
+
+  html += '</div>';
+  return html;
 }
 
 

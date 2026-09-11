@@ -171,6 +171,27 @@ const TEXT = {
   TR_TOOLS_NAME:   'Toolwright',     TR_TOOLS_TITLE:   'Tools and Gear',
   TR_GOODS_NAME:   'Supplier',       TR_GOODS_TITLE:   'Trade Supplies',
 
+  // Meseriile
+  PROFESSIONS:      'Professions',
+  PROFESSION:       'Profession',
+  SKILL:            'Skill',
+  TIER:             'Tier',
+  LEARN_PROFESSION: 'Learn',
+  NEXT_TIER:        'Learn next tier',
+  ABANDON:          'Abandon',
+  ABANDON_ASK:      'Abandon {p}? Your skill goes back to zero and you lose it all.',
+  YES_ABANDON:      'Yes, abandon',
+  PROF_FULL:        'You already have two main trades',
+  PROF_SOON:        'Not open yet',
+  PROF_KNOWN:       'You know this',
+  PROF_CAP:         'Your tier stops you here',
+  NEED_PROFESSION:  'You need {p}',
+  NEED_SKILL:       'Needs skill {n}',
+  CANNOT_GATHER:    'You cannot gather this',
+  GATHER_STOPPED:   'Interrupted',
+  SKIN:             'Skin',
+  NO_PROFESSIONS:   'You have no trade yet. Trainers wait in the cities.',
+
   // Antrenorul de clasa
   TRAIN:            'Train',
   LEARN:            'Learn',
