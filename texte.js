@@ -153,9 +153,9 @@ const TEXT = {
   TR_MAGE_NAME:    'Arcanist',       TR_MAGE_TITLE:    'Mage Trainer',
   TR_PRIEST_NAME:  'Confessor',      TR_PRIEST_TITLE:  'Priest Trainer',
 
-  TR_MINING_NAME:  'Prospector',     TR_MINING_TITLE:  'Mining Trainer',
-  TR_HERB_NAME:    'Herb Gatherer',  TR_HERB_TITLE:    'Herb Trainer',
-  TR_SKIN_NAME:    'Skinner',        TR_SKIN_TITLE:    'Skinning Trainer',
+  TR_MINING_NAME:  'Prospector',     TR_MINING_TITLE:  'Delving Trainer',
+  TR_HERB_NAME:    'Herb Gatherer',  TR_HERB_TITLE:    'Foraging Trainer',
+  TR_SKIN_NAME:    'Hidecutter',     TR_SKIN_TITLE:    'Hidecraft Trainer',
 
   TR_SMITH_NAME:   'Forge Master',   TR_SMITH_TITLE:   'Smithing Trainer',
   TR_ALCH_NAME:    'Brewer',         TR_ALCH_TITLE:    'Brewing Trainer',
@@ -164,9 +164,9 @@ const TEXT = {
   TR_LEATHER_NAME: 'Tanner',         TR_LEATHER_TITLE: 'Tanning Trainer',
   TR_TAILOR_NAME:  'Weaver',         TR_TAILOR_TITLE:  'Weaving Trainer',
 
-  TR_COOK_NAME:    'Cook',           TR_COOK_TITLE:    'Cooking Trainer',
+  TR_COOK_NAME:    'Cook',           TR_COOK_TITLE:    'Cookery Trainer',
   TR_MEDIC_NAME:   'Field Medic',    TR_MEDIC_TITLE:   'Bandaging Trainer',
-  TR_FISH_NAME:    'Angler',         TR_FISH_TITLE:    'Fishing Trainer',
+  TR_FISH_NAME:    'Angler',         TR_FISH_TITLE:    'Angling Trainer',
 
   TR_TOOLS_NAME:   'Toolwright',     TR_TOOLS_TITLE:   'Tools and Gear',
   TR_GOODS_NAME:   'Supplier',       TR_GOODS_TITLE:   'Trade Supplies',

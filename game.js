@@ -2973,7 +2973,7 @@ function tragiSageata(scena, tintaLovita, arma, inmultit) {
   const unghi = Phaser.Math.Angle.Between(plecX, plecY, tintaLovita.x, tintaLovita.y);
 
   const sageata = scena.add.container(plecX, plecY);
-  // Sageata de la Aimed Shot e mai mare si aurie, ca sa se vada.
+  // Sageata de la Drawn Shot e mai mare si aurie, ca sa se vada.
   const incarcata = inmultit > 1;
   sageata.add(scena.add.rectangle(0, 0, incarcata ? 24 : 18, incarcata ? 3 : 2, incarcata ? 0xc9922f : 0x8a6a3f));
   sageata.add(scena.add.rectangle(incarcata ? 13 : 10, 0, incarcata ? 7 : 5, incarcata ? 6 : 4, incarcata ? 0xffd76b : 0xd2d6de));

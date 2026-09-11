@@ -145,7 +145,7 @@ const CLASE = {
     },
     abilitati: [
       {
-        id: 'heavyStrike',
+        id: 'warrior_strike_01',
         nume: 'Heavy Strike',
         descriere: 'Costs 25 rage. Lands a hit for double damage',
         costRage: 25, costMana: 0, pauza: 0, incantare: 0,
@@ -175,8 +175,8 @@ const CLASE = {
     },
     abilitati: [
       {
-        id: 'aimedShot',
-        nume: 'Aimed Shot',
+        id: 'hunter_shot_01',
+        nume: 'Drawn Shot',
         descriere: 'Costs 25 mana, 6 second cooldown. A charged arrow for double damage',
         costRage: 0, costMana: 25, pauza: 6000, incantare: 0,
         fel: 'sageata', inmultit: 2
@@ -203,7 +203,7 @@ const CLASE = {
     },
     abilitati: [
       {
-        id: 'arcaneBolt',
+        id: 'mage_bolt_01',
         nume: 'Arcane Bolt',
         descriere: 'Costs 20 mana, 3 second cooldown, 1.5 second cast. Deals 8-12 damage',
         costRage: 0, costMana: 20, pauza: 3000, incantare: 1500,
@@ -231,14 +231,14 @@ const CLASE = {
     },
     abilitati: [
       {
-        id: 'holySpark',
+        id: 'priest_smite_01',
         nume: 'Holy Spark',
         descriere: 'Costs 18 mana, 2.5 second cooldown. Deals 6-10 damage',
         costRage: 0, costMana: 18, pauza: 2500, incantare: 0,
         fel: 'vraja', dmgMin: 6, dmgMax: 10, raza: 200, culoare: 0xe8c15a
       },
       {
-        id: 'mendWounds',
+        id: 'priest_heal_01',
         nume: 'Mend Wounds',
         descriere: 'Costs 25 mana, 6 second cooldown. Heals 15-20 health',
         costRage: 0, costMana: 25, pauza: 6000, incantare: 0,
