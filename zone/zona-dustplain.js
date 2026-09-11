@@ -32,6 +32,7 @@ inregistreazaZona({
   peHarta: { c: 0, r: 1 },
 
   litere: LITERE,
+  climat: 'campie',
   teren: climat('campie'),
 
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,

@@ -30,6 +30,7 @@ inregistreazaZona({
   peHarta: { c: 0, r: 0 },
 
   litere: LITERE,
+  climat: 'mlastina',
   teren: climat('mlastina'),
 
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
@@ -45,7 +46,9 @@ inregistreazaZona({
   npci: [
     { fel: 'chief', la: 'sat', dc: 3, dr: 1 },
     { fel: 'negustorOrc', la: 'sat', dc: -6, dr: -1 },
-    { fel: 'armurierOrc', la: 'sat', dc: 16, dr: -2 }
+    { fel: 'armurierOrc', la: 'sat', dc: 16, dr: -2 },
+    { fel: 'cavaler', la: 'sat', dc: -4, dr: 12 },
+    { fel: 'taran', la: 'tabara', dc: 0, dr: 9 }
   ],
 
   tabere: 41,

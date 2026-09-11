@@ -629,6 +629,40 @@ function verificaTrecerea() {
 }
 
 
+// ----------------------------------------------------------
+//  Misiunile de cercetare: "du-te pana la mina si vezi ce e"
+//
+//  Se termina singure cand ajungi acolo, fara sa omori nimic.
+//  Verificam de zece ori pe secunda, nu la fiecare cadru - sunt
+//  cel mult cinci locuri intr-o zona, dar tot nu e nevoie.
+// ----------------------------------------------------------
+const RAZA_AJUNS_LA_LOC = 8 * TILE;
+let candAmVerificatLocurile = 0;
+
+function verificaLocurile(scena) {
+
+  if (!zona || !zona.locuri || !personaj) return;
+  if (scena.time.now - candAmVerificatLocurile < 100) return;
+  candAmVerificatLocurile = scena.time.now;
+
+  for (const loc of zona.locuri) {
+    // Ne uitam la INIMA locului, nu la mijlocul lui: la o pestera
+    // mijlocul e stanca, iar camera in care se poate intra e mai jos.
+    const unde = loc.inima || loc;
+    const x = unde.col * TILE + TILE / 2;
+    const y = unde.rand * TILE + TILE / 2;
+    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, x, y) > RAZA_AJUNS_LA_LOC) continue;
+
+    amAjunsLa(personaj, zona.id + ':' + loc.id).forEach(function (avans) {
+      aratacuvant(scena, jucator.x, jucator.y - 70,
+        avans.terminata ? TEXT.QUEST_COMPLETE : textulCerintei(personaj, avans.misiune),
+        avans.terminata ? '#ffd34d' : UI.text);
+      if (avans.terminata) actualizeazaSemnele();
+    });
+  }
+}
+
+
 // ---- Lucruri pe care le tinem minte cat timp jocul ruleaza ----
 let personaj = null;        // personajul ales in meniu (rasa, clasa, statistici)
 let jucator;
@@ -791,7 +825,7 @@ function create() {
 
   // --- Personajele prietenoase din zona ---
   npci = [];
-  (zona.npci || []).forEach(loc => creeazaNpc(this, loc));
+  (zona.npci || []).forEach((loc, i) => creeazaNpc(this, loc, i));
 
   // --- Comenzi ---
   // Mersul se face din W A S D. Fiecare litera primeste un nume
@@ -2589,6 +2623,7 @@ function update(time, delta) {
   actualizeazaSacii(this);
   actualizeazaVietatile(this, delta);
   actualizeazaNpcii(this, delta);
+  verificaLocurile(this);
   actualizeazaButonulInteract();
   salveazaDinCandInCand();
 
@@ -3063,13 +3098,19 @@ function creeazaMob(scena, loc) {
 //  gaseste niciodata: nu ai cum sa-i lovesti din greseala.
 //  Nu se misca si nu au bara de viata.
 // ================================================
-function creeazaNpc(scena, loc) {
+function creeazaNpc(scena, loc, indice) {
 
-  const cine = NPC[loc.fel];
-  if (!cine) {
+  const dinTabel = NPC[loc.fel];
+  if (!dinTabel) {
     console.warn('Zona cere un personaj care nu exista: ' + loc.fel);
     return;
   }
+
+  // Acelasi fel de om are alt NUME in fiecare zona, ca sa nu dai
+  // peste acelasi Prospector Dunn in toate cele patruzeci de zone.
+  // Meseria (titlul de sub nume) ramane aceeasi.
+  const altNume = numeDeNpc(zona, indice || 0, loc.fel);
+  const cine = altNume ? Object.assign({}, dinTabel, { nume: altNume }) : dinTabel;
 
   const p = scena.add.container(loc.col * TILE + TILE / 2, loc.rand * TILE + TILE / 2);
 

@@ -290,6 +290,14 @@ function faLocul(zona, loc) {
   const t = zona.tabla, L = zona.litereScurt;
   const c = Math.round(zona.COL * loc.c), r = Math.round(zona.RND * loc.r);
 
+  // INIMA locului: casuta la care trebuie sa poti ajunge ca sa spui
+  // ca ai fost acolo. La un sat e chiar mijlocul lui. La o pestera,
+  // la o mina sau la o cetate NU e mijlocul: mijlocul e stanca sau
+  // zid, iar camera dinauntru e ceva mai jos. Fara randul asta,
+  // pesterile si cetatile ramaneau inchise de tot - aratau a locuri,
+  // dar erau bucati pline de piatra in care nu se putea intra.
+  let inima = null;
+
   switch (loc.fel) {
 
     // ==========================================================
@@ -391,6 +399,7 @@ function faLocul(zona, loc) {
       disc(t, c, r, 10, L.stanca || L.zid);
       disc(t, c, r + 2, 6, L.fond);
       dreptunghi(t, c - 1, r - 3, 3, 3, L.gaura);
+      inima = { col: c, rand: r + 2 };
       break;
 
     case 'mina':
@@ -401,6 +410,7 @@ function faLocul(zona, loc) {
         disc(t, c + x[0], r + x[1], 2, L.stanca || L.zid);
       });
       zona.drumVertical(c, r, Math.round(zona.RND * 0.55));
+      inima = { col: c, rand: r + 3 };
       break;
 
     case 'cetate':
@@ -409,6 +419,7 @@ function faLocul(zona, loc) {
       dreptunghi(t, c - 11, r - 6,  22, 12, L.inalt || L.fond);
       pune(t, c, r + 10, L.usa);
       zona.drumVertical(c, r + 11, Math.round(zona.RND * 0.22));
+      inima = { col: c, rand: r };
       break;
 
     case 'corturi':
@@ -448,7 +459,7 @@ function faLocul(zona, loc) {
       break;
   }
 
-  return { col: c, rand: r };
+  return { col: c, rand: r, inima: inima || { col: c, rand: r } };
 }
 
 
@@ -511,6 +522,14 @@ function sapaSprePuncte(zona, reteta, ajuns, start) {
   // si atunci n-ai cum sa te urci pe corabie.
   const puncte = zona.npci.slice();
   if (zona.portul) puncte.push(zona.portul);
+
+  // Si spre inima fiecarui loc de pe harta. O pestera e un disc de
+  // stanca cu o camera inauntru, si camera aia nu era legata de
+  // nimic: se astupa singura la pasul urmator si pestera ramanea o
+  // piatra plina. La fel cetatile. Acum li se sapa o intrare.
+  (zona.locuri || []).forEach(function (l) {
+    if (l.inima) puncte.push(l.inima);
+  });
 
   puncte.forEach(function (n) {
 
@@ -702,9 +721,19 @@ function faZona(reteta) {
   zona.litereScurt = reteta.litere;
 
   // locurile care conteaza
+  //
+  // Le si TINEM MINTE pe zona, nu doar le desenam. Harta lumii are
+  // nevoie de ele ca sa puna semne pe ea, si misiunile ca sa te
+  // trimita undeva anume ("du-te si vezi ce e la mina").
   const asezate = {};
   (reteta.locuri || []).forEach(function (loc) {
     asezate[loc.id] = faLocul(zona, loc);
+  });
+
+  zona.locuri = (reteta.locuri || []).map(function (loc) {
+    return { id: loc.id, fel: loc.fel,
+             col: asezate[loc.id].col, rand: asezate[loc.id].rand,
+             inima: asezate[loc.id].inima };
   });
 
   // de unde incepi

@@ -48,6 +48,12 @@ function inchideMeniul() {
   ascundeFisa();
   meniuDeschis = false;
   ecranMeniu.classList.add('ascuns');
+
+  // Rucsacul nu ramane in modul de aruncat peste noapte: daca il
+  // uitai pornit, data viitoare apasai un obiect ca sa-l imbraci si
+  // jocul te intreba daca vrei sa-l arunci.
+  modAruncare = false;
+  ceIntrebam = null;
 }
 
 function comutaMeniul() {
@@ -409,16 +415,55 @@ function scriePaginaTalents() {
 }
 
 
+// ----------------------------------------------------------
+//  ARUNCATUL DIN RUCSAC
+//
+//  Pana acum un obiect putea sa iasa din rucsac doar vandut. Daca
+//  ti se umplea rucsacul cu vechituri departe de negustor, ramaneai
+//  blocat: nu mai puteai lua nimic si nu puteai scapa de nimic.
+//
+//  Acum apesi "Drop items", rucsacul se face rosu, si fiecare obiect
+//  are un X. Ce arunci NU se mai intoarce, deci jocul intreaba
+//  inainte - o singura data, cu numele obiectului in intrebare.
+// ----------------------------------------------------------
+let modAruncare = false;
+let ceIntrebam = null;      // id-ul obiectului pentru care asteptam raspuns
+
 function scriePaginaInventory() {
 
   const obiecte = personaj.inventar || [];
   const libere = locuriLibere(personaj);
+  const vechituri = obiecte.filter(function (o) { return o.vechitura; }).length;
 
   let html = '<div class="cutie"><h3>Backpack &mdash; ' + obiecte.length + ' / ' +
              LOCURI_IN_RUCSAC + '</h3>';
-  html += '<div class="ajutor-rucsac">Tap an item to equip it. ' +
-          'Press and hold to see what it does.</div>';
-  html += '<div class="grila-rucsac">';
+
+  // ---- randul de butoane ----
+  html += '<div class="unelte-rucsac">' +
+          '<button class="buton mic' + (modAruncare ? ' apasat' : '') +
+          '" id="comuta-aruncarea">' +
+          (modAruncare ? TEXT.DONE : TEXT.DROP_ITEMS) + '</button>';
+  if (vechituri > 0) {
+    html += '<button class="buton mic" id="arunca-vechiturile">' +
+            TEXT.DROP_ALL_JUNK + '</button>';
+  }
+  html += '</div>';
+
+  // ---- intrebarea de confirmare, daca asteptam un raspuns ----
+  const deAruncat = ceIntrebam ? gasesteObiectDupaId(ceIntrebam) : null;
+  if (deAruncat) {
+    html += '<div class="intrebare-rucsac">' +
+            '<span>' + TEXT.DROP_ASK.replace('{item}',
+              deAruncat.nume + (deAruncat.cate > 1 ? ' x' + deAruncat.cate : '')) + '</span>' +
+            '<button class="buton mic rau" id="da-arunca">' + TEXT.YES_DROP + '</button>' +
+            '<button class="buton mic" id="nu-arunca">' + TEXT.CANCEL + '</button>' +
+            '</div>';
+  }
+
+  html += '<div class="ajutor-rucsac">' +
+          (modAruncare ? TEXT.DROP_HELP : 'Tap an item to equip it. ' +
+           'Press and hold to see what it does.') + '</div>';
+  html += '<div class="grila-rucsac' + (modAruncare ? ' de-aruncat' : '') + '">';
 
   // Intai lucrurile tale, apoi locurile goale ramase - ca sa se vada
   // cat mai ai loc, la fel ca rucsacul din WoW.
@@ -426,20 +471,27 @@ function scriePaginaInventory() {
 
     // O vechitura nu se poate purta, deci n-are semn de nivel;
     // in schimb arata cate bucati sunt in gramada.
+    // Cat tine modul de aruncare, orice obiect are un X si apasarea
+    // lui nu mai echipeaza nimic - intreaba daca sa-l arunce.
+    const semnX = modAruncare ? '<span class="semn-arunca">&times;</span>' : '';
+    const ceFace = modAruncare ? ' data-arunca="' + o.id + '"'
+                               : (o.vechitura ? '' : ' data-echipeaza="' + o.id + '"');
+
     if (o.vechitura) {
-      html += '<button class="loc-rucsac vechitura" data-fisa="' + o.id + '">' +
+      html += '<button class="loc-rucsac vechitura"' + ceFace +
+              ' data-fisa="' + o.id + '">' +
               cutieObiect(o, 44) +
               (o.cate > 1 ? '<span class="cate-in-gramada">' + o.cate + '</span>' : '') +
-              '</button>';
+              semnX + '</button>';
       return;
     }
 
     const preaMic = personaj.nivel < nivelulCerut(o);
-    html += '<button class="loc-rucsac' + (preaMic ? ' preaMic' : '') +
-            '" data-echipeaza="' + o.id + '" data-fisa="' + o.id + '">' +
+    html += '<button class="loc-rucsac' + (preaMic ? ' preaMic' : '') + '"' + ceFace +
+            ' data-fisa="' + o.id + '">' +
             cutieObiect(o, 44) +
             (preaMic ? '<span class="semn-nivel">' + nivelulCerut(o) + '</span>' : '') +
-            '</button>';
+            semnX + '</button>';
   });
 
   for (let i = 0; i < libere; i++) {
@@ -460,6 +512,43 @@ function scriePaginaInventory() {
         scrieMeniul();
       }
     });
+  });
+
+  // ---- butoanele de aruncat ----
+  pagina.querySelectorAll('[data-arunca]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      ascundeFisa();
+      ceIntrebam = Number(b.dataset.arunca);
+      scriePaginaInventory();
+    });
+  });
+
+  const comuta = document.getElementById('comuta-aruncarea');
+  if (comuta) comuta.addEventListener('click', function () {
+    modAruncare = !modAruncare;
+    ceIntrebam = null;
+    scriePaginaInventory();
+  });
+
+  const daArunca = document.getElementById('da-arunca');
+  if (daArunca) daArunca.addEventListener('click', function () {
+    const aruncat = aruncaDinRucsac(personaj, ceIntrebam);
+    ceIntrebam = null;
+    if (aruncat) salveaza();
+    scrieMeniul();
+  });
+
+  const nuArunca = document.getElementById('nu-arunca');
+  if (nuArunca) nuArunca.addEventListener('click', function () {
+    ceIntrebam = null;
+    scriePaginaInventory();
+  });
+
+  const totGunoiul = document.getElementById('arunca-vechiturile');
+  if (totGunoiul) totGunoiul.addEventListener('click', function () {
+    if (aruncaVechiturile(personaj) > 0) salveaza();
+    ceIntrebam = null;
+    scrieMeniul();
   });
 }
 

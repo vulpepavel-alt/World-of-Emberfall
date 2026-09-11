@@ -30,6 +30,7 @@ inregistreazaZona({
   peHarta: { c: 0, r: 2 },
 
   litere: LITERE,
+  climat: 'pustiu',
   teren: climat('pustiu'),
 
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,

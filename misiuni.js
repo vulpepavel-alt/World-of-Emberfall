@@ -741,6 +741,26 @@ function amUcis(personajul, felulMobului) {
 }
 
 
+// Ai ajuns la un loc de pe harta (mina, pestera, cetatea).
+// Se cheama din joc de cateva ori pe secunda, cu locul de langa tine.
+// Misiunile de fel 'mergi' se termina singure, fara sa omori nimic.
+function amAjunsLa(personajul, idLoc) {
+
+  const avansate = [];
+
+  misiuniActive(personajul).forEach(function (m) {
+    if (m.cerinta.fel !== 'mergi') return;
+    if (m.cerinta.loc !== idLoc) return;
+    if (starea(personajul, m.id) !== 'activa') return;
+
+    const terminata = adaugaLaMisiune(personajul, m.id);
+    avansate.push({ misiune: m, cate: cate(personajul, m.id), terminata: terminata });
+  });
+
+  return avansate;
+}
+
+
 // Ce lucruri de misiune pot sa cada de la inamicul asta, acum.
 // Se cheama cand moare un inamic, ca sa punem in trupul lui si
 // ce cere misiunea, pe langa bani si obiecte.
@@ -770,6 +790,9 @@ function textulCerintei(personajul, misiune) {
 
   if (c.fel === 'aduna') {
     return c.obiect + ': ' + cati + '/' + c.cati;
+  }
+  if (c.fel === 'mergi') {
+    return (cati > 0 ? 'Reached ' : 'Go to ') + c.numeLoc;
   }
   const numeMob = (typeof MOBI !== 'undefined' && MOBI[c.mob]) ? MOBI[c.mob].nume : c.mob;
   return numeMob + ' slain: ' + cati + '/' + c.cati;

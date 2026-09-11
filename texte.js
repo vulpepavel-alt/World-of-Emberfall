@@ -39,6 +39,30 @@ const TEXT = {
   ELITE: '\u25C6 ELITE \u25C6',
   ROADS: 'Where you can go',
   YOU_ARE_HERE_NOTE: 'Walk to the edge of the zone to cross into the next one.',
+
+  // Harta lumii
+  WORLD_MAP:    'World map',
+  WHOLE_WORLD:  'The whole world',
+  YOU_ARE_HERE: 'You are here',
+  DRAWING_MAP:  'Drawing the map...',
+  WHATS_HERE:   'What is here',
+  LEGEND:       'Legend',
+  ZONE_MAP_NOTE: 'This is the real shape of the zone. Roads are the pale lines, ' +
+                 'water is blue, and the gates on the edges lead to the zones named beside them.',
+
+  // Locurile de pe harta
+  PLACE_CITY:     'City',
+  PLACE_VILLAGE:  'Village',
+  PLACE_CAMP:     'Camp',
+  PLACE_CAVE:     'Cave',
+  PLACE_MINE:     'Mine',
+  PLACE_KEEP:     'Keep',
+  PLACE_OUTPOST:  'Outpost',
+  PLACE_FARM:     'Farm',
+  PLACE_CLEARING: 'Clearing',
+  PLACE_PEOPLE:   'People you can talk to',
+  PLACE_GATE:     'Gate',
+  PLACE_PORT:     'Port',
   MENU:   'MENU',
 
   // Numele inamicilor
@@ -102,6 +126,14 @@ const TEXT = {
   SHAMAN_NAME:    'Old Murgh',        SHAMAN_TITLE:   'Bonecaster',
   SCOUT_NAME:     'Zib Sandrunner',   SCOUT_TITLE:    'Warband Scout',
   CAPTAIN_NAME:   'Captain Drex',     CAPTAIN_TITLE:  'Warband Captain',
+
+  // Aruncatul din rucsac
+  DROP_ITEMS:    'Drop items',
+  DROP_ALL_JUNK: 'Drop all junk',
+  DONE:          'Done',
+  DROP_HELP:     'Tap an item to throw it away. It will be gone for good.',
+  DROP_ASK:      'Throw away {item}?',
+  YES_DROP:      'Throw away',
 
   // Prada de la inamici
   LOOT:          'Loot',

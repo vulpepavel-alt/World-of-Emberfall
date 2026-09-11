@@ -354,6 +354,36 @@ function pomeneInRucsac(personajul, obiect) {
 }
 
 
+// Arunca un obiect din rucsac. Se duce de tot - nu se poate lua
+// inapoi, la fel ca in WoW. De-aia jocul intreaba inainte.
+//
+// Da inapoi obiectul aruncat, ca sa putem scrie pe ecran ce a fost.
+function aruncaDinRucsac(personajul, idObiect) {
+
+  const inventar = personajul.inventar || [];
+  const unde = inventar.findIndex(function (o) { return o.id === idObiect; });
+  if (unde < 0) return null;
+
+  return inventar.splice(unde, 1)[0];
+}
+
+
+// Arunca toate vechiturile deodata. Cand ti se umple rucsacul
+// departe de un negustor, asta e butonul care te scoate din impas.
+function aruncaVechiturile(personajul) {
+
+  const inventar = personajul.inventar || [];
+  let cate = 0;
+
+  for (let i = inventar.length - 1; i >= 0; i--) {
+    if (!inventar[i].vechitura) continue;
+    cate += (inventar[i].cate || 1);
+    inventar.splice(i, 1);
+  }
+  return cate;
+}
+
+
 // ==========================================================
 //  ECHIPAREA
 // ==========================================================

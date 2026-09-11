@@ -206,6 +206,74 @@ const NPC = {
 
 
 // ==========================================================
+//  NUMELE LOR, ALTUL IN FIECARE ZONA
+//
+//  Pana acum fiecare meserie avea UN nume: orice miner din lume
+//  se chema Prospector Dunn. Cu patruzeci de zone asta se vedea
+//  imediat si facea lumea sa para mica.
+//
+//  Acum numele se alege din listele de mai jos, dupa zona si dupa
+//  al catelea om e in zona. Alegerea e facuta din numere, nu la
+//  intamplare, deci acelasi om are MEREU acelasi nume - nu se
+//  schimba cand iesi si intri inapoi in zona.
+//
+//  Greenvale si Redwaste isi tin numele scrise de mana: acolo
+//  misiunile sunt scrise cap la cap si pomenesc oamenii pe nume.
+// ==========================================================
+const ZONE_CU_NUME_SCRISE = ['Greenvale', 'Redwaste'];
+
+const NUME_MIC_OM = [
+  'Aldric', 'Bess', 'Corwin', 'Dena', 'Emrik', 'Fenna', 'Garret', 'Hale',
+  'Ivar', 'Jessa', 'Kell', 'Lissa', 'Maren', 'Nolan', 'Orla', 'Perrin',
+  'Quenn', 'Rowan', 'Sela', 'Tobin', 'Ulric', 'Vessa', 'Wren', 'Yorick'
+];
+
+const NUME_MARE_OM = [
+  'Ashdown', 'Barrow', 'Clay', 'Dunmore', 'Elmsworth', 'Fielding', 'Grange',
+  'Harrow', 'Ingold', 'Kettle', 'Larkin', 'Merrow', 'Norwood', 'Oakley',
+  'Pike', 'Ravenel', 'Stonebrook', 'Thatcher', 'Underhill', 'Vance'
+];
+
+const NUME_MIC_ORC = [
+  'Bruk', 'Draga', 'Gharn', 'Hoska', 'Jorreg', 'Kruul', 'Lorga', 'Mazok',
+  'Nurga', 'Orkuz', 'Rahk', 'Shela', 'Thrag', 'Ugra', 'Vorlak', 'Zurga',
+  'Grem', 'Halka', 'Morg', 'Tessk'
+];
+
+const NUME_MARE_ORC = [
+  'Ashfang', 'Blackhoof', 'Coalbiter', 'Dustmane', 'Emberjaw', 'Grimtusk',
+  'Ironhide', 'Kragmaw', 'Lowspine', 'Redscar', 'Sandclaw', 'Stonegut',
+  'Thornhide', 'Wormcutter', 'Boneshear'
+];
+
+
+// Amesteca doua numere intr-unul singur, mereu acelasi pentru
+// aceeasi pereche. Asa numele nu sar de la o intrare la alta.
+function numarDinText(text, adaos) {
+  let n = 2166136261 ^ (adaos || 0);
+  for (let i = 0; i < text.length; i++) {
+    n = Math.imul(n ^ text.charCodeAt(i), 16777619);
+  }
+  return Math.abs(n);
+}
+
+
+// Numele omului al "indice"-lea din zona data.
+function numeDeNpc(zonaAsta, indice, felul) {
+
+  if (!zonaAsta) return null;
+  if (ZONE_CU_NUME_SCRISE.indexOf(zonaAsta.nume) >= 0) return null;
+
+  const orc = (zonaAsta.continent === 'karador');
+  const mici = orc ? NUME_MIC_ORC : NUME_MIC_OM;
+  const mari = orc ? NUME_MARE_ORC : NUME_MARE_OM;
+
+  const n = numarDinText(zonaAsta.id + ':' + felul, indice * 7919);
+  return mici[n % mici.length] + ' ' + mari[(n >> 8) % mari.length];
+}
+
+
+// ==========================================================
 //  RETETA DIN CARE IES OAMENII
 //
 //  Toti sunt facuti la fel: picioare, trup, brate, cap, par sau

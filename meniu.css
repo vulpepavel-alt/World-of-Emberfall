@@ -695,6 +695,31 @@
   text-shadow: 0 0 3px #000;
 }
 
+/* ---- aruncatul din rucsac ---- */
+.unelte-rucsac { display: flex; gap: 8px; margin-bottom: 9px; flex-wrap: wrap; }
+.buton.mic.apasat { background: #6b2f22; border-color: #c2543f; color: #ffdcd2; }
+.buton.mic.rau { background: #7a2a1c; border-color: #c2543f; color: #ffe4dc; }
+
+/* Cand esti in modul de aruncat, tot rucsacul se face rosu ca sa nu
+   apesi din greseala crezand ca imbraci ceva. */
+.grila-rucsac.de-aruncat .loc-rucsac:not(.gol) { border-color: #7a3324; cursor: pointer; }
+.grila-rucsac.de-aruncat .loc-rucsac:not(.gol):hover { border-color: #e06a5a; }
+.grila-rucsac.de-aruncat .loc-rucsac.vechitura { cursor: pointer; }
+
+.loc-rucsac .semn-arunca {
+  position: absolute; right: 1px; top: -2px;
+  font-size: 17px; font-weight: 700; color: #e06a5a;
+  text-shadow: 0 0 4px #000, 0 0 4px #000;
+  pointer-events: none;
+}
+
+.intrebare-rucsac {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 9px; padding: 8px 10px;
+  background: #2a1712; border: 1px solid #7a3324; border-radius: 3px;
+  font-size: 12px; color: #e8dcc0;
+}
+
 /* ---- fisa obiectului ---- */
 #fisa-obiect {
   position: fixed; z-index: 90;
@@ -1000,46 +1025,34 @@
   display: flex; align-items: center; justify-content: space-between;
   gap: 10px; margin-bottom: 12px;
 }
-.file-continente { display: flex; gap: 6px; }
+/* Meniul derulant: lumea intreaga sau o zona anume. */
+.alege-harta {
+  font-family: inherit; font-size: 15px;
+  padding: 7px 12px; min-width: 230px;
+  background: #1b1510; color: #e8dcc0;
+  border: 2px solid #4d3c22; border-radius: 2px;
+}
 
 .corp-harta { flex: 1; min-height: 0; display: flex; gap: 14px; }
 
 .plansa-harta {
-  flex: 1; min-width: 0;
+  flex: 1; min-width: 0; overflow: auto;
+  display: flex; align-items: flex-start; justify-content: center;
   border: 2px solid #4d3c22; background: #100c08;
   padding: 10px; box-sizing: border-box;
 }
-.grila-harta { display: grid; gap: 8px; width: 100%; height: 100%; }
 
-/* O zona pe harta. Culoarea spune daca e pe masura ta. */
-.zona-harta {
-  position: relative;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; padding: 8px 6px;
-  background: #1b1510; border: 2px solid #3a2d19; border-radius: 2px;
-  font-family: inherit; color: #cdbb9a; cursor: pointer; text-align: center;
-}
-.zona-harta:hover { border-color: #8a6a2f; }
-.zona-harta.aleasa { border-color: #c9a961; background: #241c12; }
-.zona-harta.aici { box-shadow: inset 0 0 0 2px #ffd34d; }
-
-.zona-harta .nume-zona { font-size: 15px; color: #d9b555; }
-.zona-harta .nivel-zona { font-size: 12px; }
-.zona-harta .steag-zona {
-  font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #7a6748;
-}
-.zona-harta .esti-aici {
-  font-size: 10px; color: #ffd34d; letter-spacing: .06em;
+/* Harta desenata. Se micsoreaza singura ca sa incapa pe ecran. */
+.panza-harta {
+  max-width: 100%; max-height: 100%;
+  width: auto; height: auto;
+  object-fit: contain;
+  border-radius: 2px;
 }
 
-/* verde = pe masura ta; galben = cam sus; rosu = te omoara;
-   cenusiu = ai depasit-o demult */
-.zona-harta.potrivita .nivel-zona { color: #6fd06f; }
-.zona-harta.cam-tare  .nivel-zona { color: #e0c15a; }
-.zona-harta.prea-tare .nivel-zona { color: #e06a5a; }
-.zona-harta.usoara    .nivel-zona { color: #9ac4e8; }
-.zona-harta.depasita  { opacity: .55; }
-.zona-harta.depasita .nivel-zona { color: #8d7a58; }
+.asteapta-harta {
+  margin: auto; font-size: 15px; color: #8d7a58; font-style: italic;
+}
 
 .detalii-zona {
   flex: 0 0 250px; overflow-y: auto;
@@ -1066,5 +1079,4 @@
 
 @media (max-height: 520px) {
   .detalii-zona { flex-basis: 210px; padding: 9px 11px; }
-  .zona-harta .nume-zona { font-size: 13px; }
 }

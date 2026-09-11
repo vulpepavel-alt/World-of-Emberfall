@@ -30,6 +30,7 @@ inregistreazaZona({
   peHarta: { c: 3, r: 1 },
 
   litere: LITERE,
+  climat: 'pustiu',
   teren: climat('pustiu'),
 
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
@@ -45,7 +46,9 @@ inregistreazaZona({
   npci: [
     { fel: 'marshal', la: 'sat', dc: 4, dr: 1 },
     { fel: 'negustor', la: 'sat', dc: -8, dr: -1 },
-    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 }
+    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 },
+    { fel: 'capitan', la: 'sat', dc: -4, dr: 12 },
+    { fel: 'cercetas', la: 'crapatura', dc: 0, dr: 9 }
   ],
 
   tabere: 75,
