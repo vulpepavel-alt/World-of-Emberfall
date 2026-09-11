@@ -134,6 +134,14 @@ function htmlFisa(obiect) {
           '<span>' + slot.nume + '</span></div>';
   html += '<div class="fisa-rand stins">Item Level ' + obiect.nivel + '</div>';
 
+  if (obiect.arma) {
+    html += '<div class="fisa-rand fisa-doua"><span>' +
+            obiect.arma.dmgMin + ' &ndash; ' + obiect.arma.dmgMax + ' Damage</span>' +
+            '<span>Speed ' + obiect.arma.viteza.toFixed(1) + '</span></div>';
+    const dps = ((obiect.arma.dmgMin + obiect.arma.dmgMax) / 2 / obiect.arma.viteza).toFixed(1);
+    html += '<div class="fisa-rand stins">(' + dps + ' damage per second)</div>';
+  }
+
   if (obiect.armura > 0) {
     html += '<div class="fisa-rand">' + obiect.armura + ' Armor</div>';
   }

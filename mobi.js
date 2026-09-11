@@ -37,22 +37,69 @@ const STATS_NIVEL_1 = {
   armura: 20
 };
 
-// Acelasi fel de inamic, dar de alt nivel. Fiecare nivel il face
-// cam cu o cincime mai rezistent si putin mai dureros.
-function statsPentruNivel(nivel) {
+// Acelasi fel de inamic, dar de alt nivel.
+//
+// ATENTIE la formula de viata. Prima data era 42 x 1,20 la puterea
+// nivelului - adica inmultit cu 1,2 la FIECARE nivel. Pana la 10
+// mergea (42 -> 217), dar la 30 iesea 8.308 si la 60 peste doua
+// milioane. O testasem doar pe primele zece niveluri.
+//
+// Acum creste domol si e reglata dupa cat damage poate scoate un
+// jucator cu echipament pe masura: o lupta cu un inamic obisnuit
+// tine cam cincisprezece secunde la ORICE nivel. Un rar tine de
+// doua ori si jumatate mai mult, un elit de sase ori.
+function statsPentruNivel(nivel, rang) {
 
   const n = Math.max(1, Math.round(nivel || 1));
-  if (n === 1) return STATS_NIVEL_1;
+  const r = RANGURI[rang] || RANGURI.normal;
 
-  return {
+  const baza = {
     nivel:  n,
-    viata:  Math.round(STATS_NIVEL_1.viata * Math.pow(1.20, n - 1)),
+    viata:  Math.round(40 + n * 11 + Math.pow(n, 1.5) * 0.5),
     dmgMin: Math.round(STATS_NIVEL_1.dmgMin + (n - 1) * 0.8),
     dmgMax: Math.round(STATS_NIVEL_1.dmgMax + (n - 1) * 1.1),
     viteza: STATS_NIVEL_1.viteza,
     armura: STATS_NIVEL_1.armura + (n - 1) * 5
   };
+
+  return {
+    nivel:  n,
+    rang:   r.id,
+    viata:  Math.round(baza.viata * r.viata),
+    dmgMin: Math.round(baza.dmgMin * r.damage),
+    dmgMax: Math.round(baza.dmgMax * r.damage),
+    viteza: baza.viteza,
+    armura: Math.round(baza.armura * r.armura)
+  };
 }
+
+
+// ==========================================================
+//  RANGURILE: obisnuit, RAR (argintiu), ELIT (auriu)
+//
+//  Copiat din WoW:
+//
+//    OBISNUIT  - inamicul de rand. Reapare in zece secunde.
+//    RAR       - are rama ARGINTIE in jurul numelui si nume propriu.
+//                De doua ori si jumatate mai multa viata, loveste mai
+//                tare, si LASA INTOTDEAUNA un obiect bun. Reapare
+//                rar: dupa zece minute. Cate trei in fiecare zona.
+//    ELIT      - rama AURIE. De sase ori mai multa viata, damage
+//                dublu. Lasa intotdeauna ceva albastru sau mov.
+//                Unul singur in zona, ascuns intr-un colt. Reapare
+//                dupa douazeci de minute.
+//
+//  Un rar de nivelul tau e o lupta adevarata. Un elit de nivelul tau
+//  te omoara daca te duci singur si neechipat.
+// ==========================================================
+const RANGURI = {
+  normal: { id: 'normal', viata: 1,   damage: 1,   armura: 1,
+            culoare: '#e8dcc0', xp: 1,  marime: 1,    reaparitie: 10000 },
+  rar:    { id: 'rar',    viata: 2.5, damage: 1.4, armura: 1.3,
+            culoare: '#c9ccd4', xp: 4,  marime: 1.25, reaparitie: 600000 },
+  elit:   { id: 'elit',   viata: 6,   damage: 2,   armura: 1.6,
+            culoare: '#e6c669', xp: 10, marime: 1.5,  reaparitie: 1200000 }
+};
 
 
 const MOBI = {
@@ -233,3 +280,40 @@ const MOBI = {
     ]
   }
 };
+
+
+// ==========================================================
+//  NUMELE CELOR RARI SI ALE CELOR ELIT
+//
+//  Un inamic de rand se cheama "Wolf". Unul rar are nume propriu:
+//  "Greyhide the Starved". Se face din doua bucati, ca obiectele -
+//  asa ies sute de nume fara sa le scriu pe toate.
+// ==========================================================
+const NUME_RARE = [
+  'Greyhide', 'Ashfang', 'Old Bramble', 'Nightcrawl', 'Ironjaw',
+  'Sablemane', 'Hollowtooth', 'Duskwing', 'Rotclaw', 'Stonehide',
+  'Bitterfang', 'Palehorn', 'Grimscale', 'Emberback', 'Thornhide'
+];
+
+const PORECLE_RARE = [
+  'the Starved', 'the Patient', 'the Unbroken', 'the Scarred',
+  'the Long-Lived', 'the Silent', 'the Hungry', 'the Twice-Hunted',
+  'the Ragged', 'the Bitter'
+];
+
+const NUME_ELITE = [
+  'Warden', 'Matriarch', 'Bloodking', 'The Elder', 'Dreadmaw',
+  'The Broodfather', 'Grave-Tender', 'The Pale Sovereign'
+];
+
+// Numele se face din numarul locului, nu la intamplare: asa acelasi
+// inamic rar are mereu acelasi nume, oricat de des te intorci.
+function numeDeRar(samanta) {
+  const a = NUME_RARE[samanta % NUME_RARE.length];
+  const b = PORECLE_RARE[Math.floor(samanta / NUME_RARE.length) % PORECLE_RARE.length];
+  return a + ' ' + b;
+}
+
+function numeDeElit(samanta, numeFel) {
+  return NUME_ELITE[samanta % NUME_ELITE.length] + ' of the ' + numeFel;
+}

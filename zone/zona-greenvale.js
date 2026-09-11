@@ -46,7 +46,11 @@ inregistreazaZona({
   npci: [
     { fel: 'marshal', la: 'sat', dc: 4, dr: 1 },
     { fel: 'negustor', la: 'sat', dc: -8, dr: -1 },
-    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 }
+    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 },
+    { fel: 'taran',    la: 'ferma', dc: 0, dr: -1 },
+    { fel: 'padurar',  la: 'vizuina', dc: 16, dr: 12 },
+    { fel: 'miner',    la: 'mina', dc: 4, dr: 4 },
+    { fel: 'cavaler',  la: 'cetate', dc: 3, dr: 12 }
   ],
 
   tabere: 41,

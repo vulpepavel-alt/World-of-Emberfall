@@ -35,6 +35,8 @@ const TEXT = {
   INTERACT: 'TALK',
   LOG_OUT: 'Log out',
   MAP: 'Map',
+  RARE: '\u25C6 RARE \u25C6',
+  ELITE: '\u25C6 ELITE \u25C6',
   ROADS: 'Where you can go',
   YOU_ARE_HERE_NOTE: 'Walk to the edge of the zone to cross into the next one.',
   MENU:   'MENU',

@@ -293,8 +293,15 @@
   <script src="zone/zona-hollowroot.js"></script>
   <script src="zone/zona-sundercrag.js"></script>
 
-  <!-- Acum ca s-au inregistrat toate, le legam intre ele. -->
-  <script>leagaZonele();</script>
+  <!-- Misiunile facute dupa tipare, pentru zonele fara povesti scrise -->
+  <script src="misiuni-zone.js"></script>
+
+  <!-- Acum ca s-au inregistrat toate, le legam intre ele si le dam
+       misiuni zonelor care n-au. -->
+  <script>
+    leagaZonele();
+    faMisiunileTuturorZonelor();
+  </script>
 
   <!-- Jocul (asteapta sa fie pornit din meniu) -->
   <script src="game.js"></script>

@@ -539,6 +539,88 @@ function asazaMobii(zona, reteta, ajuns, start) {
 
 
 // ==========================================================
+//  CEI RARI SI CEL ELIT
+//
+//  Trei rari si un elit in fiecare zona, ca in WoW.
+//
+//  Nu stau in tabere: stau SINGURI, prin colturi, departe de
+//  drumuri si de locul unde intri. Pe cel elit il pui in cel mai
+//  departat colt la care se poate ajunge - trebuie sa fie greu de
+//  gasit, nu doar greu de omorat.
+//
+//  Locurile lor nu sunt la intamblare de la o intrare la alta:
+//  ies din samanta zonei, deci ii gasesti mereu in acelasi loc.
+// ==========================================================
+function asazaRariiSiElitul(zona, reteta, ajuns, start, mobi) {
+
+  const zar = faZaruri(reteta.samanta + 777);
+  const cei = [];
+
+  // Cat de departe de start e fiecare casuta buna.
+  function departare(c, r) {
+    const dc = c - start.col, dr = r - start.rand;
+    return Math.sqrt(dc * dc + dr * dr);
+  }
+
+  const maxDist = Math.sqrt(zona.COL * zona.COL + zona.RND * zona.RND);
+
+  // --- cei trei rari ---
+  let pusi = 0, incercari = 0;
+  while (pusi < 3 && incercari < 4000) {
+    incercari++;
+
+    const c = Math.floor(zar() * zona.COL);
+    const r = Math.floor(zar() * zona.RND);
+    if (!ajuns[r][c]) continue;
+
+    // nu chiar langa tabara, si nu unul peste altul
+    if (departare(c, r) < maxDist * 0.25) continue;
+    if (cei.some(function (x) { return departare(x.col - c + start.col,
+                                                 x.rand - r + start.rand) < 60; })) continue;
+    const preaAproapeDeAltul = cei.some(function (x) {
+      return Math.sqrt((x.col - c) * (x.col - c) + (x.rand - r) * (x.rand - r)) < 120;
+    });
+    if (preaAproapeDeAltul) continue;
+
+    // nivelul lor: spre capatul de sus al zonei
+    const nivel = Math.min(reteta.nivelPanaLa,
+                           reteta.nivelDeLa + Math.round((reteta.nivelPanaLa - reteta.nivelDeLa) * 0.7) + pusi);
+    const feluri = reteta.feluriPeNivel(nivel);
+    const fel = feluri[Math.floor(zar() * feluri.length)];
+
+    cei.push({ fel: fel, col: c, rand: r, nivel: nivel, rang: 'rar',
+               nume: numeDeRar(reteta.samanta + pusi * 37) });
+    pusi++;
+  }
+
+  // --- elitul: in cel mai departat colt la care se poate ajunge ---
+  let celMaiDeparte = null, ceaMaiMare = 0;
+  for (let r = 0; r < zona.RND; r += 4) {
+    for (let c = 0; c < zona.COL; c += 4) {
+      if (!ajuns[r][c]) continue;
+      const d = departare(c, r);
+      if (d > ceaMaiMare) { ceaMaiMare = d; celMaiDeparte = { c: c, r: r }; }
+    }
+  }
+
+  if (celMaiDeparte) {
+    const feluri = reteta.feluriPeNivel(reteta.nivelPanaLa);
+    const fel = feluri[feluri.length - 1];
+    const numeFel = (typeof MOBI !== 'undefined' && MOBI[fel]) ? MOBI[fel].nume : fel;
+    cei.push({ fel: fel, col: celMaiDeparte.c, rand: celMaiDeparte.r,
+               nivel: reteta.nivelPanaLa, rang: 'elit',
+               nume: numeDeElit(reteta.samanta, numeFel) });
+  }
+
+  // Facem loc in jurul lor: nimeni nu vrea sa se bata cu un elit
+  // lipit de un copac.
+  cei.forEach(function (x) { disc(zona.tabla, x.col, x.rand, 4, reteta.litere.fond); });
+
+  return cei;
+}
+
+
+// ==========================================================
 //  TOT LA UN LOC
 //
 //  Se cheama o singura data, cand intri in zona.
@@ -604,6 +686,9 @@ function faZona(reteta) {
   if (astupate > 0) ajuns = undeSePoateAjunge(zona, start);
 
   zona.mobi = asazaMobii(zona, reteta, ajuns, start);
+
+  // Cei trei rari si elitul, pe deasupra.
+  zona.mobi = zona.mobi.concat(asazaRariiSiElitul(zona, reteta, ajuns, start, zona.mobi));
 
   zona.start = start;
   zona.reinviere = start;

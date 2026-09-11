@@ -2587,8 +2587,27 @@ function tragiCuArcul() {
 }
 
 // Cu ce arma ataci in mod obisnuit.
+//
+// Daca ai ceva in "Main Hand", aceea e arma ta si damage-ul ei
+// conteaza. Daca n-ai nimic, ramai cu arma de start a clasei.
+// Hunter trage cu arcul oricum, dar arcul lui devine mai bun odata
+// cu ce are echipat.
 function armaDeAtac() {
-  return personaj.arme.distanta || personaj.arme.corpLaCorp;
+
+  const deStart = personaj.arme.distanta || personaj.arme.corpLaCorp;
+  const echipata = (personaj.echipament || {}).armaPrincipala;
+
+  if (!echipata || !echipata.arma) return deStart;
+
+  // Pastram numele armei de start (arc, toiag, sabie) - conteaza
+  // pentru cum se deseneaza si pentru cum se lupta - dar luam
+  // cifrele de la obiectul echipat.
+  return {
+    nume: deStart.nume,
+    dmgMin: echipata.arma.dmgMin,
+    dmgMax: echipata.arma.dmgMax,
+    viteza: echipata.arma.viteza
+  };
 }
 
 
@@ -2786,9 +2805,9 @@ function creeazaMob(scena, loc) {
     return;
   }
 
-  // Nivelul e scris la fiecare inamic in fisierul zonei. Daca nu
-  // scrie nimic, e nivel 1 - ca sa mearga si zonele vechi.
-  const stats = statsPentruNivel(loc.nivel || 1);
+  // Nivelul si rangul sunt scrise la fiecare inamic in zona.
+  const stats = statsPentruNivel(loc.nivel || 1, loc.rang);
+  const rang = RANGURI[loc.rang] || RANGURI.normal;
 
   const x = loc.col * TILE + TILE / 2;
   const y = loc.rand * TILE + TILE / 2;
@@ -2796,21 +2815,50 @@ function creeazaMob(scena, loc) {
   const mob = scena.add.container(x, y);
 
   // Umbra pe pamant, apoi bucatile scrise in mobi.js, cu contur.
-  mob.add(faUmbra(scena, 24));
+  mob.add(faUmbra(scena, 24 * rang.marime));
   deseneazaForme(scena, fel.forme).forEach(function (bucata) { mob.add(bucata); });
 
-  // Numele si nivelul, deasupra capului.
-  mob.add(scena.add.text(0, -40, fel.nume + ' (' + TEXT.LEVEL + ' ' + stats.nivel + ')', {
+  // Cei rari si cei elit sunt si mai MARI, ca sa se vada de departe
+  // ca nu-s de rand.
+  if (rang.id !== 'normal') {
+    mob.list.forEach(function (b) {
+      b.x = b.x * rang.marime;
+      b.y = b.y * rang.marime;
+      if (b.setScale) b.setScale(rang.marime);
+    });
+  }
+
+  // Numele. Unul de rand se cheama dupa felul lui; unul rar are nume
+  // propriu, scris cu ARGINTIU; unul elit, cu AURIU.
+  const numeArata = loc.nume || fel.nume;
+  mob.add(scena.add.text(0, -40 * rang.marime,
+    numeArata + ' (' + TEXT.LEVEL + ' ' + stats.nivel + ')', {
     fontFamily: UI.FONT,
-    fontSize: '10px',
-    color: UI.text,
+    fontSize: (rang.id === 'normal') ? '10px' : '12px',
+    fontStyle: (rang.id === 'normal') ? '' : 'bold',
+    color: rang.culoare,
     stroke: '#000000',
     strokeThickness: 3
   }).setOrigin(0.5));
 
+  // Rama din jurul barei de viata: argintie la rari, aurie la eliti.
+  if (rang.id !== 'normal') {
+    mob.add(scena.add.text(0, -52 * rang.marime,
+      rang.id === 'rar' ? TEXT.RARE : TEXT.ELITE, {
+      fontFamily: UI.FONT,
+      fontSize: '9px',
+      fontStyle: 'bold',
+      color: rang.culoare,
+      stroke: '#000000',
+      strokeThickness: 3
+    }).setOrigin(0.5));
+  }
+
   // Bara lui de viata.
-  mob.add(scena.add.rectangle(0, -28, 32, 6, 0x000000).setOrigin(0.5));
-  const bara = scena.add.rectangle(-15, -31, 30, 4, 0xcc3322).setOrigin(0, 0);
+  const susBara = -28 * rang.marime;
+  mob.add(scena.add.rectangle(0, susBara, 34, 8, culoareDinText(rang.culoare)).setOrigin(0.5));
+  mob.add(scena.add.rectangle(0, susBara, 32, 6, 0x000000).setOrigin(0.5));
+  const bara = scena.add.rectangle(-15, susBara - 3, 30, 4, 0xcc3322).setOrigin(0, 0);
   mob.add(bara);
 
   mob.setDepth(9);
@@ -2818,6 +2866,7 @@ function creeazaMob(scena, loc) {
   // Ce tine minte fiecare inamic.
   mob.fel = fel;
   mob.felul = loc.fel;      // 'wolf', 'bandit'... numele scurt, pentru misiuni
+  mob.rang = rang;
   mob.stats = stats;
   mob.viataMaxima = stats.viata;
   mob.viata = stats.viata;
@@ -2954,11 +3003,12 @@ function loveste(scena, mob, damageBrut, critic) {
     mob.viu = false;
 
     // Experienta pentru inamicul ucis.
-    primesteXp(scena, xpDeLaMob(mob.stats.nivel, personaj.nivel));
+    primesteXp(scena, Math.round(xpDeLaMob(mob.stats.nivel, personaj.nivel) * mob.rang.xp));
 
     // Ce a lasat in urma NU sare singur la tine, ca pana acum.
     // Ramane in trupul lui, iar tu te duci si il iei - ca in WoW.
-    const prada = pradaCompleta(mob.stats.nivel, mob.fel.neam === 'umanoid', mob.felul);
+    const prada = pradaCompleta(mob.stats.nivel, mob.fel.neam === 'umanoid',
+                                mob.felul, mob.rang.id);
 
     // Lucrurile cerute de misiuni cad in acelasi trup.
     prada.obiecteMisiune = obiecteDeMisiuneDeLa(personaj, mob.felul);
@@ -2998,7 +3048,7 @@ function loveste(scena, mob, damageBrut, critic) {
     // Locul lui se elibereaza. Reapare singur, dupa ce trece timpul
     // si daca esti destul de aproape ca sa merite desenat.
     locul.aparut = false;
-    locul.mortPanaLa = scena.time.now + TIMP_REAPARITIE;
+    locul.mortPanaLa = scena.time.now + mob.rang.reaparitie;
   }
 }
 

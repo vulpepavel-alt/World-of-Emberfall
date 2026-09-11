@@ -122,6 +122,22 @@ function faObiect(idSlot, nivel, idRaritate) {
 
   const armura = DA_ARMURA.includes(idSlot) ? Math.max(1, Math.round(putere * 2.2)) : 0;
 
+  // O arma are si DAMAGE-UL ei, nu doar statistici.
+  //
+  // Fara asta, la nivelul 60 loveai tot cu sabia de start, 3-6
+  // damage, si un inamic cu 3.500 de viata nu putea fi omorat
+  // niciodata. Ca in WoW, arma din mana e cea care creste.
+  let arma = null;
+  if (idSlot === 'armaPrincipala') {
+    const dmgMin = Math.max(2, Math.round((1 + nivel * 0.9) * raritate.putere));
+    arma = {
+      dmgMin: dmgMin,
+      dmgMax: Math.round(dmgMin * 1.6),
+      viteza: 2.0 + (nivel % 3) * 0.2,      // intre 2,0 si 2,4 secunde
+      nume: NUME_PIESA[idSlot]
+    };
+  }
+
   return {
     id: urmatorulIdObiect++,
     slot: idSlot,
@@ -131,7 +147,8 @@ function faObiect(idSlot, nivel, idRaritate) {
     raritate: raritate.id,
     culoare: raritate.culoare,
     statistici: statistici,
-    armura: armura
+    armura: armura,
+    arma: arma
   };
 }
 
@@ -258,10 +275,33 @@ function pradaDeLaMob(nivelMob, esteUmanoid) {
 
 // Acelasi lucru, dar stiind si ce fel de inamic a fost - ca sa
 // putem pune si vechitura potrivita in trupul lui.
-function pradaCompleta(nivelMob, esteUmanoid, felulMobului) {
+function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang) {
+
   const prada = pradaDeLaMob(nivelMob, esteUmanoid);
   const vechitura = vechituraDeLaMob(nivelMob, felulMobului);
   if (vechitura) prada.obiecte.push(vechitura);
+
+  // Cei rari si cei elit lasa INTOTDEAUNA ceva bun - de aceea ii
+  // cauti. Un rar da sigur verde, uneori albastru. Un elit da sigur
+  // albastru, si cam unul din patru da mov.
+  if (rang === 'rar' || rang === 'elit') {
+    const zar = Math.random() * 100;
+    let raritate;
+    if (rang === 'elit') raritate = (zar < 25) ? 'maiestru' : 'rar';
+    else                 raritate = (zar < 22) ? 'rar' : 'bun';
+
+    const slot = SLOTURI[Math.floor(Math.random() * SLOTURI.length)];
+    prada.obiecte.push(faObiect(slot.id, Math.max(1, nivelMob), raritate));
+
+    // Si mai multi bani: au fost mai greu de omorat.
+    prada.bani = Math.round(prada.bani * (rang === 'elit' ? 8 : 3));
+    if (prada.bani === 0) {
+      // Chiar si o fiara rara lasa ceva: ce a inghitit de la altii.
+      prada.bani = Math.max(1, Math.round(nivelMob * nivelMob * 0.6 *
+                                          (rang === 'elit' ? 4 : 1.5)));
+    }
+  }
+
   return prada;
 }
 
@@ -391,6 +431,7 @@ const NUME_ATRIBUT = { str: 'Strength', agi: 'Agility', sta: 'Stamina',
 function descriereObiect(obiect) {
   if (obiect.vechitura) return 'Junk';
   const bucati = [];
+  if (obiect.arma) bucati.push(obiect.arma.dmgMin + '-' + obiect.arma.dmgMax + ' dmg');
   Object.keys(obiect.statistici).forEach(function (a) {
     bucati.push('+' + obiect.statistici[a] + ' ' + NUME_ATRIBUT[a]);
   });

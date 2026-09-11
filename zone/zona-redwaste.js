@@ -45,7 +45,11 @@ inregistreazaZona({
   npci: [
     { fel: 'chief', la: 'sat', dc: 3, dr: 1 },
     { fel: 'negustorOrc', la: 'sat', dc: -6, dr: -1 },
-    { fel: 'armurierOrc', la: 'sat', dc: 16, dr: -2 }
+    { fel: 'armurierOrc', la: 'sat', dc: 16, dr: -2 },
+    { fel: 'samana',   la: 'sat', dc: -18, dr: 7 },
+    { fel: 'capitan',  la: 'sat', dc: 10, dr: 6 },
+    { fel: 'vanator',  la: 'coliba', dc: 3, dr: 3 },
+    { fel: 'cercetas', la: 'post', dc: 2, dr: 1 }
   ],
 
   tabere: 41,
