@@ -1,5 +1,15 @@
 // ==========================================================
-//  MISIUNILE DIN CELELALTE ZONE
+//  MISIUNILE FACUTE DUPA TIPARE
+//
+//  ATENTIE: acum fisierul asta NU MAI FACE NICIO MISIUNE.
+//
+//  Toate cele patruzeci de zone au misiuni scrise de mana, in
+//  misiuni-scrise.js, iar motorul de aici sare peste orice zona
+//  care are deja misiuni. L-am lasat in joc ca plasa de siguranta:
+//  daca adaugi o zona noua si uiti sa-i scrii poveste, primeste
+//  patru misiuni dupa tiparele de mai jos in loc de niciuna.
+//
+//  Restul comentariului povesteste de ce arata asa.
 //
 //  Cele 36 de misiuni din Greenvale si Redwaste sunt scrise de
 //  mana, una cate una, cu poveste legata cap la cap.

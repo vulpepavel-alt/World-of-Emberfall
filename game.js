@@ -3110,7 +3110,15 @@ function creeazaNpc(scena, loc, indice) {
   // peste acelasi Prospector Dunn in toate cele patruzeci de zone.
   // Meseria (titlul de sub nume) ramane aceeasi.
   const altNume = numeDeNpc(zona, indice || 0, loc.fel);
-  const cine = altNume ? Object.assign({}, dinTabel, { nume: altNume }) : dinTabel;
+  const schimbari = altNume ? { nume: altNume } : {};
+
+  // Titlul omului legii pomeneste un loc: scria "Greenvale Marshal"
+  // deasupra fiecarui marshal din lume, inclusiv in celelalte
+  // treizeci si sapte de zone. Acum spune zona in care chiar esti.
+  if (loc.fel === 'marshal' && zona) schimbari.titlu = zona.nume + ' Marshal';
+
+  const cine = Object.keys(schimbari).length
+    ? Object.assign({}, dinTabel, schimbari) : dinTabel;
 
   const p = scena.add.container(loc.col * TILE + TILE / 2, loc.rand * TILE + TILE / 2);
 

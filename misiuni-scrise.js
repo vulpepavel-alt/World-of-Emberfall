@@ -1392,3 +1392,1345 @@ scrieZona('The Emberwastes', 'emberwastes', [
     cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
   }
 ]);
+
+
+// ==========================================================
+//  KARADOR
+//
+//  Continentul celalalt: canion rosu, coasta si gheata. Aici incep
+//  Orc si Night Elf, si aici se vede: mai putine comitate si
+//  castele, mai multe asezari de frontiera, capitani de ceata si
+//  cercetasi. Oamenii vorbesc mai scurt si se plang mai putin.
+// ==========================================================
+
+
+// ----------------------------------------------------------
+//  SILVERBOUGH (1-10) - navoadele nu se rup, se taie
+// ----------------------------------------------------------
+scrieZona('Silverbough', 'silverbough', [
+  {
+    dator: 'marshal', nivel: 1,
+    titlu: 'Rats in the Net Lofts',
+    text: 'Welcome to Silverbough. You will hear the sea from every bed in this ' +
+          'village and after a week you will stop hearing it at all.<br><br>' +
+          'We live on what the boats bring in and we have not brought much in ' +
+          'this season, which I will explain when you have done something ' +
+          'useful.<br><br>' +
+          'The something useful is upstairs. The net lofts are full of rats and ' +
+          'a rat will go through a season\'s netting in a night for no reason ' +
+          'at all.<br><br>' +
+          'Eight of them. It is the smallest job I have and it is still the ' +
+          'difference between a boat going out on Tuesday and not.',
+    cerinta: { fel: 'ucide', mob: 'rat', cati: 8 }
+  },
+  {
+    dator: 'cercetas', nivel: 3,
+    titlu: 'Cut, Not Torn',
+    text: 'Here is the part the marshal did not want to say to a stranger on ' +
+          'the first afternoon.<br><br>' +
+          'The nets are coming up open. Everybody has been saying torn, because ' +
+          'torn is what happens to nets and torn is nobody\'s fault.<br><br>' +
+          'They are not torn. I have had four of them across my knee and every ' +
+          'one is a clean straight line. That is a blade and a steady ' +
+          'hand.<br><br>' +
+          'Somebody is out there at night in a boat. A boat has to sleep ' +
+          'somewhere, and there is exactly one place on this coast where a boat ' +
+          'can lie out of the weather and out of sight.<br><br>' +
+          'Go and look at the sea cave. Look, and come back.',
+    cerinta: { fel: 'mergi', loc: 'pestera', numeLoc: 'the sea cave' }
+  },
+  {
+    dator: 'negustor', nivel: 6,
+    titlu: 'Silk for the Menders',
+    text: 'So there is a boat in the cave. Good. Now I need the village able to ' +
+          'fish again while somebody else works out whose it is.<br><br>' +
+          'Netting wants thread that does not rot in salt, and the only thread ' +
+          'like that on this coast comes off the cliff spiders. It has been ' +
+          'gathered here since before anybody thought to write anything ' +
+          'down.<br><br>' +
+          'Eight bundles. The menders are four old women and they can put a ' +
+          'boat back to work in a day if they have the thread.<br><br>' +
+          'Mind the cliff. I have lost a nephew to that path and I would rather ' +
+          'not lose a customer.',
+    cerinta: { fel: 'aduna', mob: 'spider', cati: 8, obiect: 'Cliff-Spider Silk' }
+  },
+  {
+    dator: 'capitan', nivel: 8,
+    titlu: 'Whose Boat',
+    text: 'It is a Silverbough boat. Built here, four years ago, and sold down ' +
+          'the coast when its owner died.<br><br>' +
+          'Sold to people who have spent this season cutting our nets so that ' +
+          'the price of fish on this whole shore goes up, and then selling ' +
+          'their catch into it.<br><br>' +
+          'It is not a grand crime. Nobody has been killed. It is just eleven ' +
+          'families eating less so that somebody forty miles away eats ' +
+          'better.<br><br>' +
+          'Fourteen of them at the cove. Then the boat comes back up the beach ' +
+          'and goes to the family that lost the most, which is the ' +
+          'menders.<br><br>' +
+          'That is the whole of it. Small place, small justice, done properly.',
+    cerinta: { fel: 'ucide', mob: 'bandit', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  PALEWOOD (10-20) - fantanile s-au facut sarate
+// ----------------------------------------------------------
+scrieZona('Palewood', 'palewood', [
+  {
+    dator: 'vanator', nivel: 10,
+    titlu: 'A Wood That Died Standing',
+    text: 'Look at it. Every tree from here to the shore is dead and every one ' +
+          'of them is still upright.<br><br>' +
+          'That happened in one year. A wood that burns falls down. A wood that ' +
+          'is felled falls down. A wood that dies standing has had something ' +
+          'taken out of the ground under it.<br><br>' +
+          'The boars came in when the undergrowth went, and they are rooting ' +
+          'through the last gardens anybody here still has.<br><br>' +
+          'Eight of them, in the lower gardens.<br><br>' +
+          'Then talk to the bonecaster, and try not to make the face people ' +
+          'make when she starts talking.',
+    cerinta: { fel: 'ucide', mob: 'boar', cati: 8 }
+  },
+  {
+    dator: 'samana', nivel: 13,
+    titlu: 'Taste the Well',
+    text: 'You will want to hear a curse. I have one ready if you do; it is ' +
+          'good and it frightens children.<br><br>' +
+          'The true answer is duller. Draw a cup from any well in Palewood and ' +
+          'taste it. It is salt. Not brackish - salt, enough that you will spit ' +
+          'it out, and it was sweet when I was young.<br><br>' +
+          'Salt in a well means the sea has got under the land, and the sea only ' +
+          'gets under the land where something used to stop it.<br><br>' +
+          'Go out to the clearing on the shore side. There was a dyke there ' +
+          'when my mother walked it.<br><br>' +
+          'See whether there still is.',
+    cerinta: { fel: 'mergi', loc: 'luminis', numeLoc: 'the dyke clearing' }
+  },
+  {
+    dator: 'negustor', nivel: 15,
+    titlu: 'Crusted Skins',
+    text: 'A broken dyke is a thing anybody could see if they walked. What I ' +
+          'want to know is how long it has been broken, and the snakes will ' +
+          'tell us that better than the villagers will.<br><br>' +
+          'A serpent that lives in salt ground crusts its shed skin. One salt ' +
+          'season and the crust is a film. Four seasons and it is a shell you ' +
+          'can crack.<br><br>' +
+          'Bring me seven, from the shore side only.<br><br>' +
+          'If they are shells then that dyke has been open for years and every ' +
+          'single person in this village walked past it and decided it was ' +
+          'somebody else\'s.',
+    cerinta: { fel: 'aduna', mob: 'serpent', cati: 7, obiect: 'Salt-Crusted Skin' }
+  },
+  {
+    dator: 'marshal', nivel: 18,
+    titlu: 'Dead Timber Sells Better',
+    text: 'Four seasons. And a broken dyke does not stay broken for four ' +
+          'seasons in a village this size unless somebody is keeping it ' +
+          'broken.<br><br>' +
+          'Here is why. Living Palewood timber is soft and nobody wants it. ' +
+          'Standing dead Palewood - dried on the stump, salt-cured, hard as ' +
+          'iron - sells on the coast for six times the price.<br><br>' +
+          'Somebody worked that out and opened the sea onto their neighbours\' ' +
+          'wells to make it happen.<br><br>' +
+          'Fourteen of them at the cutting camp. Then we close the dyke, and in ' +
+          'thirty years this will be a wood again.<br><br>' +
+          'None of us will see it. Close it anyway.',
+    cerinta: { fel: 'ucide', mob: 'bandit', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  DUSTPLAIN (10-20) - apa orasului Karrak Hold
+// ----------------------------------------------------------
+scrieZona('Dustplain', 'dustplain', [
+  {
+    dator: 'chief', nivel: 10,
+    titlu: 'The Hold Drinks First',
+    text: 'You are inside Karrak Hold. Everything you see was built on one ' +
+          'thing: there is water under this rock and there is no water anywhere ' +
+          'else for four days\' ride.<br><br>' +
+          'The cisterns have dropped four feet in two years. I have not said ' +
+          'that out loud outside this room and you will not either.<br><br>' +
+          'What I can say out loud is that the lower galleries are full of rats ' +
+          'and rats foul water faster than people drink it. Eight of ' +
+          'them.<br><br>' +
+          'Do it well and I will let you into the part of this I cannot solve ' +
+          'by killing something.',
+    cerinta: { fel: 'ucide', mob: 'rat', cati: 8 }
+  },
+  {
+    dator: 'samana', nivel: 13,
+    titlu: 'Go Down to the Deep Cistern',
+    text: 'Four feet in two years. The council says the spring is failing and ' +
+          'the council is comfortable with that, because a failing spring is ' +
+          'nobody\'s fault and everybody can go on as they are.<br><br>' +
+          'A spring that fails, fails evenly. Ours dropped a foot in a month and ' +
+          'then nothing for eight, and then a foot in a month again.<br><br>' +
+          'Water does not do that. People do that.<br><br>' +
+          'Go down to the deep cistern. Walk the whole gallery, all the way to ' +
+          'the rock face where the water comes in.<br><br>' +
+          'Count the channels cut into that face. There should be one.',
+    cerinta: { fel: 'mergi', loc: 'mina', numeLoc: 'the deep cistern' }
+  },
+  {
+    dator: 'cercetas', nivel: 15,
+    titlu: 'Water Has a Tally Too',
+    text: 'Two channels. Of course there are.<br><br>' +
+          'Everything drawn out of the Hold is tallied - grain, iron, water, ' +
+          'all of it, on notched sticks at the gate. The outer camps have been ' +
+          'buying water all summer at four times what the Hold charges and ' +
+          'paying it without complaint, because the alternative is ' +
+          'thirst.<br><br>' +
+          'Whoever sells it has to move it, and anything moved past the gate ' +
+          'gets a tally whether the carrier likes it or not.<br><br>' +
+          'Seven tallies off the bandits on the camp road. That is enough to ' +
+          'show the council a number, and a council will believe a number when ' +
+          'it will not believe a bonecaster.',
+    cerinta: { fel: 'aduna', mob: 'bandit', cati: 7, obiect: 'Water Tally Stick' }
+  },
+  {
+    dator: 'capitan', nivel: 18,
+    titlu: 'Take the Second Channel',
+    text: 'The spring never failed. Somebody cut a second channel in the rock ' +
+          'face, took a third of the flow off before it reaches our cisterns, ' +
+          'and has spent two years selling Karrak Hold\'s own water back to the ' +
+          'camps outside its walls.<br><br>' +
+          'The raiders on the camp road are the delivery. They will not give ' +
+          'that up on being asked.<br><br>' +
+          'Fourteen of them. Then the masons go down and the second channel ' +
+          'gets filled with the same rock it was cut out of.<br><br>' +
+          'When the cisterns come back up, the chief will announce that the ' +
+          'spring recovered. Let him. A city that thinks its water can be stolen ' +
+          'never sleeps again.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  DUNEHOLT (15-25) - dunele castiga
+// ----------------------------------------------------------
+scrieZona('Duneholt', 'duneholt', [
+  {
+    dator: 'vanator', nivel: 15,
+    titlu: 'The Holt and the Sand',
+    text: 'Duneholt is a wall around a well and about nine hundred people who ' +
+          'have agreed not to talk about the dunes.<br><br>' +
+          'You can see them from the gate. They are closer than they were when ' +
+          'I was a girl and I can prove it, and when I do prove it people find ' +
+          'somewhere else to be.<br><br>' +
+          'Meanwhile: rats in the grain pits. Eight of them, and watch your ' +
+          'footing - the pits have sand in them now and they did not used ' +
+          'to.<br><br>' +
+          'Everything here comes back to that sentence eventually.',
+    cerinta: { fel: 'ucide', mob: 'rat', cati: 8 }
+  },
+  {
+    dator: 'marshal', nivel: 18,
+    titlu: 'The Post We Stopped Manning',
+    text: 'There is a watchpost a mile out on the west side. Two rooms and a ' +
+          'roof, built in my grandfather\'s time, manned until eleven years ' +
+          'ago.<br><br>' +
+          'We did not abandon it because of danger. We abandoned it because the ' +
+          'sand reached the sill and nobody wanted to dig a doorway out every ' +
+          'morning.<br><br>' +
+          'Go out and look at it. I want somebody who has not seen it slowly, ' +
+          'over eleven years, to look at it once and tell me what they ' +
+          'see.<br><br>' +
+          'If the roof is under, then the sand has moved the height of a man in ' +
+          'eleven years and this wall is nine hundred people standing in a ' +
+          'queue.',
+    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the buried watchpost' }
+  },
+  {
+    dator: 'samana', nivel: 20,
+    titlu: 'There Was a Thorn Forest Here',
+    text: 'The roof is under. I know. I have known for four years and being ' +
+          'right about it has made me no friends.<br><br>' +
+          'Now the useful part. The scorpids dig deeper than anything else ' +
+          'alive out there, and they throw up what they find, and what they ' +
+          'have been throwing up is root.<br><br>' +
+          'Not scrub root. Thick, woody, a hand across. There was a thorn ' +
+          'forest standing on this plain and it held the sand still, and ' +
+          'somebody cut it down long enough ago that we have forgotten we did ' +
+          'it.<br><br>' +
+          'Bring me eight pieces. I am going to put them on a table in front of ' +
+          'the council and say: this grew here, and it can grow here again.',
+    cerinta: { fel: 'aduna', mob: 'scorpid', cati: 8, obiect: 'Deep Thorn Root' }
+  },
+  {
+    dator: 'armurier', nivel: 23,
+    titlu: 'Guard the Seedlings',
+    text: 'The council voted for it. Eleven thousand thorn seedlings along the ' +
+          'west line, watered by hand from the holt\'s own well, for twenty ' +
+          'years before they hold anything.<br><br>' +
+          'It is the least popular decision anybody has taken here in a ' +
+          'lifetime, and it is right.<br><br>' +
+          'The raiders pull them up. Seedling thorn is the only burnable wood ' +
+          'within four days\' ride and they can sell a cartload in an ' +
+          'afternoon.<br><br>' +
+          'Fourteen of them.<br><br>' +
+          'Nobody alive today gets anything out of this. That is the part I ' +
+          'want you to understand before you take my money: you are being paid ' +
+          'to protect a thing that only makes sense to people who are not born ' +
+          'yet.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  STONECALL (15-25) - muntele raspunde gresit
+// ----------------------------------------------------------
+scrieZona('Stonecall', 'stonecall', [
+  {
+    dator: 'marshal', nivel: 15,
+    titlu: 'The Valley That Answers',
+    text: 'Shout here. Go on, anything.<br><br>' +
+          'Heard it? Four times, and the last one comes back from a different ' +
+          'direction than you sent it. That is Stonecall, and this village has ' +
+          'been built on it for six hundred years.<br><br>' +
+          'We count sheep by it. We find lost children by it. A shepherd on the ' +
+          'far ridge can talk to the square without moving.<br><br>' +
+          'Boars in the home pasture first. Eight. A boar in a walled pasture ' +
+          'is a wall down, and a wall down here is a flock gone in a ' +
+          'night.<br><br>' +
+          'Then we will get to why I have not slept properly since ' +
+          'midsummer.',
+    cerinta: { fel: 'ucide', mob: 'boar', cati: 8 }
+  },
+  {
+    dator: 'samana', nivel: 18,
+    titlu: 'Pelts With Somebody Else\'s Notches',
+    text: 'Every wolf taken in this valley gets its ears notched before it is ' +
+          'skinned. One notch a year, a pattern per shepherd, six hundred years ' +
+          'of it. That is how we know how many there are without counting ' +
+          'live ones.<br><br>' +
+          'Pelts have started coming in with notches that belong to ' +
+          'nobody.<br><br>' +
+          'Not wrong-shaped - correct. Correct notch, correct place, correct ' +
+          'depth, and a pattern that is not in the book and has never been in ' +
+          'the book.<br><br>' +
+          'Bring me seven of them. Somebody is working this valley who knows ' +
+          'exactly how we do things, and I would rather find that out from ' +
+          'seven pelts than from a person.',
+    cerinta: { fel: 'aduna', mob: 'wolf', cati: 7, obiect: 'Ear-Notched Pelt' }
+  },
+  {
+    dator: 'vanator', nivel: 20,
+    titlu: 'The Echo Changed',
+    text: 'Now the thing the marshal cannot sleep about.<br><br>' +
+          'The echo is wrong. Since midsummer it comes back three times instead ' +
+          'of four, and the last one is late.<br><br>' +
+          'Before you tell me a sound cannot change: a sound cannot, but the ' +
+          'shape it bounces off can. The old shaft above the village is part of ' +
+          'that shape. It always has been. Half of what makes Stonecall answer ' +
+          'is that hole.<br><br>' +
+          'Go up to the old shaft. Look at the mouth and look at the ' +
+          'ground.<br><br>' +
+          'If it has fallen in, we have lost more than a shaft. We have lost ' +
+          'how this village talks to itself.',
+    cerinta: { fel: 'mergi', loc: 'minaVeche', numeLoc: 'the old shaft' }
+  },
+  {
+    dator: 'armurier', nivel: 23,
+    titlu: 'Wider, Not Fallen',
+    text: 'Not fallen. Wider.<br><br>' +
+          'The burrowers have been opening that shaft from underneath for two ' +
+          'years and a bigger hole makes a slower echo. That is all it ever ' +
+          'was. Six hundred years of a village\'s hearing, changed by animals ' +
+          'that do not know the village is there.<br><br>' +
+          'And somebody has noticed. Notched pelts, an echo nobody trusts, and ' +
+          'shepherds who have started walking to the square instead of calling ' +
+          'to it - which means for the first time in six centuries nobody on ' +
+          'the ridges knows what is happening below.<br><br>' +
+          'Fourteen of them in the shaft. We will shore the mouth ourselves and ' +
+          'get our fourth answer back.',
+    cerinta: { fel: 'ucide', mob: 'burrower', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  SUNSPIRE (20-30) - umbra spune alta data
+// ----------------------------------------------------------
+scrieZona('Sunspire', 'sunspire', [
+  {
+    dator: 'marshal', nivel: 20,
+    titlu: 'Sown Three Weeks Wrong',
+    text: 'That stone out on the flat is the Sunspire. It is older than any ' +
+          'record we keep and its shadow is our calendar: when the tip touches ' +
+          'the first marker you sow, the second you cut hay, the third you ' +
+          'harvest.<br><br>' +
+          'Half this steppe sowed three weeks late this year on the shadow\'s ' +
+          'word and half the crop failed.<br><br>' +
+          'The boars came in on what was left because a thin field is an open ' +
+          'field. Eight of them.<br><br>' +
+          'And then somebody is going to explain to me how a stone that has not ' +
+          'moved in a thousand years told nine villages the wrong month.',
+    cerinta: { fel: 'ucide', mob: 'boar', cati: 8 }
+  },
+  {
+    dator: 'cercetas', nivel: 23,
+    titlu: 'Count the Markers',
+    text: 'A shadow needs two things: the stone, and the markers it falls ' +
+          'on.<br><br>' +
+          'Everybody has spent the summer staring at the stone. Nobody has ' +
+          'looked at the markers, because markers are just posts and posts are ' +
+          'boring.<br><br>' +
+          'Go out to the shadow post on the east flat. Look at the ground ' +
+          'around the posts - whether the grass is grown over the foot of them ' +
+          'or whether it has been cut and turned.<br><br>' +
+          'A post that has stood a thousand years has a thousand years of grass ' +
+          'round it.<br><br>' +
+          'One that was put in last autumn does not, and you can see that from ' +
+          'a horse.',
+    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the shadow post' }
+  },
+  {
+    dator: 'negustor', nivel: 25,
+    titlu: 'Somebody Owns a Chain',
+    text: 'Turned earth at the foot of three posts. So they were moved, and ' +
+          'moved carefully, which takes a surveyor\'s chain - and there is not ' +
+          'one honest chain on this whole steppe.<br><br>' +
+          'A chain is links and links break and get dropped.<br><br>' +
+          'Bring me seven links off the bandits camped on the flat. I have ' +
+          'bought and sold across nine villages for twenty years and if those ' +
+          'links match a maker I will know the maker.<br><br>' +
+          'A thousand years of a stone telling the truth, undone by a man with ' +
+          'a measuring chain and a patient idea.',
+    cerinta: { fel: 'aduna', mob: 'bandit', cati: 7, obiect: 'Surveyor\'s Chain Link' }
+  },
+  {
+    dator: 'capitan', nivel: 28,
+    titlu: 'Bought Cheap as Failed',
+    text: 'The chain belongs to a grain factor on the coast. He moved three ' +
+          'markers, the steppe sowed late, the crop failed, and he bought nine ' +
+          'villages\' harvest at the price of a failed one.<br><br>' +
+          'He will not be caught. He is four hundred miles away and he has ' +
+          'never once come here.<br><br>' +
+          'What is here is the crew he paid to hold the flat while the posts ' +
+          'were moved, and they are still sitting on it because nobody has ' +
+          'made them leave.<br><br>' +
+          'Fourteen of them.<br><br>' +
+          'Then we put the markers back with old men who remember where they ' +
+          'were, and we cut the new grass around them, and in ten years nobody ' +
+          'will be able to tell.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  SALTCLIFF (20-30) - sarea s-a facut amara
+// ----------------------------------------------------------
+scrieZona('Saltcliff', 'saltcliff', [
+  {
+    dator: 'marshal', nivel: 20,
+    titlu: 'The Pans Are the Town',
+    text: 'Everything flat you can see between here and the water is a salt ' +
+          'pan. Fill, wait, rake, sell. Four hundred families, one trade, no ' +
+          'second plan.<br><br>' +
+          'The ship for the far continent leaves from below this cliff every ' +
+          'eight days and most of what it carries is ours.<br><br>' +
+          'The vultures have got onto the drying racks and a bird on a rack ' +
+          'spoils a week of work in an hour. Eight of them.<br><br>' +
+          'After that I am going to hand you to the merchant, because the ' +
+          'problem I actually have is one I do not understand and he at least ' +
+          'understands half of it.',
+    cerinta: { fel: 'ucide', mob: 'vulture', cati: 8 }
+  },
+  {
+    dator: 'negustor', nivel: 23,
+    titlu: 'Salt That Will Not Keep',
+    text: 'Salt has one job. It stops meat going bad.<br><br>' +
+          'Saltcliff salt has stopped doing it. Three shipments returned this ' +
+          'season with the barrels opened and the contents ruined, and the ' +
+          'buyers were polite about it, which was worse than shouting.<br><br>' +
+          'It looks right. It tastes bitter at the back.<br><br>' +
+          'The serpents live in the pan walls and crust up with whatever is in ' +
+          'the brine. Bring me seven of those crusts.<br><br>' +
+          'If the bitterness is in the animals too then it is in the water ' +
+          'before it ever reaches a pan, and this is not something four hundred ' +
+          'families did wrong with a rake.',
+    cerinta: { fel: 'aduna', mob: 'serpent', cati: 7, obiect: 'Bitter Brine Crust' }
+  },
+  {
+    dator: 'cercetas', nivel: 25,
+    titlu: 'Follow the Brine Back',
+    text: 'Bitter in the animals. So it comes in with the water.<br><br>' +
+          'The pans are not filled from the open sea - they are filled through ' +
+          'the brine cave under the cliff, which concentrates it and is the ' +
+          'entire reason a town exists on a rock with no harbour.<br><br>' +
+          'One channel in, one channel out, and it has run the same way since ' +
+          'the town was founded.<br><br>' +
+          'Go into the brine cave as far as the inflow. Look for a second ' +
+          'stream and look for whether it was always there.<br><br>' +
+          'Take a rope. Two people have gone in this month without one and only ' +
+          'one of them is having this conversation with anybody.',
+    cerinta: { fel: 'mergi', loc: 'pestera', numeLoc: 'the brine cave' }
+  },
+  {
+    dator: 'capitan', nivel: 28,
+    titlu: 'A Cut and a Competitor',
+    text: 'A cut channel, three years old, bringing a bitter spring down into ' +
+          'our inflow.<br><br>' +
+          'Whoever did it did not steal anything and did not kill anybody. They ' +
+          'simply made Saltcliff salt worthless, and then sold their own down ' +
+          'the same coast into a market that had nowhere else to go.<br><br>' +
+          'Patient, clean, and it nearly finished a four-hundred-year ' +
+          'town.<br><br>' +
+          'Fourteen of them at the cave mouth. Then the masons block the cut ' +
+          'and we rake off the bitter crust and start again with the next ' +
+          'tide.<br><br>' +
+          'Three bad seasons and a lesson. We will take it.',
+    cerinta: { fel: 'ucide', mob: 'bandit', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  VERDANTMIRE (25-35) - mlastina prea verde
+// ----------------------------------------------------------
+scrieZona('Verdantmire', 'verdantmire', [
+  {
+    dator: 'vanator', nivel: 25,
+    titlu: 'Too Green by Half',
+    text: 'You have come at the pretty time of year, and I want you to ' +
+          'understand straight away that the pretty is the problem.<br><br>' +
+          'The mire has gone green. Not the ordinary green - a bright, flat ' +
+          'green lying on the water like paint, and it has been spreading since ' +
+          'the thaw.<br><br>' +
+          'The reeds love it. They are growing twice as fast as I have ever ' +
+          'seen and the cutters are having the best year of their ' +
+          'lives.<br><br>' +
+          'The fish are dead. All of them.<br><br>' +
+          'Spiders in the cutting paths first - eight. The green has brought ' +
+          'them in off the water and a cutter cannot work with one on his arm.',
+    cerinta: { fel: 'ucide', mob: 'spider', cati: 8 }
+  },
+  {
+    dator: 'samana', nivel: 28,
+    titlu: 'It Is in Everything Now',
+    text: 'Half this village is rich and half is starving and both halves are ' +
+          'standing in the same water.<br><br>' +
+          'The reed cutters say it is a good year. The fishers say it is a ' +
+          'poison. Nobody will agree to find out which, because finding out ' +
+          'costs one of them the argument.<br><br>' +
+          'So bring me seven serpent skins with the green film on them.<br><br>' +
+          'A film on a snake is not an opinion. If it is in the snakes it is in ' +
+          'the frogs and if it is in the frogs it is in the children who play ' +
+          'in that water, and then it stops being a question about reeds.',
+    cerinta: { fel: 'aduna', mob: 'serpent', cati: 7, obiect: 'Green-Filmed Skin' }
+  },
+  {
+    dator: 'marshal', nivel: 30,
+    titlu: 'The Pit Upstream',
+    text: 'It is in the snakes. So now I am allowed to be the marshal about ' +
+          'this instead of a neighbour.<br><br>' +
+          'There is a dye pit a mile upstream. Cloth was dyed there for two ' +
+          'hundred years and the work stopped before I was born - the pit was ' +
+          'sealed and everybody agreed that was that.<br><br>' +
+          'The green arrives from upstream. There is exactly one thing upstream ' +
+          'and it is full of dye.<br><br>' +
+          'Go to the pit. Look at the seal.<br><br>' +
+          'And look at the path to it, because a pit nobody has visited in ' +
+          'forty years should not have a path.',
+    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the old dye pit' }
+  },
+  {
+    dator: 'negustor', nivel: 33,
+    titlu: 'The Cutters Knew',
+    text: 'A worn path and a broken seal, and the cutters knew. Of course they ' +
+          'knew. They opened it.<br><br>' +
+          'Dye-water grows reed like nothing else on earth. They have had two ' +
+          'seasons of the best cutting in living memory and they watched the ' +
+          'fish die and said nothing, and the ones who said nothing loudest ' +
+          'were the ones with the biggest stacks.<br><br>' +
+          'They are not going to let it be closed. There are bandits camped on ' +
+          'the pit now who are being paid in reed money by people I sell flour ' +
+          'to.<br><br>' +
+          'Fourteen of them, and then we seal it with stone.<br><br>' +
+          'This village is going to be unpleasant for about ten years. It will ' +
+          'still be here, which is more than the fish managed.',
+    cerinta: { fel: 'ucide', mob: 'bandit', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  SHATTERHORN (25-35) - muntele cade mereu la aceeasi ora
+// ----------------------------------------------------------
+scrieZona('Shatterhorn', 'shatterhorn', [
+  {
+    dator: 'vanator', nivel: 25,
+    titlu: 'Just After Dawn',
+    text: 'Rockfall on this mountain every three or four days since the ' +
+          'spring.<br><br>' +
+          'People shrug. It is a mountain, mountains shed, and Shatterhorn is ' +
+          'named for exactly that.<br><br>' +
+          'Here is what nobody shrugs at once I say it: every single one has ' +
+          'come just after dawn. Not one at midday. Not one at night. Twenty-odd ' +
+          'falls and all of them within half an hour of sunrise.<br><br>' +
+          'A mountain does not keep an appointment.<br><br>' +
+          'Wolves on the upper track before anything else - eight. They have ' +
+          'learned that a fall means something dead underneath it and they wait ' +
+          'for it now.',
+    cerinta: { fel: 'ucide', mob: 'wolf', cati: 8 }
+  },
+  {
+    dator: 'marshal', nivel: 28,
+    titlu: 'From the Broken Keep',
+    text: 'If you want to see where the falls start you have to be above ' +
+          'them, and there is one place above them.<br><br>' +
+          'The old keep on the shoulder. Half of it came down in my ' +
+          'grandmother\'s time and the half standing is sound - we store hay in ' +
+          'it.<br><br>' +
+          'From its wall you can see the whole north face.<br><br>' +
+          'Go up before the light and stand there. I am not asking you to ' +
+          'catch anybody. I am asking you to look at the north face at dawn ' +
+          'with your own eyes and come back and describe it.<br><br>' +
+          'Take the hay path. The direct way is where the falls come down and ' +
+          'I have lost a man on it already.',
+    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the broken keep' }
+  },
+  {
+    dator: 'samana', nivel: 30,
+    titlu: 'Stone With a Flat Face',
+    text: 'You saw dust on the north face at first light. I know. I have seen ' +
+          'it for two seasons and been told I was seeing weather.<br><br>' +
+          'Bring me the proof instead, because proof does not get argued ' +
+          'with.<br><br>' +
+          'The burrowers work the scree and bring the stone down where we can ' +
+          'reach it. Eight pieces, and I want pieces with a flat face on ' +
+          'them.<br><br>' +
+          'Mountain stone breaks rough. Stone that has had a wedge driven into ' +
+          'it breaks flat, with a half-hole at the edge where the wedge ' +
+          'sat.<br><br>' +
+          'Eight flat faces and it is not weather. It is a quarry, above our ' +
+          'heads, that nobody asked us about.',
+    cerinta: { fel: 'aduna', mob: 'burrower', cati: 8, obiect: 'Wedge-Cut Stone' }
+  },
+  {
+    dator: 'armurier', nivel: 33,
+    titlu: 'Quarrying Over Our Roofs',
+    text: 'Eight out of eight. A wedge line as clean as anything I have struck ' +
+          'in forty years at an anvil.<br><br>' +
+          'They cut at dawn because the valley wind comes up at dawn and ' +
+          'carries the noise away over the ridge. They have been doing it for ' +
+          'two seasons and sending the stone down the far side where nobody ' +
+          'from here ever goes.<br><br>' +
+          'The spoil comes down our side. That is all the rockfall ever was - ' +
+          'somebody\'s rubbish, landing on our pasture and twice on our ' +
+          'people.<br><br>' +
+          'Fourteen of them on the north face. Take the wedges as well as the ' +
+          'men.<br><br>' +
+          'I want to look at them. I want to know if they were made here.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  THE LONG STEPPE (30-40) - turmele nu mai trec
+// ----------------------------------------------------------
+scrieZona('The Long Steppe', 'longsteppe', [
+  {
+    dator: 'cercetas', nivel: 30,
+    titlu: 'Nine Hundred Years of Autumn',
+    text: 'The herds cross this steppe in autumn. They have crossed it every ' +
+          'autumn for nine hundred years, on the same line, in the same week, ' +
+          'and everything about this place is built on that week.<br><br>' +
+          'We do not own the herds. Nobody owns them. We take what we need as ' +
+          'they pass and then they are gone for a year.<br><br>' +
+          'This autumn they turned aside forty miles north.<br><br>' +
+          'Wolves first - eight on the west line. They followed the herd ' +
+          'route too and they are the only ones still keeping to it, which ' +
+          'means they are hungry and we are what is left.',
+    cerinta: { fel: 'ucide', mob: 'wolf', cati: 8 }
+  },
+  {
+    dator: 'capitan', nivel: 33,
+    titlu: 'Where They Used to Come Through',
+    text: 'The herd comes through one gap. Always the same one - a cut in the ' +
+          'ridge wide enough for them and narrow enough that they have to funnel ' +
+          'through it, which is why this village stands where it does and ' +
+          'nowhere else.<br><br>' +
+          'Nobody has been up to that gap since they failed to come.<br><br>' +
+          'We have all been busy explaining it to each other in the square ' +
+          'instead. Bad grass. A dry spring. Wolves. The gods. Every explanation ' +
+          'you can have without walking four miles.<br><br>' +
+          'Go and walk the four miles. Look at the ground in the gap and look ' +
+          'at what is on it.',
+    cerinta: { fel: 'mergi', loc: 'vizuina', numeLoc: 'the crossing gap' }
+  },
+  {
+    dator: 'negustor', nivel: 35,
+    titlu: 'Somebody Has Been Branding',
+    text: 'Bones in the gap, then, and old fire.<br><br>' +
+          'Here is my half of it. For two seasons I have been offered steppe ' +
+          'cattle for sale, out of season, by people with no herd. Good ' +
+          'animals. Lead animals, some of them - big, old, the ones a herd ' +
+          'follows.<br><br>' +
+          'Every one carried a brand I did not know and I bought them anyway ' +
+          'because they were cheap, and I would like that written ' +
+          'down.<br><br>' +
+          'Bring me eight branding irons off the raiders on the north ' +
+          'line.<br><br>' +
+          'If those irons match the marks on the animals I bought, then I have ' +
+          'been paying the people who did this.',
+    cerinta: { fel: 'aduna', mob: 'raider', cati: 8, obiect: 'Herd-Brand Iron' }
+  },
+  {
+    dator: 'marshal', nivel: 38,
+    titlu: 'An Animal Remembers',
+    text: 'They took the lead animals in the gap. Two autumns running, at the ' +
+          'narrow place, where a herd cannot scatter.<br><br>' +
+          'And a herd remembers. Not one animal - the whole moving thing ' +
+          'remembers, and this year it came to the ridge and turned north and ' +
+          'took nine hundred years of our lives with it.<br><br>' +
+          'Nobody stole anything from us. They stole from the herd, and the ' +
+          'herd punished us for it.<br><br>' +
+          'Fourteen of them on the north line.<br><br>' +
+          'It will not bring them back next autumn. The old people say three ' +
+          'generations, if we never let it happen again. I am forty-six. I am ' +
+          'doing this for somebody I will never meet.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  WINDSCOUR (35-45) - vantul si-a schimbat directia
+// ----------------------------------------------------------
+scrieZona('Windscour', 'windscour', [
+  {
+    dator: 'marshal', nivel: 35,
+    titlu: 'Every Door Opens Wrong',
+    text: 'Walk through this holt and look at the doors. Every one of them ' +
+          'opens into the wind.<br><br>' +
+          'They were not built stupid. They were built four generations ago ' +
+          'when the wind came out of the west, the way it had come out of the ' +
+          'west since anybody started counting.<br><br>' +
+          'Two years ago it turned. It comes out of the east now, every day, ' +
+          'and every windbreak, every shutter, every wall in Windscour is on ' +
+          'the wrong side of the building.<br><br>' +
+          'Vultures first - eight. They ride the new wind straight over the ' +
+          'drying racks and we have not worked out how to stop them.',
+    cerinta: { fel: 'ucide', mob: 'vulture', cati: 8 }
+  },
+  {
+    dator: 'cercetas', nivel: 38,
+    titlu: 'Nobody Went to Look',
+    text: 'I will tell you the most embarrassing thing about this holt and then ' +
+          'you can decide what you think of us.<br><br>' +
+          'The wind changed two years ago. In two years not one person has ' +
+          'walked east to find out why.<br><br>' +
+          'We have prayed about it. We have argued about it. We have rebuilt ' +
+          'two roofs because of it. Nobody has walked.<br><br>' +
+          'There is a gap in the east ridge that used to break the easterly and ' +
+          'send it over us. Everything we are is downwind of that gap.<br><br>' +
+          'Go to the wind gap. Look at it. That is the whole task and it should ' +
+          'have been done by somebody from here twenty-three months ago.',
+    cerinta: { fel: 'mergi', loc: 'crapatura', numeLoc: 'the wind gap' }
+  },
+  {
+    dator: 'negustor', nivel: 40,
+    titlu: 'Scoured on the Wrong Side',
+    text: 'A fallen ridge. Two years of prayer for a pile of rock.<br><br>' +
+          'I want one more piece of proof before the holt spends a season\'s ' +
+          'labour on this, and I want it from something that cannot have an ' +
+          'opinion.<br><br>' +
+          'The scorpids out east carry sand-scouring on their shells. It ' +
+          'polishes whichever side faces the wind and it takes years to ' +
+          'build.<br><br>' +
+          'Bring me eight. If the old ones are worn on the west face and the ' +
+          'young ones on the east, then the wind turned within the lifetime of ' +
+          'an animal that lives four years, and the ridge is the reason.<br><br>' +
+          'Then we build a wall in the gap, and I will pay for the first ' +
+          'hundred feet of it myself.',
+    cerinta: { fel: 'aduna', mob: 'scorpid', cati: 8, obiect: 'Wind-Scoured Shell' }
+  },
+  {
+    dator: 'capitan', nivel: 43,
+    titlu: 'Hold the Gap',
+    text: 'Old ones west, young ones east. Every single shell.<br><br>' +
+          'So we build. Four hundred feet of dry stone across that gap, every ' +
+          'able back in the holt, before winter.<br><br>' +
+          'The raiders have been using the gap for two years - it is the only ' +
+          'way through the east ridge and it has been free of us since the day ' +
+          'it fell. They have got used to that.<br><br>' +
+          'Fourteen of them, and they stay gone until the wall is up.<br><br>' +
+          'Two years of arguing and the answer was a four-mile walk. I would ' +
+          'like that carved into the wall when it is finished, honestly. It ' +
+          'would do this holt good to have to read it every day.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  EMBERDUNE (35-45) - casa dezgropata de furtuna
+// ----------------------------------------------------------
+scrieZona('Emberdune', 'emberdune', [
+  {
+    dator: 'capitan', nivel: 35,
+    titlu: 'The Storm Uncovered Something',
+    text: 'Three weeks ago a storm took the top off a dune east of the holt and ' +
+          'left a building standing in the hollow.<br><br>' +
+          'Not ruins. A building. Roof on, door shut, and when the door was ' +
+          'opened there were tables laid.<br><br>' +
+          'Everybody has been out to look and nobody will say the thing that is ' +
+          'bothering them, so I will: the plates on those tables are our ' +
+          'pattern. The same pattern this holt eats off tonight.<br><br>' +
+          'Scorpids have moved into the hollow. Eight of them, before somebody\'s ' +
+          'child goes out there for a look and does not come ' +
+          'back.<br><br>' +
+          'Then we can talk about the plates.',
+    cerinta: { fel: 'ucide', mob: 'scorpid', cati: 8 }
+  },
+  {
+    dator: 'cercetas', nivel: 38,
+    titlu: 'Go Inside It',
+    text: 'I have been to the edge of that hollow four times and I have not ' +
+          'gone in, and I am supposed to be the one who goes in.<br><br>' +
+          'It is not fear of anything living. It is that I know roughly how ' +
+          'deep the sand is here, and a house under that much sand was not ' +
+          'buried in a storm. It was buried over lifetimes.<br><br>' +
+          'Which would make it older than the holt. And the holt has been here, ' +
+          'we are told, since the beginning.<br><br>' +
+          'Go into the uncovered house. Walk it room by room and remember what ' +
+          'is in it.<br><br>' +
+          'Take nothing. Somebody will take everything soon enough and I would ' +
+          'rather it was not us.',
+    cerinta: { fel: 'mergi', loc: 'crapatura', numeLoc: 'the uncovered house' }
+  },
+  {
+    dator: 'negustor', nivel: 40,
+    titlu: 'I Have Been Selling Them Back',
+    text: 'You have seen the rooms. Then you will understand why I have had a ' +
+          'bad week.<br><br>' +
+          'For two months I have been buying plateware off travellers and ' +
+          'selling it in this holt as new work from the coast. Good prices. ' +
+          'Everybody pleased.<br><br>' +
+          'It is not from the coast.<br><br>' +
+          'Bring me eight shards off the raiders east of the hollow. If they ' +
+          'match the pattern on my shelf then I have spent two months selling ' +
+          'this holt its own ancestors\' dishes at a markup, and I will stand in ' +
+          'the square and say so.<br><br>' +
+          'I would rather say it than have it said about me.',
+    cerinta: { fel: 'aduna', mob: 'raider', cati: 8, obiect: 'Matched Plate Shard' }
+  },
+  {
+    dator: 'marshal', nivel: 43,
+    titlu: 'Close the Hollow',
+    text: 'They match. Every one.<br><br>' +
+          'So there was an Emberdune before this Emberdune, the sand took it, ' +
+          'and the people who are left kept making the same plates for four ' +
+          'hundred years without knowing why that pattern and not another.<br><br>' +
+          'The raiders have been stripping it since the day the storm passed ' +
+          'and will strip it to the floors if we let them.<br><br>' +
+          'Fourteen of them. Then we shovel the hollow shut with our own hands ' +
+          'and we leave it shut.<br><br>' +
+          'Somebody will call that superstition. It is not. It is a town ' +
+          'deciding it would rather have ancestors than a market stall.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  THE GLASSWASTES (40-50) - ce s-a aruncat se intoarce
+// ----------------------------------------------------------
+scrieZona('The Glasswastes', 'glasswastes', [
+  {
+    dator: 'cercetas', nivel: 40,
+    titlu: 'Where Things Go to Stay Gone',
+    text: 'You cannot dig here. The plain is glass a spear deep and it will ' +
+          'break a pick before it takes a hole.<br><br>' +
+          'So this is where the whole of Karador sends what it does not want ' +
+          'coming back. Bad iron. Broken weapons. Things off a field that ' +
+          'nobody wants reforged. They are carted out, thrown on the glass, and ' +
+          'that is understood to be final.<br><br>' +
+          'The vultures nest in the heaps. Eight of them - they have stopped ' +
+          'being frightened of carts and a bird that is not frightened of a ' +
+          'cart will take a hand.<br><br>' +
+          'And keep your eyes on the heaps while you work.',
+    cerinta: { fel: 'ucide', mob: 'vulture', cati: 8 }
+  },
+  {
+    dator: 'capitan', nivel: 43,
+    titlu: 'The Watch Nobody Funds',
+    text: 'There is supposed to be a watch on the dump. One post, two men, ' +
+          'paid by everybody who sends a cart.<br><br>' +
+          'Everybody sends carts. Nobody has paid in eleven years.<br><br>' +
+          'So there are two men out there who have not been relieved, not been ' +
+          'paid, and not been visited by anybody who was not throwing something ' +
+          'away.<br><br>' +
+          'Go out to the dump watch. Find out whether there are still two men, ' +
+          'and if there are, find out what they have been living on.<br><br>' +
+          'I have a guess and I do not like it. Go and make me wrong.',
+    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the dump watch' }
+  },
+  {
+    dator: 'armurier', nivel: 45,
+    titlu: 'I Know That Mark',
+    text: 'Now I will tell you what set me off, before you heard any of ' +
+          'this.<br><br>' +
+          'Two months ago I bought a blade off a traveller and it had my ' +
+          'grandfather\'s mark under the grip. Not a copy. His.<br><br>' +
+          'That blade was broken and carted to the glass in my own lifetime. I ' +
+          'watched the cart go.<br><br>' +
+          'Bring me eight blades off the raiders on the plain. I want to look ' +
+          'under every grip.<br><br>' +
+          'If the marks are all ours then somebody has been standing on that ' +
+          'dump for years, pulling out what four countries decided should never ' +
+          'be used again, and putting it back into the world.',
+    cerinta: { fel: 'aduna', mob: 'raider', cati: 8, obiect: 'Reforged Blade' }
+  },
+  {
+    dator: 'marshal', nivel: 48,
+    titlu: 'Two Men and a Forge',
+    text: 'Eight marks. Six of them from this valley.<br><br>' +
+          'The two watchmen are alive. They built a forge out there eleven ' +
+          'years ago because nobody was coming and nobody was paying, and they ' +
+          'have been living off the one thing they were put there to guard.<br><br>' +
+          'I find it hard to be angry at them and I am going to have to ' +
+          'be.<br><br>' +
+          'What I can be angry at is the crew that took the trade off them ' +
+          'three years ago and left them the forge and the risk.<br><br>' +
+          'Fourteen on the plain. Then the watch gets paid, properly, out of ' +
+          'the cart toll, starting this month.<br><br>' +
+          'Eleven years. We did this.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  BONEMARCH (40-50) - o coasta care nu e fosila
+// ----------------------------------------------------------
+scrieZona('Bonemarch', 'bonemarch', [
+  {
+    dator: 'capitan', nivel: 40,
+    titlu: 'We Build Out of Bone',
+    text: 'There is no timber within nine days of here and the stone splits ' +
+          'wrong, so Bonemarch is built out of what Bonemarch has, and what ' +
+          'Bonemarch has is bone.<br><br>' +
+          'The valley is full of it. Ribs you could roof a hall with. It has ' +
+          'been quarried out of the cut since the holt was founded and nobody ' +
+          'has ever thought it strange, because it is simply what the ground ' +
+          'here is made of.<br><br>' +
+          'Scorpids nest in the cut. Eight of them, and mind the loose ' +
+          'spoil.<br><br>' +
+          'Do that and then come and look at the face with me. The quarry ' +
+          'master will not, and he is the one who found it.',
+    cerinta: { fel: 'ucide', mob: 'scorpid', cati: 8 }
+  },
+  {
+    dator: 'marshal', nivel: 43,
+    titlu: 'Go and Look at the Face',
+    text: 'I am not going to describe it to you first. If I describe it you ' +
+          'will see what I described.<br><br>' +
+          'Go down into the bone cut. Walk to the working face - the new one, ' +
+          'on the left, not the old gallery.<br><br>' +
+          'Look at what they broke into on the eleventh day of this ' +
+          'month.<br><br>' +
+          'Put your hand on it if you can make yourself.<br><br>' +
+          'Then come back and tell me what you think, in your own words, ' +
+          'without me having put any in your mouth. I have had four accounts ' +
+          'already and all four have been useless because all four came after ' +
+          'somebody else had talked.',
+    cerinta: { fel: 'mergi', loc: 'crapatura', numeLoc: 'the bone cut' }
+  },
+  {
+    dator: 'negustor', nivel: 45,
+    titlu: 'Green Bone',
+    text: 'You said green. So did the other four, and I have stopped being able ' +
+          'to pretend that is a trick of the light.<br><br>' +
+          'Fossil bone is stone. It rings, it takes a polish, it has been dead ' +
+          'so long it has stopped being bone at all.<br><br>' +
+          'Green bone is bone. It is greasy. It smells. It is what you find ' +
+          'under a beast that died last season.<br><br>' +
+          'Bring me eight splinters off the vultures - they have been at the ' +
+          'new face and they carry it back to their nests, which no vulture ' +
+          'does with stone.<br><br>' +
+          'A bird knows the difference between a rock and a meal. That will ' +
+          'settle it for me.',
+    cerinta: { fel: 'aduna', mob: 'vulture', cati: 8, obiect: 'Green Bone Splinter' }
+  },
+  {
+    dator: 'cercetas', nivel: 48,
+    titlu: 'Wall the New Face',
+    text: 'The birds are eating it. So something that size was alive recently ' +
+          'enough for a vulture to still be interested, and I am not going to ' +
+          'finish that thought out loud.<br><br>' +
+          'The quarry master has agreed to close the new face and work the old ' +
+          'gallery, which will cost this holt a third of its stone and is the ' +
+          'first sensible thing anybody has said this month.<br><br>' +
+          'The raiders have worked out that Bonemarch is walling something up ' +
+          'and have decided that means it is worth having.<br><br>' +
+          'Fourteen of them at the cut.<br><br>' +
+          'Then we lay the wall. And on it, in plain letters, how deep it is ' +
+          'and why - because the people who dug here before us left us nothing ' +
+          'and look where that got us.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  HOLLOWROOT (45-55) - satul sta pe o singura radacina
+// ----------------------------------------------------------
+scrieZona('Hollowroot', 'hollowroot', [
+  {
+    dator: 'capitan', nivel: 45,
+    titlu: 'One Tree Holds This Up',
+    text: 'Everything you are standing on is root.<br><br>' +
+          'There was a tree here once. One tree, and by every account a ' +
+          'ridiculous one, and it has been dead for longer than there have been ' +
+          'records. What is left is its roots, and the roots are the only thing ' +
+          'in forty miles of mire that will hold a house.<br><br>' +
+          'Hollowroot is not built near a tree. It is built on one.<br><br>' +
+          'Spiders have got into the under-galleries where we store grain. ' +
+          'Eight of them.<br><br>' +
+          'Watch where you put your weight down there. Some of it is softer ' +
+          'than it was last year, and that is the whole of my problem.',
+    cerinta: { fel: 'ucide', mob: 'spider', cati: 8 }
+  },
+  {
+    dator: 'marshal', nivel: 48,
+    titlu: 'Bring Me Rot',
+    text: 'Soft. That is the word everybody uses and nobody wants to finish.<br><br>' +
+          'I have had the under-galleries sounded twice this year. The root is ' +
+          'going punky in patches - not everywhere, and not evenly, which is ' +
+          'what makes it hard to argue about.<br><br>' +
+          'The serpents live in the wet root and they come out carrying it. ' +
+          'Eight skins with root-rot in the scales.<br><br>' +
+          'Bring them from the north side only. The north side is where the old ' +
+          'pool was, and I have a suspicion I would like either confirmed or ' +
+          'taken away from me.<br><br>' +
+          'I have a daughter in a house on the north side. That is not why I am ' +
+          'asking. It is why I am asking today.',
+    cerinta: { fel: 'aduna', mob: 'serpent', cati: 8, obiect: 'Root-Rot Skin' }
+  },
+  {
+    dator: 'cercetas', nivel: 50,
+    titlu: 'Under the Hall',
+    text: 'The rot is all north side. Which means it started where we drained ' +
+          'the pool three years ago.<br><br>' +
+          'We were proud of that. It was the biggest thing this village had ' +
+          'done in a century - a ditch, a season of work, and four more acres ' +
+          'of firm ground out of a swamp.<br><br>' +
+          'Drained ground lets air in. Air in a wet root is rot, and rot is a ' +
+          'door.<br><br>' +
+          'Go down into the hollow under the hall. It is the lowest point on ' +
+          'the north side and if anything has come up through the root it has ' +
+          'come up there.<br><br>' +
+          'Do not go alone in the dark. Take a lamp and do not put it down.',
+    cerinta: { fel: 'mergi', loc: 'gaura', numeLoc: 'the hollow under the hall' }
+  },
+  {
+    dator: 'negustor', nivel: 53,
+    titlu: 'Flood It Back',
+    text: 'They are in the root under the hall, eating it from the inside, and ' +
+          'they got in through the dry ground we made ourselves.<br><br>' +
+          'The council has voted to break the ditch and let the pool back. Four ' +
+          'acres lost, a century\'s proudest work undone, and every family on ' +
+          'the north side moving their grain uphill in the ' +
+          'meantime.<br><br>' +
+          'They will not go quietly out of a root they have had three years ' +
+          'in.<br><br>' +
+          'Fourteen of them under the hall, before the water comes in on top of ' +
+          'them and us.<br><br>' +
+          'Wet root rots slowly. Dry root rots fast. We learned that at the ' +
+          'price of four acres and nearly a village.',
+    cerinta: { fel: 'ucide', mob: 'burrower', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  RIFTMARCH (45-55) - orasul se vinde pe bucati
+// ----------------------------------------------------------
+scrieZona('Riftmarch', 'riftmarch', [
+  {
+    dator: 'marshal', nivel: 45,
+    titlu: 'The Crack Is Wider Every Year',
+    text: 'There is a crack across this land you could drop this whole town ' +
+          'into, and we measure it. Posts on both sides, a chain between, read ' +
+          'on the first of every month.<br><br>' +
+          'A hand\'s width a year. Not a rumour - a number, in a book, in my ' +
+          'handwriting.<br><br>' +
+          'The serpents came up out of it the year I started measuring and they ' +
+          'have never gone back down. Eight of them along the edge path.<br><br>' +
+          'Everybody here will tell you the rift is the problem. Stay a week ' +
+          'and you will work out that the rift is the slowest problem we ' +
+          'have.',
+    cerinta: { fel: 'ucide', mob: 'serpent', cati: 8 }
+  },
+  {
+    dator: 'cercetas', nivel: 48,
+    titlu: 'Stand on the Edge',
+    text: 'Go out to the rift edge and stand at the measuring posts.<br><br>' +
+          'Look down, by all means. Everybody does and it is worth ' +
+          'doing.<br><br>' +
+          'Then turn round and look back at the town.<br><br>' +
+          'That is the part I want. Count the buildings with their facing ' +
+          'stone stripped off. Count the ones with no roof that had a roof when ' +
+          'the last census was taken.<br><br>' +
+          'I have counted twice and got a number I did not believe, so I would ' +
+          'like somebody who has never seen this place before to count it once ' +
+          'and say it out loud.',
+    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the rift edge' }
+  },
+  {
+    dator: 'negustor', nivel: 50,
+    titlu: 'Warm Stone Sells',
+    text: 'Nineteen buildings. Yes. I know, and I am the reason.<br><br>' +
+          'Stone from the rift edge comes out warm and stays warm. I do not ' +
+          'know why and neither does anybody else. What I know is that a coast ' +
+          'mason will pay more for one block of it than for a cartload of ' +
+          'anything else on this continent.<br><br>' +
+          'So the town has been quarrying itself. Facing stone off the walls, ' +
+          'then the walls, and the ship takes it out every eight days.<br><br>' +
+          'Bring me eight pieces of the ore the burrowers throw up at the edge. ' +
+          'If the deep stuff is warm too, we can quarry the rift instead of the ' +
+          'houses, and I can stop being the man who is selling his own town.',
+    cerinta: { fel: 'aduna', mob: 'burrower', cati: 8, obiect: 'Rift-Warm Ore' }
+  },
+  {
+    dator: 'capitan', nivel: 53,
+    titlu: 'Quarry the Rift, Not the Town',
+    text: 'The deep ore is warm. Warmer, in fact. So there is no reason on ' +
+          'earth to take another stone off a standing wall, and the merchant ' +
+          'has said as much in the square with everybody watching.<br><br>' +
+          'The crews who have been stripping buildings do not want to go down ' +
+          'into a rift for the same money. They would rather keep taking ' +
+          'roofs.<br><br>' +
+          'Fourteen of them.<br><br>' +
+          'A hand\'s width a year. At that rate this town has four hundred ' +
+          'years before the crack reaches it, and it very nearly took itself ' +
+          'apart in nine.<br><br>' +
+          'Four hundred years is a long time. Long enough to be worth having a ' +
+          'town in.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  THE PALE REACH (50-60) - un tinut care vorbeste din semne
+// ----------------------------------------------------------
+scrieZona('The Pale Reach', 'palereach', [
+  {
+    dator: 'cercetas', nivel: 50,
+    titlu: 'You Cannot Shout Here',
+    text: 'Try it. Shout as loud as you can and watch it die about forty feet ' +
+          'out.<br><br>' +
+          'Nobody knows why. Thin air, the shape of the rock, both. What ' +
+          'matters is that on the Pale Reach you cannot call for help and you ' +
+          'never could.<br><br>' +
+          'So we do not talk with our mouths out here. We talk with our hands ' +
+          'and with boards on the ridges, keep to keep, all the way down the ' +
+          'range. A man falling can be answered in four minutes if he is in ' +
+          'sight of a board.<br><br>' +
+          'Wolves on the lower track - eight. They have learned that a person ' +
+          'out of sight of a board is a person who cannot be helped.',
+    cerinta: { fel: 'ucide', mob: 'wolf', cati: 8 }
+  },
+  {
+    dator: 'capitan', nivel: 53,
+    titlu: 'The Relay Keep',
+    text: 'Every sign on this range passes through the relay keep. It reads ' +
+          'from the high boards and repeats to the low ones, and it has done it ' +
+          'without a break for two hundred years.<br><br>' +
+          'Four calls for help this winter were answered late. Not unanswered - ' +
+          'late, by about the time it takes to think about something before ' +
+          'passing it on.<br><br>' +
+          'Two of those four people died.<br><br>' +
+          'Go up to the relay keep. Watch them work a full pass. I am not ' +
+          'asking you to accuse anybody of anything.<br><br>' +
+          'I am asking whether a sign goes out of that keep exactly as it comes ' +
+          'in.',
+    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the relay keep' }
+  },
+  {
+    dator: 'negustor', nivel: 55,
+    titlu: 'Boards That Are Not Ours',
+    text: 'The keep is clean. Good. I never thought it was them.<br><br>' +
+          'Here is the other way a sign gets delayed: it gets answered first by ' +
+          'somebody else.<br><br>' +
+          'I have had three sign-boards through my hands this season, bought off ' +
+          'travellers as scrap timber. Painted boards, our marks, our sizes - ' +
+          'and not one of them came off a keep of ours. I have checked ' +
+          'every keep on the range.<br><br>' +
+          'Bring me eight off the raiders on the high ground.<br><br>' +
+          'If they are carrying our language painted on their own boards then ' +
+          'they are not intercepting us. They are talking.',
+    cerinta: { fel: 'aduna', mob: 'raider', cati: 8, obiect: 'Copied Sign-Board' }
+  },
+  {
+    dator: 'marshal', nivel: 58,
+    titlu: 'They Learned to Read Us',
+    text: 'Eight boards. Our marks, correct to the stroke, on timber that has ' +
+          'never been near a keep of ours.<br><br>' +
+          'They have learned it. Every sign this range has - help, wolves, ' +
+          'stranger, come, do not come. They have been reading the whole ' +
+          'mountain for two years and answering the calls they liked the sound ' +
+          'of.<br><br>' +
+          'Two hundred years of a people whose only voice is something you can ' +
+          'see, and somebody sat on a ridge and watched until they could read ' +
+          'it.<br><br>' +
+          'Fourteen of them on the high ground. Take the boards.<br><br>' +
+          'Then we change every sign on the range. All of them. It will take a ' +
+          'winter and everybody will be half deaf until it is done.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  COLDSPINE (50-60) - gheata se retrage
+// ----------------------------------------------------------
+scrieZona('Coldspine', 'coldspine', [
+  {
+    dator: 'vanator', nivel: 50,
+    titlu: 'A Mile in Four Years',
+    text: 'That ice has been the north wall of this village for as long as ' +
+          'there has been a village. It is also our clock, our water and our ' +
+          'larder - you cut into it and take out last year.<br><br>' +
+          'It has gone back a mile in four years.<br><br>' +
+          'Behind it is ground. Bare ground, that no living person has ever ' +
+          'stood on, and it gets bigger every summer.<br><br>' +
+          'The wolves found it before we did. They den on the new ground and ' +
+          'come down at the flocks. Eight of them.<br><br>' +
+          'I am fifty-one and I am the first hunter in the history of this ' +
+          'place with new country to learn. It does not feel like a gift.',
+    cerinta: { fel: 'ucide', mob: 'wolf', cati: 8 }
+  },
+  {
+    dator: 'samana', nivel: 53,
+    titlu: 'Walk to the Ice Face',
+    text: 'Everybody in this village has an opinion about the ice and not one ' +
+          'of them has walked to it this year, because it is a long cold day ' +
+          'and the opinions are free.<br><br>' +
+          'Go to the face. Walk right up to it.<br><br>' +
+          'Look at the ground in front of it - whether it is bare rock or ' +
+          'whether there is anything on it. Look at the face itself, low down, ' +
+          'where the melt runs.<br><br>' +
+          'I will tell you what I expect and then you can tell me if I am ' +
+          'wrong: I expect you to find things in it. Shapes. Dark ones, held in ' +
+          'the ice at about the height of your chest.<br><br>' +
+          'I would very much like to be wrong.',
+    cerinta: { fel: 'mergi', loc: 'minaVeche', numeLoc: 'the ice face' }
+  },
+  {
+    dator: 'negustor', nivel: 55,
+    titlu: 'What the Thaw Gives Up',
+    text: 'Iron. Coming out of a glacier, in a country that has never had a ' +
+          'forge worth the name.<br><br>' +
+          'I have bought eleven pieces this month and sold every one at four ' +
+          'times what I paid on the coast, and I am not going to pretend I am ' +
+          'sorry about that.<br><br>' +
+          'What I am sorry about is the rush. Two hundred strangers camped at ' +
+          'the face by midsummer, and Coldspine has forty houses.<br><br>' +
+          'Bring me eight pieces off the burrowers - they are turning the new ' +
+          'ground over faster than any man with a spade.<br><br>' +
+          'I want to know what we are actually sitting on before somebody ' +
+          'decides to take it off us.',
+    cerinta: { fel: 'aduna', mob: 'burrower', cati: 8, obiect: 'Thawed Iron' }
+  },
+  {
+    dator: 'marshal', nivel: 58,
+    titlu: 'Forty Houses, Two Hundred Strangers',
+    text: 'A village of forty houses cannot police two hundred armed strangers ' +
+          'and I have stopped pretending otherwise.<br><br>' +
+          'What I can do is hold the road. One way up, one way down, everything ' +
+          'that comes off that ice passes through this village, and this ' +
+          'village takes a tenth.<br><br>' +
+          'Not because we found it. Because we are the reason anybody up there ' +
+          'can eat.<br><br>' +
+          'The raiders on the road say no, at present loudly.<br><br>' +
+          'Fourteen of them.<br><br>' +
+          'The ice will be gone in my grandchildren\'s time. When it is, I want ' +
+          'there to still be a Coldspine standing where the ice used to be.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
+
+
+// ----------------------------------------------------------
+//  SUNDERCRAG (50-60) - locul unde nimeni nu intreaba cum te cheama
+// ----------------------------------------------------------
+scrieZona('Sundercrag', 'sundercrag', [
+  {
+    dator: 'vanator', nivel: 50,
+    titlu: 'Nobody Asks Here',
+    text: 'You have reached the end of the road. There is nothing past ' +
+          'Sundercrag but the split in the mountain and then the sea on the ' +
+          'wrong side of the world.<br><br>' +
+          'There is one rule here and everybody keeps it: nobody asks your ' +
+          'name and nobody writes anything down.<br><br>' +
+          'Every single person in this town came here to stop being findable. ' +
+          'Including me. Including whoever pours your drink ' +
+          'tonight.<br><br>' +
+          'Serpents in the lower street - eight. They come up out of the split ' +
+          'when the wind is warm and we have no children left to lose to ' +
+          'them.<br><br>' +
+          'Do the work. Do not ask anybody anything.',
+    cerinta: { fel: 'ucide', mob: 'serpent', cati: 8 }
+  },
+  {
+    dator: 'marshal', nivel: 53,
+    titlu: 'Somebody Started Writing',
+    text: 'I am called the marshal here, which means I keep the peace and ' +
+          'nothing else. I have no book. That is the job.<br><br>' +
+          'Three weeks ago a page turned up in the street. Names down one side, ' +
+          'in a good clerk\'s hand. Descriptions down the other. Eleven of them ' +
+          'and I knew nine.<br><br>' +
+          'Two of the nine have left town since. One did not leave.<br><br>' +
+          'Bring me eight more pages off the raiders in the upper crag. They ' +
+          'carry the runs down to the coast.<br><br>' +
+          'I want to know how long the list is, and I want to know before the ' +
+          'people on it do.',
+    cerinta: { fel: 'aduna', mob: 'raider', cati: 8, obiect: 'Name-List Page' }
+  },
+  {
+    dator: 'samana', nivel: 55,
+    titlu: 'Who Sits in the Split Keep',
+    text: 'Eight pages is a hundred and thirty names. That is most of this ' +
+          'town.<br><br>' +
+          'Somebody has been sitting still, watching, and writing, for a long ' +
+          'time - long enough to have learned faces that only come out at ' +
+          'night.<br><br>' +
+          'There is one building in Sundercrag with a clear view of both ' +
+          'streets and the whole of the lower town, and it is the half of the ' +
+          'keep that did not fall into the split.<br><br>' +
+          'Everyone assumes it is empty because everyone can see the crack ' +
+          'running through it.<br><br>' +
+          'Go up to the split keep. Go carefully, and come back. A hundred and ' +
+          'thirty people need you to come back.',
+    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the split keep' }
+  },
+  {
+    dator: 'armurier', nivel: 58,
+    titlu: 'The Last Rule',
+    text: 'A desk, a lamp, four years of ledgers, and a clear view of both ' +
+          'streets.<br><br>' +
+          'He was not hunting anybody himself. He wrote, and he sold what he ' +
+          'wrote, to whoever came asking - and the raiders in the upper crag ' +
+          'carried it down to the coast eight pages at a time.<br><br>' +
+          'Sundercrag has exactly one law. He broke it for money, quietly, for ' +
+          'four years, in a room above people who would have fed him for ' +
+          'nothing.<br><br>' +
+          'Fourteen on the upper crag, and every page you can carry.<br><br>' +
+          'We are going to burn them in the street where everybody can watch, ' +
+          'and then this town goes back to not knowing anybody\'s name. It is ' +
+          'not much of a rule. It is the only one we have.',
+    cerinta: { fel: 'ucide', mob: 'raider', cati: 14 }
+  }
+]);
