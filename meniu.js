@@ -23,14 +23,6 @@ const RANDURI_INFATISARE = [
   { cheie: 'barba',      eticheta: TEXT.FACIAL_HAIR, culoare: false }
 ];
 
-// Ce forma de arma desenam pentru fiecare clasa.
-const FORMA_ARMA = {
-  warrior: 'sabie',
-  hunter: 'arc',
-  mage: 'toiag',
-  priest: 'toiag'
-};
-
 // Scurtaturi catre bucatile din pagina.
 const ecran        = document.getElementById('ecran-creare');
 const scena        = document.getElementById('scena');
@@ -99,7 +91,7 @@ function construiesteOptiunile() {
     buton.title = clasa.nume;
     buton.innerHTML =
       '<span class="patura" style="background:' + clasa.culoare + '"></span>' +
-      '<span class="icon-arma"><span class="arma" data-arma="' + FORMA_ARMA[id] + '"></span></span>';
+      '<span class="icon-arma"><span class="arma" data-arma="' + FORMA_ARMA_CLASA[id] + '"></span></span>';
     buton.addEventListener('click', function () {
       clasaAleasa = id;
       actualizeaza();
@@ -194,42 +186,44 @@ function scrieInfatisarea() {
 // fila Character din meniul de joc.
 function htmlSilueta(p) {
 
-  const pielea = p.aspect.piele;
-  const parul = p.aspect.par;
+  // Formele vin din infatisare.js - aceleasi pe care le deseneaza
+  // si jocul. Aici le transformam in casute HTML: fiecare forma
+  // devine un <div> asezat la locul lui.
+  //
+  // O forma e masurata in "pasi de joc" (personajul are vreo 22 pasi
+  // latime). Ca sa se vada mare in meniu, inmultim tot cu SCARA.
+  const SCARA = 6;
+  const CX = 100;   // mijlocul siluetei, pe latime
+  const CY = 178;   // linia taliei, pe inaltime
 
-  let html =
-    '<div class="arma" data-arma="' + FORMA_ARMA[p.idClasa] + '"></div>' +
-    '<div class="picior st"></div>' +
-    '<div class="picior dr"></div>' +
-    '<div class="corp" style="background:' + p.culoareClasa + '"></div>';
+  function casuta(f, crestere, culoare) {
+    let st, sus, lat, inalt, rotund = '';
 
-  // Suvitele lungi stau IN SPATELE capului, deci se deseneaza inaintea lui.
-  if (p.aspect.parStil === 'lung') {
-    html += '<div class="suvita st" style="background:' + parul + '"></div>' +
-            '<div class="suvita dr" style="background:' + parul + '"></div>';
+    if (f.fel === 'cerc') {
+      const r = f.r + crestere / 2;
+      lat = inalt = r * 2 * SCARA;
+      st  = (CX + (f.x - r) * SCARA);
+      sus = (CY + (f.y - r) * SCARA);
+      rotund = 'border-radius:50%;';
+    } else {
+      lat   = (f.w + crestere) * SCARA;
+      inalt = (f.h + crestere) * SCARA;
+      st  = (CX + f.x * SCARA) - lat / 2;
+      sus = (CY + f.y * SCARA) - inalt / 2;
+    }
+
+    return '<div style="position:absolute;left:' + st.toFixed(1) + 'px;top:' + sus.toFixed(1) +
+           'px;width:' + lat.toFixed(1) + 'px;height:' + inalt.toFixed(1) +
+           'px;background:' + culoare + ';' + rotund + '"></div>';
   }
 
-  html += '<div class="cap" style="background:' + pielea + '"></div>';
+  const forme = formePersonaj(p);
 
-  // Ochii
-  html += '<div class="ochi st ' + p.aspect.fata + '"></div>' +
-          '<div class="ochi dr ' + p.aspect.fata + '"></div>';
-
-  // Barba
-  if (p.aspect.barba !== 'fara') {
-    html += '<div class="barba ' + p.aspect.barba + '" style="background:' + parul + '"></div>';
-  }
-
-  // Parul de deasupra
-  if (p.aspect.parStil === 'tepi') {
-    html += '<div class="tep a" style="background:' + parul + '"></div>' +
-            '<div class="tep b" style="background:' + parul + '"></div>' +
-            '<div class="tep c" style="background:' + parul + '"></div>' +
-            '<div class="par tepi" style="background:' + parul + '"></div>';
-  } else if (p.aspect.parStil !== 'chel') {
-    html += '<div class="par" style="background:' + parul + '"></div>';
-  }
-
+  // Intai toate formele putin mai mari si negre: asa iese conturul
+  // inchis din jurul siluetei. Apoi formele adevarate, peste el.
+  let html = '';
+  forme.forEach(function (f) { html += casuta(f, 3, '#14100a'); });
+  forme.forEach(function (f) { html += casuta(f, 0, f.culoare); });
   return html;
 }
 

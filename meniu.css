@@ -231,58 +231,9 @@
   box-sizing: border-box;
 }
 
+/* Silueta. Bucatile din ea se aseaza din meniu.js, dupa lista de
+   forme din infatisare.js - aceeasi pe care o deseneaza si jocul. */
 .silueta { position: relative; width: 200px; height: 316px; }
-.silueta .par {
-  position: absolute; left: 50%; top: 13px; transform: translateX(-50%);
-  width: 86px; height: 27px; border-radius: 13px 13px 5px 5px;
-}
-.silueta .cap {
-  position: absolute; left: 50%; top: 27px; transform: translateX(-50%);
-  width: 80px; height: 80px; border-radius: 50%;
-}
-
-/* ---- Infatisarea: par, ochi, barba ---- */
-
-/* parul lung: doua suvite pe langa obraji */
-.silueta .suvita {
-  position: absolute; top: 36px; width: 17px; height: 68px; border-radius: 8px;
-}
-.silueta .suvita.st { left: 50%; margin-left: -49px; }
-.silueta .suvita.dr { left: 50%; margin-left:  32px; }
-
-/* parul tepos */
-.silueta .par.tepi { top: 20px; height: 18px; border-radius: 5px; }
-.silueta .tep {
-  position: absolute; top: 2px; width: 15px; height: 24px;
-  clip-path: polygon(50% 0, 100% 100%, 0 100%);
-}
-.silueta .tep.a { left: 50%; margin-left: -34px; }
-.silueta .tep.b { left: 50%; margin-left:  -8px; }
-.silueta .tep.c { left: 50%; margin-left:  19px; }
-
-/* ochii */
-.silueta .ochi { position: absolute; background: #16120f; }
-.silueta .ochi.st { left: 50%; margin-left: -25px; }
-.silueta .ochi.dr { left: 50%; margin-left:   8px; }
-
-.silueta .ochi.rotunda { top: 58px; width: 17px; height: 17px; border-radius: 50%; }
-.silueta .ochi.ingusta { top: 63px; width: 19px; height: 7px;  border-radius: 4px; }
-.silueta .ochi.lata    { top: 55px; width: 22px; height: 22px; border-radius: 50%; }
-
-/* barba */
-.silueta .barba { position: absolute; left: 50%; transform: translateX(-50%); }
-.silueta .barba.mustata { top: 86px; width: 40px; height: 10px; border-radius: 5px; }
-.silueta .barba.barba   { top: 84px; width: 62px; height: 34px; border-radius: 8px 8px 26px 26px; }
-.silueta .corp {
-  position: absolute; left: 50%; top: 110px; transform: translateX(-50%);
-  width: 103px; height: 126px; border-radius: 15px 15px 8px 8px;
-}
-.silueta .picior {
-  position: absolute; top: 233px; width: 33px; height: 66px;
-  border-radius: 6px; background: #2b241b;
-}
-.silueta .picior.st { left: 55px; }
-.silueta .picior.dr { right: 55px; }
 
 /* Armele: fiecare clasa are alta forma */
 .arma { position: absolute; right: 10px; top: 100px; }
@@ -607,7 +558,7 @@
   display: flex; align-items: center; justify-content: center;
   border: 1px solid #4d3c22; background: #14100c;
 }
-.mijloc-personaj .silueta { transform: scale(.62); }
+.mijloc-personaj .silueta { transform: scale(.88); }
 
 .sub-personaj { grid-column: 1 / 4; display: flex; gap: 7px; justify-content: center; }
 .sub-personaj .slot { flex: 0 0 190px; }

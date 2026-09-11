@@ -309,6 +309,9 @@ function alegeZona(factiune) {
 let personaj = null;        // personajul ales in meniu (rasa, clasa, statistici)
 let jucator;
 let armaJucator;
+let scutJucator = null;
+let etichetaNume;
+let bucatiCorp = [];
 let directie = 'jos';       // incotro e intors personajul
 let taste;
 let tinta = null;
@@ -427,7 +430,7 @@ function create() {
   const bucatiPersonaj = deseneazaForme(this, deseneazaInfatisarea(this));
 
   // Numele personajului, scris deasupra capului.
-  const eticheta = this.add.text(0, -34, personaj.nume, {
+  const eticheta = this.add.text(0, -38, personaj.nume, {
     fontFamily: UI.FONT,
     fontSize: '11px',
     color: UI.textAuriu,
@@ -438,6 +441,7 @@ function create() {
   // Arma sta intr-un container separat, ca sa se poata misca
   // singura atunci cand ataci. Hunter tine arc, restul sabie.
   armaJucator = faArmaJucator(this);
+  scutJucator = faScutJucator(this);
   asazaArma();
 
   // Bara de incantare, deasupra capului. Se vede doar la Mage,
@@ -445,7 +449,10 @@ function create() {
   fundalCast = this.add.rectangle(0, -47, 46, 8, 0x000000, 0.75).setVisible(false);
   baraCast = this.add.rectangle(-22, -50, 44, 4, 0x8fd0ff).setOrigin(0, 0).setVisible(false);
 
-  jucator.add([umbraJucator].concat(bucatiPersonaj, [armaJucator, fundalCast, baraCast, eticheta]));
+  bucatiCorp = bucatiPersonaj;
+  etichetaNume = eticheta;
+  jucator.add([umbraJucator].concat(bucatiPersonaj,
+    scutJucator ? [scutJucator] : [], [armaJucator, fundalCast, baraCast, eticheta]));
   jucator.setDepth(10);
 
   // --- Inamicii, exact unde ii scrie zona ---
@@ -604,6 +611,10 @@ const CULOARE_CONTUR = 0x14100a;
 function deseneazaForme(scena, forme) {
   const bucati = [];
 
+  // Culorile vin scrise ca text ('#3355cc'), fiindca aceeasi lista
+  // de forme e folosita si de meniu. Phaser le vrea ca numere.
+  function cul(c) { return (typeof c === 'string') ? culoareDinText(c) : c; }
+
   // pasul 1: conturul
   forme.forEach(function (f) {
     if (f.fel === 'cerc') bucati.push(scena.add.circle(f.x, f.y, f.r + 2, CULOARE_CONTUR));
@@ -612,8 +623,8 @@ function deseneazaForme(scena, forme) {
 
   // pasul 2: formele adevarate, peste contur
   forme.forEach(function (f) {
-    if (f.fel === 'cerc') bucati.push(scena.add.circle(f.x, f.y, f.r, f.culoare));
-    else bucati.push(scena.add.rectangle(f.x, f.y, f.w, f.h, f.culoare));
+    if (f.fel === 'cerc') bucati.push(scena.add.circle(f.x, f.y, f.r, cul(f.culoare)));
+    else bucati.push(scena.add.rectangle(f.x, f.y, f.w, f.h, cul(f.culoare)));
   });
 
   return bucati;
@@ -633,74 +644,47 @@ function faUmbra(scena, latime) {
 //  in care trebuie desenate: primele dedesubt, ultimele deasupra.
 // ================================================
 function deseneazaInfatisarea(scena) {
+  // Lista de forme e scrisa in infatisare.js, ca sa fie una singura
+  // si pentru joc, si pentru meniu. Arma si scutul le lasam pe
+  // dinafara: in joc stau in containere ale lor, ca sa poata trece
+  // dintr-o mana in alta cand te intorci si sa se roteasca la lovit.
+  return formePersonaj(personaj, { cuArma: false, cuScut: false });
+}
 
-  const pielea = culoareDinText(personaj.aspect.piele);
-  const parul  = culoareDinText(personaj.aspect.par);
-  const clasa  = culoareDinText(personaj.culoareClasa);
-  const forme = [];
 
-  // ---- picioarele si cizmele ----
-  forme.push({ fel: 'dr', x: -4, y: 14, w: 6, h: 8, culoare: schimbaLumina(clasa, -55) });
-  forme.push({ fel: 'dr', x:  4, y: 14, w: 6, h: 8, culoare: schimbaLumina(clasa, -55) });
-  forme.push({ fel: 'dr', x: -4, y: 18, w: 7, h: 5, culoare: 0x2a2018 });
-  forme.push({ fel: 'dr', x:  4, y: 18, w: 7, h: 5, culoare: 0x2a2018 });
+// ================================================
+//  REFACEREA PERSONAJULUI DUPA CE SCHIMBI UN OBIECT
+//
+//  Cand pui sau scoti ceva din echipament, silueta din joc
+//  trebuie desenata din nou: alt metal, alti umeri, alt coif.
+//  Stergem bucatile vechi si punem altele in locul lor, avand
+//  grija ca numele si barele sa ramana deasupra.
+// ================================================
+function reconstruiestePersonaj() {
 
-  // ---- trupul, cu umbra pe o parte si lumina pe cealalta ----
-  forme.push({ fel: 'dr', x:  0, y: 2, w: 18, h: 19, culoare: clasa });
-  forme.push({ fel: 'dr', x: -7, y: 2, w:  4, h: 19, culoare: schimbaLumina(clasa, -30) });
-  forme.push({ fel: 'dr', x:  8, y: 2, w:  2, h: 19, culoare: schimbaLumina(clasa, 25) });
+  if (!jucator || !jucator.scene) return;
+  const scena = jucator.scene;
 
-  // ---- cureaua, cu catarama de alama ----
-  forme.push({ fel: 'dr', x: 0, y: 8, w: 18, h: 3, culoare: 0x2a2018 });
-  forme.push({ fel: 'dr', x: 0, y: 8, w:  4, h: 3, culoare: 0xb08d3a });
+  bucatiCorp.forEach(function (b) { jucator.remove(b, true); });
+  // Daca tocmai loveai, arma e prinsa intr-o miscare. O oprim
+  // inainte s-o stergem, altfel miscarea ramane fara arma si crapa.
+  if (armaJucator) scena.tweens.killTweensOf(armaJucator);
+  if (armaJucator) jucator.remove(armaJucator, true);
+  if (scutJucator) jucator.remove(scutJucator, true);
 
-  // ---- umerii ----
-  forme.push({ fel: 'dr', x: -9, y: -4, w: 4, h: 7, culoare: schimbaLumina(clasa, 16) });
-  forme.push({ fel: 'dr', x:  9, y: -4, w: 4, h: 7, culoare: schimbaLumina(clasa, 16) });
+  bucatiCorp = deseneazaForme(scena, deseneazaInfatisarea(scena));
+  armaJucator = faArmaJucator(scena);
+  scutJucator = faScutJucator(scena);
 
-  // ---- suvitele lungi stau IN SPATELE capului ----
-  if (personaj.aspect.parStil === 'lung') {
-    forme.push({ fel: 'dr', x: -9, y: -8, w: 4, h: 15, culoare: parul });
-    forme.push({ fel: 'dr', x:  9, y: -8, w: 4, h: 15, culoare: parul });
-  }
+  jucator.add(bucatiCorp.concat(scutJucator ? [scutJucator] : [], [armaJucator]));
 
-  // ---- capul, cu o umbra usoara pe stanga ----
-  forme.push({ fel: 'cerc', x: 0, y: -11, r: 8, culoare: pielea });
-  forme.push({ fel: 'dr', x: -5, y: -11, w: 3, h: 11, culoare: schimbaLumina(pielea, -22) });
+  // Bucatile noi s-au asezat deasupra tuturor. Le trimitem sub
+  // numele si barele care trebuie sa ramana vizibile.
+  [fundalCast, baraCast, etichetaNume].forEach(function (x) {
+    if (x) jucator.bringToTop(x);
+  });
 
-  // ---- ochii ----
-  // Capul are raza 8, deci ochii trebuie sa ramana mici si
-  // departati, altfel se lipesc intr-o pata neagra.
-  if (personaj.aspect.fata === 'ingusta') {
-    forme.push({ fel: 'dr', x: -4, y: -11, w: 3, h: 2, culoare: 0x16120f });
-    forme.push({ fel: 'dr', x:  4, y: -11, w: 3, h: 2, culoare: 0x16120f });
-  } else if (personaj.aspect.fata === 'lata') {
-    forme.push({ fel: 'dr', x: -4, y: -12, w: 3, h: 4, culoare: 0x16120f });
-    forme.push({ fel: 'dr', x:  4, y: -12, w: 3, h: 4, culoare: 0x16120f });
-  } else {
-    forme.push({ fel: 'dr', x: -4, y: -12, w: 2, h: 2, culoare: 0x16120f });
-    forme.push({ fel: 'dr', x:  4, y: -12, w: 2, h: 2, culoare: 0x16120f });
-  }
-
-  // ---- barba ----
-  if (personaj.aspect.barba === 'mustata') {
-    forme.push({ fel: 'dr', x: 0, y: -7, w: 9, h: 2, culoare: parul });
-  } else if (personaj.aspect.barba === 'barba') {
-    forme.push({ fel: 'dr', x: 0, y: -5, w: 12, h: 7, culoare: parul });
-  }
-
-  // ---- parul de deasupra, cu o lucire pe crestet ----
-  if (personaj.aspect.parStil === 'tepi') {
-    forme.push({ fel: 'dr', x:  0, y: -17, w: 17, h: 4, culoare: parul });
-    forme.push({ fel: 'dr', x: -6, y: -21, w:  3, h: 5, culoare: parul });
-    forme.push({ fel: 'dr', x:  0, y: -22, w:  3, h: 6, culoare: parul });
-    forme.push({ fel: 'dr', x:  6, y: -21, w:  3, h: 5, culoare: parul });
-  } else if (personaj.aspect.parStil !== 'chel') {
-    forme.push({ fel: 'dr', x: 0, y: -16, w: 17, h: 6, culoare: parul });
-    forme.push({ fel: 'dr', x: 0, y: -18, w: 13, h: 3, culoare: schimbaLumina(parul, 18) });
-  }
-
-  return forme;
+  asazaArma();
 }
 
 
@@ -1089,6 +1073,9 @@ function aplicaTalentele() {
 
   actualizeazaBaraViata();
   actualizeazaBaraResursa();
+
+  // Echipamentul nu schimba doar cifrele: se si vede pe personaj.
+  reconstruiestePersonaj();
 }
 
 
@@ -1966,7 +1953,12 @@ function punctInFata() {
 // Muta sabia in mana potrivita cand te intorci spre stanga sau dreapta.
 function asazaArma() {
   const semn = (directie === 'stanga') ? -1 : 1;
-  const forma = FORMA_ARMA_JUCATOR[personaj.idClasa] || 'sabie';
+  const forma = FORMA_ARMA_CLASA[personaj.idClasa] || 'sabie';
+
+  // Scutul sta mereu in mana cealalta decat arma.
+  if (scutJucator) scutJucator.setPosition(-12 * semn, 3);
+
+  if (!armaJucator) return;
 
   if (forma === 'arc') {
     armaJucator.setPosition(12 * semn, 0);
@@ -2422,52 +2414,21 @@ function culoareDinText(text) {
 }
 
 
-// Ce arma tine in mana fiecare clasa. Trebuie sa fie aceeasi
-// cu cea din meniul de creare a personajului.
-const FORMA_ARMA_JUCATOR = {
-  warrior: 'sabie',
-  hunter:  'arc',
-  mage:    'toiag',
-  priest:  'toiag'
-};
-
+// Arma si scutul se fac din aceleasi liste de forme ca personajul
+// (infatisare.js), deci isi schimba metalul odata cu ce ai echipat.
 function faArmaJucator(scena) {
-  const forma = FORMA_ARMA_JUCATOR[personaj.idClasa] || 'sabie';
-  if (forma === 'arc') return faArc(scena);
-  if (forma === 'toiag') return faToiag(scena);
-  return faSabie(scena, 0xd8d8e0);
+  const arma = scena.add.container(0, 0);
+  arma.add(deseneazaForme(scena, formeArma(personaj)));
+  return arma;
 }
 
-
-// Construieste un toiag: bat de lemn si piatra albastra in varf.
-function faToiag(scena) {
-  const toiag = scena.add.container(0, 0);
-  toiag.add(scena.add.rectangle(0, 3, 4, 30, 0x6a6152));   // batul
-  toiag.add(scena.add.circle(0, -13, 6, 0x2f6fd0));        // piatra
-  toiag.add(scena.add.circle(0, -13, 3, 0xbfe6ff));        // sclipirea din ea
-  return toiag;
-}
-
-
-// Construieste un arc: doua brate de lemn si coarda intinsa.
-function faArc(scena) {
-  const arc = scena.add.container(0, 0);
-  arc.add(scena.add.rectangle(0, 0, 2, 26, 0xe8e2d4));   // coarda
-  arc.add(scena.add.rectangle(3, -10, 4, 9, 0x6b4a2c));  // bratul de sus
-  arc.add(scena.add.rectangle(5, 0, 4, 12, 0x7d5735));   // mijlocul
-  arc.add(scena.add.rectangle(3, 10, 4, 9, 0x6b4a2c));   // bratul de jos
-  return arc;
-}
-
-
-// Construieste o sabie: maner maro, garda aurie, lama.
-function faSabie(scena, culoareLama) {
-  const sabie = scena.add.container(0, 0);
-  const maner = scena.add.rectangle(0, 0, 4, 9, 0x5b3a1a);
-  const garda = scena.add.rectangle(0, -5, 12, 3, 0xb08d3a);
-  const lama  = scena.add.rectangle(0, -15, 5, 20, culoareLama);
-  sabie.add([maner, garda, lama]);
-  return sabie;
+// Intoarce null daca n-ai nimic in "Off Hand".
+function faScutJucator(scena) {
+  const forme = formeScut(personaj);
+  if (forme.length === 0) return null;
+  const scut = scena.add.container(0, 0);
+  scut.add(deseneazaForme(scena, forme));
+  return scut;
 }
 
 

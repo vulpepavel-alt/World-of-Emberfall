@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test - infatisare</title>
+  <link rel="stylesheet" href="meniu.css">
+  <style>
+    body { margin: 0; background: #14100c; color: #d9c9a3;
+           font-family: Georgia, serif; }
+    .rand { display: flex; gap: 10px; padding: 14px; flex-wrap: wrap; }
+    .caz { text-align: center; }
+    .caz h4 { margin: 0 0 4px; font-size: 13px; color: #d9b555; font-weight: normal; }
+    .caz .silueta { transform: scale(.85); transform-origin: top center; }
+  </style>
+</head>
+<body>
+  <div class="rand" id="rand"></div>
+
+  <script src="texte.js"></script>
+  <script src="personaj.js"></script>
+  <script src="talente.js"></script>
+  <script src="obiecte.js"></script>
+  <script src="infatisare.js"></script>
+  <script>
+    // Acelasi personaj, cu echipament tot mai bun, ca sa se vada
+    // diferenta dintre sloturi goale si sloturi pline.
+    const cazuri = [
+      { titlu: 'Warrior gol', clasa: 'warrior', raritate: null },
+      { titlu: 'Warrior Common', clasa: 'warrior', raritate: 'comun' },
+      { titlu: 'Warrior Uncommon', clasa: 'warrior', raritate: 'bun' },
+      { titlu: 'Warrior Rare', clasa: 'warrior', raritate: 'rar' },
+      { titlu: 'Warrior Epic', clasa: 'warrior', raritate: 'maiestru' },
+      { titlu: 'Hunter gol', clasa: 'hunter', raritate: null },
+      { titlu: 'Hunter Rare', clasa: 'hunter', raritate: 'rar' },
+      { titlu: 'Mage gol', clasa: 'mage', raritate: null },
+      { titlu: 'Mage Epic', clasa: 'mage', raritate: 'maiestru' },
+      { titlu: 'Priest Uncommon', clasa: 'priest', raritate: 'bun' }
+    ];
+
+    const rand = document.getElementById('rand');
+
+    cazuri.forEach(function (caz) {
+      const p = calculeazaPersonaj('human', caz.clasa, infatisareImplicita('human'), 20);
+      p.nume = 'Test';
+      if (caz.raritate) {
+        SLOTURI.forEach(function (s) {
+          p.echipament[s.id] = faObiect(s.id, 20, caz.raritate);
+        });
+      }
+      const d = document.createElement('div');
+      d.className = 'caz';
+      d.innerHTML = '<h4>' + caz.titlu + '</h4><div class="silueta">' +
+                    htmlSiluetaTest(p) + '</div>';
+      rand.appendChild(d);
+    });
+
+    // meniu.js are nevoie de ecranul de creare, deci copiem aici doar
+    // partea care deseneaza, ca pagina de test sa poata sta singura.
+    function htmlSiluetaTest(p) {
+      const SCARA = 6, CX = 100, CY = 178;
+      function casuta(f, crestere, culoare) {
+        let st, sus, lat, inalt, rotund = '';
+        if (f.fel === 'cerc') {
+          const r = f.r + crestere / 2;
+          lat = inalt = r * 2 * SCARA;
+          st = CX + (f.x - r) * SCARA;
+          sus = CY + (f.y - r) * SCARA;
+          rotund = 'border-radius:50%;';
+        } else {
+          lat = (f.w + crestere) * SCARA;
+          inalt = (f.h + crestere) * SCARA;
+          st = CX + f.x * SCARA - lat / 2;
+          sus = CY + f.y * SCARA - inalt / 2;
+        }
+        return '<div style="position:absolute;left:' + st.toFixed(1) + 'px;top:' + sus.toFixed(1) +
+               'px;width:' + lat.toFixed(1) + 'px;height:' + inalt.toFixed(1) +
+               'px;background:' + culoare + ';' + rotund + '"></div>';
+      }
+      const forme = formePersonaj(p);
+      let html = '';
+      forme.forEach(function (f) { html += casuta(f, 3, '#14100a'); });
+      forme.forEach(function (f) { html += casuta(f, 0, f.culoare); });
+      return html;
+    }
+  </script>
+</body>
+</html>
