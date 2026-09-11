@@ -193,6 +193,11 @@ const TEXT = {
   BITE:             'A bite!',
   TOO_SOON:         'Too soon',
   GOT_AWAY:         'It got away',
+  FLEEING:          'Fleeing!',
+  CHARMED:          'Dazed',
+  TRAPPED:          'Caught!',
+  PLAYING_DEAD:     'Playing dead',
+  TOO_HEALTHY:      'Not weak enough yet',
   SKIN:             'Skin',
   NO_PROFESSIONS:   'You have no trade yet. Trainers wait in the cities.',
 

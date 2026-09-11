@@ -308,6 +308,163 @@ const ABILITATI = [
     costRage: 0, costMana: 55, pauza: 8000, incantare: 1500,
     vindecaMin: 55, vindecaMax: 70
   }
+,
+// ---- Warrior, restul ----
+  {
+    id: 'warrior_charge_01', clasa: 'warrior', nume: 'Bull Rush',
+    descriere: 'You close the distance in one step and come up swinging.',
+    fel: 'saritura', laTinta: true, nivel: 4, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 0, pauza: 15000, incantare: 0, daRage: 15
+  },
+  {
+    id: 'warrior_sunder_01', clasa: 'warrior', nume: 'Armor Split',
+    descriere: 'A blow aimed at the joints. Their armor holds less.',
+    fel: 'slabire', nivel: 10, laCateNiveluri: 12, ranguri: 5, crestere: 1.12,
+    costRage: 15, costMana: 0, pauza: 0, incantare: 0,
+    inmultit: 0.9, slabesteCu: 0.12, tine: 30000
+  },
+  {
+    id: 'warrior_exec_01', clasa: 'warrior', nume: 'Finisher',
+    descriere: 'Only lands on an enemy near death \u2014 and it ends them.',
+    fel: 'lovitura', nivel: 24, laCateNiveluri: 9, ranguri: 5, crestere: 1.18,
+    costRage: 20, costMana: 0, pauza: 0, incantare: 0,
+    inmultit: 1, doarSubViata: 0.25, inmultitFinal: 5
+  },
+  {
+    id: 'warrior_wall_01', clasa: 'warrior', nume: 'Iron Guard',
+    descriere: 'You set yourself. Blows glance off for a short while.',
+    fel: 'scut', nivel: 28, laCateNiveluri: 11, ranguri: 3, crestere: 1.5,
+    costRage: 10, costMana: 0, pauza: 120000, incantare: 0,
+    absoarbe: 300, tine: 10000
+  },
+  {
+    id: 'warrior_fear_01', clasa: 'warrior', nume: 'Break Their Nerve',
+    descriere: 'A shout that sends everything close by running.',
+    fel: 'frica', nivel: 22, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 25, costMana: 0, pauza: 60000, incantare: 0,
+    raza: 150, tine: 6000
+  },
+  {
+    id: 'warrior_intercept_01', clasa: 'warrior', nume: 'Closing Leap',
+    descriere: 'A leap that catches something already running.',
+    fel: 'saritura', laTinta: true, nivel: 30, laCateNiveluri: 14, ranguri: 3, crestere: 1,
+    costRage: 10, costMana: 0, pauza: 25000, incantare: 0
+  },
+
+  // ---- Hunter, restul ----
+  {
+    id: 'hunter_mark_01', clasa: 'hunter', nume: 'Marked Quarry',
+    descriere: 'You mark it. Its guard drops for half a minute.',
+    fel: 'slabire', nivel: 6, laCateNiveluri: 14, ranguri: 4, crestere: 1.15,
+    costRage: 0, costMana: 12, pauza: 0, incantare: 0, deLaDistanta: true,
+    inmultit: 0.5, slabesteCu: 0.15, tine: 30000
+  },
+  {
+    id: 'hunter_trap_ice', clasa: 'hunter', nume: 'Frost Snare',
+    descriere: 'A snare laid at your feet. The first thing to step on it freezes.',
+    fel: 'capcana', nivel: 20, laCateNiveluri: 14, ranguri: 3, crestere: 1,
+    costRage: 0, costMana: 30, pauza: 30000, incantare: 0,
+    prinde: 'gheata', tineCapcana: 60000, tineEfectul: 9000, culoare: 0x9adcf8
+  },
+  {
+    id: 'hunter_trap_fire', clasa: 'hunter', nume: 'Ember Snare',
+    descriere: 'A snare that catches fire under whatever finds it.',
+    fel: 'capcana', nivel: 16, laCateNiveluri: 11, ranguri: 4, crestere: 1.25,
+    costRage: 0, costMana: 28, pauza: 25000, incantare: 0,
+    prinde: 'foc', tineCapcana: 60000, tineEfectul: 12000, peTura: 10,
+    culoare: 0xe8862f
+  },
+  {
+    id: 'hunter_dead_01', clasa: 'hunter', nume: 'Play Dead',
+    descriere: 'You drop. Everything loses interest in you.',
+    fel: 'mortPrefacut', nivel: 30, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 20, pauza: 40000, incantare: 0, tine: 6000
+  },
+  {
+    id: 'hunter_disengage_01', clasa: 'hunter', nume: 'Break Off',
+    descriere: 'A quick step back, out of reach.',
+    fel: 'saritura', laTinta: false, nivel: 20, laCateNiveluri: 14, ranguri: 3, crestere: 1,
+    costRage: 0, costMana: 15, pauza: 20000, incantare: 0, sarePana: -170
+  },
+  {
+    id: 'hunter_rapid_01', clasa: 'hunter', nume: 'Quick Draw',
+    descriere: 'Your hands speed up. Attack power climbs for 15 seconds.',
+    fel: 'intarire', nivel: 26, laCateNiveluri: 12, ranguri: 3, crestere: 1.3,
+    costRage: 0, costMana: 30, pauza: 180000, incantare: 0,
+    tine: 15000, da: { attackPower: 60 }
+  },
+
+  // ---- Mage, restul ----
+  {
+    id: 'mage_blink_01', clasa: 'mage', nume: 'Step Through',
+    descriere: 'You are suddenly a little further along.',
+    fel: 'saritura', laTinta: false, nivel: 20, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 25, pauza: 15000, incantare: 0, sarePana: 170
+  },
+  {
+    id: 'mage_shield_01', clasa: 'mage', nume: 'Mind Ward',
+    descriere: 'A shell that drinks the first blows.',
+    fel: 'scut', nivel: 20, laCateNiveluri: 8, ranguri: 6, crestere: 1.3,
+    costRage: 0, costMana: 40, pauza: 12000, incantare: 0,
+    absoarbe: 120, tine: 30000
+  },
+  {
+    id: 'mage_poly_01', clasa: 'mage', nume: 'Shapebind',
+    descriere: 'One enemy forgets what it was doing, and stands there.',
+    fel: 'farmec', nivel: 8, laCateNiveluri: 14, ranguri: 4, crestere: 1.2,
+    costRage: 0, costMana: 30, pauza: 20000, incantare: 1500,
+    raza: 220, tine: 12000
+  },
+  {
+    id: 'mage_evoc_01', clasa: 'mage', nume: 'Drawing Breath',
+    descriere: 'You stand still and your thinking comes back.',
+    fel: 'refacere', nivel: 20, laCateNiveluri: 12, ranguri: 4, crestere: 1.4,
+    costRage: 0, costMana: 0, pauza: 300000, incantare: 0, cat: 300
+  },
+  {
+    id: 'mage_icearmor_01', clasa: 'mage', nume: 'Glacier Skin',
+    descriere: 'Deeper frost than the first. Armor rises for 30 minutes.',
+    fel: 'intarire', nivel: 30, laCateNiveluri: 12, ranguri: 3, crestere: 1.3,
+    costRage: 0, costMana: 40, pauza: 2000, incantare: 0,
+    tine: 1800000, da: { armura: 90 }, armuraDeVraja: true
+  },
+
+  // ---- Priest, restul ----
+  {
+    id: 'priest_shield_01', clasa: 'priest', nume: 'Warding Word',
+    descriere: 'A word spoken over yourself. It takes the next blows.',
+    fel: 'scut', nivel: 6, laCateNiveluri: 8, ranguri: 6, crestere: 1.3,
+    costRage: 0, costMana: 35, pauza: 15000, incantare: 0,
+    absoarbe: 60, tine: 30000
+  },
+  {
+    id: 'priest_fear_01', clasa: 'priest', nume: 'Wail',
+    descriere: 'A cry that scatters everything around you.',
+    fel: 'frica', nivel: 14, laCateNiveluri: 16, ranguri: 3, crestere: 1,
+    costRage: 0, costMana: 40, pauza: 45000, incantare: 0,
+    raza: 140, tine: 6000
+  },
+  {
+    id: 'priest_holyfire_01', clasa: 'priest', nume: 'Sunfire',
+    descriere: 'Light that catches and keeps burning.',
+    fel: 'arsura', nivel: 20, laCateNiveluri: 9, ranguri: 5, crestere: 1.2,
+    costRage: 0, costMana: 40, pauza: 10000, incantare: 0, deLaDistanta: true,
+    tine: 12000, laCat: 2000, peTura: 14, culoare: 0xe8c15a
+  },
+  {
+    id: 'priest_flash_01', clasa: 'priest', nume: 'Quick Mercy',
+    descriere: 'A fast mending, and a dear one.',
+    fel: 'vindecare', nivel: 20, laCateNiveluri: 8, ranguri: 6, crestere: 1.22,
+    costRage: 0, costMana: 80, pauza: 0, incantare: 800,
+    vindecaMin: 80, vindecaMax: 100
+  },
+  {
+    id: 'priest_bigheal_01', clasa: 'priest', nume: 'Deep Mending',
+    descriere: 'The whole of what you know, poured into one wound.',
+    fel: 'vindecare', nivel: 40, laCateNiveluri: 10, ranguri: 3, crestere: 1.25,
+    costRage: 0, costMana: 160, pauza: 0, incantare: 2500,
+    vindecaMin: 420, vindecaMax: 520
+  }
 ];
 
 

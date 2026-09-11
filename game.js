@@ -559,6 +559,8 @@ function curataZonaVeche(scena) {
   nodurileDeFata = [];
   culesulInCurs = null;
   pescuitul = null;
+  capcane = [];
+  scutAbilitate = 0;
 
   Object.keys(bucatiTeren).forEach(function (nume) {
     const imagine = bucatiTeren[nume];
@@ -585,6 +587,8 @@ function curataZonaVeche(scena) {
   nodurileDeFata = [];
   culesulInCurs = null;
   pescuitul = null;
+  capcane = [];
+  scutAbilitate = 0;
   butonInteract = null;
   tinteDeMisiune = null;
 }
@@ -1098,6 +1102,173 @@ function actualizeazaPescuitul(scena) {
 
 
 // ==========================================================
+//  MECANICILE CARE LIPSEAU
+//
+//  Scuturi care absorb, sarituri, capcane, frica, transformarea si
+//  prefacutul mort. Fiecare e mica; impreuna deschid restul
+//  abilitatilor din tabelele pe care le-ai aprobat.
+// ==========================================================
+
+// ---- scutul dat de o abilitate (altul decat pasiva de Mage) ----
+let scutAbilitate = 0;
+let scutAbilitatePanaLa = 0;
+
+
+function puneScut(scena, ab) {
+  scutAbilitate = ab.absoarbe;
+  scutAbilitatePanaLa = scena.time.now + ab.tine;
+  aratacuvant(scena, jucator.x, jucator.y - 60, ab.nume, '#7fd0ff');
+}
+
+
+// Se cheama din incasare, INAINTE de pasiva de Mage.
+function scutulAbilitatiiInghite(scena, damage) {
+  if (scutAbilitate <= 0 || scena.time.now > scutAbilitatePanaLa) {
+    scutAbilitate = 0;
+    return damage;
+  }
+  const inghitit = Math.min(scutAbilitate, damage);
+  scutAbilitate -= inghitit;
+  aratacifraAlbastra(scena, jucator.x, jucator.y - 68, inghitit);
+  return damage - inghitit;
+}
+
+
+// ---- saritura: te muti langa tinta, sau inainte ----
+function sariLa(scena, ab, tintaAb) {
+
+  let x, y;
+  if (tintaAb) {
+    // Ne oprim putin inaintea ei, nu peste ea.
+    const unghi = Phaser.Math.Angle.Between(tintaAb.x, tintaAb.y, jucator.x, jucator.y);
+    x = tintaAb.x + Math.cos(unghi) * 30;
+    y = tintaAb.y + Math.sin(unghi) * 30;
+  } else {
+    // Fara tinta: sari inainte, incotro esti intors.
+    const d = jucator.scaleX < 0 ? -1 : 1;
+    x = jucator.x + d * (ab.sarePana || 150);
+    y = jucator.y;
+  }
+
+  // Nu sarim in zid: cautam ultima casuta buna de pe drum.
+  const pasi = 14;
+  let bunX = jucator.x, bunY = jucator.y;
+  for (let i = 1; i <= pasi; i++) {
+    const px = jucator.x + (x - jucator.x) * (i / pasi);
+    const py = jucator.y + (y - jucator.y) * (i / pasi);
+    if (!potMerge(px, py)) break;
+    bunX = px; bunY = py;
+  }
+
+  jucator.x = bunX;
+  jucator.y = bunY;
+  if (ab.daRage && personaj.resursa === 'furie') {
+    personaj.furie = Math.min(RAGE_MAXIM, personaj.furie + ab.daRage);
+    actualizeazaBaraResursa();
+  }
+  aratacuvant(scena, jucator.x, jucator.y - 60, ab.nume, UI.textAuriu);
+}
+
+
+// ---- frica: inamicul fuge de tine ----
+function sperieMobul(scena, mob, catTine) {
+  if (!mob || !mob.viu) return;
+  mob.speriatPanaLa = scena.time.now + catTine;
+  aratacuvant(scena, mob.x, mob.y - 40, TEXT.FLEEING, '#e0c15a');
+}
+
+
+// ---- transformarea: inamicul sta pe loc si nu te mai vede ----
+function vrajesteMobul(scena, mob, catTine) {
+  if (!mob || !mob.viu) return;
+  mob.vrajitPanaLa = scena.time.now + catTine;
+  mob.furios = false;
+  aratacuvant(scena, mob.x, mob.y - 40, TEXT.CHARMED, '#b07cf0');
+}
+
+
+// ---- armura slabita ----
+function slabesteArmura(scena, mob, cat, catTine) {
+  if (!mob || !mob.viu) return;
+  mob.armuraSlabitaPanaLa = scena.time.now + catTine;
+  mob.armuraSlabitaCu = (mob.armuraSlabitaPanaLa > scena.time.now && mob.armuraSlabitaCu)
+    ? Math.min(0.75, mob.armuraSlabitaCu + cat) : cat;
+}
+
+
+// ---- prefacutul mort: toti uita de tine ----
+let mortPrefacutPanaLa = 0;
+
+function teFaciMort(scena, catTine) {
+  mortPrefacutPanaLa = scena.time.now + catTine;
+  mobi.forEach(function (m) { if (m.viu) m.furios = false; });
+  jucator.setAlpha(0.5);
+  scena.time.delayedCall(catTine, function () {
+    if (jucator) jucator.setAlpha(1);
+  });
+  aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.PLAYING_DEAD, '#8d7a58');
+}
+
+
+function testePrefaciMort(scena) {
+  return scena.time.now < mortPrefacutPanaLa;
+}
+
+
+// ---- capcanele ----
+let capcane = [];
+
+function puneCapcana(scena, ab) {
+
+  const c = scena.add.container(jucator.x, jucator.y);
+  c.add(scena.add.circle(0, 0, 16, ab.culoare || 0x9adcf8, 0.22));
+  c.add(scena.add.circle(0, 0, 9, ab.culoare || 0x9adcf8, 0.45));
+  c.setDepth(3);
+  scena.tweens.add({ targets: c, alpha: 0.5, duration: 700, yoyo: true, repeat: -1 });
+
+  capcane.push({
+    desen: c, x: jucator.x, y: jucator.y, ab: ab,
+    panaLa: scena.time.now + (ab.tineCapcana || 60000)
+  });
+
+  aratacuvant(scena, jucator.x, jucator.y - 60, ab.nume, '#9adcf8');
+}
+
+
+function actualizeazaCapcanele(scena) {
+
+  for (let i = capcane.length - 1; i >= 0; i--) {
+    const cap = capcane[i];
+
+    if (scena.time.now >= cap.panaLa) {
+      cap.desen.destroy();
+      capcane.splice(i, 1);
+      continue;
+    }
+
+    const prins = mobi.find(function (m) {
+      return m.viu && Phaser.Math.Distance.Between(cap.x, cap.y, m.x, m.y) < 26;
+    });
+    if (!prins) continue;
+
+    // A calcat pe ea: se declanseaza si dispare.
+    const ab = cap.ab;
+    if (ab.prinde === 'gheata') {
+      incetinesteMobul(scena, prins, 0.05, ab.tineEfectul);
+      aratacuvant(scena, prins.x, prins.y - 40, TEXT.TRAPPED, '#9adcf8');
+    } else if (ab.prinde === 'foc') {
+      puneRana(scena, prins, { id: ab.id, nume: ab.nume, tine: ab.tineEfectul,
+                               laCat: 2000, peTura: ab.peTura, culoare: 0xe8862f });
+      loveste(scena, prins, ab.peTura, false);
+    }
+
+    cap.desen.destroy();
+    capcane.splice(i, 1);
+  }
+}
+
+
+// ==========================================================
 //  STALPII DE LA IESIRILE DIN ZONA
 //
 //  Marginea unei zone e zid pe toata lungimea ei, in afara de UN
@@ -1372,6 +1543,8 @@ function create() {
   nodurileDeFata = [];
   culesulInCurs = null;
   pescuitul = null;
+  capcane = [];
+  scutAbilitate = 0;
   saci.forEach(function (sac) { sac.destroy(); });
   saci = [];
   // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
@@ -1390,6 +1563,8 @@ function create() {
   // --- Bara care se umple cand culegi minereu sau plante ---
   nodurileDeFata = [];
   pescuitul = null;
+  capcane = [];
+  scutAbilitate = 0;
   opresteCulesul();
   faBaraDeCules(this);
 
@@ -3194,9 +3369,27 @@ function folosesteAbilitate(scena, ab) {
       ab.deLaDistanta ? RAZA_ATAC_DISTANTA : RAZA_ATAC);
   }
 
+  // Felurile care cer o tinta, dar nu de aproape.
+  //
+  // ATENTIE: saritura la tinta trebuie si ea sa-si caute tinta. Fara
+  // randul asta, "Bull Rush" nu gasea pe nimeni si nu sarea nicaieri
+  // - cautarea de mai sus e doar pentru lovituri, sageti si vraji.
+  if (ab.fel === 'farmec' || ab.fel === 'frica' || ab.fel === 'slabire' ||
+      (ab.fel === 'saritura' && ab.laTinta)) {
+    // O saritura ajunge departe: daca n-are raza scrisa, cautam in
+    // toata raza in care se vede ceva.
+    const razaCautarii = ab.raza ||
+      (ab.fel === 'saritura' ? 420
+        : (ab.deLaDistanta ? RAZA_ATAC_DISTANTA : RAZA_ATAC));
+    tintaAb = celMaiApropiatMob(jucator.x, jucator.y, razaCautarii);
+  }
+
   // Astea nu cer tinta: te intaresc pe tine sau lovesc tot in jur.
   const faraTinta = (ab.fel === 'vindecare' || ab.fel === 'alinare' ||
-                     ab.fel === 'intarire' || ab.fel === 'val');
+                     ab.fel === 'intarire' || ab.fel === 'val' ||
+                     ab.fel === 'scut' || ab.fel === 'capcana' ||
+                     ab.fel === 'mortPrefacut' || ab.fel === 'refacere' ||
+                     (ab.fel === 'saritura' && !ab.laTinta));
   if (!faraTinta && !tintaAb) return;   // n-ai pe cine
 
   // Se plateste, cu reducerea de la talente.
@@ -3232,7 +3425,19 @@ function porneisteEfectul(scena, ab, tintaAb) {
     animatiaSabiei(scena);
     const lovitura = damageulTau(armaDeAtac(), attackPowerFolosit(scena, false));
     const sporAb = inmultitorTalent(personaj, 'dmgAbilitate');
-    loveste(scena, tintaAb, lovitura.damage * ab.inmultit * sporAb, lovitura.critic);
+
+    // O lovitura de sfarsit: doar pe cine e aproape mort, dar tare.
+    let spor = ab.inmultit;
+    if (ab.doarSubViata) {
+      const parte = tintaAb.viata / tintaAb.viataMaxima;
+      if (parte > ab.doarSubViata) {
+        aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.TOO_HEALTHY, '#e06a5a');
+        return;
+      }
+      spor = ab.inmultitFinal || ab.inmultit;
+    }
+
+    loveste(scena, tintaAb, lovitura.damage * spor * sporAb, lovitura.critic);
 
   } else if (ab.fel === 'sageata') {
     intoarceTeSpre(tintaAb.x, tintaAb.y);
@@ -3274,6 +3479,46 @@ function porneisteEfectul(scena, ab, tintaAb) {
   } else if (ab.fel === 'val') {
     if (ab.deLaDistanta) animatiaArcului(scena); else animatiaSabiei(scena);
     loveaTotInJur(scena, ab);
+
+  } else if (ab.fel === 'scut') {
+    puneScut(scena, ab);
+
+  } else if (ab.fel === 'saritura') {
+    sariLa(scena, ab, ab.laTinta ? tintaAb : null);
+
+  } else if (ab.fel === 'capcana') {
+    puneCapcana(scena, ab);
+
+  } else if (ab.fel === 'mortPrefacut') {
+    teFaciMort(scena, ab.tine);
+
+  } else if (ab.fel === 'refacere') {
+    // Evocation: iti umple resursa.
+    if (personaj.resursa === 'mana') {
+      personaj.mana = Math.min(personaj.manaMaxima, personaj.mana + ab.cat);
+      actualizeazaBaraResursa();
+      aratacuvant(scena, jucator.x, jucator.y - 44, '+' + ab.cat, '#6f9ed0');
+    }
+
+  } else if (ab.fel === 'farmec') {
+    if (!tintaAb) return;
+    vrajesteMobul(scena, tintaAb, ab.tine);
+
+  } else if (ab.fel === 'frica') {
+    if (!tintaAb) return;
+    // Frica prinde tot ce e in jur, nu doar tinta.
+    mobi.forEach(function (m) {
+      if (!m.viu) return;
+      if (Phaser.Math.Distance.Between(jucator.x, jucator.y, m.x, m.y) > (ab.raza || 150)) return;
+      sperieMobul(scena, m, ab.tine);
+    });
+
+  } else if (ab.fel === 'slabire') {
+    if (!tintaAb) return;
+    animatiaSabiei(scena);
+    slabesteArmura(scena, tintaAb, ab.slabesteCu, ab.tine);
+    const lov = damageulTau(armaDeAtac(), attackPowerFolosit(scena, false));
+    loveste(scena, tintaAb, lov.damage * (ab.inmultit || 1), lov.critic);
   }
 
   // Unele lovituri obisnuite lasa tinta schioapa.
@@ -3542,6 +3787,7 @@ function update(time, delta) {
   actualizeazaNoduri(this);
   actualizeazaCulesul(this);
   actualizeazaPescuitul(this);
+  actualizeazaCapcanele(this);
   // Ce tine in timp: ranile care dor, alinarile si intaririle.
   actualizeazaRanile(this);
   actualizeazaAlinarile(this);
@@ -4118,7 +4364,12 @@ function actualizeazaBaraMob(mob) {
 function loveste(scena, mob, damageBrut, critic) {
 
   // Armura lui ii taie o parte din damage.
-  const damage = Math.max(1, Math.round(dupaArmura(damageBrut, mob.stats.armura)));
+  // Armura lui, mai mica daca i-ai spart-o cu o abilitate.
+  let armuraLui = mob.stats.armura;
+  if (mob.armuraSlabitaPanaLa && scena.time.now < mob.armuraSlabitaPanaLa) {
+    armuraLui = Math.round(armuraLui * (1 - (mob.armuraSlabitaCu || 0)));
+  }
+  const damage = Math.max(1, Math.round(dupaArmura(damageBrut, armuraLui)));
 
   mob.viata -= damage;
   actualizeazaBaraMob(mob);
@@ -4288,6 +4539,21 @@ function miscaMobii(scena, delta) {
       }
     }
 
+    // Un inamic vrajit sta pe loc si nu te mai vede.
+    if (mob.vrajitPanaLa && scena.time.now < mob.vrajitPanaLa) {
+      mob.furios = false;
+      return;
+    }
+
+    // Unul speriat fuge de tine, nu spre tine.
+    if (mob.speriatPanaLa && scena.time.now < mob.speriatPanaLa) {
+      const vx = mob.x - jucator.x;
+      const vy = mob.y - jucator.y;
+      const lung = Math.sqrt(vx * vx + vy * vy) || 1;
+      mob.dx = vx / lung;
+      mob.dy = vy / lung;
+    }
+
     // Viteza lui, mai mica daca l-ai taiat la picior sau l-ai inghetat.
     const deBaza = mob.furios ? VITEZA_MOB_FURIOS : VITEZA_MOB;
     const pas = vitezaMobului(scena, mob, deBaza) * (delta / 1000);
@@ -4338,7 +4604,8 @@ function mobTeLoveste(scena, mob) {
   let damage = Math.max(1, Math.round(dupaArmura(brut, personaj.armura) *
                                       reducereTalent(personaj, 'damageIncasat')));
 
-  // ARCANE BARRIER: scutul inghite primul, pana se termina.
+  // Scutul dat de o abilitate inghite primul, apoi pasiva de Mage.
+  damage = scutulAbilitatiiInghite(scena, damage);
   damage = scutulInghite(scena, damage);
 
   if (damage > 0) {
