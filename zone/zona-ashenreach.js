@@ -39,11 +39,11 @@ inregistreazaZona({
   port: { fel: 'corabie', catre: 'riftmarch', la: 'cetate' },
 
   locuri: [
-    { fel: 'tabara', id: 'sat', c: 0.14, r: 0.52 },
-    { fel: 'corturi', id: 'tabara', c: 0.5, r: 0.26 },
-    { fel: 'corturi', id: 'tabara2', c: 0.66, r: 0.74 },
-    { fel: 'mina', id: 'groapa', c: 0.8, r: 0.44 },
-    { fel: 'cetate', id: 'cetate', c: 0.36, r: 0.76 }
+    { fel: 'tabara', id: 'sat', nume: 'Reachward', c: 0.14, r: 0.52 },
+    { fel: 'corturi', id: 'tabara', nume: 'Camp at the Third Well', c: 0.5, r: 0.26 },
+    { fel: 'corturi', id: 'tabara2', nume: 'Second Well Camp', c: 0.66, r: 0.74 },
+    { fel: 'mina', id: 'groapa', nume: 'Ash Diggings', c: 0.8, r: 0.44 },
+    { fel: 'cetate', id: 'cetate', nume: 'Wells Keep', c: 0.36, r: 0.76 }
   ],
 
   npci: [

@@ -693,8 +693,12 @@ function faMisiunileZonei(reteta) {
 
     // Locul pomenit in text: cel de cercetat daca exista, altfel
     // primul loc de pe harta zonei.
+    // Numele adevarat al locului, din reteta zonei - acelasi pe care
+    // il arata harta. Daca zona n-are nume scrise, ramane felul lui.
     const locPomenit = deCercetat || (reteta.locuri || [])[0];
-    const numeLoc = locPomenit ? (NUMELE_LOCULUI[locPomenit.fel] || 'the camp') : 'the camp';
+    const numeLoc = locPomenit
+      ? (locPomenit.nume || NUMELE_LOCULUI[locPomenit.fel] || 'the camp')
+      : 'the camp';
 
     const cati = (felMisiune === 'mergi') ? 1
                : (felMisiune === 'aduna') ? (6 + i) : (8 + i * 2);
@@ -720,7 +724,8 @@ function faMisiunileZonei(reteta) {
 
     let cerinta;
     if (felMisiune === 'mergi') {
-      cerinta = { fel: 'mergi', cati: 1, numeLoc: numeLoc,
+      cerinta = { fel: 'mergi', cati: 1,
+                  numeLoc: deCercetat.nume || numeLoc,
                   loc: reteta.id + ':' + deCercetat.id };
     } else if (felMisiune === 'aduna') {
       cerinta = { fel: 'aduna', mob: fel, cati: cati,

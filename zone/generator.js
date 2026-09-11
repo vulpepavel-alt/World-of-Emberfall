@@ -732,6 +732,11 @@ function faZona(reteta) {
 
   zona.locuri = (reteta.locuri || []).map(function (loc) {
     return { id: loc.id, fel: loc.fel,
+             // Numele adevarat al locului, scris in reteta zonei. E
+             // SINGURUL loc unde e scris: si harta, si misiunile il
+             // iau de aici, ca sa nu se poata intampla ca harta sa
+             // spuna "Cave" iar misiunea "the river cave".
+             nume: loc.nume || null,
              col: asezate[loc.id].col, rand: asezate[loc.id].rand,
              inima: asezate[loc.id].inima };
   });

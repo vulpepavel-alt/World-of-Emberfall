@@ -36,11 +36,11 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'tabara', id: 'sat', c: 0.14, r: 0.54 },
-    { fel: 'pestera', id: 'crapatura', c: 0.32, r: 0.18 },
-    { fel: 'corturi', id: 'tabara', c: 0.7, r: 0.72 },
-    { fel: 'poiana', id: 'coliba', c: 0.4, r: 0.34 },
-    { fel: 'post', id: 'post', c: 0.58, r: 0.6 }
+    { fel: 'tabara', id: 'sat', nume: 'Duneholt', c: 0.14, r: 0.54 },
+    { fel: 'pestera', id: 'crapatura', nume: 'Windhole', c: 0.32, r: 0.18 },
+    { fel: 'corturi', id: 'tabara', nume: 'Seedling Camp', c: 0.7, r: 0.72 },
+    { fel: 'poiana', id: 'coliba', nume: 'Well Garden', c: 0.4, r: 0.34 },
+    { fel: 'post', id: 'post', nume: 'Buried Watchpost', c: 0.58, r: 0.6 }
   ],
 
   npci: [

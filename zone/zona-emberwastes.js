@@ -36,11 +36,11 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'tabara', id: 'sat', c: 0.14, r: 0.52 },
-    { fel: 'corturi', id: 'tabara', c: 0.5, r: 0.26 },
-    { fel: 'corturi', id: 'tabara2', c: 0.66, r: 0.74 },
-    { fel: 'mina', id: 'groapa', c: 0.8, r: 0.44 },
-    { fel: 'cetate', id: 'cetate', c: 0.36, r: 0.76 }
+    { fel: 'tabara', id: 'sat', nume: 'Last Camp', c: 0.14, r: 0.52 },
+    { fel: 'corturi', id: 'tabara', nume: 'Wall Camp', c: 0.5, r: 0.26 },
+    { fel: 'corturi', id: 'tabara2', nume: 'Far Picket', c: 0.66, r: 0.74 },
+    { fel: 'mina', id: 'groapa', nume: 'Cistern Dig', c: 0.8, r: 0.44 },
+    { fel: 'cetate', id: 'cetate', nume: 'East Wall', c: 0.36, r: 0.76 }
   ],
 
   npci: [

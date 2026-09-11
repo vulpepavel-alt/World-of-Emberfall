@@ -60,7 +60,22 @@ function scrieZona(numeZona, idZona, lista) {
     // O misiune de mers are nevoie de numele intreg al locului, cu
     // zona in fata - altfel "mina" din Ironhill ar fi aceeasi cu
     // "mina" din Mistwood.
+    //
+    // Numele care se vede in carnet NU se scrie aici. Se ia din
+    // reteta zonei, adica din exact acelasi loc din care il ia si
+    // harta. Cat era scris de doua ori, se putea intampla ca harta
+    // sa spuna "Cave" iar misiunea "the river cave".
     if (cerinta.fel === 'mergi') {
+      const reteta = retetaZonei(idZona);
+      const locul = reteta && (reteta.locuri || []).find(function (l) {
+        return l.id === cerinta.loc;
+      });
+      if (!locul) {
+        console.warn('Misiune care trimite intr-un loc inexistent: ' +
+                     idZona + ':' + cerinta.loc);
+        return;
+      }
+      cerinta.numeLoc = locul.nume;
       cerinta.loc = idZona + ':' + cerinta.loc;
       cerinta.cati = 1;
     }
@@ -117,7 +132,7 @@ scrieZona('Gravemoor', 'gravemoor', [
           'Go and stand at the edge of it. Do not climb down.<br><br>' +
           'I would go myself, but I am sixty-four and the last person who went ' +
           'down there was my brother.',
-    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the old peat cutting' }
+    cerinta: { fel: 'mergi', loc: 'groapa' }
   },
   {
     dator: 'cavaler', nivel: 6,
@@ -182,7 +197,7 @@ scrieZona('Hollowmere', 'hollowmere', [
           'somewhere else closes my cutting and eighty people here stop eating. ' +
           'So I am telling you instead.<br><br>' +
           'Go down to the cutting and see it. Then tell me I am imagining it.',
-    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the peat cutting' }
+    cerinta: { fel: 'mergi', loc: 'groapa' }
   },
   {
     dator: 'padurar', nivel: 15,
@@ -249,7 +264,7 @@ scrieZona('Thornmoor', 'thornmoor', [
           'remember their faces.<br><br>' +
           'I am not accusing anybody. I am asking somebody to go and look, ' +
           'which is apparently a radical idea here.',
-    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the moor toll post' }
+    cerinta: { fel: 'mergi', loc: 'post' }
   },
   {
     dator: 'padurar', nivel: 15,
@@ -334,7 +349,7 @@ scrieZona('Bramblewatch', 'bramblewatch', [
           'well still gives, whether the doors hold.<br><br>' +
           'If we ever have to put everybody inside those walls, I would rather ' +
           'know beforehand than find out with the whole village behind me.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the watchkeep' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'marshal', nivel: 23,
@@ -387,7 +402,7 @@ scrieZona('Ravensreach', 'ravensreach', [
           'So somebody is up there doing the drill perfectly, every night, and ' +
           'has not once come down for food or pay.<br><br>' +
           'Ride out and look. I am not sending a boy to do this.',
-    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the sixth signal post' }
+    cerinta: { fel: 'mergi', loc: 'post' }
   },
   {
     dator: 'taran', nivel: 20,
@@ -454,7 +469,7 @@ scrieZona('Mistwood', 'mistwood', [
           'open where eleven people can watch it. It is doing it in there, and ' +
           'the mill only sees the result four hours later.<br><br>' +
           'Go to the cave. Look at the mouth. Do not wade in.',
-    cerinta: { fel: 'mergi', loc: 'vizuina', numeLoc: 'the river cave' }
+    cerinta: { fel: 'mergi', loc: 'vizuina' }
   },
   {
     dator: 'negustor', nivel: 25,
@@ -539,7 +554,7 @@ scrieZona('Duskvale', 'duskvale', [
           'bridge.<br><br>' +
           'Go up to the keep. You owe him nothing, which is exactly why you can ' +
           'do it properly.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the empty keep' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'marshal', nivel: 28,
@@ -593,7 +608,7 @@ scrieZona('Stormhollow', 'stormhollow', [
           'I am not asking you to catch him at anything. I am asking whether ' +
           'there is a way for a man to be telling the truth and the coast to be ' +
           'dark at the same time.',
-    cerinta: { fel: 'mergi', loc: 'far', numeLoc: 'the lighthouse' }
+    cerinta: { fel: 'mergi', loc: 'far' }
   },
   {
     dator: 'negustor', nivel: 30,
@@ -674,7 +689,7 @@ scrieZona('Greyfen', 'greyfen', [
           'it is cold, whether it has been cold for eleven years, and whether ' +
           'there is a track worn to the door.<br><br>' +
           'A kindness with a track worn to it is not a kindness any more.',
-    cerinta: { fel: 'mergi', loc: 'popas', numeLoc: 'the wayhouse' }
+    cerinta: { fel: 'mergi', loc: 'popas' }
   },
   {
     dator: 'marshal', nivel: 33,
@@ -741,7 +756,7 @@ scrieZona('Ironhill', 'ironhill', [
           'Go up to the old mine. Stand at the door. Look at the beams and look ' +
           'at what is written, and come back and tell me the shape of the ' +
           'letters even if you cannot read them either.',
-    cerinta: { fel: 'mergi', loc: 'minaVeche', numeLoc: 'the sealed mine' }
+    cerinta: { fel: 'mergi', loc: 'minaVeche' }
   },
   {
     dator: 'armurier', nivel: 38,
@@ -796,7 +811,7 @@ scrieZona('Sablewood', 'sablewood', [
           'around it are grown trees or something else, because two men have ' +
           'come back and used the phrase "something else" without being able to ' +
           'finish the sentence.',
-    cerinta: { fel: 'mergi', loc: 'mina', numeLoc: 'the swallowed mine head' }
+    cerinta: { fel: 'mergi', loc: 'mina' }
   },
   {
     dator: 'negustor', nivel: 40,
@@ -882,7 +897,7 @@ scrieZona('Ashenmoor', 'ashenmoor', [
           'the wall.<br><br>' +
           'You will know what I mean when you do it. Then come back and say it ' +
           'to the merchant, because he will believe a stranger before me.',
-    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the glass pit' }
+    cerinta: { fel: 'mergi', loc: 'groapa' }
   },
   {
     dator: 'marshal', nivel: 43,
@@ -953,7 +968,7 @@ scrieZona('Gravehold', 'gravehold', [
           'and whether anybody looks in it.<br><br>' +
           'I have known the marshal since we were boys and I would rather be ' +
           'wrong about this than right. Go and let me be wrong.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the gatehouse' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'marshal', nivel: 48,
@@ -1007,7 +1022,7 @@ scrieZona('Blackfen', 'blackfen', [
           'Somebody built that to carry weight in both directions, and I would ' +
           'like to know what was heavy enough to need it before half the ' +
           'village is using it as a shortcut.',
-    cerinta: { fel: 'mergi', loc: 'gaura', numeLoc: 'the sink hole' }
+    cerinta: { fel: 'mergi', loc: 'gaura' }
   },
   {
     dator: 'negustor', nivel: 45,
@@ -1095,7 +1110,7 @@ scrieZona('Ashen Reach', 'ashenreach', [
           'the tents again.<br><br>' +
           'I have been selling those people water for seven months and I think ' +
           'I have been paid in it.',
-    cerinta: { fel: 'mergi', loc: 'tabara', numeLoc: 'the camp at the third well' }
+    cerinta: { fel: 'mergi', loc: 'tabara' }
   },
   {
     dator: 'marshal', nivel: 53,
@@ -1147,7 +1162,7 @@ scrieZona('Cinderpeak', 'cinderpeak', [
           'Go up to the main vent. Get as close as you can stand and remember ' +
           'exactly how close that was.<br><br>' +
           'Then ask a smith how close he could stand when he was your age.',
-    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the main vent' }
+    cerinta: { fel: 'mergi', loc: 'groapa' }
   },
   {
     dator: 'negustor', nivel: 50,
@@ -1234,7 +1249,7 @@ scrieZona('Direhold', 'direhold', [
           'see it in a minute.<br><br>' +
           'Do not draw anything. Walk in, look, walk out. That is all I want ' +
           'and it is more than I have managed in nine years.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the fortress yard' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'cavaler', nivel: 58,
@@ -1289,7 +1304,7 @@ scrieZona('Thornspire', 'thornspire', [
           'Take the west stair. The east one has been out since the winter and ' +
           'nobody has troubled to put a rope across it, which tells you ' +
           'something on its own.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the beacon keep' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'taran', nivel: 55,
@@ -1358,7 +1373,7 @@ scrieZona('The Emberwastes', 'emberwastes', [
           'fingers go in to the second knuckle, that is not weathering, that is ' +
           'a wall with a date on it.<br><br>' +
           'Then say so where the garrison can hear you.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the east wall' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'padurar', nivel: 55,
@@ -1437,7 +1452,7 @@ scrieZona('Silverbough', 'silverbough', [
           'somewhere, and there is exactly one place on this coast where a boat ' +
           'can lie out of the weather and out of sight.<br><br>' +
           'Go and look at the sea cave. Look, and come back.',
-    cerinta: { fel: 'mergi', loc: 'pestera', numeLoc: 'the sea cave' }
+    cerinta: { fel: 'mergi', loc: 'pestera' }
   },
   {
     dator: 'negustor', nivel: 6,
@@ -1506,7 +1521,7 @@ scrieZona('Palewood', 'palewood', [
           'Go out to the clearing on the shore side. There was a dyke there ' +
           'when my mother walked it.<br><br>' +
           'See whether there still is.',
-    cerinta: { fel: 'mergi', loc: 'luminis', numeLoc: 'the dyke clearing' }
+    cerinta: { fel: 'mergi', loc: 'luminis' }
   },
   {
     dator: 'negustor', nivel: 15,
@@ -1573,7 +1588,7 @@ scrieZona('Dustplain', 'dustplain', [
           'Go down to the deep cistern. Walk the whole gallery, all the way to ' +
           'the rock face where the water comes in.<br><br>' +
           'Count the channels cut into that face. There should be one.',
-    cerinta: { fel: 'mergi', loc: 'mina', numeLoc: 'the deep cistern' }
+    cerinta: { fel: 'mergi', loc: 'mina' }
   },
   {
     dator: 'cercetas', nivel: 15,
@@ -1643,7 +1658,7 @@ scrieZona('Duneholt', 'duneholt', [
           'If the roof is under, then the sand has moved the height of a man in ' +
           'eleven years and this wall is nine hundred people standing in a ' +
           'queue.',
-    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the buried watchpost' }
+    cerinta: { fel: 'mergi', loc: 'post' }
   },
   {
     dator: 'samana', nivel: 20,
@@ -1733,7 +1748,7 @@ scrieZona('Stonecall', 'stonecall', [
           'ground.<br><br>' +
           'If it has fallen in, we have lost more than a shaft. We have lost ' +
           'how this village talks to itself.',
-    cerinta: { fel: 'mergi', loc: 'minaVeche', numeLoc: 'the old shaft' }
+    cerinta: { fel: 'mergi', loc: 'minaVeche' }
   },
   {
     dator: 'armurier', nivel: 23,
@@ -1788,7 +1803,7 @@ scrieZona('Sunspire', 'sunspire', [
           'round it.<br><br>' +
           'One that was put in last autumn does not, and you can see that from ' +
           'a horse.',
-    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the shadow post' }
+    cerinta: { fel: 'mergi', loc: 'post' }
   },
   {
     dator: 'negustor', nivel: 25,
@@ -1871,7 +1886,7 @@ scrieZona('Saltcliff', 'saltcliff', [
           'stream and look for whether it was always there.<br><br>' +
           'Take a rope. Two people have gone in this month without one and only ' +
           'one of them is having this conversation with anybody.',
-    cerinta: { fel: 'mergi', loc: 'pestera', numeLoc: 'the brine cave' }
+    cerinta: { fel: 'mergi', loc: 'pestera' }
   },
   {
     dator: 'capitan', nivel: 28,
@@ -1939,7 +1954,7 @@ scrieZona('Verdantmire', 'verdantmire', [
           'Go to the pit. Look at the seal.<br><br>' +
           'And look at the path to it, because a pit nobody has visited in ' +
           'forty years should not have a path.',
-    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the old dye pit' }
+    cerinta: { fel: 'mergi', loc: 'groapa' }
   },
   {
     dator: 'negustor', nivel: 33,
@@ -1995,7 +2010,7 @@ scrieZona('Shatterhorn', 'shatterhorn', [
           'with your own eyes and come back and describe it.<br><br>' +
           'Take the hay path. The direct way is where the falls come down and ' +
           'I have lost a man on it already.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the broken keep' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'samana', nivel: 30,
@@ -2065,7 +2080,7 @@ scrieZona('The Long Steppe', 'longsteppe', [
           'you can have without walking four miles.<br><br>' +
           'Go and walk the four miles. Look at the ground in the gap and look ' +
           'at what is on it.',
-    cerinta: { fel: 'mergi', loc: 'vizuina', numeLoc: 'the crossing gap' }
+    cerinta: { fel: 'mergi', loc: 'vizuina' }
   },
   {
     dator: 'negustor', nivel: 35,
@@ -2135,7 +2150,7 @@ scrieZona('Windscour', 'windscour', [
           'send it over us. Everything we are is downwind of that gap.<br><br>' +
           'Go to the wind gap. Look at it. That is the whole task and it should ' +
           'have been done by somebody from here twenty-three months ago.',
-    cerinta: { fel: 'mergi', loc: 'crapatura', numeLoc: 'the wind gap' }
+    cerinta: { fel: 'mergi', loc: 'crapatura' }
   },
   {
     dator: 'negustor', nivel: 40,
@@ -2206,7 +2221,7 @@ scrieZona('Emberdune', 'emberdune', [
           'is in it.<br><br>' +
           'Take nothing. Somebody will take everything soon enough and I would ' +
           'rather it was not us.',
-    cerinta: { fel: 'mergi', loc: 'crapatura', numeLoc: 'the uncovered house' }
+    cerinta: { fel: 'mergi', loc: 'crapatura' }
   },
   {
     dator: 'negustor', nivel: 40,
@@ -2273,7 +2288,7 @@ scrieZona('The Glasswastes', 'glasswastes', [
           'Go out to the dump watch. Find out whether there are still two men, ' +
           'and if there are, find out what they have been living on.<br><br>' +
           'I have a guess and I do not like it. Go and make me wrong.',
-    cerinta: { fel: 'mergi', loc: 'post', numeLoc: 'the dump watch' }
+    cerinta: { fel: 'mergi', loc: 'post' }
   },
   {
     dator: 'armurier', nivel: 45,
@@ -2344,7 +2359,7 @@ scrieZona('Bonemarch', 'bonemarch', [
           'without me having put any in your mouth. I have had four accounts ' +
           'already and all four have been useless because all four came after ' +
           'somebody else had talked.',
-    cerinta: { fel: 'mergi', loc: 'crapatura', numeLoc: 'the bone cut' }
+    cerinta: { fel: 'mergi', loc: 'crapatura' }
   },
   {
     dator: 'negustor', nivel: 45,
@@ -2431,7 +2446,7 @@ scrieZona('Hollowroot', 'hollowroot', [
           'the north side and if anything has come up through the root it has ' +
           'come up there.<br><br>' +
           'Do not go alone in the dark. Take a lamp and do not put it down.',
-    cerinta: { fel: 'mergi', loc: 'gaura', numeLoc: 'the hollow under the hall' }
+    cerinta: { fel: 'mergi', loc: 'gaura' }
   },
   {
     dator: 'negustor', nivel: 53,
@@ -2485,7 +2500,7 @@ scrieZona('Riftmarch', 'riftmarch', [
           'I have counted twice and got a number I did not believe, so I would ' +
           'like somebody who has never seen this place before to count it once ' +
           'and say it out loud.',
-    cerinta: { fel: 'mergi', loc: 'groapa', numeLoc: 'the rift edge' }
+    cerinta: { fel: 'mergi', loc: 'groapa' }
   },
   {
     dator: 'negustor', nivel: 50,
@@ -2556,7 +2571,7 @@ scrieZona('The Pale Reach', 'palereach', [
           'asking you to accuse anybody of anything.<br><br>' +
           'I am asking whether a sign goes out of that keep exactly as it comes ' +
           'in.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the relay keep' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'negustor', nivel: 55,
@@ -2626,7 +2641,7 @@ scrieZona('Coldspine', 'coldspine', [
           'wrong: I expect you to find things in it. Shapes. Dark ones, held in ' +
           'the ice at about the height of your chest.<br><br>' +
           'I would very much like to be wrong.',
-    cerinta: { fel: 'mergi', loc: 'minaVeche', numeLoc: 'the ice face' }
+    cerinta: { fel: 'mergi', loc: 'minaVeche' }
   },
   {
     dator: 'negustor', nivel: 55,
@@ -2714,7 +2729,7 @@ scrieZona('Sundercrag', 'sundercrag', [
           'running through it.<br><br>' +
           'Go up to the split keep. Go carefully, and come back. A hundred and ' +
           'thirty people need you to come back.',
-    cerinta: { fel: 'mergi', loc: 'cetate', numeLoc: 'the split keep' }
+    cerinta: { fel: 'mergi', loc: 'cetate' }
   },
   {
     dator: 'armurier', nivel: 58,

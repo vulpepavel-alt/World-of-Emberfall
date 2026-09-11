@@ -36,11 +36,11 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.18, r: 0.5 },
-    { fel: 'corturi', id: 'tabara', c: 0.66, r: 0.32 },
-    { fel: 'pestera', id: 'vizuina', c: 0.4, r: 0.76 },
-    { fel: 'post', id: 'post', c: 0.82, r: 0.56 },
-    { fel: 'mina', id: 'mina', c: 0.74, r: 0.8 }
+    { fel: 'sat', id: 'sat', nume: 'Steppewatch', c: 0.18, r: 0.5 },
+    { fel: 'corturi', id: 'tabara', nume: 'Herd Camp', c: 0.66, r: 0.32 },
+    { fel: 'pestera', id: 'vizuina', nume: 'Crossing Gap', c: 0.4, r: 0.76 },
+    { fel: 'post', id: 'post', nume: 'North Line Post', c: 0.82, r: 0.56 },
+    { fel: 'mina', id: 'mina', nume: 'Steppe Mine', c: 0.74, r: 0.8 }
   ],
 
   npci: [

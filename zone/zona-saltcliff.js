@@ -39,11 +39,11 @@ inregistreazaZona({
   port: { fel: 'corabie', catre: 'mistwood', la: 'far' },
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.18, r: 0.54 },
-    { fel: 'pestera', id: 'pestera', c: 0.34, r: 0.2 },
-    { fel: 'corturi', id: 'tabara', c: 0.66, r: 0.34 },
-    { fel: 'ferma', id: 'luminis', c: 0.46, r: 0.74 },
-    { fel: 'cetate', id: 'far', c: 0.8, r: 0.66 }
+    { fel: 'sat', id: 'sat', nume: 'Saltcliff', c: 0.18, r: 0.54 },
+    { fel: 'pestera', id: 'pestera', nume: 'Brine Cave', c: 0.34, r: 0.2 },
+    { fel: 'corturi', id: 'tabara', nume: 'Pan Camp', c: 0.66, r: 0.34 },
+    { fel: 'ferma', id: 'luminis', nume: 'Drying Racks', c: 0.46, r: 0.74 },
+    { fel: 'cetate', id: 'far', nume: 'Saltcliff Light', c: 0.8, r: 0.66 }
   ],
 
   npci: [

@@ -36,11 +36,11 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.2, r: 0.42 },
-    { fel: 'mina', id: 'mina', c: 0.62, r: 0.3 },
-    { fel: 'mina', id: 'minaVeche', c: 0.8, r: 0.72 },
-    { fel: 'cetate', id: 'cetate', c: 0.44, r: 0.72 },
-    { fel: 'corturi', id: 'tabara', c: 0.34, r: 0.2 }
+    { fel: 'sat', id: 'sat', nume: 'Coldspine', c: 0.2, r: 0.42 },
+    { fel: 'mina', id: 'mina', nume: 'Coldspine Mine', c: 0.62, r: 0.3 },
+    { fel: 'mina', id: 'minaVeche', nume: 'Ice Face', c: 0.8, r: 0.72 },
+    { fel: 'cetate', id: 'cetate', nume: 'Spine Keep', c: 0.44, r: 0.72 },
+    { fel: 'corturi', id: 'tabara', nume: 'Thaw Camp', c: 0.34, r: 0.2 }
   ],
 
   npci: [

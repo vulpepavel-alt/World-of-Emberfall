@@ -36,11 +36,11 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.18, r: 0.54 },
-    { fel: 'pestera', id: 'pestera', c: 0.34, r: 0.2 },
-    { fel: 'corturi', id: 'tabara', c: 0.66, r: 0.34 },
-    { fel: 'ferma', id: 'luminis', c: 0.46, r: 0.74 },
-    { fel: 'cetate', id: 'far', c: 0.8, r: 0.66 }
+    { fel: 'sat', id: 'sat', nume: 'Palewood', c: 0.18, r: 0.54 },
+    { fel: 'pestera', id: 'pestera', nume: 'Shore Cave', c: 0.34, r: 0.2 },
+    { fel: 'corturi', id: 'tabara', nume: 'Cutting Camp', c: 0.66, r: 0.34 },
+    { fel: 'ferma', id: 'luminis', nume: 'Dyke Clearing', c: 0.46, r: 0.74 },
+    { fel: 'cetate', id: 'far', nume: 'Pale Light', c: 0.8, r: 0.66 }
   ],
 
   npci: [

@@ -791,8 +791,11 @@ function textulCerintei(personajul, misiune) {
   if (c.fel === 'aduna') {
     return c.obiect + ': ' + cati + '/' + c.cati;
   }
+  // La fel ca celelalte doua randuri de mai sus: numele lucrului,
+  // doua puncte, cat ai facut din cat. Numele e cel scris in reteta
+  // zonei, acelasi pe care il vezi si pe harta.
   if (c.fel === 'mergi') {
-    return (cati > 0 ? 'Reached ' : 'Go to ') + c.numeLoc;
+    return c.numeLoc + ': ' + cati + '/' + c.cati;
   }
   const numeMob = (typeof MOBI !== 'undefined' && MOBI[c.mob]) ? MOBI[c.mob].nume : c.mob;
   return numeMob + ' slain: ' + cati + '/' + c.cati;

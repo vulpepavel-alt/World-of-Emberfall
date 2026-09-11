@@ -36,12 +36,12 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.16, r: 0.52 },
-    { fel: 'ferma', id: 'ferma', c: 0.34, r: 0.7 },
-    { fel: 'pestera', id: 'vizuina', c: 0.24, r: 0.18 },
-    { fel: 'corturi', id: 'tabara', c: 0.62, r: 0.34 },
-    { fel: 'mina', id: 'mina', c: 0.78, r: 0.76 },
-    { fel: 'cetate', id: 'cetate', c: 0.84, r: 0.18 }
+    { fel: 'sat', id: 'sat', nume: 'Bramblewatch', c: 0.16, r: 0.52 },
+    { fel: 'ferma', id: 'ferma', nume: 'Brothers\' Farm', c: 0.34, r: 0.7 },
+    { fel: 'pestera', id: 'vizuina', nume: 'Fox Hollow', c: 0.24, r: 0.18 },
+    { fel: 'corturi', id: 'tabara', nume: 'Militia Camp', c: 0.62, r: 0.34 },
+    { fel: 'mina', id: 'mina', nume: 'Bramble Mine', c: 0.78, r: 0.76 },
+    { fel: 'cetate', id: 'cetate', nume: 'Watchkeep', c: 0.84, r: 0.18 }
   ],
 
   npci: [

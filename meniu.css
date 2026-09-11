@@ -1054,6 +1054,17 @@
   margin: auto; font-size: 15px; color: #8d7a58; font-style: italic;
 }
 
+/* Cand ecranul e in picioare (telefonul tinut vertical) harta si
+   panoul din dreapta nu au sens unul langa altul: harta se strangea
+   intr-un colt cat o timbra si dedesubt ramanea gol.
+   Atunci le punem unul sub altul.
+   Pe lat - cum se joaca de obicei - nu se schimba nimic. */
+@media (max-width: 760px), (orientation: portrait) {
+  .corp-harta { flex-direction: column; }
+  .plansa-harta { flex: 1 1 auto; min-height: 0; }
+  .detalii-zona { flex: 0 0 auto; max-height: 42%; }
+}
+
 .detalii-zona {
   flex: 0 0 250px; overflow-y: auto;
   border: 2px solid #4d3c22; background: #14100c;

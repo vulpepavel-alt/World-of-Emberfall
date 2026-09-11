@@ -41,11 +41,11 @@ inregistreazaZona({
   port: { fel: 'zeppelin', catre: 'dustplain', la: 'mina' },
 
   locuri: [
-    { fel: 'oras', id: 'oras', c: 0.30, r: 0.46 },
-    { fel: 'corturi', id: 'tabara', c: 0.66, r: 0.32 },
-    { fel: 'pestera', id: 'vizuina', c: 0.4, r: 0.76 },
-    { fel: 'post', id: 'post', c: 0.82, r: 0.56 },
-    { fel: 'mina', id: 'mina', c: 0.74, r: 0.8 }
+    { fel: 'oras', id: 'oras', nume: 'Ambervault', c: 0.30, r: 0.46 },
+    { fel: 'corturi', id: 'tabara', nume: 'Heather Camp', c: 0.66, r: 0.32 },
+    { fel: 'pestera', id: 'vizuina', nume: 'Moor Hollow', c: 0.4, r: 0.76 },
+    { fel: 'post', id: 'post', nume: 'Moor Toll Post', c: 0.82, r: 0.56 },
+    { fel: 'mina', id: 'mina', nume: 'Ambervault Mine', c: 0.74, r: 0.8 }
   ],
 
   npci: [

@@ -36,11 +36,11 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'tabara', id: 'sat', c: 0.16, r: 0.44 },
-    { fel: 'corturi', id: 'tabara', c: 0.6, r: 0.3 },
-    { fel: 'pestera', id: 'gaura', c: 0.32, r: 0.74 },
-    { fel: 'mina', id: 'groapa', c: 0.76, r: 0.68 },
-    { fel: 'poiana', id: 'popas', c: 0.48, r: 0.54 }
+    { fel: 'tabara', id: 'sat', nume: 'Verdantmire', c: 0.16, r: 0.44 },
+    { fel: 'corturi', id: 'tabara', nume: 'Cutters\' Camp', c: 0.6, r: 0.3 },
+    { fel: 'pestera', id: 'gaura', nume: 'Green Hollow', c: 0.32, r: 0.74 },
+    { fel: 'mina', id: 'groapa', nume: 'Old Dye Pit', c: 0.76, r: 0.68 },
+    { fel: 'poiana', id: 'popas', nume: 'Fishers\' Landing', c: 0.48, r: 0.54 }
   ],
 
   npci: [

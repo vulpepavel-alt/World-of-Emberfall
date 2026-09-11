@@ -604,7 +604,8 @@ function faHartaZonei(id) {
   // ---- locurile care conteaza ----
   (z.locuri || []).forEach(function (loc) {
     semnulLocului(g, loc.fel, loc.col, loc.rand, 1.9);
-    eticheta(g, numeleStructurii(loc.fel), loc.col, loc.rand + 34, COL, RND);
+    // Numele lui adevarat - acelasi pe care ti-l spune si misiunea.
+    eticheta(g, loc.nume || numeleStructurii(loc.fel), loc.col, loc.rand + 34, COL, RND);
   });
 
   // ---- oamenii cu care poti vorbi ----
@@ -739,16 +740,11 @@ function scrieDetaliile() {
           (z.factiune || 'Both factions') + '</span></div>';
 
   // ---- ce e in zona ----
-  const numarate = {};
-  (z.locuri || []).forEach(function (loc) {
-    const n = numeleStructurii(loc.fel);
-    numarate[n] = (numarate[n] || 0) + 1;
-  });
-  const feluri = Object.keys(numarate);
-  if (feluri.length) {
+  if ((z.locuri || []).length) {
     html += '<div class="cap-detaliu">' + TEXT.WHATS_HERE + '</div><ul class="drumuri">';
-    feluri.forEach(function (n) {
-      html += '<li>' + n + (numarate[n] > 1 ? ' <span class="stins">x' + numarate[n] + '</span>' : '') + '</li>';
+    z.locuri.forEach(function (loc) {
+      html += '<li><b>' + (loc.nume || numeleStructurii(loc.fel)) + '</b>' +
+              ' <span class="stins">' + numeleStructurii(loc.fel) + '</span></li>';
     });
     html += '<li>' + (z.npci || []).length + ' <span class="stins">' +
             TEXT.PLACE_PEOPLE + '</span></li></ul>';

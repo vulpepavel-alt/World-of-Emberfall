@@ -39,12 +39,12 @@ inregistreazaZona({
   port: { fel: 'corabie', catre: 'saltcliff', la: 'cetate' },
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.16, r: 0.52 },
-    { fel: 'ferma', id: 'ferma', c: 0.34, r: 0.7 },
-    { fel: 'pestera', id: 'vizuina', c: 0.24, r: 0.18 },
-    { fel: 'corturi', id: 'tabara', c: 0.62, r: 0.34 },
-    { fel: 'mina', id: 'mina', c: 0.78, r: 0.76 },
-    { fel: 'cetate', id: 'cetate', c: 0.84, r: 0.18 }
+    { fel: 'sat', id: 'sat', nume: 'Mistwood', c: 0.16, r: 0.52 },
+    { fel: 'ferma', id: 'ferma', nume: 'Mill Farm', c: 0.34, r: 0.7 },
+    { fel: 'pestera', id: 'vizuina', nume: 'River Cave', c: 0.24, r: 0.18 },
+    { fel: 'corturi', id: 'tabara', nume: 'Cutting Camp', c: 0.62, r: 0.34 },
+    { fel: 'mina', id: 'mina', nume: 'Mistwood Mine', c: 0.78, r: 0.76 },
+    { fel: 'cetate', id: 'cetate', nume: 'Ship Landing', c: 0.84, r: 0.18 }
   ],
 
   npci: [
