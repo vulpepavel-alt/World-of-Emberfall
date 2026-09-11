@@ -378,10 +378,6 @@ const config = {
   height: INALTIME,
   backgroundColor: '#111111',
   pixelArt: true,
-  // Jocul n-are sunet. Fara randul asta, Phaser deschide totusi o
-  // cutie de sunet si se plange in consola de fiecare data cand
-  // inchidem jocul ca sa trecem in alta zona.
-  audio: { noAudio: true },
   // Jocul se micsoreaza/mareste singur ca sa incapa mereu in fereastra,
   // pastrandu-si forma. Asta ne trebuie si mai tarziu, pe ecranul telefonului.
   scale: {
@@ -488,7 +484,7 @@ function ascundeIncarcarea() {
 function treciInZona(idZona, dinspre) {
 
   const reteta = retetaZonei(idZona);
-  if (!reteta) return;
+  if (!reteta) { treceInCurs = false; return; }
 
   salveaza();
   aratafIncarcarea(reteta.nume, reteta.nivelDeLa + '-' + reteta.nivelPanaLa);
@@ -498,55 +494,84 @@ function treciInZona(idZona, dinspre) {
   // apara si ai vedea doar o secunda de joc inghetat.
   setTimeout(function () {
 
-    const veche = jocul;
-    jocul = null;
-    if (veche) veche.destroy(true);
+    const scena = jucator.scene;
 
-    setTimeout(function () {
+    // ATENTIE - aici era eroarea.
+    //
+    // Prima data inchideam tot jocul Phaser si porneam altul pentru
+    // zona noua. Jocul nou pornea, desena o data, si apoi scena lui
+    // nu mai era pusa niciodata la treaba: ceasul mergea, se vedea
+    // imaginea, dar update() nu se mai chema deloc. Nu se mai misca
+    // nimic si nicio poarta nu mai raspundea.
+    //
+    // Acum NU mai inchidem jocul. Pastram aceeasi scena si o pornim
+    // din nou cu restart(), care cheama create() inca o data - de
+    // data asta cu zona cea noua. Un singur joc, de la inceput pana
+    // la sfarsit, si nimic de racordat intre ele.
+    curataZonaVeche(scena);
+    zona = faZona(reteta);
 
-      curataLumea(true);
-      zona = faZona(reteta);
+    // Daca ai venit pe apa, apari langa portul de aici, nu pe margine.
+    const peApa = zona.portul && zona.portul.catre === dinspre;
 
-      // Intri pe latura dinspre care ai venit, nu in mijlocul zonei.
-      //
-      // ATENTIE: NU chiar pe poarta. Daca te punem pe ea, poarta se
-      // declanseaza pe loc si te trimite inapoi de unde ai venit -
-      // si tot asa, la nesfarsit. Te punem cu zece casute mai
-      // inauntru, si pe deasupra nu lasam nicio poarta sa te ia
-      // pana nu te-ai departat o data de ele.
-      // Daca ai venit pe apa, apari langa portul de aici, nu pe margine.
-      const peApa = zona.portul && zona.portul.catre === dinspre;
-      if (peApa) {
-        locDePornire = {
-          x: (zona.portul.col + 8) * TILE + TILE / 2,
-          y: (zona.portul.rand + 8) * TILE + TILE / 2
-        };
-        abiaAmIntrat = true;
-        jocul = new Phaser.Game(config);
-        ascundeIncarcarea();
-        treceInCurs = false;
-        salveaza();
-        return;
-      }
-
+    if (peApa) {
+      locDePornire = {
+        x: (zona.portul.col + 8) * TILE + TILE / 2,
+        y: (zona.portul.rand + 8) * TILE + TILE / 2
+      };
+    } else {
+      // Intri pe latura dinspre care ai venit, dar NU chiar pe poarta:
+      // te-ar trimite inapoi pe loc. Cu zece casute mai inauntru.
       const intrare = zona.treceri.find(function (tr) { return tr.catre === dinspre; });
-      if (intrare) {
-        locDePornire = {
-          x: (intrare.col + intrare.spreInauntruC * 10) * TILE + TILE / 2,
-          y: (intrare.rand + intrare.spreInauntruR * 10) * TILE + TILE / 2
-        };
-      } else {
-        locDePornire = { x: zona.start.col * TILE + TILE / 2,
-                         y: zona.start.rand * TILE + TILE / 2 };
-      }
-      abiaAmIntrat = true;
+      locDePornire = intrare
+        ? { x: (intrare.col + intrare.spreInauntruC * 10) * TILE + TILE / 2,
+            y: (intrare.rand + intrare.spreInauntruR * 10) * TILE + TILE / 2 }
+        : { x: zona.start.col * TILE + TILE / 2,
+            y: zona.start.rand * TILE + TILE / 2 };
+    }
 
-      jocul = new Phaser.Game(config);
+    abiaAmIntrat = true;
+    scena.scene.restart();
+
+    // restart() cheama create() la urmatorul cadru, nu acum. Asteptam
+    // sa se faca, altfel am ascunde ecranul de incarcare peste o zona
+    // care inca nu e desenata.
+    setTimeout(function () {
       ascundeIncarcarea();
       treceInCurs = false;
       salveaza();
-    }, 30);
+    }, 60);
   }, 60);
+}
+
+
+// Ce trebuie sters cand schimbam zona, dar PASTRAM jocul.
+//
+// Bucatile de harta si poza minihartii sunt poze tinute de Phaser.
+// Ele nu dispar odata cu scena, asa ca daca nu le stergem cu mana
+// raman acolo pentru totdeauna si se aduna la fiecare zona.
+function curataZonaVeche(scena) {
+
+  Object.keys(bucatiTeren).forEach(function (nume) {
+    const imagine = bucatiTeren[nume];
+    const cheie = imagine && imagine.texture && imagine.texture.key;
+    if (cheie && scena.textures.exists(cheie)) scena.textures.remove(cheie);
+  });
+  bucatiTeren = {};
+  coadaBucati = [];
+
+  if (terenMic) {
+    const cheie = terenMic.texture && terenMic.texture.key;
+    if (cheie && scena.textures.exists(cheie)) scena.textures.remove(cheie);
+    terenMic = null;
+  }
+
+  // Listele se golesc; obiectele din ele le sterge restart() singur.
+  mobi = [];
+  npci = [];
+  saci = [];
+  butonInteract = null;
+  tinteDeMisiune = null;
 }
 
 

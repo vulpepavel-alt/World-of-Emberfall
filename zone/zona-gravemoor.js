@@ -1,13 +1,15 @@
 // ==========================================================
-//  ZONA: Gravemoor
+//  ZONA: Gravemoor        (eastmarch, nivel 1-10)
 //
-//  Mlastina rece de la nord, unde apa sta si nu curge.
-//  Zona de inceput pentru Undead.
+//  Mlastina joasa, unde apa sta si nu curge.
 //
-//  Harta NU e scrisa aici. Fisierul asta e o RETETA: spune cat e
-//  de mare, ce culori are si unde stau locurile care conteaza.
-//  Harta se construieste cand intri in zona, din samanta de mai
-//  jos - aceeasi samanta da mereu aceeasi harta.
+//  Harta NU e scrisa aici. Fisierul asta e o RETETA: cat e de mare,
+//  ce culori are si unde stau locurile care conteaza. Harta se
+//  construieste cand intri in zona, din samanta de mai jos - aceeasi
+//  samanta da mereu aceeasi harta.
+//
+//  Vecinii NU se scriu: se afla singuri din locul zonei pe harta
+//  lumii (peHarta). Doua zone alaturate pe grila se leaga intre ele.
 // ==========================================================
 
 inregistreazaZona({
@@ -20,12 +22,12 @@ inregistreazaZona({
   nivelDeLa: 1,
   nivelPanaLa: 10,
 
-  COL: 660,
-  RND: 440,
-  samanta: 90211,
+  COL: 664,
+  RND: 438,
+  samanta: 29137,
 
   // Unde sta pe harta lumii (coloana, randul)
-  peHarta: { c: 1, r: 0 },
+  peHarta: { c: 0, r: 0 },
 
   litere: LITERE,
   teren: climat('mlastina'),
@@ -33,34 +35,30 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'tabara', id: 'tabara', c: 0.16, r: 0.3 },
-    { fel: 'corturi', id: 'banditi', c: 0.62, r: 0.3 },
-    { fel: 'pestera', id: 'gaura', c: 0.3, r: 0.72 },
-    { fel: 'mina', id: 'groapa', c: 0.76, r: 0.7 },
-    { fel: 'poiana', id: 'popas', c: 0.46, r: 0.52 }
+    { fel: 'tabara', id: 'sat', c: 0.16, r: 0.44 },
+    { fel: 'corturi', id: 'tabara', c: 0.6, r: 0.3 },
+    { fel: 'pestera', id: 'gaura', c: 0.32, r: 0.74 },
+    { fel: 'mina', id: 'groapa', c: 0.76, r: 0.68 },
+    { fel: 'poiana', id: 'popas', c: 0.48, r: 0.54 }
   ],
 
   npci: [
-    { fel: 'chief', la: 'tabara', dc: 3, dr: 1 },
-    { fel: 'negustorOrc', la: 'tabara', dc: -6, dr: -1 },
-    { fel: 'armurierOrc', la: 'tabara', dc: 16, dr: -2 },
-    { fel: 'samana', la: 'tabara', dc: -18, dr: 7 },
-    { fel: 'cercetas', la: 'popas', dc: 2, dr: 1 }
+    { fel: 'chief', la: 'sat', dc: 3, dr: 1 },
+    { fel: 'negustorOrc', la: 'sat', dc: -6, dr: -1 },
+    { fel: 'armurierOrc', la: 'sat', dc: 16, dr: -2 }
   ],
 
-  tabere: 48,
+  tabere: 41,
 
   // Cine apare la fiecare nivel din zona.
   feluriPeNivel: function (n) {
-    if (n <= 1) return ['rat'];
-    if (n <= 2) return ['rat', 'spider'];
+    if (n <= 3) return ['rat', 'spider'];
     if (n <= 4) return ['spider', 'serpent'];
-    if (n <= 6) return ['serpent', 'bandit'];
-    if (n <= 8) return ['bandit', 'burrower'];
-    return ['burrower', 'bandit'];
+    if (n <= 5) return ['serpent', 'burrower'];
+    if (n <= 7) return ['burrower', 'bandit'];
+    if (n <= 9) return ['bandit', 'scorpid'];
+    return ['scorpid', 'bandit'];
   },
 
-  start: { la: 'tabara', dc: 6, dr: 1 },
-
-  vecini: { sud: 'thornmoor' }
+  start: { la: 'sat', dc: 6, dr: 1 }
 });

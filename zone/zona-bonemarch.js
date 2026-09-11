@@ -1,13 +1,15 @@
 // ==========================================================
-//  ZONA: Bonemarch
+//  ZONA: Bonemarch        (karador, nivel 40-50)
 //
-//  Pustiu de oase, unde vin sa moara toate fiarele mari
-//  ale continentului.
+//  Pustiu rosu, cu albii secate si stanci arse de soare.
 //
-//  Harta NU e scrisa aici. Fisierul asta e o RETETA: spune cat e
-//  de mare, ce culori are si unde stau locurile care conteaza.
-//  Harta se construieste cand intri in zona, din samanta de mai
-//  jos - aceeasi samanta da mereu aceeasi harta.
+//  Harta NU e scrisa aici. Fisierul asta e o RETETA: cat e de mare,
+//  ce culori are si unde stau locurile care conteaza. Harta se
+//  construieste cand intri in zona, din samanta de mai jos - aceeasi
+//  samanta da mereu aceeasi harta.
+//
+//  Vecinii NU se scriu: se afla singuri din locul zonei pe harta
+//  lumii (peHarta). Doua zone alaturate pe grila se leaga intre ele.
 // ==========================================================
 
 inregistreazaZona({
@@ -17,15 +19,15 @@ inregistreazaZona({
   continent: 'karador',
   factiune: null,
 
-  nivelDeLa: 32,
-  nivelPanaLa: 44,
+  nivelDeLa: 40,
+  nivelPanaLa: 50,
 
   COL: 820,
-  RND: 545,
-  samanta: 77003,
+  RND: 541,
+  samanta: 30299,
 
   // Unde sta pe harta lumii (coloana, randul)
-  peHarta: { c: 2, r: 2 },
+  peHarta: { c: 2, r: 3 },
 
   litere: LITERE,
   teren: climat('pustiu'),
@@ -33,30 +35,30 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'tabara', id: 'tabara', c: 0.16, r: 0.44 },
-    { fel: 'pestera', id: 'crapatura', c: 0.4, r: 0.22 },
-    { fel: 'corturi', id: 'tabara1', c: 0.6, r: 0.32 },
-    { fel: 'mina', id: 'groapa', c: 0.74, r: 0.7 },
-    { fel: 'cetate', id: 'cetate', c: 0.34, r: 0.74 }
+    { fel: 'tabara', id: 'sat', c: 0.14, r: 0.54 },
+    { fel: 'pestera', id: 'crapatura', c: 0.32, r: 0.18 },
+    { fel: 'corturi', id: 'tabara', c: 0.7, r: 0.72 },
+    { fel: 'poiana', id: 'coliba', c: 0.4, r: 0.34 },
+    { fel: 'post', id: 'post', c: 0.58, r: 0.6 }
   ],
 
   npci: [
-    { fel: 'negustorOrc', la: 'tabara', dc: -6, dr: -1 },
-    { fel: 'armurierOrc', la: 'tabara', dc: 16, dr: -2 },
-    { fel: 'samana', la: 'tabara', dc: -18, dr: 7 }
+    { fel: 'marshal', la: 'sat', dc: 4, dr: 1 },
+    { fel: 'negustor', la: 'sat', dc: -8, dr: -1 },
+    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 }
   ],
 
-  tabere: 72,
+  tabere: 80,
 
   // Cine apare la fiecare nivel din zona.
   feluriPeNivel: function (n) {
-    if (n <= 35) return ['scorpid', 'serpent'];
-    if (n <= 39) return ['scorpid', 'raider'];
-    if (n <= 42) return ['raider', 'burrower'];
-    return ['raider', 'burrower'];
+    if (n <= 42) return ['rat', 'boar'];
+    if (n <= 43) return ['boar', 'vulture'];
+    if (n <= 45) return ['vulture', 'serpent'];
+    if (n <= 47) return ['serpent', 'scorpid'];
+    if (n <= 48) return ['scorpid', 'raider'];
+    return ['raider', 'scorpid'];
   },
 
-  start: { la: 'tabara', dc: 6, dr: 1 },
-
-  vecini: { nord: 'saltcliff', est: 'frostvault' }
+  start: { la: 'sat', dc: 6, dr: 1 }
 });

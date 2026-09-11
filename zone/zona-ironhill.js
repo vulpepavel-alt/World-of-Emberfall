@@ -1,13 +1,15 @@
 // ==========================================================
-//  ZONA: Ironhill
+//  ZONA: Ironhill        (eastmarch, nivel 30-40)
 //
-//  Munti de piatra si zapada. Minele de fier ale continentului,
-//  si ce a iesit din ele.
+//  Munti de piatra si zapada, cu mine sapate adanc.
 //
-//  Harta NU e scrisa aici. Fisierul asta e o RETETA: spune cat e
-//  de mare, ce culori are si unde stau locurile care conteaza.
-//  Harta se construieste cand intri in zona, din samanta de mai
-//  jos - aceeasi samanta da mereu aceeasi harta.
+//  Harta NU e scrisa aici. Fisierul asta e o RETETA: cat e de mare,
+//  ce culori are si unde stau locurile care conteaza. Harta se
+//  construieste cand intri in zona, din samanta de mai jos - aceeasi
+//  samanta da mereu aceeasi harta.
+//
+//  Vecinii NU se scriu: se afla singuri din locul zonei pe harta
+//  lumii (peHarta). Doua zone alaturate pe grila se leaga intre ele.
 // ==========================================================
 
 inregistreazaZona({
@@ -17,15 +19,15 @@ inregistreazaZona({
   continent: 'eastmarch',
   factiune: null,
 
-  nivelDeLa: 32,
-  nivelPanaLa: 44,
+  nivelDeLa: 30,
+  nivelPanaLa: 40,
 
-  COL: 800,
-  RND: 530,
-  samanta: 71113,
+  COL: 780,
+  RND: 514,
+  samanta: 83739,
 
   // Unde sta pe harta lumii (coloana, randul)
-  peHarta: { c: 2, r: 2 },
+  peHarta: { c: 1, r: 3 },
 
   litere: LITERE,
   teren: climat('munte'),
@@ -33,31 +35,30 @@ inregistreazaZona({
   apaLa: 0.46, apaUnduire: 42, apaLatime: 6,
 
   locuri: [
-    { fel: 'sat', id: 'sat', c: 0.2, r: 0.4 },
+    { fel: 'sat', id: 'sat', c: 0.2, r: 0.42 },
     { fel: 'mina', id: 'mina', c: 0.62, r: 0.3 },
-    { fel: 'mina', id: 'minaVeche', c: 0.78, r: 0.72 },
-    { fel: 'cetate', id: 'cetate', c: 0.44, r: 0.7 },
+    { fel: 'mina', id: 'minaVeche', c: 0.8, r: 0.72 },
+    { fel: 'cetate', id: 'cetate', c: 0.44, r: 0.72 },
     { fel: 'corturi', id: 'tabara', c: 0.34, r: 0.2 }
   ],
 
   npci: [
+    { fel: 'marshal', la: 'sat', dc: 4, dr: 1 },
     { fel: 'negustor', la: 'sat', dc: -8, dr: -1 },
-    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 },
-    { fel: 'miner', la: 'mina', dc: 4, dr: 4 },
-    { fel: 'cavaler', la: 'cetate', dc: 3, dr: 12 }
+    { fel: 'armurier', la: 'sat', dc: 15, dr: -2 }
   ],
 
   tabere: 70,
 
   // Cine apare la fiecare nivel din zona.
   feluriPeNivel: function (n) {
-    if (n <= 35) return ['burrower', 'spider'];
-    if (n <= 39) return ['burrower', 'bandit'];
-    if (n <= 42) return ['bandit', 'raider'];
-    return ['raider', 'burrower'];
+    if (n <= 32) return ['rat', 'boar'];
+    if (n <= 33) return ['boar', 'wolf'];
+    if (n <= 35) return ['wolf', 'burrower'];
+    if (n <= 37) return ['burrower', 'spider'];
+    if (n <= 38) return ['spider', 'raider'];
+    return ['raider', 'spider'];
   },
 
-  start: { la: 'sat', dc: 6, dr: 1 },
-
-  vecini: { vest: 'mistwood', sud: 'emberwastes' }
+  start: { la: 'sat', dc: 6, dr: 1 }
 });

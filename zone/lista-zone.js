@@ -15,6 +15,35 @@ function inregistreazaZona(reteta) {
   ZONE.push(reteta);
 }
 
+// ----------------------------------------------------------
+//  Vecinii se afla SINGURI din harta lumii
+//
+//  Fiecare zona isi stie casuta pe grila continentului. Doua zone
+//  alaturate pe grila sunt vecine, si drumul dintre ele merge in
+//  amandoua sensurile. Asa nu se poate intampla sa scriu intr-un
+//  fisier "la est e Mistwood" si sa uit sa scriu in Mistwood "la
+//  vest e zona asta" - greseala pe care am facut-o deja o data.
+// ----------------------------------------------------------
+function leagaZonele() {
+
+  ZONE.forEach(function (z) { z.vecini = {}; });
+
+  ZONE.forEach(function (a) {
+    ZONE.forEach(function (b) {
+      if (a === b || a.continent !== b.continent) return;
+
+      const dc = b.peHarta.c - a.peHarta.c;
+      const dr = b.peHarta.r - a.peHarta.r;
+
+      if (dc === 1 && dr === 0) a.vecini.est = b.id;
+      else if (dc === -1 && dr === 0) a.vecini.vest = b.id;
+      else if (dc === 0 && dr === 1) a.vecini.sud = b.id;
+      else if (dc === 0 && dr === -1) a.vecini.nord = b.id;
+    });
+  });
+}
+
+
 function retetaZonei(id) {
   return ZONE.find(function (z) { return z.id === id; }) || null;
 }

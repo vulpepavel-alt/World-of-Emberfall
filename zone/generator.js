@@ -433,11 +433,17 @@ function astupaPoieniileInchise(zona, ajuns, litera) {
 // Sapa o poteca de la fiecare personaj prietenos inchis in buzunar
 // pana da de teren la care se poate ajunge. Da inapoi true daca a
 // sapat ceva, ca sa stim sa socotim din nou accesibilitatea.
-function sapaSprePersonaje(zona, reteta, ajuns, start) {
+function sapaSprePuncte(zona, reteta, ajuns, start) {
 
   let aSapat = false;
 
-  zona.npci.forEach(function (n) {
+  // Personajele prietenoase SI portul trebuie sa fie de ajuns.
+  // Portul se intampla sa cada in mijlocul unei cetati de piatra,
+  // si atunci n-ai cum sa te urci pe corabie.
+  const puncte = zona.npci.slice();
+  if (zona.portul) puncte.push(zona.portul);
+
+  puncte.forEach(function (n) {
 
     if (ajuns[n.rand] && ajuns[n.rand][n.col]) return;
 
@@ -590,7 +596,7 @@ function faZona(reteta) {
   // Se mai intampla ca un personaj sa cada intr-un buzunar inchis -
   // langa gura minei, in spatele zidului cetatii. Ii sapam o poteca
   // spre locul de start, altfel ar ramane acolo, de nevazut.
-  if (sapaSprePersonaje(zona, reteta, ajuns, start)) {
+  if (sapaSprePuncte(zona, reteta, ajuns, start)) {
     ajuns = undeSePoateAjunge(zona, start);
   }
 
