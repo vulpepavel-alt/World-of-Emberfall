@@ -23,8 +23,19 @@
 //  sertar al jocului: numai jocul pune si scoate din el.
 // ==========================================================
 
-const CHEIA_SALVARII = 'joc-rpg-salvare';
+// Trei sloturi, fiecare cu personajul lui. Fiecare sta sub cheia
+// lui in sertarul browserului: joc-rpg-slot-1, -2, -3.
+const NUMAR_SLOTURI = 3;
+const CHEIA_VECHE = 'joc-rpg-salvare';      // pe vremea cand era un singur personaj
 const VERSIUNEA_SALVARII = 1;
+
+function cheiaSlotului(nr) {
+  return 'joc-rpg-slot-' + nr;
+}
+
+// In ce slot joci acum. Se pune cand alegi un personaj sau cand
+// faci unul nou, si toate salvarile de dupa merg acolo.
+let slotulCurent = null;
 
 // La cate milisecunde salvam singuri, cat timp joci.
 const SALVARE_LA = 15000;
@@ -38,9 +49,9 @@ const SALVARE_LA = 15000;
 //  De aceea totul e invelit in try/catch - daca nu merge, jocul
 //  merge mai departe fara salvare, nu se opreste.
 // ----------------------------------------------------------
-function citesteSalvarea() {
+function citesteSlotul(nr) {
   try {
-    const text = localStorage.getItem(CHEIA_SALVARII);
+    const text = localStorage.getItem(cheiaSlotului(nr));
     if (!text) return null;
     const s = JSON.parse(text);
     if (!s || s.versiune !== VERSIUNEA_SALVARII) return null;
@@ -51,14 +62,42 @@ function citesteSalvarea() {
 }
 
 
-function existaSalvare() {
-  return citesteSalvarea() !== null;
+// Toate cele trei sloturi, in ordine. Un slot gol e null.
+function toateSloturile() {
+  const lista = [];
+  for (let i = 1; i <= NUMAR_SLOTURI; i++) lista.push(citesteSlotul(i));
+  return lista;
 }
 
 
-function stergeSalvarea() {
-  try { localStorage.removeItem(CHEIA_SALVARII); } catch (e) { /* nu e nimic de facut */ }
+function stergeSlotul(nr) {
+  try { localStorage.removeItem(cheiaSlotului(nr)); } catch (e) { /* nimic de facut */ }
 }
+
+
+function existaVreoSalvare() {
+  return toateSloturile().some(function (s) { return s !== null; });
+}
+
+
+// Pe vremea cand era un singur personaj, salvarea statea sub alta
+// cheie. Daca o gasim, o mutam in primul slot liber si o stergem
+// de acolo - ca sa nu-si piarda nimeni personajul.
+function mutaSalvareaVeche() {
+  try {
+    const text = localStorage.getItem(CHEIA_VECHE);
+    if (!text) return;
+
+    for (let i = 1; i <= NUMAR_SLOTURI; i++) {
+      if (citesteSlotul(i) === null) {
+        localStorage.setItem(cheiaSlotului(i), text);
+        break;
+      }
+    }
+    localStorage.removeItem(CHEIA_VECHE);
+  } catch (e) { /* nimic de facut */ }
+}
+mutaSalvareaVeche();
 
 
 let ultimaSalvare = 0;
@@ -66,6 +105,7 @@ let ultimaSalvare = 0;
 function salveaza() {
 
   if (!personaj || !personaj.nume) return false;
+  if (!slotulCurent) return false;      // nu stim in ce slot sa punem
 
   const s = {
     versiune: VERSIUNEA_SALVARII,
@@ -99,7 +139,7 @@ function salveaza() {
   };
 
   try {
-    localStorage.setItem(CHEIA_SALVARII, JSON.stringify(s));
+    localStorage.setItem(cheiaSlotului(slotulCurent), JSON.stringify(s));
     ultimaSalvare = Date.now();
     return true;
   } catch (e) {

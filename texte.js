@@ -9,6 +9,25 @@
 // ==========================================================
 
 const TEXT = {
+
+  // Numele jocului. Il schimbi aici si se schimba peste tot.
+  GAME_TITLE:    'World of Emberfall',
+  GAME_SUBTITLE: 'A valley worth holding. A camp worth feeding.',
+
+  // Ecranul de pornire si alegerea personajului
+  LOADING:          'Loading...',
+  PLAY:             'Play',
+  CHOOSE_CHARACTER: 'Choose your character',
+  EMPTY_SLOT:       'Empty slot',
+  CREATE_HERE:      'Create a character',
+  DELETE:           'Delete',
+  DELETE_ASK:       'Delete this character? This cannot be undone.',
+  YES_DELETE:       'Yes, delete',
+  CANCEL:           'Cancel',
+  ENTER_WORLD:      'Enter World',
+  BACK:             'Back',
+  SAVED:            'saved',
+
   LEVEL:     'Level',
   LEVEL_UP:  'Level up!',
   MAX_LEVEL: 'Max level',

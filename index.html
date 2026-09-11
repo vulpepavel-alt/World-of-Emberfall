@@ -23,8 +23,31 @@
 </head>
 <body>
 
+  <!-- ============ ECRANUL DE PORNIRE ============ -->
+  <!-- Scrie "Loading..." pana cand se incarca tot. Ultimul fisier
+       de la sfarsitul paginii schimba textul in butonul Play, deci
+       daca ramane pe Loading inseamna ca ceva chiar n-a ajuns. -->
+  <div id="ecran-titlu">
+    <div class="cer-titlu"></div>
+    <div class="munti-titlu"><span></span><span></span><span></span></div>
+
+    <div class="cuprins-titlu">
+      <h1 id="titlu-joc"></h1>
+      <div class="linie-titlu"></div>
+      <p id="subtitlu-joc"></p>
+      <div id="zona-play"><span class="incarcare">Loading...</span></div>
+    </div>
+  </div>
+
+  <!-- ============ ALEGEREA PERSONAJULUI (3 sloturi) ============ -->
+  <div id="ecran-sloturi" class="ascuns">
+    <h2 id="titlu-sloturi"></h2>
+    <div class="sloturi" id="sloturi"></div>
+    <button class="buton" id="inapoi-la-titlu">Back</button>
+  </div>
+
   <!-- ============ ECRANUL DE CREARE A PERSONAJULUI ============ -->
-  <div id="ecran-creare">
+  <div id="ecran-creare" class="ascuns">
 
     <!-- Scena are marime fixa 1280x720 si se micsoreaza singura ca sa incapa. -->
     <div id="scena">
@@ -113,18 +136,6 @@
 
       </div>
 
-    </div>
-  </div>
-
-  <!-- ============ "BINE AI REVENIT" ============ -->
-  <!-- Se vede peste ecranul de creare, doar daca ai un personaj salvat. -->
-  <div id="ecran-reluare" class="ascuns">
-    <div class="cutie-reluare">
-      <h2>Welcome back</h2>
-      <p id="text-reluare"></p>
-      <button class="buton mare" id="continua">Continue</button>
-      <button class="buton" id="personaj-nou">New character</button>
-      <p class="nota-reluare">Starting a new character erases the saved one.</p>
     </div>
   </div>
 
@@ -217,6 +228,10 @@
 
   <!-- Meniul de creare (porneste jocul cand apesi "Accept") -->
   <script src="meniu.js"></script>
+
+  <!-- Ecranul de pornire si alegerea personajului.
+       Se incarca ULTIMUL: daca a ajuns pana aici, s-a incarcat tot. -->
+  <script src="titlu.js"></script>
 
   <!-- Meniul din joc: Character, Spells, Talents -->
   <script src="meniu-joc.js"></script>

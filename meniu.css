@@ -780,30 +780,153 @@
 
 
 /* ==========================================================
-   "WELCOME BACK" - panoul care apare daca ai un personaj salvat
+   ECRANUL DE PORNIRE
    ========================================================== */
-#ecran-reluare {
-  /* Peste ecranul de creare, care sta la 100. Cu mai putin de atat,
-     panoul se desena in spatele lui si nu se vedea deloc. */
-  position: fixed; inset: 0; z-index: 120;
+#ecran-titlu {
+  position: fixed; inset: 0; z-index: 130;
   display: flex; align-items: center; justify-content: center;
-  background: rgba(6, 4, 2, .82);
+  overflow: hidden;
+  background: #070503;
+  font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+  color: #e8dcc0;
 }
 
-.cutie-reluare {
-  width: 330px; padding: 22px 26px;
-  background: #14100c;
-  border: 3px solid #8a6a2f;
-  box-shadow: 0 0 0 3px #2e2311, 0 10px 34px rgba(0, 0, 0, .8);
+/* Un cer care coboara din rosu-caramiziu in negru: culorile
+   canionului Redwaste. */
+.cer-titlu {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #3a1c10 0%, #21120b 45%, #070503 100%);
+}
+
+/* Trei munti din triunghiuri, ca fundalul din ecranul de creare. */
+.munti-titlu { position: absolute; inset: 0; }
+.munti-titlu span {
+  position: absolute; bottom: 0;
+  border-left: 190px solid transparent;
+  border-right: 190px solid transparent;
+}
+.munti-titlu span:nth-child(1) { left: 4%;  border-bottom: 260px solid #150d08; }
+.munti-titlu span:nth-child(2) { left: 32%; border-bottom: 330px solid #100a06; }
+.munti-titlu span:nth-child(3) { right: 2%; border-bottom: 290px solid #170e09; }
+
+.cuprins-titlu { position: relative; text-align: center; padding: 0 20px; }
+
+#titlu-joc {
+  margin: 0;
+  font-size: 62px; font-weight: normal; letter-spacing: .04em;
+  color: #e8c877;
+  text-shadow: 0 2px 0 #4a3410, 0 5px 18px rgba(0, 0, 0, .9);
+}
+
+/* Linia de alama de sub titlu, cu un romb in mijloc. */
+.linie-titlu {
+  position: relative;
+  width: 320px; height: 2px; margin: 16px auto 14px;
+  background: linear-gradient(90deg, transparent, #8a6a2f 20%, #c9a961 50%, #8a6a2f 80%, transparent);
+}
+.linie-titlu::after {
+  content: ''; position: absolute; left: 50%; top: -4px;
+  width: 9px; height: 9px; margin-left: -5px;
+  background: #c9a961; transform: rotate(45deg);
+}
+
+#subtitlu-joc {
+  margin: 0 0 34px;
+  font-size: 15px; font-style: italic; color: #a89a7c;
+}
+
+#zona-play .incarcare { font-size: 15px; color: #7a6748; font-style: italic; }
+#zona-play .buton { min-width: 190px; }
+
+
+/* ==========================================================
+   ALEGEREA PERSONAJULUI - trei sloturi
+   ========================================================== */
+#ecran-sloturi {
+  position: fixed; inset: 0; z-index: 125;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 18px;
+  padding: 20px; box-sizing: border-box;
+  background: #0b0705;
   font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
-  color: #e8dcc0; text-align: center;
+  color: #e8dcc0;
 }
-.cutie-reluare h2 {
-  margin: 0 0 12px; font-size: 20px; font-weight: normal; color: #d9b555;
+#titlu-sloturi {
+  margin: 0; font-size: 24px; font-weight: normal; color: #d9b555;
 }
-.cutie-reluare p { margin: 0 0 16px; font-size: 14px; line-height: 1.55; }
-.cutie-reluare .stins-reluare { font-size: 12px; color: #8d7a58; }
-.cutie-reluare .buton { display: block; width: 100%; margin-bottom: 8px; }
-.cutie-reluare .nota-reluare {
-  margin: 10px 0 0; font-size: 11px; color: #7a6748; font-style: italic;
+
+.sloturi { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; }
+
+.slot-personaj {
+  position: relative;
+  width: 214px; min-height: 300px;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 12px 12px;
+  background: #14100c;
+  border: 2px solid #4d3c22;
+  box-sizing: border-box;
+  font-family: inherit; color: #e8dcc0;
+}
+.slot-personaj.gol { cursor: pointer; justify-content: center; gap: 8px; }
+.slot-personaj.gol:hover { border-color: #8a6a2f; background: #1b1510; }
+.slot-personaj.gol .semn-gol { font-size: 46px; color: #3a2d19; line-height: 1; }
+
+.numar-slot {
+  position: absolute; left: 8px; top: 6px;
+  font-size: 12px; color: #5c4a2c;
+}
+
+.apasa-slot {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%; padding: 0; background: none; border: 0;
+  font-family: inherit; color: inherit; cursor: pointer;
+}
+.apasa-slot:hover .nume-slot { color: #ffd76b; }
+
+/* Silueta e 200x316; o micsoram ca sa intre in cartonas.
+   ATENTIE: .silueta trebuie sa fie "block". E un <span>, iar un span
+   e inline, si pe un element inline latimea si inaltimea nu se
+   aplica - cutia lui ramane de zero pe zero, iar bucatile asezate
+   fata de ea ies din cadru si se taie. */
+.poza-slot {
+  display: block; width: 136px; height: 176px;
+  overflow: hidden; margin-bottom: 8px;
+}
+.poza-slot .silueta {
+  display: block;
+  transform: scale(.55); transform-origin: top left;
+}
+
+.nume-slot { font-size: 17px; color: #d9b555; }
+.sub-slot  { font-size: 12px; color: #cdbb9a; margin-top: 3px; }
+.stins-slot { font-size: 11px; color: #7a6748; margin-top: 5px; text-align: center; }
+
+.sterge-slot {
+  margin-top: auto; padding: 4px 10px;
+  background: none; border: 1px solid #4d3c22;
+  font-family: inherit; font-size: 11px; color: #8d7a58; cursor: pointer;
+}
+.sterge-slot:hover { border-color: #7a3128; color: #e06a5a; }
+
+.intrebare-stergere {
+  margin: auto 0 12px; padding: 0 6px;
+  font-size: 13px; line-height: 1.5; text-align: center; color: #cdbb9a;
+}
+.slot-personaj .buton { width: 100%; margin-bottom: 6px; }
+.buton.rau { border-color: #7a3128; color: #f0c4bc; }
+.buton.rau:hover { background: #7a3128; }
+
+.slot-personaj.stricat { justify-content: center; color: #7a6748; }
+
+
+/* Pe telefon, in lat, cartonasele trebuie sa incapa toate trei. */
+@media (max-height: 520px) {
+  #titlu-joc { font-size: 44px; }
+  #subtitlu-joc { margin-bottom: 22px; }
+  #ecran-sloturi { gap: 10px; }
+  #titlu-sloturi { font-size: 19px; }
+  .slot-personaj { width: 186px; min-height: 250px; padding: 10px 10px 8px; }
+  .poza-slot { width: 112px; height: 145px; }
+  .poza-slot .silueta { transform: scale(.45); }
+  .nume-slot { font-size: 15px; }
 }

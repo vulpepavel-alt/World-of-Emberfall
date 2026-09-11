@@ -378,9 +378,12 @@ function numeLaIntamplare() {
 // ----------------------------------------------------------
 function intraInLume() {
 
-  // Un personaj nou sterge salvarea veche. Panoul "Welcome back"
-  // te-a intrebat deja, deci aici stergem fara sa mai intrebam.
-  stergeSalvarea();
+  // Personajul nou merge in slotul pe care l-ai ales inainte. Daca
+  // ai ajuns aici fara slot (n-ar trebui), il punem in primul liber.
+  if (!slotulCurent) {
+    const goale = toateSloturile();
+    slotulCurent = goale.findIndex(function (x) { return x === null; }) + 1 || 1;
+  }
 
   const p = calculeazaPersonaj(rasaAleasa, clasaAleasa, infatisareAleasa);
   p.nume = cuMajuscula(campNume.value.trim());
@@ -391,52 +394,12 @@ function intraInLume() {
 
 
 // ----------------------------------------------------------
-//  "Welcome back": panoul care apare daca ai un personaj salvat
-// ----------------------------------------------------------
-const ecranReluare = document.getElementById('ecran-reluare');
-const textReluare  = document.getElementById('text-reluare');
-
-function arataReluarea() {
-
-  const s = citesteSalvarea();
-  if (!s) return;
-
-  const rasa = RASE[s.idRasa];
-  const clasa = CLASE[s.idClasa];
-  if (!rasa || !clasa) return;      // salvare dintr-o versiune care nu se mai potriveste
-
-  textReluare.innerHTML =
-    '<b>' + s.nume + '</b><br>' +
-    TEXT.LEVEL + ' ' + s.nivel + ' ' + rasa.nume + ' ' + clasa.nume + '<br>' +
-    '<span class="stins-reluare">' + (s.zona || '') + ' &middot; saved ' +
-    cuCatTimpInUrma(s.cand) + '</span>';
-
-  ecranReluare.classList.remove('ascuns');
-}
-
-document.getElementById('continua').addEventListener('click', function () {
-  const s = citesteSalvarea();
-  if (!s) { ecranReluare.classList.add('ascuns'); return; }
-
-  const p = faPersonajulDinSalvare(s);
-  ecranReluare.classList.add('ascuns');
-  ecran.classList.add('ascuns');
-  porneste(p, s);
-});
-
-document.getElementById('personaj-nou').addEventListener('click', function () {
-  ecranReluare.classList.add('ascuns');
-});
-
-
-// ----------------------------------------------------------
 //  Pornirea meniului
 // ----------------------------------------------------------
 construiesteOptiunile();
 construiesteInfatisarea();
 actualizeaza();
 potrivesteScena();
-arataReluarea();
 
 window.addEventListener('resize', potrivesteScena);
 campNume.addEventListener('input', verificaNumele);
