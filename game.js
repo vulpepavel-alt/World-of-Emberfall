@@ -554,6 +554,8 @@ function curataZonaVeche(scena) {
 
   vietati = [];
   semneTreceri = [];
+  raniInTimp = [];
+  alinariInTimp = [];
 
   Object.keys(bucatiTeren).forEach(function (nume) {
     const imagine = bucatiTeren[nume];
@@ -575,6 +577,8 @@ function curataZonaVeche(scena) {
   saci = [];
   vietati = [];
   semneTreceri = [];
+  raniInTimp = [];
+  alinariInTimp = [];
   butonInteract = null;
   tinteDeMisiune = null;
 }
@@ -901,6 +905,8 @@ function create() {
   mobi = [];
   vietati = [];
   semneTreceri = [];
+  raniInTimp = [];
+  alinariInTimp = [];
   saci.forEach(function (sac) { sac.destroy(); });
   saci = [];
   // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
@@ -985,12 +991,17 @@ function create() {
     if (degetJoystick === pointer.id) lasaJoystick();
   });
 
-  // Pe calculator: tastele 1, 2... pentru abilitati.
-  this.input.keyboard.on('keydown-ONE', () => {
-    if (personaj.abilitati[0]) folosesteAbilitate(this, personaj.abilitati[0]);
+  // Pe calculator: tastele 1-4 apasa cele patru butoane care se vad,
+  // iar tasta 5 schimba pagina barei.
+  ['ONE', 'TWO', 'THREE', 'FOUR'].forEach((tasta, i) => {
+    this.input.keyboard.on('keydown-' + tasta, () => {
+      const ab = abilitateaDinLoc(paginaBarei * BUTOANE_PE_PAGINA + i);
+      if (ab) folosesteAbilitate(this, ab);
+    });
   });
-  this.input.keyboard.on('keydown-TWO', () => {
-    if (personaj.abilitati[1]) folosesteAbilitate(this, personaj.abilitati[1]);
+  this.input.keyboard.on('keydown-FIVE', () => {
+    paginaBarei = (paginaBarei + 1) % PAGINI_BARA;
+    scrieButoaneleAbilitatilor();
   });
 
   // --- Camera ---
@@ -1408,8 +1419,38 @@ function faButoane(scena) {
     apasa: function () { comutaMeniul(); }
   });
 
-  // --- cate un buton pentru fiecare abilitate ---
-  personaj.abilitati.forEach(function (ab, i) {
+  // ==========================================================
+  //  BARA DE ABILITATI: DOUA PAGINI A CATE PATRU
+  //
+  //  O clasa ajunge la douazeci si ceva de abilitati, iar pe ecranul
+  //  unui telefon incap patru butoane fara sa acopere jocul. Asa ca
+  //  sunt opt locuri, in doua pagini, si un buton mic care schimba
+  //  pagina. Ce pui in fiecare loc alegi din meniu, la Spells.
+  // ==========================================================
+  faButoaneleAbilitatilor(scena, butoane);
+}
+
+
+// Care pagina a barei se vede acum.
+let paginaBarei = 0;
+let butoaneleAbilitatilor = [];
+let butonPagina = null;
+
+
+function abilitateaDinLoc(loc) {
+  const id = (personaj.bara || [])[loc];
+  if (!id) return null;
+  const ab = gasesteAbilitatea(id);
+  const rang = (personaj.stiute || {})[id];
+  return (ab && rang) ? abilitateaLaRang(ab, rang) : null;
+}
+
+
+function faButoaneleAbilitatilor(scena, butoane) {
+
+  butoaneleAbilitatilor = [];
+
+  for (let i = 0; i < BUTOANE_PE_PAGINA; i++) {
 
     // Primul buton sta langa ATTACK, urmatoarele se insira spre stanga.
     const x = BUTON_X - BUTON_RAZA - SPATIU_BUTOANE - BUTON_RAZA_ABILITATE
@@ -1424,38 +1465,81 @@ function faButoane(scena) {
     b.add(disc);
     b.add(scena.add.circle(0, -5, BUTON_RAZA_ABILITATE - 13, 0x3a4f7a, 0.45));
 
-    // Numele, taiat pe doua randuri ca sa incapa in cerc.
-    const numeAb = scena.add.text(0, 0, ab.nume.replace(' ', '\n'), {
-      fontFamily: UI.FONT,
-      fontSize: '13px',
-      fontStyle: 'bold',
-      color: UI.text,
-      align: 'center'
+    const numeAb = scena.add.text(0, 0, '', {
+      fontFamily: UI.FONT, fontSize: '12px', fontStyle: 'bold',
+      color: UI.text, align: 'center'
     }).setOrigin(0.5);
     b.add(numeAb);
 
-    // Perdeaua neagra care acopera butonul cat timp e in pauza.
-    const perdea = scena.add.circle(0, 0, BUTON_RAZA_ABILITATE - 7, 0x000000, 0.7).setVisible(false);
+    const perdea = scena.add.circle(0, 0, BUTON_RAZA_ABILITATE - 7, 0x000000, 0.7)
+      .setVisible(false);
     b.add(perdea);
 
     const cifra = scena.add.text(0, 0, '', {
-      fontFamily: UI.FONT,
-      fontSize: '26px',
-      fontStyle: 'bold',
-      color: UI.textAuriu,
-      stroke: '#000000',
-      strokeThickness: 4
+      fontFamily: UI.FONT, fontSize: '26px', fontStyle: 'bold',
+      color: UI.textAuriu, stroke: '#000000', strokeThickness: 4
     }).setOrigin(0.5).setVisible(false);
     b.add(cifra);
 
     b.setScrollFactor(0).setDepth(1000);
 
-    butoane.push({
+    const buton = {
       x: x, y: y, raza: BUTON_RAZA_ABILITATE + MARGINE_ATINGERE,
-      abilitate: ab, disc: disc, perdea: perdea, cifra: cifra, nume: numeAb, cerc: b,
-      apasa: function (sc) { folosesteAbilitate(sc, ab); }
-    });
+      indice: i, abilitate: null,
+      disc: disc, perdea: perdea, cifra: cifra, nume: numeAb, cerc: b,
+      apasa: function (sc) {
+        if (buton.abilitate) folosesteAbilitate(sc, buton.abilitate);
+      }
+    };
+    butoane.push(buton);
+    butoaneleAbilitatilor.push(buton);
+  }
+
+  // ---- butonul care schimba pagina ----
+  const px = BUTON_X - BUTON_RAZA - SPATIU_BUTOANE - BUTON_RAZA_ABILITATE
+                     - BUTOANE_PE_PAGINA * (BUTON_RAZA_ABILITATE * 2 + SPATIU_BUTOANE) + 10;
+  const py = BUTON_Y - BUTON_RAZA_ABILITATE - 4;
+
+  const p = scena.add.container(px, py);
+  p.add(scena.add.circle(0, 0, 20, UI.alamaInchisa));
+  p.add(scena.add.circle(0, 0, 17, UI.alama));
+  const scrisPagina = scena.add.text(0, 0, '1', {
+    fontFamily: UI.FONT, fontSize: '15px', fontStyle: 'bold', color: UI.text
+  }).setOrigin(0.5);
+  p.add(scrisPagina);
+  p.setScrollFactor(0).setDepth(1000);
+
+  butonPagina = { cerc: p, scris: scrisPagina };
+
+  butoane.push({
+    x: px, y: py, raza: 20 + MARGINE_ATINGERE, cerc: p,
+    apasa: function () {
+      paginaBarei = (paginaBarei + 1) % PAGINI_BARA;
+      scrieButoaneleAbilitatilor();
+    }
   });
+
+  scrieButoaneleAbilitatilor();
+}
+
+
+// Pune pe cele patru butoane abilitatile din pagina care se vede.
+function scrieButoaneleAbilitatilor() {
+
+  if (!butoaneleAbilitatilor.length) return;
+
+  butoaneleAbilitatilor.forEach(function (b) {
+    const loc = paginaBarei * BUTOANE_PE_PAGINA + b.indice;
+    const ab = abilitateaDinLoc(loc);
+
+    b.abilitate = ab;
+    b.nume.setText(ab ? ab.nume.replace(' ', '\n') : '');
+    // Un loc gol se vede stins, ca sa stii ca mai ai unde pune.
+    b.cerc.setAlpha(ab ? 1 : 0.35);
+    if (!ab) { b.perdea.setVisible(false); b.cifra.setVisible(false); }
+  });
+
+  if (butonPagina) butonPagina.scris.setText(String(paginaBarei + 1));
 }
 
 
@@ -2114,21 +2198,25 @@ function aplicaTalentele() {
   const parteMana = personaj.manaMaxima ? personaj.mana / personaj.manaMaxima : 1;
 
   // Atributele: cele de baza plus ce aduce echipamentul.
+  // Atributele: cele de baza, plus echipamentul, plus intaririle
+  // pe care le ai active acum (strigate, armuri de vraja, aspecte).
   personaj.atribute = {
-    str: baza.atribute.str + dinEchipament.str,
-    agi: baza.atribute.agi + dinEchipament.agi,
-    sta: baza.atribute.sta + dinEchipament.sta,
-    int: baza.atribute.int + dinEchipament.int,
-    spi: baza.atribute.spi + dinEchipament.spi
+    str: baza.atribute.str + dinEchipament.str + dinIntariri('str'),
+    agi: baza.atribute.agi + dinEchipament.agi + dinIntariri('agi'),
+    sta: baza.atribute.sta + dinEchipament.sta + dinIntariri('sta'),
+    int: baza.atribute.int + dinEchipament.int + dinIntariri('int'),
+    spi: baza.atribute.spi + dinEchipament.spi + dinIntariri('spi')
   };
 
   // Din atribute ies restul, cu formulele din specificatia ta.
   const atr = personaj.atribute;
   personaj.viataMaxima = Math.round(calculeazaViata(atr.sta) * inmultitorTalent(personaj, 'viata'));
   personaj.manaMaxima  = calculeazaMana(atr.int, personaj.resursa);
-  personaj.attackPower = calculeazaAttackPower(atr, clasa);
-  personaj.attackPowerDistanta = calculeazaAttackPowerDistanta(atr, clasa);
-  personaj.armura   = Math.round((calculeazaArmura(atr.agi) + dinEchipament.armura) *
+  personaj.attackPower = calculeazaAttackPower(atr, clasa) + dinIntariri('attackPower');
+  personaj.attackPowerDistanta = calculeazaAttackPowerDistanta(atr, clasa) +
+                                 dinIntariri('attackPower');
+  personaj.armura   = Math.round((calculeazaArmura(atr.agi) + dinEchipament.armura +
+                                  dinIntariri('armura')) *
                                  inmultitorTalent(personaj, 'armura'));
   personaj.critical = calculeazaCritical(atr.agi) + bonusTalent(personaj, 'critic');
 
@@ -2222,6 +2310,16 @@ function urcaInNivel(scena) {
   aratacuvant(scena, jucator.x, jucator.y - 74, TEXT.LEVEL_UP, '#ffd76b');
 
   scena.tweens.add({ targets: jucator, scale: 1.25, duration: 180, yoyo: true });
+
+  // Te anuntam daca te asteapta ceva nou la antrenor, ca sa nu treci
+  // pe langa el fara sa stii.
+  const cate = cateTeAsteaptaLaAntrenor(personaj);
+  if (cate > 0) {
+    scena.time.delayedCall(900, function () {
+      if (!mort) aratacuvant(scena, jucator.x, jucator.y - 74,
+        TEXT.NEW_AT_TRAINER.replace('{n}', cate), UI.textAuriu);
+    });
+  }
 
   if (typeof salveaza === 'function') salveaza();
 }
@@ -2375,9 +2473,197 @@ let tintaVrajii = null;
 
 
 // Poti folosi acum abilitatea asta?
+// ==========================================================
+//  CE TINE IN TIMP: intariri, rani si incetiniri
+//
+//  Pana acum o abilitate isi facea treaba pe loc si se termina.
+//  Acum unele tin: o rana care doare douasprezece secunde, un
+//  strigat care iti creste atacul un minut, o taietura care lasa
+//  inamicul schiop.
+//
+//  Toate trei se tin la fel: o lista cu "pana cand" si "ce face".
+//  update() trece prin ele o data la fiecare cadru si le stinge pe
+//  cele trecute.
+// ==========================================================
+
+// Intaririle tale: { cheie -> { panaCand, da: {...}, nume } }
+let intaririle = {};
+
+// Ranile care dor in timp, pe inamici, si alinarile pe tine.
+let raniInTimp = [];
+let alinariInTimp = [];
+
+
+// Cat iti da la un atribut tot ce ai activ acum.
+function dinIntariri(cheie) {
+  let total = 0;
+  Object.keys(intaririle).forEach(function (k) {
+    const v = intaririle[k];
+    if (v.da && typeof v.da[cheie] === 'number') total += v.da[cheie];
+  });
+  return total;
+}
+
+
+// Pune o intarire. Doua din aceeasi familie nu stau deodata:
+// aspectele se schimba intre ele, si la fel armurile de vraja.
+function pumIntarire(scena, ab) {
+
+  const familia = ab.aspect ? 'aspect' : (ab.armuraDeVraja ? 'armura' : ab.id);
+
+  Object.keys(intaririle).forEach(function (k) {
+    if (intaririle[k].familia === familia) delete intaririle[k];
+  });
+
+  intaririle[ab.id] = {
+    familia: familia,
+    panaCand: scena.time.now + ab.tine,
+    da: ab.da || {},
+    nume: ab.nume
+  };
+
+  aplicaTalentele();
+  aratacuvant(scena, jucator.x, jucator.y - 60, ab.nume, UI.textAuriu);
+}
+
+
+function stingeIntaririleTrecute(scena) {
+  let ceva = false;
+  Object.keys(intaririle).forEach(function (k) {
+    if (scena.time.now >= intaririle[k].panaCand) { delete intaririle[k]; ceva = true; }
+  });
+  if (ceva) aplicaTalentele();
+}
+
+
+// ----------------------------------------------------------
+//  Ranile care dor in timp
+// ----------------------------------------------------------
+function puneRana(scena, mob, ab) {
+
+  // O rana noua de acelasi fel o ia de la capat pe cea veche, nu se
+  // aduna peste ea - altfel ai apasa butonul de zece ori la rand.
+  raniInTimp = raniInTimp.filter(function (r) {
+    return !(r.mob === mob && r.id === ab.id);
+  });
+
+  raniInTimp.push({
+    id: ab.id, mob: mob, nume: ab.nume,
+    panaCand: scena.time.now + ab.tine,
+    urmatorul: scena.time.now + ab.laCat,
+    laCat: ab.laCat,
+    catDoare: ab.peTura,
+    culoare: ab.culoare || null
+  });
+}
+
+
+function actualizeazaRanile(scena) {
+
+  for (let i = raniInTimp.length - 1; i >= 0; i--) {
+    const r = raniInTimp[i];
+
+    if (!r.mob || !r.mob.viu || scena.time.now >= r.panaCand) {
+      raniInTimp.splice(i, 1);
+      continue;
+    }
+    if (scena.time.now < r.urmatorul) continue;
+
+    r.urmatorul += r.laCat;
+    loveste(scena, r.mob, r.catDoare, false);
+  }
+}
+
+
+// ----------------------------------------------------------
+//  Alinarea: te vindeca putin cate putin
+// ----------------------------------------------------------
+function puneAlinare(scena, ab) {
+  alinariInTimp = alinariInTimp.filter(function (a) { return a.id !== ab.id; });
+  alinariInTimp.push({
+    id: ab.id, nume: ab.nume,
+    panaCand: scena.time.now + ab.tine,
+    urmatorul: scena.time.now + ab.laCat,
+    laCat: ab.laCat,
+    catVindeca: ab.peTura
+  });
+}
+
+
+function actualizeazaAlinarile(scena) {
+
+  for (let i = alinariInTimp.length - 1; i >= 0; i--) {
+    const a = alinariInTimp[i];
+
+    if (mort || scena.time.now >= a.panaCand) { alinariInTimp.splice(i, 1); continue; }
+    if (scena.time.now < a.urmatorul) continue;
+
+    a.urmatorul += a.laCat;
+    if (personaj.viata >= personaj.viataMaxima) continue;
+
+    personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + a.catVindeca);
+    actualizeazaBaraViata();
+    aratacuvant(scena, jucator.x, jucator.y - 44, '+' + a.catVindeca, '#7ad07a');
+  }
+}
+
+
+// ----------------------------------------------------------
+//  Incetinirea unui inamic
+// ----------------------------------------------------------
+function incetinesteMobul(scena, mob, cat, catTine) {
+  if (!mob || !mob.viu) return;
+  mob.incetinitPanaLa = scena.time.now + catTine;
+  mob.incetinitCu = cat;
+}
+
+
+// Cat de repede merge un inamic acum, socotind si incetinirile.
+function vitezaMobului(scena, mob, deBaza) {
+  if (mob.incetinitPanaLa && scena.time.now < mob.incetinitPanaLa) {
+    return deBaza * (mob.incetinitCu || 1);
+  }
+  return deBaza;
+}
+
+
+// ----------------------------------------------------------
+//  Lovitura care prinde tot ce e in jur
+// ----------------------------------------------------------
+function loveaTotInJur(scena, ab) {
+
+  let cati = 0;
+
+  mobi.forEach(function (m) {
+    if (!m.viu) return;
+    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, m.x, m.y) > ab.raza) return;
+
+    cati++;
+    const cat = Phaser.Math.Between(ab.dmgMin, ab.dmgMax) *
+                inmultitorTalent(personaj, 'dmgAbilitate');
+    loveste(scena, m, Math.round(cat), false);
+    if (ab.incetineste) incetinesteMobul(scena, m, ab.incetineste, ab.tineIncetinirea);
+  });
+
+  // Un inel care se umfla, ca sa se vada cat de departe a ajuns.
+  const inel = scena.add.circle(jucator.x, jucator.y, 8, ab.culoare || 0xe8c15a, 0.35)
+    .setDepth(9);
+  scena.tweens.add({
+    targets: inel, radius: ab.raza, alpha: 0, duration: 320,
+    onComplete: function () { inel.destroy(); }
+  });
+
+  return cati;
+}
+
+
+// Pana cand nu se poate folosi NIMIC, dupa ultima abilitate.
+let pauzaGlobalaPanaLa = 0;
+
 function poateFolosi(scena, ab) {
   if (mort) return false;
   if (abilitateInCurs) return false;
+  if (scena.time.now < pauzaGlobalaPanaLa) return false;
   if (scena.time.now < (pauzaAbilitati[ab.id] || 0)) return false;
   if (ab.costMana > 0 && personaj.mana < costulAbilitatii(ab, 'mana')) return false;
   if (ab.costRage > 0 && personaj.furie < costulAbilitatii(ab, 'rage')) return false;
@@ -2413,8 +2699,16 @@ function folosesteAbilitate(scena, ab) {
     tintaAb = celMaiApropiatMob(jucator.x, jucator.y, RAZA_ATAC_DISTANTA);
   } else if (ab.fel === 'vraja') {
     tintaAb = celMaiApropiatMob(jucator.x, jucator.y, ab.raza);
+  } else if (ab.fel === 'arsura') {
+    // O rana se poate pune si de aproape, si de departe, dupa abilitate.
+    tintaAb = celMaiApropiatMob(jucator.x, jucator.y,
+      ab.deLaDistanta ? RAZA_ATAC_DISTANTA : RAZA_ATAC);
   }
-  if (ab.fel !== 'vindecare' && !tintaAb) return;   // n-ai pe cine
+
+  // Astea nu cer tinta: te intaresc pe tine sau lovesc tot in jur.
+  const faraTinta = (ab.fel === 'vindecare' || ab.fel === 'alinare' ||
+                     ab.fel === 'intarire' || ab.fel === 'val');
+  if (!faraTinta && !tintaAb) return;   // n-ai pe cine
 
   // Se plateste, cu reducerea de la talente.
   if (ab.costMana > 0) personaj.mana = personaj.mana - costulAbilitatii(ab, 'mana');
@@ -2422,6 +2716,7 @@ function folosesteAbilitate(scena, ab) {
   actualizeazaBaraResursa();
 
   pauzaAbilitati[ab.id] = scena.time.now + ab.pauza * reducereTalent(personaj, 'pauza');
+  pauzaGlobalaPanaLa = scena.time.now + PAUZA_GLOBALA;
   intraInLupta(scena);
   numeleAbilitatii(scena, ab.nume);
 
@@ -2468,6 +2763,33 @@ function porneisteEfectul(scena, ab, tintaAb) {
     personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + cat);
     actualizeazaBaraViata();
     aratacifraVerde(scena, jucator.x, jucator.y - 44, cat);
+
+  // ---- felurile noi ----
+
+  } else if (ab.fel === 'arsura') {
+    // O rana care doare in timp. Loveste o data pe loc, ca sa se
+    // vada ca a pornit, si pe urma roade singura.
+    if (!tintaAb || !tintaAb.viu) return;
+    intoarceTeSpre(tintaAb.x, tintaAb.y);
+    if (ab.deLaDistanta) animatiaArcului(scena); else animatiaSabiei(scena);
+    puneRana(scena, tintaAb, ab);
+    loveste(scena, tintaAb, ab.peTura, false);
+
+  } else if (ab.fel === 'alinare') {
+    puneAlinare(scena, ab);
+    aratacuvant(scena, jucator.x, jucator.y - 60, ab.nume, '#7ad07a');
+
+  } else if (ab.fel === 'intarire') {
+    pumIntarire(scena, ab);
+
+  } else if (ab.fel === 'val') {
+    if (ab.deLaDistanta) animatiaArcului(scena); else animatiaSabiei(scena);
+    loveaTotInJur(scena, ab);
+  }
+
+  // Unele lovituri obisnuite lasa tinta schioapa.
+  if (ab.incetineste && ab.fel !== 'val' && tintaAb) {
+    incetinesteMobul(scena, tintaAb, ab.incetineste, ab.tineIncetinirea);
   }
 }
 
@@ -2728,6 +3050,10 @@ function update(time, delta) {
   actualizeazaSacii(this);
   actualizeazaVietatile(this, delta);
   actualizeazaNpcii(this, delta);
+  // Ce tine in timp: ranile care dor, alinarile si intaririle.
+  actualizeazaRanile(this);
+  actualizeazaAlinarile(this);
+  stingeIntaririleTrecute(this);
   verificaLocurile(this);
   actualizeazaButonulInteract();
   salveazaDinCandInCand();
@@ -3464,7 +3790,9 @@ function miscaMobii(scena, delta) {
       }
     }
 
-    const pas = (mob.furios ? VITEZA_MOB_FURIOS : VITEZA_MOB) * (delta / 1000);
+    // Viteza lui, mai mica daca l-ai taiat la picior sau l-ai inghetat.
+    const deBaza = mob.furios ? VITEZA_MOB_FURIOS : VITEZA_MOB;
+    const pas = vitezaMobului(scena, mob, deBaza) * (delta / 1000);
 
     if (mob.dx !== 0) {
       const nouX = mob.x + mob.dx * pas;

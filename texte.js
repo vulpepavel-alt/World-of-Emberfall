@@ -171,6 +171,23 @@ const TEXT = {
   TR_TOOLS_NAME:   'Toolwright',     TR_TOOLS_TITLE:   'Tools and Gear',
   TR_GOODS_NAME:   'Supplier',       TR_GOODS_TITLE:   'Trade Supplies',
 
+  // Antrenorul de clasa
+  TRAIN:            'Train',
+  LEARN:            'Learn',
+  TRAINER_EMPTY:    'I have taught you everything I know.',
+  RANK:             'Rank',
+  REQUIRES:         'Requires level',
+  NOT_ENOUGH_GOLD:  'Not enough money',
+  LEARNED:          'Learned',
+  NEW_AT_TRAINER:   '{n} new at your trainer',
+  ABILITY_BAR:      'Your four buttons',
+  BAR_PAGE:         'Page',
+  BAR_HELP:         'Tap an ability, then tap the slot you want it in. ' +
+                    'Four slots per page, two pages.',
+  BAR_EMPTY_SLOT:   'empty',
+  KNOWN_ABILITIES:  'What you know',
+  NOTHING_LEARNED:  'You have not learned anything yet.',
+
   // Ce spun antrenorii pana cand invatatul chiar se poate face
   TRAINER_SOON:    'I will teach you my trade. Not yet, though \u2014 come ' +
                    'back when the guilds open their books.',

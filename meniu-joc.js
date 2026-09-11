@@ -317,26 +317,98 @@ function scriePaginaSpells() {
 
   const p = personaj;
 
+  // ---- stanga: pasiva si bara de butoane ----
   let stanga = '<div class="cutie"><h3>Class Passive</h3><ul>' +
     '<li><b>' + p.pasivaClasa.nume + '</b> &ndash; ' + p.pasivaClasa.descriere + '</li>' +
     '</ul></div>';
 
-  let dreapta = '<div class="cutie"><h3>Abilities</h3><ul>';
-  p.abilitati.forEach(function (ab) {
-    const costuri = [];
-    if (ab.costMana > 0) costuri.push(costulAbilitatii(ab, 'mana') + ' mana');
-    if (ab.costRage > 0) costuri.push(costulAbilitatii(ab, 'rage') + ' rage');
-    if (ab.pauza > 0) costuri.push(Math.round(ab.pauza * reducereTalent(p, 'pauza') / 100) / 10 + 's cooldown');
-    if (ab.incantare > 0) costuri.push(ab.incantare / 1000 + 's cast');
+  stanga += '<div class="cutie"><h3>' + TEXT.ABILITY_BAR + '</h3>';
+  stanga += '<div class="ajutor-rucsac">' + TEXT.BAR_HELP + '</div>';
+  stanga += '<div class="pagini-bara">';
+  for (let pg = 0; pg < PAGINI_BARA; pg++) {
+    stanga += '<button class="buton mic' + (pg === paginaAratata ? ' apasat' : '') +
+              '" data-pagina="' + pg + '">' + TEXT.BAR_PAGE + ' ' + (pg + 1) + '</button>';
+  }
+  stanga += '</div><div class="locuri-bara">';
 
-    dreapta += '<li><b>' + ab.nume + '</b> &ndash; ' + ab.descriere +
-               (costuri.length ? '<br><i>' + costuri.join(' &middot; ') + '</i>' : '') + '</li>';
-  });
-  dreapta += '</ul></div>';
+  for (let i = 0; i < BUTOANE_PE_PAGINA; i++) {
+    const loc = paginaAratata * BUTOANE_PE_PAGINA + i;
+    const id = (p.bara || [])[loc];
+    const ab = id ? gasesteAbilitatea(id) : null;
+    stanga += '<button class="loc-bara' + (ab ? '' : ' gol') +
+              (abilitateaAleasa ? ' tinta' : '') + '" data-loc="' + loc + '">' +
+              '<span class="nr-loc">' + (i + 1) + '</span>' +
+              (ab ? ab.nume : TEXT.BAR_EMPTY_SLOT) + '</button>';
+  }
+  stanga += '</div></div>';
+
+  // ---- dreapta: ce stii ----
+  const stiute = abilitatileStiute(p).sort(function (a, b) { return a.nivel - b.nivel; });
+
+  let dreapta = '<div class="cutie"><h3>' + TEXT.KNOWN_ABILITIES + '</h3>';
+
+  if (!stiute.length) {
+    dreapta += '<div class="gol-fereastra">' + TEXT.NOTHING_LEARNED + '</div>';
+  } else {
+    dreapta += '<div class="stiute-lista">';
+    stiute.forEach(function (ab) {
+
+      const costuri = [];
+      if (ab.costMana > 0) costuri.push(costulAbilitatii(ab, 'mana') + ' mana');
+      if (ab.costRage > 0) costuri.push(costulAbilitatii(ab, 'rage') + ' rage');
+      if (ab.pauza > 0) costuri.push(Math.round(ab.pauza * reducereTalent(p, 'pauza') / 100) / 10 + 's cooldown');
+      if (ab.incantare > 0) costuri.push(ab.incantare / 1000 + 's cast');
+
+      dreapta += '<button class="o-stiuta' +
+                 (abilitateaAleasa === ab.id ? ' aleasa' : '') +
+                 '" data-aleg="' + ab.id + '">' +
+                 '<span><b>' + ab.nume + '</b> <span class="stins">' +
+                 TEXT.RANK + ' ' + ab.rang + '</span><br>' +
+                 '<span class="stins">' + ab.descriere + '</span>' +
+                 (costuri.length ? '<br><span class="stins">' + costuri.join(' &middot; ') + '</span>' : '') +
+                 '</span></button>';
+    });
+    dreapta += '</div>';
+  }
+  dreapta += '</div>';
 
   document.getElementById('pagina-spells').innerHTML =
     '<div class="doua-coloane"><div>' + stanga + '</div><div>' + dreapta + '</div></div>';
+
+  const pagina = document.getElementById('pagina-spells');
+
+  pagina.querySelectorAll('[data-pagina]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      paginaAratata = Number(b.dataset.pagina);
+      scriePaginaSpells();
+    });
+  });
+
+  // Alegi o abilitate, apoi apesi locul in care o vrei.
+  pagina.querySelectorAll('[data-aleg]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      abilitateaAleasa = (abilitateaAleasa === b.dataset.aleg) ? null : b.dataset.aleg;
+      scriePaginaSpells();
+    });
+  });
+
+  pagina.querySelectorAll('[data-loc]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const loc = Number(b.dataset.loc);
+      // Fara nimic ales, o apasare pe un loc il goleste.
+      puneInLoc(p, loc, abilitateaAleasa || null);
+      abilitateaAleasa = null;
+      if (typeof scrieButoaneleAbilitatilor === 'function') scrieButoaneleAbilitatilor();
+      salveaza();
+      scriePaginaSpells();
+    });
+  });
 }
+
+
+// Ce pagina a barei se vede in meniu, si ce abilitate ai ales sa muti.
+let paginaAratata = 0;
+let abilitateaAleasa = null;
 
 
 function scriePaginaTalents() {

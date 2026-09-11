@@ -126,6 +126,9 @@ function salveaza() {
     inventar: personaj.inventar || [],
     bani: personaj.bani || 0,
     misiuni: personaj.misiuni || {},
+    // Ce abilitati ai invatat la antrenor, si cum ti-ai asezat bara.
+    stiute: personaj.stiute || {},
+    bara: personaj.bara || null,
 
     // ca obiectele noi sa nu primeasca numere deja folosite
     urmatorulIdObiect: urmatorulIdObiect,
@@ -176,6 +179,16 @@ function faPersonajulDinSalvare(s) {
   p.inventar   = s.inventar || [];
   p.bani       = s.bani || 0;
   p.misiuni    = s.misiuni || {};
+
+  // Abilitatile invatate. O salvare facuta INAINTE de antrenori n-are
+  // niciuna: ar fi nedrept sa te trezesti la nivelul 40 cu doua
+  // butoane, asa ca primesti gratis tot ce ti-ar fi dat antrenorul
+  // pana la nivelul tau.
+  p.stiute = s.stiute && Object.keys(s.stiute).length
+    ? s.stiute : daTotCeSeCuvine(p);
+
+  p.bara = (s.bara && s.bara.length === LOCURI_IN_BARA) ? s.bara : faBaraGoala();
+  Object.keys(p.stiute).forEach(function (id) { asazaPeBaraDacaIncape(p, id); });
 
   // Obiectele noi trebuie sa primeasca numere mai mari decat
   // tot ce ai deja, altfel doua obiecte diferite ar avea acelasi

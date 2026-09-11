@@ -24,6 +24,7 @@ let negustorulDeschis = null;   // negustorul la care te uiti
 let filaTarabei = 'buy';
 let mesajFereastra = '';
 let npcCuMisiuni = null;       // cu cine vorbesti
+let antrenorulDeschis = null;  // la ce antrenor te uiti
 let misiuneaAratata = null;    // ce misiune se vede acum
 let rasplataAleasa = null;     // ce obiect ai ales din rasplata
 
@@ -42,6 +43,7 @@ function inchideFereastraDeschisa() {
   npcCuMisiuni = null;
   misiuneaAratata = null;
   rasplataAleasa = null;
+  antrenorulDeschis = null;
   mesajFereastra = '';
   ecranFereastra.classList.add('ascuns');
 }
@@ -425,22 +427,92 @@ function deschideAntrenorul(npcul) {
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
 
   fereastraDeschisa = 'antrenor';
-  const cine = npcul.cine;
-
-  // Titlul e "Warrior Trainer", deci randul "Teaches: Warrior Trainer"
-  // spunea acelasi cuvant de doua ori. Taiem "Trainer" de la coada.
-  const ceStie = cine.titlu.replace(/\s*Trainer$/, '');
-
-  titluFereastra.textContent = cine.nume + '  <' + cine.titlu + '>';
-  corpFereastra.innerHTML =
-    '<div class="cutie">' +
-      '<div class="rand-detaliu"><span>' + TEXT.TRAINER_TEACHES + '</span>' +
-      '<span>' + ceStie + '</span></div>' +
-      '<div class="gol-fereastra">' + TEXT.TRAINER_SOON + '</div>' +
-    '</div>';
+  antrenorulDeschis = npcul;
+  mesajFereastra = '';
 
   ecranFereastra.classList.remove('ascuns');
   potrivesteFereastra();
+  scrieAntrenorul();
+}
+
+
+function scrieAntrenorul() {
+
+  const cine = antrenorulDeschis.cine;
+  titluFereastra.textContent = cine.nume + '  <' + cine.titlu + '>';
+
+  // Antrenorii de meserii inca n-au ce preda: meseriile vin la pasul
+  // urmator. Le lasam fereastra lor, ca sa nu para stricati.
+  if (cine.invata !== personaj.idClasa) {
+    const ceStie = cine.titlu.replace(/\s*Trainer$/, '');
+    corpFereastra.innerHTML =
+      '<div class="cutie">' +
+        '<div class="rand-detaliu"><span>' + TEXT.TRAINER_TEACHES + '</span>' +
+        '<span>' + ceStie + '</span></div>' +
+        '<div class="gol-fereastra">' + TEXT.TRAINER_SOON + '</div>' +
+      '</div>';
+    return;
+  }
+
+  const de_invatat = ceAreAntrenorul(personaj);
+
+  let html = '<div class="cutie">';
+  html += '<div class="rand-detaliu"><span>' + TEXT.YOUR_MONEY + '</span>' +
+          '<span>' + baniHtml(personaj.bani || 0) + '</span></div>';
+
+  if (mesajFereastra) {
+    html += '<div class="mesaj-fereastra">' + mesajFereastra + '</div>';
+  }
+
+  if (!de_invatat.length) {
+    html += '<div class="gol-fereastra">' + TEXT.TRAINER_EMPTY + '</div></div>';
+    corpFereastra.innerHTML = html;
+    return;
+  }
+
+  html += '<div class="lista-invatat">';
+
+  de_invatat.forEach(function (c) {
+
+    const ab = c.abilitate;
+    const poate = !c.preaMic && !c.faraBani;
+
+    // De ce NU poti: se scrie rosu, langa pret, ca sa nu cauti.
+    const motiv = c.preaMic ? (TEXT.REQUIRES + ' ' + c.nivelCerut)
+                : c.faraBani ? TEXT.NOT_ENOUGH_GOLD : '';
+
+    html += '<div class="rand-invatat' + (poate ? '' : ' nu-poti') + '">';
+    html += '<div class="cap-invatat">' +
+              '<b>' + ab.nume + '</b>' +
+              '<span class="stins">' + TEXT.RANK + ' ' + c.rang + '</span>' +
+            '</div>';
+    html += '<div class="desc-invatat">' + ab.descriere + '</div>';
+    html += '<div class="jos-invatat">' +
+              '<span>' + baniHtml(c.cost) + '</span>' +
+              (motiv ? '<span class="rau">' + motiv + '</span>'
+                     : '<button class="buton mic" data-invat="' + ab.id +
+                       '" data-rang="' + c.rang + '">' + TEXT.LEARN + '</button>') +
+            '</div>';
+    html += '</div>';
+  });
+
+  html += '</div></div>';
+  corpFereastra.innerHTML = html;
+
+  corpFereastra.querySelectorAll('[data-invat]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const r = invataAbilitatea(personaj, b.dataset.invat, Number(b.dataset.rang));
+      if (!r) return;
+
+      mesajFereastra = TEXT.LEARNED + ': ' + r.abilitate.nume +
+                       '  (' + TEXT.RANK + ' ' + r.abilitate.rang + ')';
+      // Butoanele din joc se refac: poate abilitatea noua a intrat
+      // chiar pe bara, sau un rang nou l-a inlocuit pe cel vechi.
+      if (typeof scrieButoaneleAbilitatilor === 'function') scrieButoaneleAbilitatilor();
+      salveaza();
+      scrieAntrenorul();
+    });
+  });
 }
 
 

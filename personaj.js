@@ -496,6 +496,14 @@ function calculeazaPersonaj(idRasa, idClasa, infatisare, nivel) {
     // Deocamdata sunt doar text - nu au inca efect in joc.
     pasiveRasa: rasa.pasive,
     pasivaClasa: clasa.pasiva,
+    // Ce abilitati stii, si la ce rang: { id: rang }. La creare
+    // stii doar cele de nivelul 1; restul se invata la antrenor.
+    stiute: abilitatileDeStart(idClasa),
+    // Cele opt locuri de pe bara, doua pagini a cate patru. Se umple
+    // singura cu ce stii la creare, ca sa ai ce apasa din prima.
+    bara: faBaraDeStart(idClasa),
+
+    // Lista veche, tinuta doar ca meniul de creare sa aiba ce arata.
     abilitati: clasa.abilitati
   };
 }
