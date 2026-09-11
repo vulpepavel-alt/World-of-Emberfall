@@ -34,6 +34,9 @@ const TEXT = {
   ATTACK: 'ATTACK',
   INTERACT: 'TALK',
   LOG_OUT: 'Log out',
+  MAP: 'Map',
+  ROADS: 'Where you can go',
+  YOU_ARE_HERE_NOTE: 'Walk to the edge of the zone to cross into the next one.',
   MENU:   'MENU',
 
   // Numele inamicilor

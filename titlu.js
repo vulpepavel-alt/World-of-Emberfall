@@ -99,7 +99,7 @@ function scrieSloturile() {
             '<span class="nume-slot">' + s.nume + '</span>' +
             '<span class="sub-slot">' + TEXT.LEVEL + ' ' + s.nivel + ' ' +
               rasa.nume + ' ' + clasa.nume + '</span>' +
-            '<span class="stins-slot">' + (s.zona || '') + ' &middot; ' +
+            '<span class="stins-slot">' + (s.numeZona || s.zona || '') + ' &middot; ' +
               TEXT.SAVED + ' ' + cuCatTimpInUrma(s.cand) + '</span>' +
             '</button>' +
             '<button class="sterge-slot" data-sterge="' + nr + '">' + TEXT.DELETE + '</button>' +

@@ -182,6 +182,32 @@
     </div>
   </div>
 
+  <!-- ============ HARTA LUMII ============ -->
+  <!-- Se deschide apasand pe miniharta. Arata cele doua continente
+       si toate zonele, cu numele si nivelurile lor. Inamicii NU
+       apar pe ea: harta e pentru drum, nu pentru lupta. -->
+  <div id="ecran-harta" class="ascuns">
+    <div class="cap-harta">
+      <div class="file-continente" id="file-continente"></div>
+      <button class="buton inchide" id="inchide-harta">Close</button>
+    </div>
+    <div class="corp-harta">
+      <div class="plansa-harta" id="plansa-harta"></div>
+      <div class="detalii-zona" id="detalii-zona"></div>
+    </div>
+  </div>
+
+  <!-- ============ INCARCAREA UNEI ZONE ============ -->
+  <!-- Se vede cat timp se construieste harta zonei noi. -->
+  <div id="ecran-incarcare" class="ascuns">
+    <div class="cuprins-incarcare">
+      <div class="eticheta-incarcare">Entering</div>
+      <h2 id="nume-zonei-noi"></h2>
+      <div id="nivel-zonei-noi"></div>
+      <div class="bara-incarcare"><span></span></div>
+    </div>
+  </div>
+
   <!-- Fisa unui obiect. Se muta sub degetul tau si se arata
        cand tii apasat pe un obiect (sau cand treci cu mouse-ul). -->
   <div id="fisa-obiect" class="ascuns"></div>
@@ -220,17 +246,33 @@
   <!-- Personajele prietenoase (NPC) -->
   <script src="npc.js"></script>
 
-  <!-- Zonele. O zona = un fisier. Ca sa adaugi una noua,
-       pui fisierul in dosarul "zone" si il adaugi aici. -->
+  <!-- Zonele. Harta NU se mai tine scrisa: fiecare fisier e o
+       reteta de cateva zeci de randuri, iar harta se construieste
+       cand intri in zona. -->
+  <script src="zone/climat.js"></script>
+  <script src="zone/generator.js"></script>
   <script src="zone/lista-zone.js"></script>
   <script src="zone/zona-greenvale.js"></script>
+  <script src="zone/zona-gravemoor.js"></script>
+  <script src="zone/zona-thornmoor.js"></script>
+  <script src="zone/zona-mistwood.js"></script>
+  <script src="zone/zona-ironhill.js"></script>
+  <script src="zone/zona-emberwastes.js"></script>
   <script src="zone/zona-redwaste.js"></script>
+  <script src="zone/zona-silverbough.js"></script>
+  <script src="zone/zona-dustplain.js"></script>
+  <script src="zone/zona-saltcliff.js"></script>
+  <script src="zone/zona-bonemarch.js"></script>
+  <script src="zone/zona-frostvault.js"></script>
 
   <!-- Jocul (asteapta sa fie pornit din meniu) -->
   <script src="game.js"></script>
 
   <!-- Meniul de creare (porneste jocul cand apesi "Accept") -->
   <script src="meniu.js"></script>
+
+  <!-- Harta lumii -->
+  <script src="harta.js"></script>
 
   <!-- Ecranul de pornire si alegerea personajului.
        Se incarca ULTIMUL: daca a ajuns pana aici, s-a incarcat tot. -->

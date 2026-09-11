@@ -378,6 +378,10 @@ const config = {
   height: INALTIME,
   backgroundColor: '#111111',
   pixelArt: true,
+  // Jocul n-are sunet. Fara randul asta, Phaser deschide totusi o
+  // cutie de sunet si se plange in consola de fiecare data cand
+  // inchidem jocul ca sa trecem in alta zona.
+  audio: { noAudio: true },
   // Jocul se micsoreaza/mareste singur ca sa incapa mereu in fereastra,
   // pastrandu-si forma. Asta ne trebuie si mai tarziu, pe ecranul telefonului.
   scale: {
@@ -401,12 +405,12 @@ function porneste(personajAles, salvarea) {
   personaj = personajAles;
 
   // Daca vii dintr-o salvare, te intorci in zona in care erai -
-  // nu in cea a factiunii, ca sa nu te mute jocul din greseala.
-  const dupaNume = salvarea && salvarea.zona
-    ? ZONE.find(function (z) { return z.nume === salvarea.zona; })
-    : null;
+  // nu in cea a rasei, ca sa nu te mute jocul din greseala.
+  const reteta = (salvarea && salvarea.zona && retetaZonei(salvarea.zona))
+    || retetaZonei(ZONA_DE_START[personaj.idRasa])
+    || ZONE[0];
 
-  zona = dupaNume || alegeZona(personaj.factiune);
+  zona = faZona(reteta);
 
   locDePornire = (salvarea && salvarea.x !== null && salvarea.x !== undefined)
     ? { x: salvarea.x, y: salvarea.y }
@@ -438,9 +442,9 @@ function iesiDinLume() {
 }
 
 
-function curataLumea() {
+function curataLumea(pastreazaPersonajul) {
 
-  personaj = null;
+  if (!pastreazaPersonajul) personaj = null;
   zona = null;
   jucator = null;
   mobi = [];
@@ -449,7 +453,8 @@ function curataLumea() {
   bucatiTeren = {};
   terenMic = null;
   butonInteract = null;
-  slotulCurent = null;
+  tinteDeMisiune = null;
+  if (!pastreazaPersonajul) slotulCurent = null;
 
   // Panza jocului inchis trebuie scoasa din pagina cu mana. Altfel
   // ramane acolo, si la urmatoarea intrare ai doua panze una peste alta.
@@ -457,16 +462,142 @@ function curataLumea() {
 }
 
 
-// Zona in care incepi se alege dupa factiunea rasei tale:
-// cautam in lista de zone pe cea care spune ca e a factiunii tale.
-function alegeZona(factiune) {
-  const gasita = ZONE.find(function (z) {
-    return z.factiune === factiune;
-  });
+// ----------------------------------------------------------
+//  Ecranul de incarcare
+// ----------------------------------------------------------
+const ecranIncarcare = document.getElementById('ecran-incarcare');
 
-  // Daca vreo factiune n-are zona, intra in prima din lista,
-  // ca sa nu ramana jocul blocat.
-  return gasita || ZONE[0];
+function aratafIncarcarea(numeZona, niveluri) {
+  document.getElementById('nume-zonei-noi').textContent = numeZona;
+  document.getElementById('nivel-zonei-noi').textContent = TEXT.LEVEL + ' ' + niveluri;
+  ecranIncarcare.classList.remove('ascuns');
+}
+
+function ascundeIncarcarea() {
+  ecranIncarcare.classList.add('ascuns');
+}
+
+
+// ==========================================================
+//  TRECEREA DINTR-O ZONA IN ALTA
+//
+//  Zona noua nu e scrisa nicaieri: se construieste acum, si dureaza
+//  vreo trei zecimi de secunda. In timpul asta se vede un ecran de
+//  incarcare, ca sa nu para ca jocul a inghetat.
+// ==========================================================
+function treciInZona(idZona, dinspre) {
+
+  const reteta = retetaZonei(idZona);
+  if (!reteta) return;
+
+  salveaza();
+  aratafIncarcarea(reteta.nume, reteta.nivelDeLa + '-' + reteta.nivelPanaLa);
+
+  // Lasam browserul sa deseneze ecranul de incarcare inainte sa ne
+  // apucam de treaba grea. Fara pauza asta, ecranul n-ar apuca sa
+  // apara si ai vedea doar o secunda de joc inghetat.
+  setTimeout(function () {
+
+    const veche = jocul;
+    jocul = null;
+    if (veche) veche.destroy(true);
+
+    setTimeout(function () {
+
+      curataLumea(true);
+      zona = faZona(reteta);
+
+      // Intri pe latura dinspre care ai venit, nu in mijlocul zonei.
+      //
+      // ATENTIE: NU chiar pe poarta. Daca te punem pe ea, poarta se
+      // declanseaza pe loc si te trimite inapoi de unde ai venit -
+      // si tot asa, la nesfarsit. Te punem cu zece casute mai
+      // inauntru, si pe deasupra nu lasam nicio poarta sa te ia
+      // pana nu te-ai departat o data de ele.
+      // Daca ai venit pe apa, apari langa portul de aici, nu pe margine.
+      const peApa = zona.portul && zona.portul.catre === dinspre;
+      if (peApa) {
+        locDePornire = {
+          x: (zona.portul.col + 8) * TILE + TILE / 2,
+          y: (zona.portul.rand + 8) * TILE + TILE / 2
+        };
+        abiaAmIntrat = true;
+        jocul = new Phaser.Game(config);
+        ascundeIncarcarea();
+        treceInCurs = false;
+        salveaza();
+        return;
+      }
+
+      const intrare = zona.treceri.find(function (tr) { return tr.catre === dinspre; });
+      if (intrare) {
+        locDePornire = {
+          x: (intrare.col + intrare.spreInauntruC * 10) * TILE + TILE / 2,
+          y: (intrare.rand + intrare.spreInauntruR * 10) * TILE + TILE / 2
+        };
+      } else {
+        locDePornire = { x: zona.start.col * TILE + TILE / 2,
+                         y: zona.start.rand * TILE + TILE / 2 };
+      }
+      abiaAmIntrat = true;
+
+      jocul = new Phaser.Game(config);
+      ascundeIncarcarea();
+      treceInCurs = false;
+      salveaza();
+    }, 30);
+  }, 60);
+}
+
+
+// Cat timp treci dintr-o zona in alta, personajul ramane al tau:
+// golim doar lumea, nu si pe tine.
+let treceInCurs = false;
+
+const RAZA_TRECERE = 42;    // de cat de aproape de poarta te ia
+
+// Cat timp e true, portile nu te iau. Se face false de indata ce
+// te-ai departat de toate - ca sa nu fii trimis inapoi imediat ce
+// ai intrat intr-o zona noua.
+let abiaAmIntrat = false;
+
+
+// Se cheama in fiecare cadru: ai ajuns pe o poarta catre alta zona?
+function verificaTrecerea() {
+
+  if (treceInCurs || !zona || !zona.treceri) return;
+
+  let langaVreoPoarta = false;
+
+  for (const tr of zona.treceri) {
+    const x = tr.col * TILE + TILE / 2;
+    const y = tr.rand * TILE + TILE / 2;
+    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, x, y) > RAZA_TRECERE) continue;
+
+    langaVreoPoarta = true;
+    if (abiaAmIntrat) continue;
+
+    treceInCurs = true;
+    treciInZona(tr.catre, zona.id);
+    return;
+  }
+
+  // --- portul: corabia sau zeppelinul spre celalalt continent ---
+  if (zona.portul) {
+    const x = zona.portul.col * TILE + TILE / 2;
+    const y = zona.portul.rand * TILE + TILE / 2;
+    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, x, y) <= RAZA_TRECERE) {
+      langaVreoPoarta = true;
+      if (!abiaAmIntrat) {
+        treceInCurs = true;
+        treciInZona(zona.portul.catre, zona.id);
+        return;
+      }
+    }
+  }
+
+  // Te-ai departat de toate portile: de acum te pot lua din nou.
+  if (abiaAmIntrat && !langaVreoPoarta) abiaAmIntrat = false;
 }
 
 
@@ -678,6 +809,13 @@ function create() {
     if (celMaiAproape) {
       clipesteButonul(this, celMaiAproape);
       celMaiAproape.apasa(this);
+      return;
+    }
+
+    // Ai apasat pe miniharta? Atunci se deschide harta lumii.
+    if (pointer.x >= MINI_X && pointer.x <= MINI_X + MINI_LAT &&
+        pointer.y >= MINI_Y && pointer.y <= MINI_Y + MINI_LAT) {
+      deschideHarta();
       return;
     }
 
@@ -2253,6 +2391,9 @@ function update(time, delta) {
   // randul asta, cadrul ala cauta un personaj care nu mai exista.
   if (!personaj || !jucator || !jucator.scene) return;
 
+  // Ai ajuns pe o poarta catre alta zona?
+  verificaTrecerea();
+
   // Harta se deseneaza pe bucati, pe masura ce te apropii de ele,
   // iar inamicii apar si dispar la fel. Se face in orice situatie -
   // si cu meniul deschis, si cat esti mort.
@@ -2264,8 +2405,12 @@ function update(time, delta) {
 
   // Cat timp e meniul deschis, jocul merge mai departe, dar
   // tastele si joystick-ul nu te mai misca.
+  const hartaDeschisa = (typeof ecranHarta !== 'undefined') &&
+                        !ecranHarta.classList.contains('ascuns');
+
   if ((typeof meniuDeschis !== 'undefined' && meniuDeschis) ||
-      (typeof fereastraDeschisa !== 'undefined' && fereastraDeschisa)) {
+      (typeof fereastraDeschisa !== 'undefined' && fereastraDeschisa) ||
+      hartaDeschisa) {
     miscaMobii(this, delta);
     actualizeazaResursa(this, delta);
     regenerareViata(this, delta);

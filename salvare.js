@@ -131,7 +131,8 @@ function salveaza() {
     urmatorulIdObiect: urmatorulIdObiect,
 
     // unde esti
-    zona: zona ? zona.nume : null,
+    zona: zona ? zona.id : null,
+    numeZona: zona ? zona.nume : null,
     x: jucator ? Math.round(jucator.x) : null,
     y: jucator ? Math.round(jucator.y) : null,
 
