@@ -5,6 +5,9 @@
 //    nume    - cum il cheama pe ecran (textul sta in texte.js)
 //    neam    - 'fiara' sau 'umanoid'. Ca in WoW, FIARELE NU LASA
 //              BANI: un lup n-are punga. Lasa bani doar umanoizii.
+//    vechituri - lucrurile gri pe care le lasa: colti, catarame,
+//              pene. Nu se poarta, sunt doar de vandut, si cad de
+//              la mai mult de jumatate din inamici.
 //    stats   - viata, damage, viteza de lovire, armura, nivel
 //    forme   - din ce bucati colorate e desenat
 //
@@ -58,6 +61,7 @@ const MOBI = {
 
   wolf: {
     nume: TEXT.WOLF,
+    vechituri: ['Chipped Fang', 'Ragged Pelt', 'Torn Ear'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -75,6 +79,7 @@ const MOBI = {
 
   burrower: {
     nume: TEXT.BURROWER,
+    vechituri: ['Dulled Claw', 'Shell Fragment', 'Grub Casing'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -90,6 +95,7 @@ const MOBI = {
 
   bandit: {
     nume: TEXT.BANDIT,
+    vechituri: ['Bent Buckle', 'Empty Flask', 'Frayed Bandana', 'Cracked Dice'],
     neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [
@@ -105,6 +111,7 @@ const MOBI = {
   // Sobolanul de camp: cel mai slab lucru din zona, chiar langa sat.
   rat: {
     nume: TEXT.RAT,
+    vechituri: ['Chewed Rat Tail', 'Matted Fur', 'Gnawed Bone'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -121,6 +128,7 @@ const MOBI = {
   // Paianjenul de padure: picioare lungi, trup rotund.
   spider: {
     nume: TEXT.SPIDER,
+    vechituri: ['Dried Silk Bundle', 'Brittle Leg', 'Clouded Eye'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -141,6 +149,7 @@ const MOBI = {
 
   scorpid: {
     nume: TEXT.SCORPID,
+    vechituri: ['Cracked Carapace', 'Blunted Stinger', 'Chitin Shard'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -157,6 +166,7 @@ const MOBI = {
 
   boar: {
     nume: TEXT.BOAR,
+    vechituri: ['Cracked Tusk', 'Coarse Bristle', 'Scrap of Hide'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -175,6 +185,7 @@ const MOBI = {
   // Vulturul de praf: aripi late, gat golas.
   vulture: {
     nume: TEXT.VULTURE,
+    vechituri: ['Scorched Feather', 'Hooked Beak', 'Hollow Bone'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -192,6 +203,7 @@ const MOBI = {
   // Sarpele de nisip: incolacit, cu capul ridicat.
   serpent: {
     nume: TEXT.SERPENT,
+    vechituri: ['Shed Scale', 'Rattle Tip', 'Dried Venom Gland'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
@@ -207,6 +219,7 @@ const MOBI = {
 
   raider: {
     nume: TEXT.RAIDER,
+    vechituri: ['Notched Blade Fragment', 'Sun-bleached Strap', 'Dented Cup'],
     neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [

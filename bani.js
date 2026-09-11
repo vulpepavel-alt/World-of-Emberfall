@@ -94,6 +94,11 @@ function baniDeLaMob(nivel, esteUmanoid) {
 const PARTEA_NEGUSTORULUI = 0.25;   // cat iti da cand ii vinzi
 
 function valoareaObiectului(obiect) {
+
+  // O vechitura isi are pretul scris pe ea, si se vinde toata
+  // gramada odata: zece colti fac de zece ori cat unul.
+  if (obiect.vechitura) return obiect.valoare * (obiect.cate || 1);
+
   const raritate = gasesteRaritate(obiect.raritate);
   const n = obiect.nivel;
   return Math.max(1, Math.round((n * n * 0.6 + n * 8 + 4) * raritate.putere));

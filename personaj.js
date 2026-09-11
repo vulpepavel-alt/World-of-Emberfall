@@ -263,8 +263,15 @@ const CLASE = {
 const NIVEL_MAXIM = 60;
 const NIVEL_PRIMUL_TALENT = 10;
 
-const XP_BAZA = 60;      // cat experienta cere trecerea de la nivelul 1 la 2
-const XP_PUTERE = 1.7;   // cat de repede creste cerinta de la un nivel la altul
+// Curba de experienta.
+//
+// Inainte cifrele erau altele si se urca mult prea repede: doi mobi
+// pentru nivelul 1, sapte pentru nivelul 10. Acum: trei pentru primul
+// nivel, ~25 pe la 10, ~60 pe la 59 - daca omori doar mobi. Cu misiuni
+// merge mult mai repede, fiindca o misiune da cat vreo 20 de mobi.
+// Asta e forma din WoW: misiunile sunt drumul rapid, macelul e cel lent.
+const XP_BAZA = 140;      // cat experienta cere trecerea de la nivelul 1 la 2
+const XP_PUTERE = 1.22;   // cat de repede creste cerinta de la un nivel la altul
 
 // Cata experienta iti trebuie ca sa treci DE LA nivelul asta la urmatorul.
 function xpPentruNivel(nivel) {
@@ -278,14 +285,19 @@ function puncteTalentLaNivel(nivel) {
   return nivel - NIVEL_PRIMUL_TALENT + 1;
 }
 
-// Cata experienta da un inamic. Unul mult sub nivelul tau nu mai da nimic.
+// Cata experienta da un inamic.
+//
+// Formula e cea din WoW: 5 x nivel + 45. Inainte era 45 x nivel, adica
+// de zece ori mai mult la nivelurile mari - de aceea se urca instant.
+// Unul mult sub nivelul tau nu mai da nimic.
 const XP_MOB_BAZA = 45;
+const XP_MOB_PE_NIVEL = 5;
 
 function xpDeLaMob(nivelMob, nivelJucator) {
   const diferenta = nivelMob - nivelJucator;
   if (diferenta <= -6) return 0;
   const spor = Math.max(0.15, 1 + diferenta * 0.12);
-  return Math.max(1, Math.round(XP_MOB_BAZA * nivelMob * spor));
+  return Math.max(1, Math.round((XP_MOB_PE_NIVEL * nivelMob + XP_MOB_BAZA) * spor));
 }
 
 

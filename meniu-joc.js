@@ -115,6 +115,15 @@ function cutieObiect(obiect, latura) {
 // statisticile, nivelul cerut si cat face la negustor.
 function htmlFisa(obiect) {
 
+  // O vechitura n-are slot, n-are statistici si n-are nivel cerut.
+  // Are doar un pret - de-aia o tii.
+  if (obiect.vechitura) {
+    return '<div class="fisa-nume" style="color:' + obiect.culoare + '">' + obiect.nume +
+           (obiect.cate > 1 ? ' <span class="stins">x' + obiect.cate + '</span>' : '') + '</div>' +
+           '<div class="fisa-rand stins">Junk</div>' +
+           '<div class="fisa-rand stins">Sell price: ' + baniHtml(pretDeVandut(obiect)) + '</div>';
+  }
+
   const slot = gasesteSlot(obiect.slot);
   const raritate = gasesteRaritate(obiect.raritate);
   const preaMic = personaj.nivel < nivelulCerut(obiect);
@@ -406,6 +415,17 @@ function scriePaginaInventory() {
   // Intai lucrurile tale, apoi locurile goale ramase - ca sa se vada
   // cat mai ai loc, la fel ca rucsacul din WoW.
   obiecte.forEach(function (o) {
+
+    // O vechitura nu se poate purta, deci n-are semn de nivel;
+    // in schimb arata cate bucati sunt in gramada.
+    if (o.vechitura) {
+      html += '<button class="loc-rucsac vechitura" data-fisa="' + o.id + '">' +
+              cutieObiect(o, 44) +
+              (o.cate > 1 ? '<span class="cate-in-gramada">' + o.cate + '</span>' : '') +
+              '</button>';
+      return;
+    }
+
     const preaMic = personaj.nivel < nivelulCerut(o);
     html += '<button class="loc-rucsac' + (preaMic ? ' preaMic' : '') +
             '" data-echipeaza="' + o.id + '" data-fisa="' + o.id + '">' +
@@ -487,6 +507,12 @@ document.querySelectorAll('[data-fila]').forEach(function (buton) {
 });
 
 inchideMeniu.addEventListener('click', inchideMeniul);
+
+document.getElementById('log-out').addEventListener('click', function () {
+  inchideMeniul();
+  iesiDinLume();
+  arataSloturile();
+});
 window.addEventListener('resize', potrivesteMeniul);
 
 // Tasta Escape inchide meniul, tasta M il deschide si il inchide.

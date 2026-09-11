@@ -32,6 +32,8 @@ const TEXT = {
   LEVEL_UP:  'Level up!',
   MAX_LEVEL: 'Max level',
   ATTACK: 'ATTACK',
+  INTERACT: 'TALK',
+  LOG_OUT: 'Log out',
   MENU:   'MENU',
 
   // Numele inamicilor

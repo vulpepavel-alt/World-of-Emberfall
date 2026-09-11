@@ -358,6 +358,15 @@ const MINI_Y = 12;
 const MINI_SCARA = 0.17;                 // cat de mult se micsoreaza harta in ea
 
 // ---- Butonul care deschide meniul, sub miniharta ----
+// ---- Butonul de interactiune ----
+const INTERACT_RAZA = 40;
+const INTERACT_X = BUTON_X;
+const INTERACT_Y = BUTON_Y - BUTON_RAZA - INTERACT_RAZA - 10;
+const CULOARE_INTERACT_GATA  = 0x2f5a2b;   // piatra verde: ai ceva langa tine
+const CULOARE_INTERACT_STINS = 0x241f19;   // piatra stinsa: n-ai ce deschide
+
+let butonInteract = null;
+
 const MENU_RAZA = 30;
 const MENU_X = MINI_X + MINI_LAT / 2;
 const MENU_Y = MINI_Y + MINI_LAT + 30;
@@ -403,7 +412,48 @@ function porneste(personajAles, salvarea) {
     ? { x: salvarea.x, y: salvarea.y }
     : null;
 
-  new Phaser.Game(config);
+  jocul = new Phaser.Game(config);
+}
+
+
+// Tinem minte jocul pornit, ca sa-l putem opri la Log out.
+let jocul = null;
+
+
+// Iesi din lume si te intorci la alegerea personajului.
+// Salvam intai: n-are rost sa pierzi ultimele minute de joc.
+function iesiDinLume() {
+
+  salveaza();
+
+  const g = jocul;
+  jocul = null;
+  if (g) g.destroy(true);
+
+  // ATENTIE: Phaser NU se inchide pe loc. Mai face un pas - miscarile
+  // in curs, ceasurile - si abia apoi se opreste. Pasul ala are inca
+  // nevoie de personaj. Daca golim aici, el cauta un personaj care nu
+  // mai exista si crapa. De aceea golim abia dupa ce a trecut pasul.
+  setTimeout(curataLumea, 0);
+}
+
+
+function curataLumea() {
+
+  personaj = null;
+  zona = null;
+  jucator = null;
+  mobi = [];
+  npci = [];
+  saci = [];
+  bucatiTeren = {};
+  terenMic = null;
+  butonInteract = null;
+  slotulCurent = null;
+
+  // Panza jocului inchis trebuie scoasa din pagina cu mana. Altfel
+  // ramane acolo, si la urmatoarea intrare ai doua panze una peste alta.
+  document.querySelectorAll('body > canvas').forEach(function (c) { c.remove(); });
 }
 
 
@@ -802,7 +852,7 @@ function bucatileDinJur(scena, margine) {
 // toate dintr-un foc, ca sa nu apuci sa vezi harta pe jumatate goala.
 function actualizeazaTerenul(scena, totOdata) {
 
-  if (!zona) return;
+  if (!zona || !scena || !scena.cameras) return;
 
   const ultimaColoana = Math.ceil(zona.harta[0].length / CHUNK) - 1;
   const ultimulRand   = Math.ceil(zona.harta.length / CHUNK) - 1;
@@ -1025,6 +1075,31 @@ function faButoane(scena) {
     apasa: function (sc) { ataca(sc); }
   });
 
+  // --- INTERACT ---
+  // Deasupra lui ATTACK. Nu trebuie sa mai nimeresti cu degetul exact
+  // pe sac sau pe negustor: apesi butonul si se deschide cel mai
+  // apropiat lucru de langa tine. Se stinge cand nu e nimic in jur.
+  const inter = scena.add.container(INTERACT_X, INTERACT_Y);
+  inter.add(scena.add.circle(0, 0, INTERACT_RAZA, UI.alamaInchisa));
+  inter.add(scena.add.circle(0, 0, INTERACT_RAZA - 3, UI.alama));
+  const piatraInteract = scena.add.circle(0, 0, INTERACT_RAZA - 7, CULOARE_INTERACT_STINS);
+  inter.add(piatraInteract);
+  inter.add(scena.add.text(0, 0, TEXT.INTERACT, {
+    fontFamily: UI.FONT,
+    fontSize: '13px',
+    fontStyle: 'bold',
+    color: UI.text
+  }).setOrigin(0.5));
+  inter.setScrollFactor(0).setDepth(1000);
+
+  butonInteract = { cerc: inter, piatra: piatraInteract };
+
+  butoane.push({
+    x: INTERACT_X, y: INTERACT_Y, raza: INTERACT_RAZA + MARGINE_ATINGERE,
+    cerc: inter,
+    apasa: function (sc) { interactioneaza(sc); }
+  });
+
   // --- butonul MENU, sub miniharta ---
   const meniu = scena.add.container(MENU_X, MENU_Y);
   meniu.add(scena.add.circle(0, 0, MENU_RAZA, UI.alamaInchisa));
@@ -1139,6 +1214,39 @@ function atingiCeva(scena, x, y) {
 }
 
 
+// Cel mai apropiat lucru cu care se poate face ceva: un sac de
+// prada, sau cineva prietenos. Sacii au intaietate - daca stai
+// peste un trup langa un negustor, cel mai probabil vrei trupul.
+function ceEDeschisLangaTine() {
+  const sac = saculDeLangaTine(jucator.x, jucator.y);
+  if (sac) return { fel: 'sac', ce: sac };
+
+  const cineva = npcDeLangaTine(jucator.x, jucator.y);
+  if (cineva) return { fel: 'npc', ce: cineva };
+
+  return null;
+}
+
+
+function interactioneaza(scena) {
+  const gasit = ceEDeschisLangaTine();
+  if (!gasit) return;
+
+  if (gasit.fel === 'sac') { deschidePrada(gasit.ce); return; }
+  if (gasit.ce.marfa) deschideTaraba(gasit.ce);
+  else deschideMisiunile(gasit.ce);
+}
+
+
+// Butonul se aprinde doar cand chiar ai ce deschide.
+function actualizeazaButonulInteract() {
+  if (!butonInteract) return;
+  const areCeva = ceEDeschisLangaTine() !== null;
+  butonInteract.piatra.setFillStyle(areCeva ? CULOARE_INTERACT_GATA : CULOARE_INTERACT_STINS);
+  butonInteract.cerc.setAlpha(areCeva ? 1 : 0.55);
+}
+
+
 // ================================================
 //  SACII DE PRADA
 //
@@ -1235,7 +1343,7 @@ const RAZA_DISPARITIE = 1100;  // de la ce distanta il stergem la loc
 
 function actualizeazaMobii(scena) {
 
-  if (!zona || !jucator) return;
+  if (!zona || !jucator || !personaj) return;
 
   // --- ce trebuie sa apara ---
   zona.mobi.forEach(function (loc) {
@@ -2140,12 +2248,18 @@ function actualizeazaResursa(scena, delta) {
 // ================================================
 function update(time, delta) {
 
+  // Cand apesi Log out, jocul se opreste - dar Phaser mai apuca sa
+  // treaca o data prin update inainte sa se inchida de tot. Fara
+  // randul asta, cadrul ala cauta un personaj care nu mai exista.
+  if (!personaj || !jucator || !jucator.scene) return;
+
   // Harta se deseneaza pe bucati, pe masura ce te apropii de ele,
   // iar inamicii apar si dispar la fel. Se face in orice situatie -
   // si cu meniul deschis, si cat esti mort.
   actualizeazaTerenul(this);
   actualizeazaMobii(this);
   actualizeazaSacii(this);
+  actualizeazaButonulInteract();
   salveazaDinCandInCand();
 
   // Cat timp e meniul deschis, jocul merge mai departe, dar
@@ -2674,7 +2788,7 @@ function loveste(scena, mob, damageBrut, critic) {
 
     // Ce a lasat in urma NU sare singur la tine, ca pana acum.
     // Ramane in trupul lui, iar tu te duci si il iei - ca in WoW.
-    const prada = pradaDeLaMob(mob.stats.nivel, mob.fel.neam === 'umanoid');
+    const prada = pradaCompleta(mob.stats.nivel, mob.fel.neam === 'umanoid', mob.felul);
 
     // Lucrurile cerute de misiuni cad in acelasi trup.
     prada.obiecteMisiune = obiecteDeMisiuneDeLa(personaj, mob.felul);

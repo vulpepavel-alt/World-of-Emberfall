@@ -327,6 +327,17 @@ const ICOANA_LATURA = 16;
 
 function formeIcoana(obiect) {
 
+  // Vechiturile n-au slot: le desenam ca o legaturica de carpe.
+  if (obiect.vechitura) {
+    return [
+      { x: 3, y: 6, w: 10, h: 7, c: '#6b6259' },
+      { x: 4, y: 4, w: 8,  h: 3, c: '#847a6f' },
+      { x: 6, y: 2, w: 4,  h: 3, c: '#5a524a' },
+      { x: 3, y: 11, w: 10, h: 2, c: '#443e38' },
+      { x: 5, y: 7, w: 2,  h: 2, c: '#9d9d9d' }
+    ];
+  }
+
   const m = MATERIALE[obiect.raritate] || MATERIALE.comun;
   const b = m.baza, l = m.lumina, u = m.umbra, o = m.ornament;
 

@@ -298,7 +298,8 @@ function scrieTaraba() {
       html += '<button class="rand-prada" data-vand="' + o.id + '" data-fisa="' + o.id + '">' +
               cutieObiect(o, 30) +
               '<span class="text-prada">' +
-              '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume + '</span>' +
+              '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume +
+              (o.cate > 1 ? ' x' + o.cate : '') + '</span>' +
               '<span class="stat-obiect">' + descriereObiect(o) + '</span>' +
               '</span>' +
               '<span class="pret">' + baniHtml(pretDeVandut(o)) + '</span></button>';
@@ -378,10 +379,12 @@ function vindeObiectul(idObiect) {
   iaBani(personaj, pret);
 
   // Ce ii vinzi ajunge pe taraba lui: te poti razgandi si il iei inapoi,
-  // dar la pretul intreg - exact ca in WoW.
-  negustorulDeschis.marfa.push(obiect);
+  // dar la pretul intreg - exact ca in WoW. Vechiturile nu: nimeni
+  // n-ar cumpara inapoi un colt de lup.
+  if (!obiect.vechitura) negustorulDeschis.marfa.push(obiect);
 
-  mesajFereastra = TEXT.SOLD + ': ' + obiect.nume + ' (' + baniText(pret) + ')';
+  mesajFereastra = TEXT.SOLD + ': ' + obiect.nume +
+                  (obiect.cate > 1 ? ' x' + obiect.cate : '') + ' (' + baniText(pret) + ')';
   scrieTaraba();
 }
 

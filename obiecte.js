@@ -150,14 +150,90 @@ function raritateLaIntamplare() {
 }
 
 
-// Ce lasa in urma un inamic. Da inapoi null daca n-a lasat nimic.
-const SANSA_SA_LASE_OBIECT = 35;   // din 100
-const SANSA_AL_DOILEA_OBIECT = 12; // sansa sa mai cada inca unul
+// ==========================================================
+//  CE LASA IN URMA UN INAMIC
+//
+//  Cum e in WoW Classic, si cum NU era la noi pana acum:
+//
+//    - VECHITURILE (gri) cad foarte des, peste jumatate din
+//      inamici. Nu se pot purta, sunt doar de vandut - si sunt
+//      principala sursa de bani.
+//    - Obiectele PURTABILE cad rar. Un verde (Uncommon) e o mica
+//      sarbatoare, un albastru (Rare) e o zi buna.
+//
+//  Inainte aveam 35% sanse de obiect purtabil si zero vechituri.
+//  De aceea se umplea rucsacul in zece minute si nimic nu se
+//  simtea ca o gasire.
+//
+//  Sansele cresc putin cu nivelul inamicului: la nivel 1 aproape
+//  tot ce cade e alb, pe la 60 incep sa apara si albastrele.
+// ==========================================================
+
+function sansaDeObiect(nivelMob) {
+  return 5 + Math.min(nivelMob, 30) * 0.23;      // 5,2% la nivel 1 -> ~12% la 30+
+}
+
+// Cat de des cade fiecare raritate, la un anumit nivel de inamic.
+function sanseleRaritatilor(nivelMob) {
+  const n = Math.min(nivelMob, 60);
+  return {
+    comun:    78 - n * 0.40,
+    bun:      20 + n * 0.30,
+    rar:     1.8 + n * 0.08,
+    maiestru: 0.2 + n * 0.02
+  };
+}
+
+function raritateDupaNivel(nivelMob) {
+  const sanse = sanseleRaritatilor(nivelMob);
+  let total = 0;
+  Object.keys(sanse).forEach(function (id) { total += sanse[id]; });
+
+  let n = Math.random() * total;
+  for (const id of Object.keys(sanse)) {
+    n -= sanse[id];
+    if (n <= 0) return id;
+  }
+  return 'comun';
+}
 
 function obiectDeLaMob(nivelMob) {
-  if (Math.random() * 100 >= SANSA_SA_LASE_OBIECT) return null;
+  if (Math.random() * 100 >= sansaDeObiect(nivelMob)) return null;
   const slot = SLOTURI[Math.floor(Math.random() * SLOTURI.length)];
-  return faObiect(slot.id, Math.max(1, nivelMob), raritateLaIntamplare());
+  return faObiect(slot.id, Math.max(1, nivelMob), raritateDupaNivel(nivelMob));
+}
+
+
+// ----------------------------------------------------------
+//  VECHITURILE
+//
+//  Gri, fara statistici, bune doar de vandut. Fiecare fel de
+//  inamic lasa altceva - un lup lasa colti, un bandit lasa
+//  catarame - iar lucrurile la fel se aduna intr-o singura
+//  gramada in rucsac, ca sa nu-ti ocupe zece locuri.
+// ----------------------------------------------------------
+const SANSA_VECHITURA = 55;        // din 100
+const CULOARE_VECHITURA = '#9d9d9d';
+const MAXIM_PE_GRAMADA = 20;
+
+function vechituraDeLaMob(nivelMob, felulMobului) {
+
+  if (Math.random() * 100 >= SANSA_VECHITURA) return null;
+
+  const fel = (typeof MOBI !== 'undefined') ? MOBI[felulMobului] : null;
+  const lista = (fel && fel.vechituri) ? fel.vechituri : ['Worn Scrap'];
+  const nume = lista[Math.floor(Math.random() * lista.length)];
+  const nivel = Math.max(1, nivelMob);
+
+  return {
+    id: urmatorulIdObiect++,
+    vechitura: true,
+    nume: nume,
+    nivel: nivel,
+    culoare: CULOARE_VECHITURA,
+    cate: 1,
+    valoare: Math.max(1, Math.round(nivel * 1.8 + 2))
+  };
 }
 
 
@@ -166,20 +242,27 @@ function obiectDeLaMob(nivelMob) {
 // singur in inventar, ca in WoW.
 function pradaDeLaMob(nivelMob, esteUmanoid) {
 
+  // Un singur obiect purtabil pe inamic, si acela rar. Inainte mai
+  // exista o sansa sa cada si al doilea; acum, cu sansele coborate
+  // la cat sunt in WoW, doua obiecte de la acelasi mob n-ar avea sens.
   const obiecte = [];
   const unul = obiectDeLaMob(nivelMob);
-  if (unul) {
-    obiecte.push(unul);
-    if (Math.random() * 100 < SANSA_AL_DOILEA_OBIECT) {
-      const slot = SLOTURI[Math.floor(Math.random() * SLOTURI.length)];
-      obiecte.push(faObiect(slot.id, Math.max(1, nivelMob), raritateLaIntamplare()));
-    }
-  }
+  if (unul) obiecte.push(unul);
 
   return {
     bani: baniDeLaMob(nivelMob, esteUmanoid),
     obiecte: obiecte
   };
+}
+
+
+// Acelasi lucru, dar stiind si ce fel de inamic a fost - ca sa
+// putem pune si vechitura potrivita in trupul lui.
+function pradaCompleta(nivelMob, esteUmanoid, felulMobului) {
+  const prada = pradaDeLaMob(nivelMob, esteUmanoid);
+  const vechitura = vechituraDeLaMob(nivelMob, felulMobului);
+  if (vechitura) prada.obiecte.push(vechitura);
+  return prada;
 }
 
 
@@ -208,8 +291,23 @@ function maiEsteLocInRucsac(personajul) {
 }
 
 // Pune un obiect in rucsac. Da inapoi false daca nu mai e loc.
+//
+// Vechiturile la fel se aduna intr-o gramada, pana la 20 bucati.
+// Fara asta, cincizeci de colti de lup ar umple rucsacul de doua ori.
 function pomeneInRucsac(personajul, obiect) {
+
   personajul.inventar = personajul.inventar || [];
+
+  if (obiect.vechitura) {
+    const gramada = personajul.inventar.find(function (o) {
+      return o.vechitura && o.nume === obiect.nume && o.cate < MAXIM_PE_GRAMADA;
+    });
+    if (gramada) {
+      gramada.cate += (obiect.cate || 1);
+      return true;
+    }
+  }
+
   if (!maiEsteLocInRucsac(personajul)) return false;
   personajul.inventar.push(obiect);
   return true;
@@ -246,6 +344,7 @@ function nivelulCerut(obiect) {
 }
 
 function poateFiEchipat(personajul, obiect) {
+  if (obiect.vechitura) return false;      // o vechitura nu se poarta
   return personajul.nivel >= nivelulCerut(obiect);
 }
 
@@ -260,7 +359,7 @@ function echipeaza(personajul, idObiect) {
 
   const obiect = personajul.inventar[locInInventar];
 
-  // Prea mic pentru el: ramane in rucsac.
+  // O vechitura sau ceva peste nivelul tau: ramane in rucsac.
   if (!poateFiEchipat(personajul, obiect)) return false;
   const vechi = personajul.echipament[obiect.slot] || null;
 
@@ -290,6 +389,7 @@ const NUME_ATRIBUT = { str: 'Strength', agi: 'Agility', sta: 'Stamina',
                        int: 'Intellect', spi: 'Spirit' };
 
 function descriereObiect(obiect) {
+  if (obiect.vechitura) return 'Junk';
   const bucati = [];
   Object.keys(obiect.statistici).forEach(function (a) {
     bucati.push('+' + obiect.statistici[a] + ' ' + NUME_ATRIBUT[a]);
