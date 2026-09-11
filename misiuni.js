@@ -661,15 +661,23 @@ function cate(personajul, id) {
 function poateFiLuata(personajul, misiune) {
   if (starea(personajul, misiune.id) !== 'neluata') return false;
   if (personajul.nivel < misiune.nivel) return false;
+  if (misiune.clasa && misiune.clasa !== personajul.idClasa) return false;
   if (misiune.cere && starea(personajul, misiune.cere) !== 'predata') return false;
   return true;
 }
 
 
 // Toate misiunile pe care le da un anumit personaj, in ordine.
+//
+// Misiunile de clasa au 'oriunde: true': antrenorul tau ti le da in
+// orice oras, nu doar in cel in care s-a nimerit sa fie scrise. Si
+// nu le vezi niciodata pe ale altei clase.
 function misiunileLui(personajul, numeleZonei, felulNpc) {
   return MISIUNI.filter(function (m) {
-    return m.zona === numeleZonei && m.dator === felulNpc;
+    if (m.dator !== felulNpc) return false;
+    if (!m.oriunde && m.zona !== numeleZonei) return false;
+    if (m.clasa && m.clasa !== personajul.idClasa) return false;
+    return true;
   });
 }
 
@@ -847,5 +855,15 @@ function predaMisiunea(personajul, id, idObiectAles) {
   iaBani(personajul, misiune.rasplata.bani);
   if (obiect) pomeneInRucsac(personajul, obiect);
 
-  return { xp: misiune.rasplata.xp, bani: misiune.rasplata.bani, obiect: obiect };
+  // Unele misiuni nu dau un lucru, ci te invata ceva.
+  const invatate = [];
+  (misiune.rasplata.abilitati || []).forEach(function (idAb) {
+    const primita = daruiesteAbilitatea(personajul, idAb);
+    if (primita) invatate.push(primita);
+  });
+
+  return {
+    xp: misiune.rasplata.xp, bani: misiune.rasplata.bani,
+    obiect: obiect, abilitati: invatate
+  };
 }

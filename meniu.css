@@ -764,6 +764,9 @@
 .rasplata-randuri { display: flex; gap: 18px; font-size: 12.5px; }
 .rasplata-randuri b { color: #c9a0e8; }
 
+/* Abilitatea pe care o inveti la capatul unei misiuni de clasa */
+.nume-abilitate-rasplata { color: #ffd34d; font-weight: 600; }
+
 .alegeri-rasplata { display: flex; flex-direction: column; gap: 5px; }
 .alegere {
   display: flex; align-items: center; gap: 9px;

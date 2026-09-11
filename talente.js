@@ -58,7 +58,7 @@ const TALENTE = {
         { id: 'ochiDeCalau', nume: 'Executioner', treapta: 3, maxRang: 3,
           efect: 'critic', valoare: 2,
           descriere: 'Critical chance increased by {v}%' },
-        { id: 'furtunaDeLame', nume: 'Bladestorm', treapta: 4, maxRang: 1,
+        { id: 'furtunaDeLame', nume: 'Cutting Circle', treapta: 4, maxRang: 1,
           efect: 'dmgAbilitate', valoare: 30, cere: 'ochiDeCalau',
           descriere: 'Ability damage increased by {v}%' }
       ]
@@ -90,7 +90,7 @@ const TALENTE = {
       ]
     },
     {
-      id: 'furie', nume: 'Fury',
+      id: 'furie', nume: 'Ironblood',
       talente: [
         { id: 'sangeFierbinte', nume: 'Hot Blood', treapta: 0, maxRang: 5,
           efect: 'regen', valoare: 6,
@@ -98,13 +98,13 @@ const TALENTE = {
         { id: 'lovituriIeftine', nume: 'Cheap Blows', treapta: 0, maxRang: 5,
           efect: 'costResursa', valoare: 4,
           descriere: 'Abilities cost {v}% less' },
-        { id: 'rasuflare', nume: 'Second Wind', treapta: 1, maxRang: 3,
+        { id: 'rasuflare', nume: 'Catch Breath', treapta: 1, maxRang: 3,
           efect: 'pauza', valoare: 6,
           descriere: 'Ability cooldowns are {v}% shorter' },
-        { id: 'turbare', nume: 'Frenzy', treapta: 2, maxRang: 5,
+        { id: 'turbare', nume: 'Wild Swings', treapta: 2, maxRang: 5,
           efect: 'viteza', valoare: 2, cere: 'sangeFierbinte',
           descriere: 'You strike {v}% more often' },
-        { id: 'setelDeSange', nume: 'Bloodthirst', treapta: 3, maxRang: 3,
+        { id: 'setelDeSange', nume: 'Red Hunger', treapta: 3, maxRang: 3,
           efect: 'dmgArma', valoare: 3,
           descriere: 'Weapon damage increased by {v}%' },
         { id: 'nebunie', nume: 'Reckless Rage', treapta: 3, maxRang: 2,
@@ -119,7 +119,7 @@ const TALENTE = {
 
   hunter: [
     {
-      id: 'tras', nume: 'Marksmanship',
+      id: 'tras', nume: 'Bowcraft',
       talente: [
         { id: 'ochiSigur', nume: 'Steady Aim', treapta: 0, maxRang: 5,
           efect: 'dmgArma', valoare: 2,
@@ -188,7 +188,7 @@ const TALENTE = {
         { id: 'siretenie', nume: 'Guile', treapta: 2, maxRang: 5,
           efect: 'critic', valoare: 1,
           descriere: 'Critical chance increased by {v}%' },
-        { id: 'lovituraPeLaSpate', nume: 'Ambush', treapta: 3, maxRang: 3,
+        { id: 'lovituraPeLaSpate', nume: 'Backstrike', treapta: 3, maxRang: 3,
           efect: 'dmgAbilitate', valoare: 7,
           descriere: 'Ability damage increased by {v}%' },
         { id: 'maiestrie', nume: 'Master Hunter', treapta: 4, maxRang: 1,
@@ -200,7 +200,7 @@ const TALENTE = {
 
   mage: [
     {
-      id: 'foc', nume: 'Destruction',
+      id: 'foc', nume: 'Emberwork',
       talente: [
         { id: 'flacaraVie', nume: 'Living Flame', treapta: 0, maxRang: 5,
           efect: 'dmgAbilitate', valoare: 3,
@@ -220,13 +220,13 @@ const TALENTE = {
         { id: 'putereBruta', nume: 'Raw Power', treapta: 3, maxRang: 3,
           efect: 'dmgAbilitate', valoare: 5,
           descriere: 'Spell damage increased by {v}%' },
-        { id: 'cataclism', nume: 'Cataclysm', treapta: 4, maxRang: 1,
+        { id: 'cataclism', nume: 'Great Burning', treapta: 4, maxRang: 1,
           efect: 'dmgAbilitate', valoare: 25, cere: 'putereBruta',
           descriere: 'Spell damage increased by {v}%' }
       ]
     },
     {
-      id: 'arcan', nume: 'Arcane',
+      id: 'arcan', nume: 'Sigilry',
       talente: [
         { id: 'fantana', nume: 'Deep Well', treapta: 0, maxRang: 5,
           efect: 'regen', valoare: 8,
@@ -307,7 +307,7 @@ const TALENTE = {
       ]
     },
     {
-      id: 'umbra', nume: 'Shadow',
+      id: 'umbra', nume: 'Duskwork',
       talente: [
         { id: 'umbraTaioasa', nume: 'Cutting Shadow', treapta: 0, maxRang: 5,
           efect: 'dmgAbilitate', valoare: 3,
@@ -321,7 +321,7 @@ const TALENTE = {
         { id: 'valDeUmbra', nume: 'Shadow Veil', treapta: 2, maxRang: 3,
           efect: 'dodge', valoare: 1,
           descriere: 'Dodge chance increased by {v}%' },
-        { id: 'chinuire', nume: 'Torment', treapta: 2, maxRang: 5,
+        { id: 'chinuire', nume: 'Anguish', treapta: 2, maxRang: 5,
           efect: 'critic', valoare: 1,
           descriere: 'Critical chance increased by {v}%' },
         { id: 'bezna', nume: 'Deep Night', treapta: 3, maxRang: 3,
@@ -333,7 +333,7 @@ const TALENTE = {
       ]
     },
     {
-      id: 'disciplina', nume: 'Discipline',
+      id: 'disciplina', nume: 'Resolve',
       talente: [
         { id: 'trupCalit', nume: 'Tempered Body', treapta: 0, maxRang: 5,
           efect: 'viata', valoare: 2,
@@ -344,7 +344,7 @@ const TALENTE = {
         { id: 'stapanireDeSine', nume: 'Composure', treapta: 1, maxRang: 5,
           efect: 'damageIncasat', valoare: 2,
           descriere: 'Damage taken reduced by {v}%' },
-        { id: 'meditatie', nume: 'Meditation', treapta: 2, maxRang: 5,
+        { id: 'meditatie', nume: 'Stillness', treapta: 2, maxRang: 5,
           efect: 'regen', valoare: 8,
           descriere: 'Out of combat recovery increased by {v}%' },
         { id: 'tarie', nume: 'Fortitude', treapta: 2, maxRang: 3,

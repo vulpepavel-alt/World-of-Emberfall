@@ -207,7 +207,7 @@ const RETETE = [
   },
   {
     id: 'brew_str_01', meserie: 'brewing', nume: 'Draught of Might',
-    cere: [{ nume: 'Nightbloom', cate: 2 }, { nume: 'Silverleaf', cate: 1 }],
+    cere: [{ nume: 'Nightbloom', cate: 2 }, { nume: 'Mistleaf', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 150, galben: 175, verde: 195, gri: 225 },
     face: { fel: 'consumabil', nume: 'Draught of Might', valoare: 90,
@@ -217,7 +217,7 @@ const RETETE = [
   },
   {
     id: 'brew_heal_03', meserie: 'brewing', nume: 'Deep Healing Draught',
-    cere: [{ nume: 'Emberroot', cate: 2 }, { nume: 'Silverleaf', cate: 2 }],
+    cere: [{ nume: 'Emberroot', cate: 2 }, { nume: 'Mistleaf', cate: 2 }],
     statie: null,
     praguri: { portocaliu: 220, galben: 245, verde: 265, gri: 295 },
     face: { fel: 'consumabil', nume: 'Deep Healing Draught', valoare: 180,
@@ -378,7 +378,7 @@ const RETETE = [
   },
   {
     id: 'band_03', meserie: 'bandaging', nume: 'Deep Bandage',
-    cere: [{ nume: 'Clean Wrapping', cate: 2 }, { nume: 'Silverleaf', cate: 1 }],
+    cere: [{ nume: 'Clean Wrapping', cate: 2 }, { nume: 'Mistleaf', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 160, galben: 185, verde: 205, gri: 235 },
     face: { fel: 'consumabil', nume: 'Deep Bandage', valoare: 64,

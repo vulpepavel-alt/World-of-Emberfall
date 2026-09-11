@@ -2483,9 +2483,7 @@ function atingiCeva(scena, x, y) {
       return true;
     }
     // Cine are marfa deschide taraba; ceilalti, misiunile.
-    if (cineva.marfa) deschideTaraba(cineva);
-    else if (cineva.cine && cineva.cine.invata) deschideAntrenorul(cineva);
-    else deschideMisiunile(cineva);
+    deschideCeTrebuie(cineva);
     return true;
   }
 
@@ -2529,9 +2527,34 @@ function interactioneaza(scena) {
   if (gasit.fel === 'nod') { incepeCulesul(scena, gasit.ce); return; }
   if (gasit.fel === 'apa') { arunciUndita(scena, gasit.ce); return; }
   if (gasit.fel === 'tragUndita') { tragiUndita(scena); return; }
-  if (gasit.ce.marfa) deschideTaraba(gasit.ce);
-  else if (gasit.ce.cine && gasit.ce.cine.invata) deschideAntrenorul(gasit.ce);
-  else deschideMisiunile(gasit.ce);
+  deschideCeTrebuie(gasit.ce);
+}
+
+
+// Un NPC poate avea mai multe lucruri de spus. Ordinea e mereu
+// aceeasi: marfa, apoi misiunile care asteapta, apoi invatatul.
+//
+// Antrenorul de clasa da si misiuni de clasa. Daca are una de dat
+// sau una de primit inapoi, aia e mai importanta decat lista de
+// abilitati - din fereastra de misiune se ajunge oricum la invatat,
+// cu butonul Train.
+function deschideCeTrebuie(npcul) {
+
+  if (npcul.marfa) { deschideTaraba(npcul); return; }
+
+  const invata = npcul.cine && npcul.cine.invata;
+
+  if (invata && !areCevaDeSpus(npcul)) { deschideAntrenorul(npcul); return; }
+
+  deschideMisiunile(npcul);
+}
+
+
+// Are o misiune de dat ('!') sau una gata de predat ('?')?
+function areCevaDeSpus(npcul) {
+  if (typeof semnulLui !== 'function') return false;
+  const semn = semnulLui(personaj, zona.nume, npcul.felul);
+  return semn === '!' || semn === '?';
 }
 
 

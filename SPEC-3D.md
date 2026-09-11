@@ -213,7 +213,7 @@ Undead: Mordris, Nezra, Ossian, Valka, Cryven, Gwynn
 | Clasă | Abilitate | Cost | Cooldown | Cast | Efect |
 |---|---|---|---|---|---|
 | Warrior | **Heavy Strike** | 25 rage | 0 | 0 | lovitură cu damage dublu |
-| Hunter | **Aimed Shot** | 25 mana | 6 s | 0 | săgeată cu damage dublu |
+| Hunter | **Drawn Shot** | 25 mana | 6 s | 0 | săgeată cu damage dublu |
 | Mage | **Arcane Bolt** | 20 mana | 3 s | **1.5 s** | 8–12 damage, rază 200, culoare `#2f6fd0` |
 | Priest | **Holy Spark** | 18 mana | 2.5 s | 0 | 6–10 damage, rază 200, culoare `#e8c15a` |
 | Priest | **Mend Wounds** | 25 mana | 6 s | 0 | vindecă 15–20 |
@@ -242,7 +242,7 @@ Fiecare talent are `valoare` = cât dă **un singur rang**. Trei rânduri în `H
 
 **Bulwark** — t0 Toughened Hide (5×4% armura) · t0 Hardened Body (5×2% viata) · t1 Absorb Blow (5×2% damageIncasat) · t2 Sure Footing (3×1% dodge) · t2 Iron Will (5×2% viata, cere Hardened Body) · t3 Wall of Steel (3×3% damageIncasat, cere Absorb Blow) · t4 Unbreakable (1×15% viata)
 
-**Fury** — t0 Hot Blood (5×6% regen) · t0 Cheap Blows (5×4% costResursa) · t1 Second Wind (3×6% pauza) · t2 Frenzy (5×2% viteza, cere Hot Blood) · t3 Bloodthirst (3×3% dmgArma) · t3 Reckless Rage (2×2% critic) · t4 War Cry (1×12% dmgArma, cere Bloodthirst)
+**Ironblood** — t0 Hot Blood (5×6% regen) · t0 Cheap Blows (5×4% costResursa) · t1 Catch Breath (3×6% pauza) · t2 Wild Swings (5×2% viteza, cere Hot Blood) · t3 Red Hunger (3×3% dmgArma) · t3 Reckless Rage (2×2% critic) · t4 War Cry (1×12% dmgArma, cere Red Hunger)
 
 ### HUNTER
 

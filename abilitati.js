@@ -317,7 +317,7 @@ const ABILITATI = [
     costRage: 0, costMana: 0, pauza: 15000, incantare: 0, daRage: 15
   },
   {
-    id: 'warrior_sunder_01', clasa: 'warrior', nume: 'Armor Split',
+    id: 'warrior_sunder_01', prinQuest: true, clasa: 'warrior', nume: 'Armor Split',
     descriere: 'A blow aimed at the joints. Their armor holds less.',
     fel: 'slabire', nivel: 10, laCateNiveluri: 12, ranguri: 5, crestere: 1.12,
     costRage: 15, costMana: 0, pauza: 0, incantare: 0,
@@ -345,7 +345,7 @@ const ABILITATI = [
     raza: 150, tine: 6000
   },
   {
-    id: 'warrior_intercept_01', clasa: 'warrior', nume: 'Closing Leap',
+    id: 'warrior_intercept_01', prinQuest: true, clasa: 'warrior', nume: 'Closing Leap',
     descriere: 'A leap that catches something already running.',
     fel: 'saritura', laTinta: true, nivel: 30, laCateNiveluri: 14, ranguri: 3, crestere: 1,
     costRage: 10, costMana: 0, pauza: 25000, incantare: 0
@@ -360,19 +360,19 @@ const ABILITATI = [
     tine: 0, laCat: 0, peTura: 12
   },
   {
-    id: 'hunter_tame_01', clasa: 'hunter', nume: 'Bind Beast',
+    id: 'hunter_tame_01', prinQuest: true, clasa: 'hunter', nume: 'Bind Beast',
     descriere: 'Bind a beast to you. It must be no higher level than you are.',
     fel: 'imblanzire', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 0, pauza: 20000, incantare: 4000, raza: 220
   },
   {
-    id: 'hunter_call_01', clasa: 'hunter', nume: 'Call Companion',
+    id: 'hunter_call_01', prinQuest: true, clasa: 'hunter', nume: 'Call Companion',
     descriere: 'Calls your beast to your side, or sends it away again.',
     fel: 'cheama', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 10, pauza: 4000, incantare: 0
   },
   {
-    id: 'hunter_revive_01', clasa: 'hunter', nume: 'Rouse Companion',
+    id: 'hunter_revive_01', prinQuest: true, clasa: 'hunter', nume: 'Rouse Companion',
     descriere: 'Brings your beast back on its feet, half mended.',
     fel: 'invie', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 40, pauza: 30000, incantare: 3000
@@ -434,7 +434,7 @@ const ABILITATI = [
     absoarbe: 120, tine: 30000
   },
   {
-    id: 'mage_poly_01', clasa: 'mage', nume: 'Shapebind',
+    id: 'mage_poly_01', prinQuest: true, clasa: 'mage', nume: 'Shapebind',
     descriere: 'One enemy forgets what it was doing, and stands there.',
     fel: 'farmec', nivel: 8, laCateNiveluri: 14, ranguri: 4, crestere: 1.2,
     costRage: 0, costMana: 30, pauza: 20000, incantare: 1500,
@@ -463,7 +463,7 @@ const ABILITATI = [
     absoarbe: 60, tine: 30000
   },
   {
-    id: 'priest_fear_01', clasa: 'priest', nume: 'Wail',
+    id: 'priest_fear_01', prinQuest: true, clasa: 'priest', nume: 'Wail',
     descriere: 'A cry that scatters everything around you.',
     fel: 'frica', nivel: 14, laCateNiveluri: 16, ranguri: 3, crestere: 1,
     costRage: 0, costMana: 40, pauza: 45000, incantare: 0,
@@ -597,6 +597,11 @@ function ceAreAntrenorul(personajul) {
     const urmator = acum + 1;
     if (urmator > ab.ranguri) return;                 // le stie pe toate
 
+    // Unele nu se cumpara: primul rang vine dintr-o misiune data tot
+    // de antrenor. Dupa ce l-ai primit, rangurile urmatoare se invata
+    // normal, cu bani, ca la orice alta abilitate.
+    if (ab.prinQuest && acum === 0) return;
+
     const nivelCerut = nivelulRangului(ab, urmator);
     const cost = costulInvatarii(nivelCerut);
 
@@ -639,6 +644,7 @@ function invataAbilitatea(personajul, id, rang) {
 
   const acum = (personajul.stiute || {})[id] || 0;
   if (rang !== acum + 1 || rang > ab.ranguri) return null;
+  if (ab.prinQuest && acum === 0) return null;       // primul rang vine din misiune
 
   const nivelCerut = nivelulRangului(ab, rang);
   if (personajul.nivel < nivelCerut) return null;
@@ -655,6 +661,35 @@ function invataAbilitatea(personajul, id, rang) {
   asazaPeBaraDacaIncape(personajul, id);
 
   return { abilitate: abilitateaLaRang(ab, rang), cost: cost };
+}
+
+
+// Abilitatile clasei tale care NU se cumpara si pe care nu le ai
+// inca. Le aratam la antrenor, scrise stins, ca sa stii ca exista
+// si ca se primesc dintr-o misiune - nu sa te intrebi de ce lipsesc.
+function abilitatilePrinQuest(personajul) {
+  const stiute = personajul.stiute || {};
+  return abilitatileClasei(personajul.idClasa).filter(function (ab) {
+    return ab.prinQuest && !stiute[ab.id];
+  });
+}
+
+
+// Abilitatea primita de-a gata, la capatul unei misiuni. Nu costa
+// bani si nu cere nivel: daca ai dus misiunea la bun sfarsit, ai
+// meritat-o. Da inapoi abilitatea, ca s-o putem arata in fereastra.
+function daruiesteAbilitatea(personajul, id) {
+
+  const ab = gasesteAbilitatea(id);
+  if (!ab || ab.clasa !== personajul.idClasa) return null;
+
+  personajul.stiute = personajul.stiute || {};
+  if (personajul.stiute[id]) return null;             // o ai deja
+
+  personajul.stiute[id] = 1;
+  asazaPeBaraDacaIncape(personajul, id);
+
+  return abilitateaLaRang(ab, 1);
 }
 
 

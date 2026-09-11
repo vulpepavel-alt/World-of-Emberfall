@@ -193,7 +193,7 @@ const NODURI = {
     culoare: 0x9a6fd8, cat: [1, 2], valoare: 13
   },
   herbSilver: {
-    cheie: 'herbSilver', meserie: 'foraging', material: 'Silverleaf',
+    cheie: 'herbSilver', meserie: 'foraging', material: 'Mistleaf',
     minim: 130, praguri: { portocaliu: 130, galben: 155, verde: 180, gri: 230 },
     culoare: 0xcfd6dc, cat: [1, 3], valoare: 27
   },

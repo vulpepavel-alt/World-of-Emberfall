@@ -281,5 +281,11 @@ const TEXT = {
   NO_QUESTS:       'Nothing for you right now.',
   EMPTY_LOG:       'You have no quests. Look for a golden ! above someone in your camp.',
   REQUIRES_LEVEL:  'Requires level',
-  NEEDS_BEFORE:    'Finish the quest before it first.'
+  NEEDS_BEFORE:    'Finish the quest before it first.',
+
+  // Abilitatile care vin dintr-o misiune, nu de la antrenor
+  TEACHES_YOU:     'Teaches you:',
+  ABILITY_EARNED:  'You have learned {a}!',
+  EARNED_BY_TASK:  'Earned by doing a task for your trainer.',
+  TRAINER_TASK:    'Ask your trainer about it.'
 };

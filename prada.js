@@ -529,9 +529,28 @@ function scrieAntrenorul() {
     html += '<div class="mesaj-fereastra">' + mesajFereastra + '</div>';
   }
 
+  // Ce nu se cumpara: se scrie la fel, dar fara pret si fara buton.
+  const prinMisiune = abilitatilePrinQuest(personaj);
+
+  function scrieCeVinDinMisiune() {
+    if (!prinMisiune.length) return '';
+    let h = '<div class="lista-invatat">';
+    prinMisiune.forEach(function (ab) {
+      h += '<div class="rand-invatat nu-poti">';
+      h += '<div class="cap-invatat"><b>' + ab.nume + '</b>' +
+           '<span class="stins">' + TEXT.REQUIRES + ' ' + ab.nivel + '</span></div>';
+      h += '<div class="desc-invatat">' + ab.descriere + '</div>';
+      h += '<div class="jos-invatat"><span class="stins">' +
+           TEXT.EARNED_BY_TASK + '</span></div>';
+      h += '</div>';
+    });
+    return h + '</div>';
+  }
+
   if (!de_invatat.length) {
-    html += '<div class="gol-fereastra">' + TEXT.TRAINER_EMPTY + '</div></div>';
-    corpFereastra.innerHTML = html;
+    html += '<div class="gol-fereastra">' + TEXT.TRAINER_EMPTY + '</div>';
+    html += scrieCeVinDinMisiune();
+    corpFereastra.innerHTML = html + '</div>';
     return;
   }
 
@@ -561,7 +580,9 @@ function scrieAntrenorul() {
     html += '</div>';
   });
 
-  html += '</div></div>';
+  html += '</div>';
+  html += scrieCeVinDinMisiune();
+  html += '</div>';
   corpFereastra.innerHTML = html;
 
   corpFereastra.querySelectorAll('[data-invat]').forEach(function (b) {
@@ -906,6 +927,22 @@ function scrieMisiunile() {
           '<span>' + TEXT.EXPERIENCE + ': <b>' + m.rasplata.xp + '</b></span>' +
           '<span>' + baniHtml(m.rasplata.bani) + '</span></div>';
 
+  // Unele misiuni nu-ti dau un lucru, ci te invata ceva. Se vede de
+  // dinainte, ca sa stii de ce meriti sa te duci dupa ea.
+  const invata = (m.rasplata.abilitati || []).map(function (id) {
+    const ab = gasesteAbilitatea(id);
+    return ab ? ab.nume : null;
+  }).filter(Boolean);
+
+  if (invata.length > 0) {
+    html += '<div class="cap-sectiune">' + TEXT.TEACHES_YOU + '</div>';
+    html += '<div class="rasplata-randuri">';
+    invata.forEach(function (nume) {
+      html += '<span class="nume-abilitate-rasplata">' + nume + '</span>';
+    });
+    html += '</div>';
+  }
+
   if (alegeri.length > 0) {
     if (rasplataAleasa === null) rasplataAleasa = alegeri[0].id;
     html += '<div class="cap-sectiune">' + TEXT.CHOOSE_REWARD + '</div>';
@@ -924,9 +961,14 @@ function scrieMisiunile() {
 
   html += '</div>';
 
+  // Antrenorul da si misiuni, si abilitati. Butonul asta te duce la
+  // lista lui de abilitati fara sa mai iesi si sa vorbesti din nou.
+  const eAntrenor = npcCuMisiuni.cine && npcCuMisiuni.cine.invata;
+
   html += '<div class="jos-fereastra">' +
           (gata ? '<button class="buton" id="preda-misiune">' + TEXT.COMPLETE + '</button>'
                 : '<button class="buton" id="ia-misiune">' + TEXT.ACCEPT + '</button>') +
+          (eAntrenor ? '<button class="buton" id="spre-antrenor">' + TEXT.TRAIN + '</button>' : '') +
           (mesajFereastra ? '<span class="mesaj-fereastra">' + mesajFereastra + '</span>' : '<span></span>') +
           '</div>';
 
@@ -938,6 +980,11 @@ function scrieMisiunile() {
       rasplataAleasa = Number(b.dataset.aleg);
       scrieMisiunile();
     });
+  });
+
+  const spreAntrenor = document.getElementById('spre-antrenor');
+  if (spreAntrenor) spreAntrenor.addEventListener('click', function () {
+    deschideAntrenorul(npcCuMisiuni);
   });
 
   const deLuat = document.getElementById('ia-misiune');
@@ -962,6 +1009,19 @@ function scrieMisiunile() {
     // Experienta o da jocul, ca sa se vada si sa urci in nivel.
     if (typeof primesteXp === 'function' && jucator) {
       primesteXp(jucator.scene, primit.xp);
+    }
+
+    // Daca misiunea te-a invatat ceva, se striga deasupra capului si
+    // se rescriu butoanele, ca abilitatea noua sa apara pe bara.
+    (primit.abilitati || []).forEach(function (ab, i) {
+      if (typeof aratacuvant === 'function' && jucator) {
+        aratacuvant(jucator.scene, jucator.x, jucator.y - 90 - i * 24,
+          TEXT.ABILITY_EARNED.replace('{a}', ab.nume), '#ffd34d');
+      }
+    });
+    if (primit.abilitati && primit.abilitati.length > 0 &&
+        typeof scrieButoaneleAbilitatilor === 'function') {
+      scrieButoaneleAbilitatilor();
     }
     if (typeof actualizeazaSemnele === 'function') actualizeazaSemnele();
     if (typeof aplicaTalentele === 'function') aplicaTalentele();
