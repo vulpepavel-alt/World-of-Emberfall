@@ -179,7 +179,9 @@ function pradaDeLaMob(nivelMob, esteUmanoid) {
 
 // Are ceva de luat, sau e un trup gol?
 function pradaAreCeva(prada) {
-  return !!prada && (prada.bani > 0 || prada.obiecte.length > 0);
+  if (!prada) return false;
+  const deMisiune = (prada.obiecteMisiune || []).length;
+  return prada.bani > 0 || prada.obiecte.length > 0 || deMisiune > 0;
 }
 
 

@@ -65,6 +65,7 @@ function scrieMeniul() {
   scriePaginaSpells();
   scriePaginaTalents();
   scriePaginaInventory();
+  scriePaginaQuests();
 }
 
 
@@ -435,6 +436,40 @@ function scriePaginaInventory() {
 }
 
 
+function scriePaginaQuests() {
+
+  const active = misiuniActive(personaj);
+  const predate = MISIUNI.filter(function (m) { return starea(personaj, m.id) === 'predata'; });
+
+  let html = '<div class="cutie"><h3>' + TEXT.QUEST_LOG + ' &mdash; ' + active.length + '</h3>';
+
+  if (active.length === 0) {
+    html += '<div class="gol-fereastra">' + TEXT.EMPTY_LOG + '</div>';
+  } else {
+    active.forEach(function (m) {
+      const gata = starea(personaj, m.id) === 'gata';
+      html += '<div class="misiune-carnet' + (gata ? ' gata' : '') + '">' +
+              '<div class="titlu-misiune">' + m.titlu +
+              ' <span class="nivel-misiune">(' + TEXT.LEVEL + ' ' + m.nivel + ')</span></div>' +
+              '<div class="text-misiune">' + m.text + '</div>' +
+              '<div class="cerinta-misiune' + (gata ? ' gata' : '') + '">' +
+              textulCerintei(personaj, m) + '</div>' +
+              '</div>';
+    });
+  }
+  html += '</div>';
+
+  if (predate.length > 0) {
+    html += '<div class="cutie"><h3>Completed &mdash; ' + predate.length + '</h3>' +
+            '<div class="misiuni-predate">' +
+            predate.map(function (m) { return m.titlu; }).join(' &middot; ') +
+            '</div></div>';
+  }
+
+  document.getElementById('pagina-quests').innerHTML = html;
+}
+
+
 // ----------------------------------------------------------
 //  Filele de sus
 // ----------------------------------------------------------
@@ -445,7 +480,7 @@ document.querySelectorAll('[data-fila]').forEach(function (buton) {
     document.querySelectorAll('[data-fila]').forEach(function (b) {
       b.classList.toggle('aleasa', b.dataset.fila === filaCurenta);
     });
-    ['character', 'spells', 'talents', 'inventory'].forEach(function (nume) {
+    ['character', 'spells', 'talents', 'inventory', 'quests'].forEach(function (nume) {
       document.getElementById('pagina-' + nume).classList.toggle('ascuns', nume !== filaCurenta);
     });
   });

@@ -82,5 +82,22 @@ const TEXT = {
   NOTHING_TO_SELL: 'You have nothing to sell.',
   SOLD:            'Sold',
   BOUGHT:          'Bought',
-  CLOSE:           'Close'
+  CLOSE:           'Close',
+
+  // Misiunile
+  QUESTS:          'Quests',
+  QUEST_LOG:       'Quest Log',
+  ACCEPT:          'Accept',
+  COMPLETE:        'Complete',
+  DECLINE:         'Decline',
+  OBJECTIVES:      'Objectives',
+  REWARDS:         'Rewards',
+  CHOOSE_REWARD:   'Choose one:',
+  EXPERIENCE:      'Experience',
+  QUEST_ACCEPTED:  'Quest accepted',
+  QUEST_COMPLETE:  'Quest complete!',
+  NO_QUESTS:       'Nothing for you right now.',
+  EMPTY_LOG:       'You have no quests. Look for a golden ! above someone in your camp.',
+  REQUIRES_LEVEL:  'Requires level',
+  NEEDS_BEFORE:    'Finish the quest before it first.'
 };

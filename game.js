@@ -998,13 +998,15 @@ function atingiCeva(scena, x, y) {
     return true;
   }
 
-  const negustorul = negustorulDeLangaTine(x, y);
-  if (negustorul) {
-    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, negustorul.x, negustorul.y) > 90) {
+  const cineva = npcDeLangaTine(x, y);
+  if (cineva) {
+    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, cineva.x, cineva.y) > 90) {
       aratacuvant(scena, jucator.x, jucator.y - 40, TEXT.TOO_FAR, UI.textStins);
       return true;
     }
-    deschideTaraba(negustorul);
+    // Cine are marfa deschide taraba; ceilalti, misiunile.
+    if (cineva.marfa) deschideTaraba(cineva);
+    else deschideMisiunile(cineva);
     return true;
   }
 
@@ -1068,12 +1070,12 @@ function saculDeLangaTine(x, y) {
 }
 
 
-// Acelasi lucru pentru negustori.
-function negustorulDeLangaTine(x, y) {
+// Acelasi lucru pentru personajele prietenoase: negustori, dar si
+// cei care dau misiuni.
+function npcDeLangaTine(x, y) {
   let celMaiAproape = null;
   let ceaMaiMica = 90;
   npci.forEach(function (p) {
-    if (!p.marfa) return;
     const d = Phaser.Math.Distance.Between(x, y, p.x, p.y);
     if (d < ceaMaiMica) { ceaMaiMica = d; celMaiAproape = p; }
   });
@@ -1463,16 +1465,17 @@ function urcaInNivel(scena) {
   const proaspat = calculeazaPersonaj(personaj.idRasa, personaj.idClasa,
                                       personaj.infatisare, nivelNou);
 
-  // Pastram ce e al tau: numele, experienta si talentele cheltuite.
-  const numeSalvat = personaj.nume;
-  const xpSalvat = personaj.xp;
-  const talenteSalvate = personaj.talente;
-
-  Object.keys(proaspat).forEach(function (cheie) { personaj[cheie] = proaspat[cheie]; });
-
-  personaj.nume = numeSalvat;
-  personaj.xp = xpSalvat;
-  if (talenteSalvate) personaj.talente = talenteSalvate;
+  // ATENTIE: pana acum copiam TOT peste personaj si salvam inapoi
+  // doar numele, experienta si talentele. Asta insemna ca la fiecare
+  // urcare in nivel iti pierdeai echipamentul, rucsacul, banii si
+  // misiunile - se faceau la loc goale, ca la un personaj nou.
+  //
+  // Acum luam doar cele trei lucruri pe care le schimba chiar nivelul.
+  // Restul (statisticile, viata, attack power) se socotesc oricum din
+  // nou in aplicaTalentele(), pornind de la nivelul cel nou.
+  personaj.nivel        = proaspat.nivel;
+  personaj.xpNecesar    = proaspat.xpNecesar;
+  personaj.puncteTalent = proaspat.puncteTalent;
 
   // La nivel nou esti ca nou.
   personaj.viata = personaj.viataMaxima;
@@ -2366,6 +2369,7 @@ function creeazaMob(scena, loc) {
 
   // Ce tine minte fiecare inamic.
   mob.fel = fel;
+  mob.felul = loc.fel;      // 'wolf', 'bandit'... numele scurt, pentru misiuni
   mob.stats = stats;
   mob.viataMaxima = stats.viata;
   mob.viata = stats.viata;
@@ -2428,13 +2432,43 @@ function creeazaNpc(scena, loc) {
     strokeThickness: 3
   }).setOrigin(0.5));
 
+  // Semnul de deasupra capului: ! daca are ceva de dat, ? daca ai
+  // terminat ceva si te asteapta. Acelasi lucru ca in WoW.
+  const semn = scena.add.text(0, -62, '', {
+    fontFamily: UI.FONT,
+    fontSize: '26px',
+    fontStyle: 'bold',
+    color: '#ffd34d',
+    stroke: '#000000',
+    strokeThickness: 5
+  }).setOrigin(0.5);
+  p.add(semn);
+
   p.setDepth(9);
 
-  // Negustorii isi fac taraba o data, cand intri in zona.
   p.cine = cine;
+  p.felul = loc.fel;
+  p.semn = semn;
+
+  // Negustorii isi fac taraba o data, cand intri in zona.
   if (cine.vinde) p.marfa = faMarfa(cine.vinde);
 
   npci.push(p);
+  actualizeazaSemnul(p);
+}
+
+
+// Pune semnul potrivit deasupra unui personaj prietenos.
+function actualizeazaSemnul(p) {
+  if (!p.semn) return;
+  const semn = semnulLui(personaj, zona.nume, p.felul);
+  p.semn.setText(semn === '...' ? '?' : semn);
+  // Semnul stins inseamna "ai luat, dar n-ai terminat inca".
+  p.semn.setColor(semn === '...' ? '#7a6748' : '#ffd34d');
+}
+
+function actualizeazaSemnele() {
+  npci.forEach(actualizeazaSemnul);
 }
 
 
@@ -2475,7 +2509,20 @@ function loveste(scena, mob, damageBrut, critic) {
     // Ce a lasat in urma NU sare singur la tine, ca pana acum.
     // Ramane in trupul lui, iar tu te duci si il iei - ca in WoW.
     const prada = pradaDeLaMob(mob.stats.nivel, mob.fel.neam === 'umanoid');
+
+    // Lucrurile cerute de misiuni cad in acelasi trup.
+    prada.obiecteMisiune = obiecteDeMisiuneDeLa(personaj, mob.felul);
+
     if (pradaAreCeva(prada)) faSac(scena, mob.x, mob.y, prada);
+
+    // Misiunile de tip "omoara atatia" isi numara singure.
+    amUcis(personaj, mob.felul).forEach(function (avans) {
+      aratacuvant(scena, jucator.x, jucator.y - 70,
+        avans.terminata ? TEXT.QUEST_COMPLETE
+                        : textulCerintei(personaj, avans.misiune),
+        avans.terminata ? '#ffd34d' : UI.text);
+    });
+    actualizeazaSemnele();
 
     // CANNIBALIZE (Undead): dupa ce omori ceva, te refaci 10 secunde.
     if (personaj.idRasa === 'undead') {

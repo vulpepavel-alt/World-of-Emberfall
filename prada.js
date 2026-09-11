@@ -23,6 +23,9 @@ let saculDeschis = null;        // sacul de prada la care te uiti
 let negustorulDeschis = null;   // negustorul la care te uiti
 let filaTarabei = 'buy';
 let mesajFereastra = '';
+let npcCuMisiuni = null;       // cu cine vorbesti
+let misiuneaAratata = null;    // ce misiune se vede acum
+let rasplataAleasa = null;     // ce obiect ai ales din rasplata
 
 
 function potrivesteFereastra() {
@@ -36,6 +39,9 @@ function inchideFereastraDeschisa() {
   fereastraDeschisa = null;
   saculDeschis = null;
   negustorulDeschis = null;
+  npcCuMisiuni = null;
+  misiuneaAratata = null;
+  rasplataAleasa = null;
   mesajFereastra = '';
   ecranFereastra.classList.add('ascuns');
 }
@@ -80,6 +86,15 @@ function scriePrada() {
             baniHtml(prada.bani) + '</span></span></button>';
   }
 
+  (prada.obiecteMisiune || []).forEach(function (q, i) {
+    html += '<button class="rand-prada misiune" data-misiune="' + i + '">' +
+            '<span class="cutie-obiect semn-misiune">!</span>' +
+            '<span class="text-prada">' +
+            '<span class="nume-obiect">' + q.nume + '</span>' +
+            '<span class="stat-obiect">' + TEXT.QUESTS + '</span>' +
+            '</span></button>';
+  });
+
   prada.obiecte.forEach(function (o) {
     html += '<button class="rand-prada" data-iau="' + o.id + '" data-fisa="' + o.id + '">' +
             cutieObiect(o, 30) +
@@ -106,6 +121,10 @@ function scriePrada() {
     b.addEventListener('click', function () { iaObiectulDinSac(Number(b.dataset.iau)); });
   });
 
+  corpFereastra.querySelectorAll('[data-misiune]').forEach(function (b) {
+    b.addEventListener('click', function () { iaObiectulDeMisiune(Number(b.dataset.misiune)); });
+  });
+
   document.getElementById('ia-tot').addEventListener('click', iaTotDinSac);
 }
 
@@ -124,6 +143,13 @@ function iaTotDinSac() {
     sac.prada.bani = 0;
   }
 
+  // Lucrurile cerute de misiuni se iau intotdeauna: nu ocupa loc.
+  while ((sac.prada.obiecteMisiune || []).length > 0) {
+    const q = sac.prada.obiecteMisiune.shift();
+    adaugaLaMisiune(personaj, q.idMisiune);
+  }
+  if (typeof actualizeazaSemnele === 'function') actualizeazaSemnele();
+
   // Luam cat incape. Ce nu incape ramane in sac.
   const ramase = [];
   sac.prada.obiecte.forEach(function (o) {
@@ -132,6 +158,23 @@ function iaTotDinSac() {
   sac.prada.obiecte = ramase;
   mesajFereastra = ramase.length > 0 ? TEXT.BAG_FULL : '';
 
+  dupaCeAiLuat();
+}
+
+
+// Un lucru cerut de o misiune nu intra in rucsac: se scrie direct
+// in carnet. De aceea nu se poate umple rucsacul din misiuni.
+function iaObiectulDeMisiune(indice) {
+
+  if (!saculDeschis) return;
+  const lista = saculDeschis.prada.obiecteMisiune || [];
+  const q = lista[indice];
+  if (!q) return;
+
+  adaugaLaMisiune(personaj, q.idMisiune);
+  lista.splice(indice, 1);
+
+  if (typeof actualizeazaSemnele === 'function') actualizeazaSemnele();
   dupaCeAiLuat();
 }
 
@@ -352,3 +395,141 @@ window.addEventListener('resize', potrivesteFereastra);
 window.addEventListener('keydown', function (e) {
   if (e.key === 'Escape' && fereastraDeschisa) inchideFereastraDeschisa();
 });
+
+
+// ==========================================================
+//  FEREASTRA DE MISIUNE
+//
+//  Cand vorbesti cu cineva care are un semn deasupra capului.
+//  Trei infatisari, dupa cum stau lucrurile:
+//    - iti DA o misiune: textul ei, ce ai de facut, ce primesti
+//    - te ASTEAPTA cu una terminata: alegi rasplata si o predai
+//    - n-are nimic nou: iti arata la ce esti in mijloc
+// ==========================================================
+function deschideMisiunile(npcul) {
+
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+
+  fereastraDeschisa = 'misiuni';
+  npcCuMisiuni = npcul;
+  mesajFereastra = '';
+  rasplataAleasa = null;
+
+  // Ce ii aratam: intai ce e gata de predat, apoi ce poate fi luat.
+  const ale = misiunileLui(personaj, zona.nume, npcul.felul);
+  misiuneaAratata =
+    ale.find(function (m) { return starea(personaj, m.id) === 'gata'; }) ||
+    ale.find(function (m) { return poateFiLuata(personaj, m); }) ||
+    null;
+
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+  scrieMisiunile();
+}
+
+
+function scrieMisiunile() {
+
+  const cine = npcCuMisiuni.cine;
+  titluFereastra.textContent = cine.nume + '  <' + cine.titlu + '>';
+
+  // --- n-are nimic nou de spus ---
+  if (!misiuneaAratata) {
+    let html = '';
+    const active = misiunileLui(personaj, zona.nume, npcCuMisiuni.felul)
+      .filter(function (m) { return starea(personaj, m.id) === 'activa'; });
+
+    if (active.length === 0) {
+      html = '<div class="gol-fereastra">' + TEXT.NO_QUESTS + '</div>';
+    } else {
+      html = '<div class="lista-prada">';
+      active.forEach(function (m) {
+        html += '<div class="rand-misiune"><span class="titlu-misiune">' + m.titlu + '</span>' +
+                '<span class="cerinta-misiune">' + textulCerintei(personaj, m) + '</span></div>';
+      });
+      html += '</div>';
+    }
+    corpFereastra.innerHTML = html;
+    return;
+  }
+
+  const m = misiuneaAratata;
+  const gata = starea(personaj, m.id) === 'gata';
+  const alegeri = obiecteleDeRasplata(m);
+
+  let html = '<div class="corp-misiune">';
+  html += '<div class="titlu-mare-misiune">' + m.titlu + '</div>';
+  html += '<div class="text-misiune">' + m.text + '</div>';
+
+  html += '<div class="cap-sectiune">' + TEXT.OBJECTIVES + '</div>';
+  html += '<div class="cerinta-misiune' + (gata ? ' gata' : '') + '">' +
+          textulCerintei(personaj, m) + '</div>';
+
+  html += '<div class="cap-sectiune">' + TEXT.REWARDS + '</div>';
+  html += '<div class="rasplata-randuri">' +
+          '<span>' + TEXT.EXPERIENCE + ': <b>' + m.rasplata.xp + '</b></span>' +
+          '<span>' + baniHtml(m.rasplata.bani) + '</span></div>';
+
+  if (alegeri.length > 0) {
+    if (rasplataAleasa === null) rasplataAleasa = alegeri[0].id;
+    html += '<div class="cap-sectiune">' + TEXT.CHOOSE_REWARD + '</div>';
+    html += '<div class="alegeri-rasplata">';
+    alegeri.forEach(function (o) {
+      html += '<button class="alegere' + (rasplataAleasa === o.id ? ' aleasa' : '') +
+              '" data-aleg="' + o.id + '" data-fisa="' + o.id + '">' +
+              cutieObiect(o, 34) +
+              '<span class="text-prada">' +
+              '<span class="nume-obiect" style="color:' + o.culoare + '">' + o.nume + '</span>' +
+              '<span class="stat-obiect">' + descriereObiect(o) + '</span>' +
+              '</span></button>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  html += '<div class="jos-fereastra">' +
+          (gata ? '<button class="buton" id="preda-misiune">' + TEXT.COMPLETE + '</button>'
+                : '<button class="buton" id="ia-misiune">' + TEXT.ACCEPT + '</button>') +
+          (mesajFereastra ? '<span class="mesaj-fereastra">' + mesajFereastra + '</span>' : '<span></span>') +
+          '</div>';
+
+  corpFereastra.innerHTML = html;
+  legafisele(corpFereastra);
+
+  corpFereastra.querySelectorAll('[data-aleg]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      rasplataAleasa = Number(b.dataset.aleg);
+      scrieMisiunile();
+    });
+  });
+
+  const deLuat = document.getElementById('ia-misiune');
+  if (deLuat) deLuat.addEventListener('click', function () {
+    iaMisiunea(personaj, m.id);
+    if (typeof actualizeazaSemnele === 'function') actualizeazaSemnele();
+    inchideFereastraDeschisa();
+  });
+
+  const dePredat = document.getElementById('preda-misiune');
+  if (dePredat) dePredat.addEventListener('click', function () {
+
+    const primit = predaMisiunea(personaj, m.id, rasplataAleasa);
+    if (!primit) return;
+
+    if (primit.rucsacPlin) {
+      mesajFereastra = TEXT.BAG_FULL;
+      scrieMisiunile();
+      return;
+    }
+
+    // Experienta o da jocul, ca sa se vada si sa urci in nivel.
+    if (typeof primesteXp === 'function' && jucator) {
+      primesteXp(jucator.scene, primit.xp);
+    }
+    if (typeof actualizeazaSemnele === 'function') actualizeazaSemnele();
+    if (typeof aplicaTalentele === 'function') aplicaTalentele();
+
+    inchideFereastraDeschisa();
+  });
+}
