@@ -16,6 +16,7 @@ let infatisareAleasa = infatisareImplicita();
 //   eticheta- ce scrie in stanga randului (textul sta in texte.js)
 //   culoare - true daca optiunile sunt culori (se arata o mostra)
 const RANDURI_INFATISARE = [
+  { cheie: 'sex',        eticheta: TEXT.SEX,         culoare: false },
   { cheie: 'piele',      eticheta: TEXT.SKIN_COLOR,  culoare: true  },
   { cheie: 'fata',       eticheta: TEXT.FACE,        culoare: false },
   { cheie: 'parStil',    eticheta: TEXT.HAIR_STYLE,  culoare: false },
@@ -131,6 +132,7 @@ function construiesteInfatisarea() {
     inainte.textContent = '\u203a';
     inainte.addEventListener('click', function () { schimbaInfatisarea(rand.cheie, 1); });
 
+    linie.dataset.rand = rand.cheie;
     linie.appendChild(eticheta);
     linie.appendChild(inapoi);
     linie.appendChild(valoare);
@@ -164,8 +166,15 @@ function schimbaInfatisarea(cheie, pas) {
 function scrieInfatisarea() {
   const op = optiuniInfatisare(rasaAleasa);
 
+  // O femeie n-are barba: randul dispare de tot, ca sa nu stai sa
+  // dai prin trei optiuni care nu schimba nimic.
+  const eFemeie = op.sex[infatisareAleasa.sex].id === 'femeie';
+
   RANDURI_INFATISARE.forEach(function (rand) {
     const casuta = document.getElementById('val-' + rand.cheie);
+    const linie = casuta.closest('[data-rand]');
+    if (linie) linie.style.display = (rand.cheie === 'barba' && eFemeie) ? 'none' : '';
+
     const ales = op[rand.cheie][infatisareAleasa[rand.cheie]];
     const dinCate = ' (' + (infatisareAleasa[rand.cheie] + 1) + '/' + op[rand.cheie].length + ')';
 

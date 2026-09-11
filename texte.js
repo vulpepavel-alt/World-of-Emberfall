@@ -84,6 +84,7 @@ const TEXT = {
   RETURNING:  'Returning to your camp...',
 
   // Meniul de infatisare
+  SEX:         'Body',
   SKIN_COLOR:  'Skin Color',
   FACE:        'Face',
   HAIR_STYLE:  'Hair Style',

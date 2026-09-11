@@ -355,9 +355,23 @@ function calculeazaCritical(agilitate) {
 // ==========================================================
 
 // Toate listele din care poti alege, pentru o rasa anume.
+// ==========================================================
+//  BARBAT SAU FEMEIE
+//
+//  Se alege ca orice altceva din infatisare: un rand cu doua
+//  optiuni. Nu schimba nicio cifra - nici viata, nici damage-ul,
+//  nici ce poti purta. Schimba doar cum arati.
+// ==========================================================
+const SEXE = [
+  { id: 'barbat', nume: 'Male' },
+  { id: 'femeie', nume: 'Female' }
+];
+
+
 function optiuniInfatisare(idRasa) {
   const rasa = RASE[idRasa];
   return {
+    sex:        SEXE,
     piele:      rasa.optiuni.piele,
     fata:       STILURI_FATA,
     parStil:    STILURI_PAR,
@@ -368,7 +382,7 @@ function optiuniInfatisare(idRasa) {
 
 // Infatisarea de pornire: primul lucru din fiecare lista.
 function infatisareImplicita() {
-  return { piele: 0, fata: 0, parStil: 0, parCuloare: 0, barba: 0 };
+  return { sex: 0, piele: 0, fata: 0, parStil: 0, parCuloare: 0, barba: 0 };
 }
 
 // O infatisare la intamplare.
@@ -376,6 +390,7 @@ function infatisareLaIntamplare(idRasa) {
   const op = optiuniInfatisare(idRasa);
   const iaUna = lista => Math.floor(Math.random() * lista.length);
   return {
+    sex:        iaUna(op.sex),
     piele:      iaUna(op.piele),
     fata:       iaUna(op.fata),
     parStil:    iaUna(op.parStil),
@@ -442,11 +457,15 @@ function calculeazaPersonaj(idRasa, idClasa, infatisare, nivel) {
   const inf = potrivesteInfatisarea(idRasa, infatisare || infatisareImplicita());
   const op = optiuniInfatisare(idRasa);
   const aspect = {
+    sex:     op.sex[inf.sex].id,
     piele:   op.piele[inf.piele],
     par:     op.parCuloare[inf.parCuloare],
     fata:    op.fata[inf.fata].id,
     parStil: op.parStil[inf.parStil].id,
-    barba:   op.barba[inf.barba].id
+    // O femeie n-are barba, oricare ar fi randul ales. Randul nici
+    // nu se mai arata in meniu, dar daca vine dintr-o salvare veche
+    // il taiem aici, ca sa nu iasa o femeie cu barba.
+    barba:   (op.sex[inf.sex].id === 'femeie') ? 'fara' : op.barba[inf.barba].id
   };
 
   // --- Peste rezultat se aplica formulele de conversie ---

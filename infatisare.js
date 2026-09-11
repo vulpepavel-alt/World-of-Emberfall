@@ -75,6 +75,29 @@ function formePersonaj(p, optiuni) {
   const clasa  = p.culoareClasa;
   const forme  = [];
 
+  // ---- masurile trupului, dupa sex ----
+  //
+  // Nu doua desene separate: acelasi desen, cu alte masuri. O femeie
+  // are trupul mai ingust si talia stransa, umerii mai mici si
+  // picioarele putin mai subtiri. Restul - armura, arma, parul -
+  // merge exact la fel, deci fiecare piesa de echipament pe care o
+  // pui se vede pe amandoua.
+  const eaEste = (p.aspect.sex === 'femeie');
+
+  // Trupul se face din felii orizontale: latime si inaltime pentru
+  // fiecare. La un barbat sunt doua felii de aceeasi latime, deci
+  // iese un trunchi drept. La o femeie sunt trei - piept, talie
+  // stransa, solduri - si de aceea silueta se vede altfel dintr-o
+  // privire, nu doar "putin mai ingusta".
+  const T = eaEste
+    ? { felii: [ { w: 15, y: -1.5, h: 9 },     // piept
+                 { w: 10, y:  7,   h: 5 },     // talia
+                 { w: 15, y: 12,   h: 5 } ],   // soldurile
+        talie: 10, umar: 3.2, brat: 2.6, picior: 5.2, latUmeri: -1.5 }
+    : { felii: [ { w: 18, y: -0.5, h: 12 },
+                 { w: 18, y:  9,   h: 8 } ],
+        talie: 18, umar: 4, brat: 3, picior: 6, latUmeri: 0 };
+
   const mCap    = materialul(p, 'cap');
   const mUmeri  = materialul(p, 'umeri');
   const mSpate  = materialul(p, 'spate');
@@ -108,8 +131,8 @@ function formePersonaj(p, optiuni) {
 
   // ---- picioarele ----
   const culPicioare = mPicioare ? mPicioare.baza : nuanta(clasa, -55);
-  pune({ fel: 'dr', x: -4, y: 14, w: 6, h: 9, culoare: culPicioare });
-  pune({ fel: 'dr', x:  4, y: 14, w: 6, h: 9, culoare: culPicioare });
+  pune({ fel: 'dr', x: -3.6, y: 14, w: T.picior, h: 9, culoare: culPicioare });
+  pune({ fel: 'dr', x:  3.6, y: 14, w: T.picior, h: 9, culoare: culPicioare });
   // genunchii, o dunga mai deschisa
   pune({ fel: 'dr', x: -4, y: 12, w: 6, h: 2,
          culoare: mPicioare ? mPicioare.lumina : nuanta(clasa, -30) });
@@ -127,11 +150,16 @@ function formePersonaj(p, optiuni) {
 
   // ---- trupul, cu umbra pe stanga si lumina pe dreapta ----
   const culPiept = mPiept ? mPiept.baza : clasa;
-  pune({ fel: 'dr', x:  0, y: 2, w: 18, h: 19, culoare: culPiept });
-  pune({ fel: 'dr', x: -7, y: 2, w:  4, h: 19,
-         culoare: mPiept ? mPiept.umbra : nuanta(clasa, -30) });
-  pune({ fel: 'dr', x:  8, y: 2, w:  2, h: 19,
-         culoare: mPiept ? mPiept.lumina : nuanta(clasa, 25) });
+
+  // Fiecare felie, cu umbra pe stanga si lumina pe dreapta.
+  const culUmbra = mPiept ? mPiept.umbra : nuanta(clasa, -30);
+  const culLumina = mPiept ? mPiept.lumina : nuanta(clasa, 25);
+
+  T.felii.forEach(function (f) {
+    pune({ fel: 'dr', x: 0, y: f.y, w: f.w, h: f.h, culoare: culPiept });
+    pune({ fel: 'dr', x: -(f.w / 2 - 2), y: f.y, w: 4, h: f.h, culoare: culUmbra });
+    pune({ fel: 'dr', x:  (f.w / 2 - 1), y: f.y, w: 2, h: f.h, culoare: culLumina });
+  });
   if (mPiept) {
     // placa de pe piept si doua nituri
     pune({ fel: 'dr', x: 0, y: -1, w: 10, h: 8, culoare: mPiept.lumina });
@@ -141,32 +169,34 @@ function formePersonaj(p, optiuni) {
 
   // ---- bratele si mainile ----
   const culBrate = mPiept ? mPiept.umbra : nuanta(clasa, -18);
-  pune({ fel: 'dr', x: -10, y: 3, w: 3, h: 12, culoare: culBrate });
-  pune({ fel: 'dr', x:  10, y: 3, w: 3, h: 12, culoare: culBrate });
+  const xBrat = 10 + T.latUmeri;
+  pune({ fel: 'dr', x: -xBrat, y: 3, w: T.brat, h: 12, culoare: culBrate });
+  pune({ fel: 'dr', x:  xBrat, y: 3, w: T.brat, h: 12, culoare: culBrate });
   const culMaini = mManusi ? mManusi.baza : pielea;
-  pune({ fel: 'dr', x: -10, y: 10, w: 4, h: 4, culoare: culMaini });
-  pune({ fel: 'dr', x:  10, y: 10, w: 4, h: 4, culoare: culMaini });
+  pune({ fel: 'dr', x: -xBrat, y: 10, w: 4, h: 4, culoare: culMaini });
+  pune({ fel: 'dr', x:  xBrat, y: 10, w: 4, h: 4, culoare: culMaini });
   // inelul: o sclipire mica pe mana dreapta
-  if (mInel) pune({ fel: 'cerc', x: 10, y: 10, r: 1, culoare: mInel.ornament });
+  if (mInel) pune({ fel: 'cerc', x: xBrat, y: 10, r: 1, culoare: mInel.ornament });
 
   // ---- cureaua ----
-  pune({ fel: 'dr', x: 0, y: 8, w: 18, h: 3, culoare: mBrau ? mBrau.baza : '#2a2018' });
+  pune({ fel: 'dr', x: 0, y: 8, w: T.talie, h: 3, culoare: mBrau ? mBrau.baza : '#2a2018' });
   pune({ fel: 'dr', x: 0, y: 8, w:  4, h: 3, culoare: mBrau ? mBrau.ornament : '#b08d3a' });
   // talismanul atarna de curea
   if (mTalisman) pune({ fel: 'cerc', x: -6, y: 9, r: 1.6, culoare: mTalisman.ornament });
 
   // ---- umerii ----
-  const latUmar = mUmeri ? 5 + mUmeri.marime : 4;
+  const latUmar = mUmeri ? 5 + mUmeri.marime + T.latUmeri : T.umar;
   const inaltUmar = mUmeri ? 7 + mUmeri.marime : 7;
   const culUmeri = mUmeri ? mUmeri.baza : nuanta(clasa, 16);
-  pune({ fel: 'dr', x: -9, y: -4, w: latUmar, h: inaltUmar, culoare: culUmeri });
-  pune({ fel: 'dr', x:  9, y: -4, w: latUmar, h: inaltUmar, culoare: culUmeri });
+  const xUmar = 9 + T.latUmeri;
+  pune({ fel: 'dr', x: -xUmar, y: -4, w: latUmar, h: inaltUmar, culoare: culUmeri });
+  pune({ fel: 'dr', x:  xUmar, y: -4, w: latUmar, h: inaltUmar, culoare: culUmeri });
   if (mUmeri) {
-    pune({ fel: 'dr', x: -9, y: -6, w: latUmar, h: 2, culoare: mUmeri.lumina });
-    pune({ fel: 'dr', x:  9, y: -6, w: latUmar, h: 2, culoare: mUmeri.lumina });
+    pune({ fel: 'dr', x: -xUmar, y: -6, w: latUmar, h: 2, culoare: mUmeri.lumina });
+    pune({ fel: 'dr', x:  xUmar, y: -6, w: latUmar, h: 2, culoare: mUmeri.lumina });
     if (mUmeri.marime >= 2) {
-      pune({ fel: 'cerc', x: -9, y: -3, r: 1.4, culoare: mUmeri.ornament });
-      pune({ fel: 'cerc', x:  9, y: -3, r: 1.4, culoare: mUmeri.ornament });
+      pune({ fel: 'cerc', x: -xUmar, y: -3, r: 1.4, culoare: mUmeri.ornament });
+      pune({ fel: 'cerc', x:  xUmar, y: -3, r: 1.4, culoare: mUmeri.ornament });
     }
   }
 
