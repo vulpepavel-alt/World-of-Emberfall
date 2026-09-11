@@ -553,6 +553,7 @@ function treciInZona(idZona, dinspre) {
 function curataZonaVeche(scena) {
 
   vietati = [];
+  semneTreceri = [];
 
   Object.keys(bucatiTeren).forEach(function (nume) {
     const imagine = bucatiTeren[nume];
@@ -573,6 +574,7 @@ function curataZonaVeche(scena) {
   npci = [];
   saci = [];
   vietati = [];
+  semneTreceri = [];
   butonInteract = null;
   tinteDeMisiune = null;
 }
@@ -626,6 +628,88 @@ function verificaTrecerea() {
 
   // Te-ai departat de toate portile: de acum te pot lua din nou.
   if (abiaAmIntrat && !langaVreoPoarta) abiaAmIntrat = false;
+}
+
+
+// ==========================================================
+//  STALPII DE LA IESIRILE DIN ZONA
+//
+//  Marginea unei zone e zid pe toata lungimea ei, in afara de UN
+//  SINGUR loc pe fiecare latura. Portile alea erau invizibile: te
+//  duceai la marginea de rasarit, dadeai de padure si trageai
+//  concluzia ca nu se poate iesi din zona.
+//
+//  Acum fiecare poarta are doi stalpi de piatra si o scandura pe
+//  care scrie unde duce si de ce nivel e zona de dincolo. Se vad
+//  de departe, si pe miniharta apare un semn care ramane lipit de
+//  marginea ei, ca un ac de busola: iti arata incotro e iesirea
+//  chiar si cand e la celalalt capat al hartii.
+// ==========================================================
+let semneTreceri = [];
+
+function unStalp(scena, x, y, catre, subtitlu, culoare) {
+
+  const p = scena.add.container(x, y);
+
+  // doi stalpi de piatra, unul de o parte si altul de alta
+  [-34, 34].forEach(function (dx) {
+    p.add(scena.add.rectangle(dx, 6, 11, 34, 0x2a2118));
+    p.add(scena.add.rectangle(dx, 4, 8, 30, 0x9a948a));
+    p.add(scena.add.rectangle(dx, -12, 12, 6, 0xb5aea2));
+  });
+
+  // Scandura dintre ei. O facem DUPA ce stim cat de lat e numele,
+  // altfel "The Emberwastes" iesea in afara ei pe amandoua partile.
+  const scris = scena.add.text(0, -21, catre, {
+    fontFamily: UI.FONT, fontSize: '11px', fontStyle: 'bold',
+    color: culoare, stroke: '#000000', strokeThickness: 3
+  }).setOrigin(0.5);
+
+  const lat = Math.max(92, scris.width + 18);
+  p.add(scena.add.rectangle(0, -20, lat, 24, 0x2a1c10));
+  p.add(scena.add.rectangle(0, -20, lat - 6, 18, 0x6b4a2c));
+  p.add(scris);
+
+  p.add(scena.add.text(0, -40, subtitlu, {
+    fontFamily: UI.FONT, fontSize: '10px',
+    color: UI.textStins, stroke: '#000000', strokeThickness: 3
+  }).setOrigin(0.5));
+
+  // Sub picioarele tale, ca sa poti trece peste el.
+  p.setDepth(2);
+  return p;
+}
+
+
+function faSemneleTrecerilor(scena) {
+
+  semneTreceri = [];
+  if (!zona) return;
+
+  (zona.treceri || []).forEach(function (tr) {
+
+    const vecina = retetaZonei(tr.catre);
+    if (!vecina) return;
+
+    // Stalpii stau putin INAUNTRU fata de poarta, ca sa nu te ia
+    // trecerea chiar in clipa in care ai ajuns langa ei sa citesti.
+    const x = (tr.col + tr.spreInauntruC * 3) * TILE + TILE / 2;
+    const y = (tr.rand + tr.spreInauntruR * 3) * TILE + TILE / 2;
+
+    unStalp(scena, x, y, vecina.nume,
+      'Level ' + vecina.nivelDeLa + '–' + vecina.nivelPanaLa, UI.textAuriu);
+
+    semneTreceri.push({ x: tr.col * TILE, y: tr.rand * TILE, fel: 'drum' });
+  });
+
+  if (zona.portul) {
+    const v = retetaZonei(zona.portul.catre);
+    const x = zona.portul.col * TILE + TILE / 2;
+    const y = (zona.portul.rand - 4) * TILE + TILE / 2;
+    unStalp(scena, x, y, v ? v.nume : zona.portul.catre,
+      zona.portul.fel === 'corabie' ? 'by ship' : 'by zeppelin', '#96c8f0');
+    semneTreceri.push({ x: zona.portul.col * TILE, y: zona.portul.rand * TILE, fel: 'port' });
+  }
 }
 
 
@@ -816,6 +900,7 @@ function create() {
   // --- Inamicii, exact unde ii scrie zona ---
   mobi = [];
   vietati = [];
+  semneTreceri = [];
   saci.forEach(function (sac) { sac.destroy(); });
   saci = [];
   // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
@@ -826,6 +911,9 @@ function create() {
   // --- Personajele prietenoase din zona ---
   npci = [];
   (zona.npci || []).forEach((loc, i) => creeazaNpc(this, loc, i));
+
+  // --- Stalpii de la portile catre zonele vecine ---
+  faSemneleTrecerilor(this);
 
   // --- Comenzi ---
   // Mersul se face din W A S D. Fiecare litera primeste un nume
@@ -1769,6 +1857,21 @@ function actualizeazaMiniharta() {
     if (px < marime || py < marime || px > MINI_LAT - marime || py > MINI_LAT - marime) return;
     minihartaPanza.fill(culoare, 1, px - marime / 2, py - marime / 2, marime, marime);
   }
+
+  // Iesirile din zona se vad MEREU, si cand sunt departe: daca ies
+  // din fereastra minihartii le lipim de marginea ei, in directia in
+  // care se afla. Asa miniharta iti spune incotro e poarta, ca un ac
+  // de busola, in loc sa te lase sa cauti pe toata marginea zonei.
+  semneTreceri.forEach(function (s) {
+    let px = mijloc + (s.x - jucator.x) * MINI_SCARA;
+    let py = mijloc + (s.y - jucator.y) * MINI_SCARA;
+    const m = 9;
+    px = Math.min(MINI_LAT - m, Math.max(m, px));
+    py = Math.min(MINI_LAT - m, Math.max(m, py));
+    const culoare = (s.fel === 'port') ? 0x96c8f0 : 0xf0e4c8;
+    minihartaPanza.fill(0x000000, 1, px - 5, py - 5, 10, 10);
+    minihartaPanza.fill(culoare, 1, px - 4, py - 4, 8, 8);
+  });
 
   // Cine are ceva pentru tine se vede mai mare si mai aprins.
   npci.forEach(function (p) {

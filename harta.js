@@ -217,14 +217,16 @@ function deseneazaLumea() {
                     y: y0 + (z.peHarta.r + 0.5) * CASUTA_INALT };
         const c2 = { x: x0 + (v.peHarta.c + 0.5) * CASUTA_LAT,
                      y: y0 + (v.peHarta.r + 0.5) * CASUTA_INALT };
-        g.strokeStyle = 'rgba(232, 220, 192, .34)';
+        // Un drum adevarat: o dunga inchisa dedesubt si una deschisa
+        // peste ea. Inainte era o linie alba punctata si arata a
+        // zgarietura pe sticla.
+        g.lineCap = 'round';
+        g.strokeStyle = 'rgba(24, 16, 8, .45)';
+        g.lineWidth = 7;
+        g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(c2.x, c2.y); g.stroke();
+        g.strokeStyle = 'rgba(214, 190, 150, .75)';
         g.lineWidth = 3;
-        g.setLineDash([9, 7]);
-        g.beginPath();
-        g.moveTo(a.x, a.y);
-        g.lineTo(c2.x, c2.y);
-        g.stroke();
-        g.setLineDash([]);
+        g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(c2.x, c2.y); g.stroke();
       });
     });
 
@@ -292,49 +294,62 @@ function deseneazaCasutaZonei(g, z, x, y) {
   const apa = culoareaLiterei(z, 'W', 0x4b93d6);
   const drum = culoareaLiterei(z, 'P', 0xb59567);
 
+  // Tot ce desenam ramane in casuta zonei. Fara asta, o pata de
+  // padure de langa margine se varsa peste zona vecina si acolo
+  // arata ca o greseala, nu ca o padure.
+  g.save();
+  g.beginPath();
+  g.rect(x, y, CASUTA_LAT, CASUTA_INALT);
+  g.clip();
+
   // ---- pamantul ----
   g.fillStyle = fond;
   g.fillRect(x, y, CASUTA_LAT, CASUTA_INALT);
 
-  // ---- pete de padure / stanca, imprastiate dar mereu la fel ----
-  g.fillStyle = des;
-  for (let i = 0; i < 26; i++) {
-    const px = x + zarDinZona(z, i * 3 + 1) * CASUTA_LAT;
-    const py = y + zarDinZona(z, i * 3 + 2) * CASUTA_INALT;
-    const raza = 5 + zarDinZona(z, i * 3 + 3) * 11;
-    g.beginPath();
-    g.arc(px, py, raza, 0, Math.PI * 2);
-    g.fill();
-  }
-
-  // ---- petice deschise ----
+  // ---- petice deschise: poieni, nisip. Sub padure, si sterse. ----
   g.fillStyle = petec;
-  g.globalAlpha = 0.5;
-  for (let i = 0; i < 7; i++) {
+  g.globalAlpha = 0.26;
+  for (let i = 0; i < 6; i++) {
     const px = x + zarDinZona(z, 200 + i * 3) * CASUTA_LAT;
     const py = y + zarDinZona(z, 201 + i * 3) * CASUTA_INALT;
     g.beginPath();
-    g.arc(px, py, 7 + zarDinZona(z, 202 + i * 3) * 9, 0, Math.PI * 2);
+    g.arc(px, py, 10 + zarDinZona(z, 202 + i * 3) * 14, 0, Math.PI * 2);
+    g.fill();
+  }
+  g.globalAlpha = 1;
+
+  // ---- padurea / stancile: pete de marimi diferite, ca sa nu iasa
+  //      un sirag de bulinele egale ----
+  g.fillStyle = des;
+  for (let i = 0; i < 15; i++) {
+    const px = x + zarDinZona(z, i * 3 + 1) * CASUTA_LAT;
+    const py = y + zarDinZona(z, i * 3 + 2) * CASUTA_INALT;
+    const cat = zarDinZona(z, i * 3 + 3);
+    g.globalAlpha = 0.45 + cat * 0.3;
+    g.beginPath();
+    g.arc(px, py, 4 + cat * cat * 15, 0, Math.PI * 2);
     g.fill();
   }
   g.globalAlpha = 1;
 
   // ---- raul: trece pe unde trece si in zona adevarata ----
   g.strokeStyle = apa;
-  g.lineWidth = 5;
+  g.lineJoin = 'round';
+  g.lineCap = 'round';
+  g.lineWidth = 6;
   g.beginPath();
   const cRau = x + (z.apaLa || 0.46) * CASUTA_LAT;
-  for (let i = 0; i <= 10; i++) {
-    const py = y + (i / 10) * CASUTA_INALT;
+  for (let i = 0; i <= 12; i++) {
+    const py = y + (i / 12) * CASUTA_INALT;
     const px = cRau + Math.sin(i / 1.7 + z.samanta) * 11;
     if (i === 0) g.moveTo(px, py); else g.lineTo(px, py);
   }
   g.stroke();
 
-  // ---- drumurile din zona, ca in generator ----
+  // ---- drumurile din zona, la fel ca in generator ----
   g.strokeStyle = drum;
-  g.lineWidth = 2.5;
-  g.globalAlpha = 0.75;
+  g.lineWidth = 3;
+  g.globalAlpha = 0.5;
   g.beginPath();
   g.moveTo(x, y + CASUTA_INALT * 0.55); g.lineTo(x + CASUTA_LAT, y + CASUTA_INALT * 0.55);
   g.moveTo(x, y + CASUTA_INALT * 0.22); g.lineTo(x + CASUTA_LAT, y + CASUTA_INALT * 0.22);
@@ -345,13 +360,19 @@ function deseneazaCasutaZonei(g, z, x, y) {
 
   // ---- semnele locurilor ----
   (z.locuri || []).forEach(function (loc) {
-    semnulLocului(g, loc.fel, x + loc.c * CASUTA_LAT, y + loc.r * CASUTA_INALT, 1);
+    semnulLocului(g, loc.fel, x + loc.c * CASUTA_LAT, y + loc.r * CASUTA_INALT, 0.85);
   });
 
-  // ---- chenarul ----
-  g.strokeStyle = 'rgba(0,0,0,.45)';
+  g.restore();
+
+  // ---- hotarul, subtire si sters ----
+  //
+  // Inainte era o linie neagra groasa in jurul fiecarei casute si tot
+  // continentul arata a tabel, nu a uscat. Acum e doar atat cat sa se
+  // vada unde se termina o zona si incepe alta.
+  g.strokeStyle = 'rgba(18, 12, 6, .22)';
   g.lineWidth = 1;
-  g.strokeRect(x + .5, y + .5, CASUTA_LAT - 1, CASUTA_INALT - 1);
+  g.strokeRect(x + 0.5, y + 0.5, CASUTA_LAT - 1, CASUTA_INALT - 1);
 }
 
 
@@ -362,18 +383,23 @@ function scrieNumeleZonei(g, z, x, y) {
   const aleasa = (z.id === zonaAleasa);
 
   // O panglica sub nume, ca sa se citeasca peste orice culoare.
+  //
+  // Inainte se intindea pe toata latimea casutei si harta arata a
+  // siruri de bare negre. Acum e doar cat tine numele.
   const mij = x + CASUTA_LAT / 2;
-  g.fillStyle = 'rgba(10, 7, 4, .72)';
-  g.fillRect(x + 10, y + CASUTA_INALT - 44, CASUTA_LAT - 20, 36);
-
   g.textAlign = 'center';
-  g.fillStyle = aici ? '#ffd34d' : '#f0e4c8';
   g.font = '600 17px Georgia, serif';
-  g.fillText(z.nume, mij, y + CASUTA_INALT - 28);
+
+  const latNume = Math.max(g.measureText(z.nume).width, 54) + 20;
+  g.fillStyle = 'rgba(10, 7, 4, .66)';
+  g.fillRect(mij - latNume / 2, y + CASUTA_INALT - 42, latNume, 34);
+
+  g.fillStyle = aici ? '#ffd34d' : '#f0e4c8';
+  g.fillText(z.nume, mij, y + CASUTA_INALT - 27);
 
   g.fillStyle = CULOAREA_NIVELULUI[culoareaZonei(z)] || '#cdbb9a';
   g.font = '600 15px Georgia, serif';
-  g.fillText(z.nivelDeLa + ' – ' + z.nivelPanaLa, mij, y + CASUTA_INALT - 13);
+  g.fillText(z.nivelDeLa + ' – ' + z.nivelPanaLa, mij, y + CASUTA_INALT - 12);
 
   if (aici) {
     g.strokeStyle = '#ffd34d';
@@ -382,6 +408,17 @@ function scrieNumeleZonei(g, z, x, y) {
     g.fillStyle = '#ffd34d';
     g.font = '600 12px Georgia, serif';
     g.fillText('★ ' + TEXT.YOU_ARE_HERE, mij, y + 18);
+
+    // Si UNDE anume in zona. Casuta zonei e mica, dar tot e altceva
+    // sa vezi ca esti in coltul de miazazi fata de doar "esti aici".
+    if (typeof jucator !== 'undefined' && jucator && zona.COL) {
+      const px = x + (jucator.x / TILE / zona.COL) * CASUTA_LAT;
+      const py = y + (jucator.y / TILE / zona.RND) * CASUTA_INALT;
+      g.fillStyle = '#1a1206';
+      g.beginPath(); g.arc(px, py, 6, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#ffd34d';
+      g.beginPath(); g.arc(px, py, 4, 0, Math.PI * 2); g.fill();
+    }
   } else if (aleasa) {
     g.strokeStyle = '#c9a961';
     g.lineWidth = 2;
@@ -456,15 +493,21 @@ function semnulLocului(g, fel, x, y, m) {
       g.fillRect(-8, -4.5, 16, 2.5);
       break;
 
-    case 'cetate':                     // turn cu steag
+    case 'cetate':                     // turn cu creneluri si steag
+      g.fillStyle = '#7d776c';
+      g.fillRect(-9, -9, 18, 18);
       g.fillStyle = piatra;
-      g.fillRect(-8, -9, 16, 17);
-      g.fillRect(-10, -13, 5, 6);
-      g.fillRect(5, -13, 5, 6);
-      g.strokeRect(-8, -9, 16, 17);
+      g.fillRect(-9, -9, 18, 11);
+      // creneluri
+      g.fillStyle = piatra;
+      for (let i = -9; i < 9; i += 6) g.fillRect(i, -13, 4, 5);
+      g.fillStyle = negru;
+      g.fillRect(-2.5, 2, 5, 7);        // poarta
+      g.strokeRect(-9, -9, 18, 18);
+      g.fillStyle = '#6b4a2c';
+      g.fillRect(-0.8, -24, 1.6, 11);
       g.fillStyle = '#8a2f22';
-      g.fillRect(-0.8, -22, 1.6, 9);
-      g.beginPath(); g.moveTo(0.8, -22); g.lineTo(8, -19.5); g.lineTo(0.8, -17); g.fill();
+      g.beginPath(); g.moveTo(0.8, -24); g.lineTo(8, -21.5); g.lineTo(0.8, -19); g.fill();
       break;
 
     case 'post':                       // palisada mica
@@ -532,8 +575,23 @@ function arataZona(id) {
 
   zonaAleasa = id;
 
-  if (hartiFacute[id]) {
+  // Zona in care te afli se deseneaza DE FIECARE DATA din nou.
+  //
+  // Harta o data desenata se tine minte, ca sa nu se mai construiasca
+  // a doua oara. Numai ca semnul "You are here" e desenat pe ea, si
+  // asa ramanea unde erai cand ai deschis harta prima oara: te duceai
+  // in celalalt capat al zonei, deschideai harta si punctul statea tot
+  // langa sat. Pentru zona ta n-avem oricum ce construi - e deja facuta
+  // in joc - deci desenul dureaza o clipa.
+  const esteZonaTa = (zona && zona.id === id);
+
+  if (!esteZonaTa && hartiFacute[id]) {
     puneHartaZonei(hartiFacute[id]);
+    return;
+  }
+
+  if (esteZonaTa) {
+    puneHartaZonei(faHartaZonei(id));
     return;
   }
 
@@ -642,17 +700,37 @@ function faHartaZonei(id) {
 
   // ---- unde esti tu ----
   if (zona && zona.id === id && typeof jucator !== 'undefined' && jucator) {
+
     const c = Math.round(jucator.x / TILE), r = Math.round(jucator.y / TILE);
-    g.strokeStyle = '#ffd34d';
-    g.lineWidth = 3;
+
+    // O cruce care taie toata harta, ca sa gasesti punctul dintr-o
+    // privire chiar si cand harta e micsorata pe un ecran de telefon.
+    g.strokeStyle = 'rgba(255, 211, 77, .35)';
+    g.lineWidth = 1.5;
+    g.setLineDash([7, 7]);
     g.beginPath();
-    g.arc(c, r, 13, 0, Math.PI * 2);
+    g.moveTo(0, r); g.lineTo(COL, r);
+    g.moveTo(c, 0); g.lineTo(c, RND);
     g.stroke();
+    g.setLineDash([]);
+
+    // doua inele si un punct la mijloc
+    g.strokeStyle = '#1a1206';
+    g.lineWidth = 7;
+    g.beginPath(); g.arc(c, r, 16, 0, Math.PI * 2); g.stroke();
+    g.strokeStyle = '#ffd34d';
+    g.lineWidth = 4;
+    g.beginPath(); g.arc(c, r, 16, 0, Math.PI * 2); g.stroke();
+    g.lineWidth = 2;
+    g.strokeStyle = 'rgba(255, 211, 77, .55)';
+    g.beginPath(); g.arc(c, r, 25, 0, Math.PI * 2); g.stroke();
+
+    g.fillStyle = '#1a1206';
+    g.beginPath(); g.arc(c, r, 7, 0, Math.PI * 2); g.fill();
     g.fillStyle = '#ffd34d';
-    g.beginPath();
-    g.arc(c, r, 5, 0, Math.PI * 2);
-    g.fill();
-    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 26, COL, RND);
+    g.beginPath(); g.arc(c, r, 5, 0, Math.PI * 2); g.fill();
+
+    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND);
   }
 
   return panza;
