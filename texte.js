@@ -67,6 +67,16 @@ const TEXT = {
   ORC_SMITH_NAME:     'Zelka Ironjaw',
   ORC_SMITH_TITLE:    'Weaponsmith',
 
+  // Oamenii imprastiati pe harta, care dau misiuni
+  FARMER_NAME:    'Edda Marrow',      FARMER_TITLE:   'Barley Farmer',
+  RANGER_NAME:    'Coll Ashfen',      RANGER_TITLE:   'Forest Warden',
+  MINER_NAME:     'Prospector Dunn',  MINER_TITLE:    'Mine Foreman',
+  KNIGHT_NAME:    'Knight Ansel',     KNIGHT_TITLE:   'Keep Captain',
+  HUNTRESS_NAME:  'Kaza Boneclaw',    HUNTRESS_TITLE: 'Beast Tracker',
+  SHAMAN_NAME:    'Old Murgh',        SHAMAN_TITLE:   'Bonecaster',
+  SCOUT_NAME:     'Zib Sandrunner',   SCOUT_TITLE:    'Warband Scout',
+  CAPTAIN_NAME:   'Captain Drex',     CAPTAIN_TITLE:  'Warband Captain',
+
   // Prada de la inamici
   LOOT:          'Loot',
   TAKE_ALL:      'Take All',

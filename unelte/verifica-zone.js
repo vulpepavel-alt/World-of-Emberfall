@@ -127,6 +127,58 @@ if (poduri > 0) {
 });
 
 
+// ---------- misiunile ----------
+// Fiecare misiune trebuie sa aiba pe cineva care sa o dea, si
+// fiecare om care da misiuni trebuie sa fie pe harta.
+const numeFisierMisiuni = require('path').join(__dirname, '..', 'misiuni.js');
+if (require('fs').existsSync(numeFisierMisiuni)) {
+
+  const srcM = require('fs').readFileSync(numeFisierMisiuni, 'utf8');
+  const MISIUNI = new Function(srcM.match(/const MISIUNI = \[[\s\S]*?\n\];/)[0] +
+                               '; return MISIUNI;')();
+
+  const aleZonei = MISIUNI.filter(q => q.zona === z.nume);
+  const datori = new Set(aleZonei.map(q => q.dator));
+  const peHarta = new Set((z.npci || []).map(n => n.fel));
+
+  console.log('  misiuni in zona: ' + aleZonei.length +
+              ', date de: ' + [...datori].join(', '));
+
+  datori.forEach(d => {
+    if (!peHarta.has(d)) nu("misiunile lui '" + d + "' n-au pe nimeni pe harta");
+  });
+
+  // lantul: fiecare "cere" trebuie sa existe si sa fie de nivel mai mic
+  const dupaId = {};
+  MISIUNI.forEach(q => { dupaId[q.id] = q; });
+  aleZonei.forEach(q => {
+    if (!q.cere) return;
+    if (!dupaId[q.cere]) nu(q.id + " cere misiunea '" + q.cere + "' care nu exista");
+    else if (dupaId[q.cere].nivel > q.nivel) {
+      nu(q.id + ' (nivel ' + q.nivel + ') cere ' + q.cere +
+         ' care e de nivel ' + dupaId[q.cere].nivel);
+    }
+  });
+
+  // inamicii ceruti trebuie sa existe in zona
+  const feluriDinZona = new Set(z.mobi.map(m => m.fel));
+  aleZonei.forEach(q => {
+    if (!feluriDinZona.has(q.cerinta.mob)) {
+      nu(q.id + " cere '" + q.cerinta.mob + "', care nu apare in zona");
+    }
+  });
+
+  // trebuie sa ai destui inamici de felul cerut ca sa poti termina
+  aleZonei.forEach(q => {
+    const cati = z.mobi.filter(m => m.fel === q.cerinta.mob).length;
+    if (cati < q.cerinta.cati) {
+      nu(q.id + ' cere ' + q.cerinta.cati + ' x ' + q.cerinta.mob +
+         ', dar in zona sunt doar ' + cati);
+    }
+  });
+}
+
+
 // ---------- inamicii ----------
 const peNivel = {};
 const peFel = {};

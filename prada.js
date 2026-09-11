@@ -29,7 +29,7 @@ let rasplataAleasa = null;     // ce obiect ai ales din rasplata
 
 
 function potrivesteFereastra() {
-  const cat = Math.min(window.innerWidth / 700, window.innerHeight / 500, 1);
+  const cat = Math.min(window.innerWidth / 740, window.innerHeight / 596, 1);
   scenaFereastra.style.transform = 'scale(' + cat + ')';
 }
 

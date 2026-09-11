@@ -292,6 +292,17 @@ function faGreenvale() {
   npci.push({ fel: 'negustor', col: satC - 8,  rand: satR - 1 });
   npci.push({ fel: 'armurier', col: satC + 15, rand: satR - 2 });
 
+  // ---- ferma Eddei, la rasarit de sat ----
+  const fermaC = Math.round(COL * 0.30), fermaR = Math.round(RND * 0.66);
+  dreptunghi(t, fermaC - 20, fermaR - 14, 44, 30, '.');
+  casa(fermaC - 3, fermaR - 6);
+  dreptunghi(t, fermaC - 14, fermaR + 2, 26, 10, 'f');    // lanul de orz
+  dreptunghi(t, fermaC - 14, fermaR + 2, 26, 1, 's');     // gardul viu
+  dreptunghi(t, fermaC - 14, fermaR + 11, 26, 1, 's');
+  dreptunghi(t, fermaC + 2, fermaR + 11, 6, 1, 'f');      // spartura din gard
+  drumOrizontal(fermaR - 2, satC + 26, fermaC);
+  npci.push({ fel: 'taran', col: fermaC, rand: fermaR - 1 });
+
   const START = { col: satC + 6, rand: satR + 1 };
 
   // ---- vizuina lupilor, la nord-vest ----
@@ -299,6 +310,13 @@ function faGreenvale() {
   disc(t, vizC, vizR, 9, 'r');
   disc(t, vizC, vizR + 2, 5, '.');
   pune(t, vizC, vizR - 2, 'c');
+
+  // coliba padurarului, la o aruncatura de bat de vizuina
+  const colibaC = vizC + 24, colibaR = vizR + 18;
+  disc(t, colibaC, colibaR, 8, '.');
+  casa(colibaC - 3, colibaR - 4);
+  npci.push({ fel: 'padurar', col: colibaC + 5, rand: colibaR + 1 });
+  drumVertical(colibaC, colibaR, Math.round(RND * 0.22));
 
   // ---- tabara de banditi, la mijloc-rasarit ----
   const banC = Math.round(COL * 0.60), banR = Math.round(RND * 0.36);
@@ -313,6 +331,7 @@ function faGreenvale() {
   disc(t, minC, minR, 12, 'r');
   disc(t, minC, minR + 3, 7, '.');
   dreptunghi(t, minC - 2, minR - 4, 4, 3, 'm');
+  npci.push({ fel: 'miner', col: minC + 4, rand: minR + 4 });
   [[-9, 6], [8, 5], [-7, 9]].forEach(function (l) {
     disc(t, minC + l[0], minR + l[1], 2, 'o');
   });
@@ -324,6 +343,7 @@ function faGreenvale() {
   dreptunghi(t, cetC - 15, cetR - 10, 30, 20, 'S');
   dreptunghi(t, cetC - 11, cetR - 6,  22, 12, 'h');
   pune(t, cetC, cetR + 10, 'D');
+  npci.push({ fel: 'cavaler', col: cetC + 3, rand: cetR + 12 });
   drumVertical(cetC, cetR + 11, Math.round(RND * 0.22));
 
   return {
@@ -339,23 +359,23 @@ function faGreenvale() {
     // le imprastie singur in jurul fiecarui punct, pe teren liber.
     // Nivelurile cresc pe masura ce te departezi de sat.
     tabere: [
-      { fel: 'rat',      nivel: 1,  c: satC + 34, r: satR - 6,  raza: 22, cati: 14 },
-      { fel: 'rat',      nivel: 1,  c: satC + 12, r: satR + 30, raza: 20, cati: 12 },
-      { fel: 'boar',     nivel: 2,  c: satC + 44, r: satR + 26, raza: 26, cati: 16 },
-      { fel: 'boar',     nivel: 2,  c: satC + 50, r: satR - 40, raza: 26, cati: 16 },
-      { fel: 'wolf',     nivel: 3,  c: vizC + 20, r: vizR + 26, raza: 26, cati: 16 },
-      { fel: 'wolf',     nivel: 4,  c: vizC,      r: vizR + 12, raza: 16, cati: 14 },
-      { fel: 'spider',   nivel: 4,  c: Math.round(COL * 0.34), r: Math.round(RND * 0.30), raza: 26, cati: 16 },
-      { fel: 'spider',   nivel: 5,  c: Math.round(COL * 0.30), r: Math.round(RND * 0.80), raza: 26, cati: 16 },
-      { fel: 'wolf',     nivel: 5,  c: Math.round(COL * 0.42), r: Math.round(RND * 0.14), raza: 24, cati: 14 },
-      { fel: 'bandit',   nivel: 6,  c: banC - 26, r: banR + 20, raza: 22, cati: 14 },
-      { fel: 'bandit',   nivel: 7,  c: banC,      r: banR,      raza: 14, cati: 14 },
-      { fel: 'spider',   nivel: 7,  c: Math.round(COL * 0.56), r: Math.round(RND * 0.72), raza: 26, cati: 14 },
+      { fel: 'rat',      nivel: 1,  c: satC + 34, r: satR - 6,  raza: 24, cati: 18 },
+      { fel: 'rat',      nivel: 1,  c: satC + 12, r: satR + 30, raza: 22, cati: 16 },
+      { fel: 'boar',     nivel: 2,  c: satC + 44, r: satR + 26, raza: 28, cati: 20 },
+      { fel: 'boar',     nivel: 2,  c: satC + 50, r: satR - 40, raza: 28, cati: 20 },
+      { fel: 'wolf',     nivel: 3,  c: vizC + 20, r: vizR + 26, raza: 28, cati: 20 },
+      { fel: 'wolf',     nivel: 4,  c: vizC,      r: vizR + 12, raza: 18, cati: 18 },
+      { fel: 'spider',   nivel: 4,  c: Math.round(COL * 0.34), r: Math.round(RND * 0.30), raza: 28, cati: 20 },
+      { fel: 'spider',   nivel: 5,  c: Math.round(COL * 0.30), r: Math.round(RND * 0.80), raza: 28, cati: 20 },
+      { fel: 'wolf',     nivel: 5,  c: Math.round(COL * 0.42), r: Math.round(RND * 0.14), raza: 26, cati: 18 },
+      { fel: 'bandit',   nivel: 6,  c: banC - 26, r: banR + 20, raza: 24, cati: 18 },
+      { fel: 'bandit',   nivel: 7,  c: banC,      r: banR,      raza: 16, cati: 18 },
+      { fel: 'spider',   nivel: 7,  c: Math.round(COL * 0.56), r: Math.round(RND * 0.72), raza: 28, cati: 18 },
       { fel: 'burrower', nivel: 8,  c: minC - 22, r: minR - 18, raza: 24, cati: 16 },
-      { fel: 'burrower', nivel: 9,  c: minC,      r: minR + 6,  raza: 12, cati: 14 },
-      { fel: 'bandit',   nivel: 9,  c: Math.round(COL * 0.66), r: Math.round(RND * 0.88), raza: 24, cati: 14 },
-      { fel: 'burrower', nivel: 10, c: cetC - 30, r: cetR + 24, raza: 22, cati: 14 },
-      { fel: 'bandit',   nivel: 10, c: cetC,      r: cetR + 22, raza: 18, cati: 14 }
+      { fel: 'burrower', nivel: 9,  c: minC,      r: minR + 6,  raza: 14, cati: 18 },
+      { fel: 'bandit',   nivel: 9,  c: Math.round(COL * 0.66), r: Math.round(RND * 0.88), raza: 26, cati: 18 },
+      { fel: 'burrower', nivel: 10, c: cetC - 30, r: cetR + 24, raza: 24, cati: 18 },
+      { fel: 'bandit',   nivel: 10, c: cetC,      r: cetR + 22, raza: 20, cati: 18 }
     ],
 
     // Cine poate aparea la fiecare nivel, in taberele imprastiate
@@ -367,7 +387,7 @@ function faGreenvale() {
       8:  ['bandit', 'burrower'], 9: ['burrower', 'bandit'],
       10: ['burrower', 'bandit']
     },
-    tabereInPlus: 26,
+    tabereInPlus: 54,
 
     literaUmplere: 'T',
 
@@ -524,6 +544,28 @@ function faRedwaste() {
   npci.push({ fel: 'chief',       col: tabC + 3,  rand: tabR + 1 });
   npci.push({ fel: 'negustorOrc', col: tabC - 6,  rand: tabR - 1 });
   npci.push({ fel: 'armurierOrc', col: tabC + 16, rand: tabR - 2 });
+  npci.push({ fel: 'samana',     col: tabC - 18, rand: tabR + 7 });
+  npci.push({ fel: 'capitan',    col: tabC + 10, rand: tabR + 6 });
+
+  // ---- coliba vanatoarei, langa albia secata ----
+  const vanC = Math.round(COL * 0.38), vanR = Math.round(RND * 0.34);
+  disc(t, vanC, vanR, 10, '.');
+  dreptunghi(t, vanC - 3, vanR - 4, 6, 3, 'R');
+  dreptunghi(t, vanC - 3, vanR - 1, 6, 2, 'H');
+  pune(t, vanC, vanR, 'D');
+  pune(t, vanC + 5, vanR + 3, 'F');
+  npci.push({ fel: 'vanator', col: vanC + 3, rand: vanR + 3 });
+  drumVertical(vanC, vanR, randDrumMare);
+
+  // ---- postul de paza al cercetasului, pe drumul mare ----
+  const strajaC = Math.round(COL * 0.56), strajaR = Math.round(RND * 0.62);
+  disc(t, strajaC, strajaR, 9, '.');
+  dreptunghi(t, strajaC - 5, strajaR - 4, 10, 1, 'W');
+  dreptunghi(t, strajaC - 5, strajaR + 4, 10, 1, 'W');
+  dreptunghi(t, strajaC - 5, strajaR - 4, 1, 9, 'W');
+  pune(t, strajaC, strajaR - 2, 'F');
+  npci.push({ fel: 'cercetas', col: strajaC + 2, rand: strajaR + 1 });
+  drumOrizontal(strajaR, strajaC - 10, strajaC + 10);
   const START = { col: tabC + 6, rand: tabR + 1 };
 
   // ---- crapatura scorpionilor ----
@@ -556,22 +598,22 @@ function faRedwaste() {
     mobi: [],
 
     tabere: [
-      { fel: 'rat',     nivel: 1,  c: tabC + 44, r: tabR - 10, raza: 24, cati: 14 },
-      { fel: 'rat',     nivel: 1,  c: tabC + 30, r: tabR + 38, raza: 22, cati: 12 },
-      { fel: 'boar',    nivel: 2,  c: tabC + 62, r: tabR + 30, raza: 28, cati: 16 },
-      { fel: 'boar',    nivel: 2,  c: tabC + 70, r: tabR - 46, raza: 28, cati: 16 },
-      { fel: 'vulture', nivel: 3,  c: crapC + 34, r: crapR + 40, raza: 28, cati: 16 },
-      { fel: 'scorpid', nivel: 4,  c: crapC + 6,  r: crapR + 14, raza: 18, cati: 14 },
-      { fel: 'vulture', nivel: 4,  c: Math.round(COL * 0.44), r: Math.round(RND * 0.32), raza: 28, cati: 16 },
-      { fel: 'serpent', nivel: 5,  c: Math.round(COL * 0.38), r: Math.round(RND * 0.66), raza: 28, cati: 16 },
-      { fel: 'scorpid', nivel: 6,  c: Math.round(COL * 0.52), r: Math.round(RND * 0.18), raza: 26, cati: 16 },
-      { fel: 'serpent', nivel: 6,  c: Math.round(COL * 0.48), r: Math.round(RND * 0.86), raza: 26, cati: 14 },
-      { fel: 'vulture', nivel: 7,  c: Math.round(COL * 0.62), r: Math.round(RND * 0.40), raza: 26, cati: 14 },
-      { fel: 'raider',  nivel: 8,  c: jefC - 34, r: jefR - 26, raza: 24, cati: 14 },
-      { fel: 'raider',  nivel: 9,  c: jefC,      r: jefR,      raza: 12, cati: 14 },
-      { fel: 'scorpid', nivel: 9,  c: Math.round(COL * 0.86), r: Math.round(RND * 0.30), raza: 26, cati: 14 },
-      { fel: 'serpent', nivel: 10, c: Math.round(COL * 0.88), r: Math.round(RND * 0.60), raza: 26, cati: 14 },
-      { fel: 'raider',  nivel: 10, c: Math.round(COL * 0.84), r: Math.round(RND * 0.86), raza: 24, cati: 14 }
+      { fel: 'rat',     nivel: 1,  c: tabC + 44, r: tabR - 10, raza: 26, cati: 18 },
+      { fel: 'rat',     nivel: 1,  c: tabC + 30, r: tabR + 38, raza: 24, cati: 16 },
+      { fel: 'boar',    nivel: 2,  c: tabC + 62, r: tabR + 30, raza: 30, cati: 20 },
+      { fel: 'boar',    nivel: 2,  c: tabC + 70, r: tabR - 46, raza: 30, cati: 20 },
+      { fel: 'vulture', nivel: 3,  c: crapC + 34, r: crapR + 40, raza: 30, cati: 20 },
+      { fel: 'scorpid', nivel: 4,  c: crapC + 6,  r: crapR + 14, raza: 20, cati: 18 },
+      { fel: 'vulture', nivel: 4,  c: Math.round(COL * 0.44), r: Math.round(RND * 0.32), raza: 30, cati: 20 },
+      { fel: 'serpent', nivel: 5,  c: Math.round(COL * 0.38), r: Math.round(RND * 0.66), raza: 30, cati: 20 },
+      { fel: 'scorpid', nivel: 6,  c: Math.round(COL * 0.52), r: Math.round(RND * 0.18), raza: 28, cati: 20 },
+      { fel: 'serpent', nivel: 6,  c: Math.round(COL * 0.48), r: Math.round(RND * 0.86), raza: 28, cati: 18 },
+      { fel: 'vulture', nivel: 7,  c: Math.round(COL * 0.62), r: Math.round(RND * 0.40), raza: 28, cati: 18 },
+      { fel: 'raider',  nivel: 8,  c: jefC - 34, r: jefR - 26, raza: 26, cati: 18 },
+      { fel: 'raider',  nivel: 9,  c: jefC,      r: jefR,      raza: 14, cati: 18 },
+      { fel: 'scorpid', nivel: 9,  c: Math.round(COL * 0.86), r: Math.round(RND * 0.30), raza: 28, cati: 18 },
+      { fel: 'serpent', nivel: 10, c: Math.round(COL * 0.88), r: Math.round(RND * 0.60), raza: 28, cati: 18 },
+      { fel: 'raider',  nivel: 10, c: Math.round(COL * 0.84), r: Math.round(RND * 0.86), raza: 26, cati: 18 }
     ],
 
     feluriPeNivel: {
@@ -581,7 +623,7 @@ function faRedwaste() {
       8:  ['raider', 'scorpid'], 9: ['raider', 'serpent'],
       10: ['raider', 'scorpid']
     },
-    tabereInPlus: 40,
+    tabereInPlus: 82,
 
     literaUmplere: 'r',
 
@@ -669,7 +711,7 @@ function taberiAutomate(zona, ajuns, cate) {
   const raza1 = maxDist * 0.10;
 
   let incercari = 0;
-  while (noi.length < cate && incercari < cate * 400) {
+  while (noi.length < cate && incercari < cate * 900) {
     incercari++;
 
     const c = Math.floor(zar() * zona.COL);
@@ -680,7 +722,7 @@ function taberiAutomate(zona, ajuns, cate) {
     const toate = zona.tabere.concat(noi);
     const inghesuit = toate.some(function (tab) {
       const dc = tab.c - c, dr = tab.r - r;
-      return Math.sqrt(dc * dc + dr * dr) < 52;
+      return Math.sqrt(dc * dc + dr * dr) < 40;
     });
     if (inghesuit) continue;
 
@@ -696,7 +738,7 @@ function taberiAutomate(zona, ajuns, cate) {
     const feluri = zona.feluriPeNivel[nivel];
     const fel = feluri[Math.floor(zar() * feluri.length)];
 
-    noi.push({ fel: fel, nivel: nivel, c: c, r: r, raza: 18, cati: 12 });
+    noi.push({ fel: fel, nivel: nivel, c: c, r: r, raza: 20, cati: 16 });
   }
 
   return noi;

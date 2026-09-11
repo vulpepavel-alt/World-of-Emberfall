@@ -147,5 +147,165 @@ const NPC = {
       { fel: 'dr',   x:  -4, y:-12, w:  3, h:  2, culoare: 0x120f0c },  // ochi
       { fel: 'dr',   x:   4, y:-12, w:  3, h:  2, culoare: 0x120f0c }
     ]
+  },
+
+
+  // ==========================================================
+  //  OAMENII IMPRASTIATI PE HARTA
+  //
+  //  Sunt multi, si ar fi fost o mie de randuri daca desenam
+  //  fiecare de la zero. Asa ca sunt facuti dintr-o reteta:
+  //  culoarea pielii, a hainei, a parului, si ce tine in mana.
+  //  Vezi faOmulet() mai jos.
+  // ==========================================================
+
+  // ---------- GREENVALE ----------
+  taran: {
+    nume: TEXT.FARMER_NAME, titlu: TEXT.FARMER_TITLE,
+    forme: faOmulet({ piele: 0xefc49e, haina: 0x7c6a3e, accent: 0xa8904f,
+                      par: 0x8a6a32, tine: 'furca' })
+  },
+  padurar: {
+    nume: TEXT.RANGER_NAME, titlu: TEXT.RANGER_TITLE,
+    forme: faOmulet({ piele: 0xe6bc94, haina: 0x36562f, accent: 0x4f7a3c,
+                      par: 0x3a2c1c, tine: 'arc', gluga: true })
+  },
+  miner: {
+    nume: TEXT.MINER_NAME, titlu: TEXT.MINER_TITLE,
+    forme: faOmulet({ piele: 0xd8a87c, haina: 0x4a4038, accent: 0x8a7a4a,
+                      par: 0x2e2418, tine: 'tarnacop', casca: true })
+  },
+  cavaler: {
+    nume: TEXT.KNIGHT_NAME, titlu: TEXT.KNIGHT_TITLE,
+    forme: faOmulet({ piele: 0xf0c9a6, haina: 0x9aa4b4, accent: 0xd8c88a,
+                      par: 0x6a5a3a, tine: 'sabie', casca: true })
+  },
+
+  // ---------- REDWASTE ----------
+  vanator: {
+    nume: TEXT.HUNTRESS_NAME, titlu: TEXT.HUNTRESS_TITLE,
+    forme: faOmulet({ piele: 0x6aa86e, haina: 0x6b4a28, accent: 0xa8763a,
+                      par: 0x1f2b1b, tine: 'arc', colti: true })
+  },
+  samana: {
+    nume: TEXT.SHAMAN_NAME, titlu: TEXT.SHAMAN_TITLE,
+    forme: faOmulet({ piele: 0x4f8a58, haina: 0x4a2f5c, accent: 0xc9a961,
+                      par: 0xcfc6b4, tine: 'toiag', colti: true, gluga: true })
+  },
+  cercetas: {
+    nume: TEXT.SCOUT_NAME, titlu: TEXT.SCOUT_TITLE,
+    forme: faOmulet({ piele: 0x63a067, haina: 0x5a4a2c, accent: 0x8a2f22,
+                      par: 0x24331f, tine: 'pumnal', colti: true })
+  },
+  capitan: {
+    nume: TEXT.CAPTAIN_NAME, titlu: TEXT.CAPTAIN_TITLE,
+    forme: faOmulet({ piele: 0x5f9e63, haina: 0x6b2f22, accent: 0xb8bcc4,
+                      par: 0x1a1410, tine: 'topor', colti: true, casca: true })
   }
 };
+
+
+// ==========================================================
+//  RETETA DIN CARE IES OAMENII
+//
+//  Toti sunt facuti la fel: picioare, trup, brate, cap, par sau
+//  coif, ochi - si ce tin in mana. Se schimba doar culorile si
+//  obiectul, si ies personaje care nu seamana intre ele.
+// ==========================================================
+function faOmulet(op) {
+
+  const forme = [];
+  const umbra = function (c, cat) {
+    const r = Math.max(0, ((c >> 16) & 255) + cat);
+    const g = Math.max(0, ((c >> 8) & 255) + cat);
+    const b = Math.max(0, (c & 255) + cat);
+    return (Math.min(255, r) << 16) | (Math.min(255, g) << 8) | Math.min(255, b);
+  };
+
+  // ---- ce tine in mana, in spatele lui ----
+  switch (op.tine) {
+    case 'furca':
+      forme.push({ fel: 'dr', x: 14, y: -2, w: 3, h: 30, culoare: 0x6b4a2c });
+      forme.push({ fel: 'dr', x: 11, y: -18, w: 3, h: 8, culoare: 0xb8bcc4 });
+      forme.push({ fel: 'dr', x: 14, y: -19, w: 3, h: 9, culoare: 0xb8bcc4 });
+      forme.push({ fel: 'dr', x: 17, y: -18, w: 3, h: 8, culoare: 0xb8bcc4 });
+      break;
+    case 'arc':
+      forme.push({ fel: 'dr', x: 14, y: -2, w: 2, h: 30, culoare: 0xe8e2d4 });
+      forme.push({ fel: 'dr', x: 17, y: -14, w: 4, h: 10, culoare: 0x6b4a2c });
+      forme.push({ fel: 'dr', x: 19, y: -2, w: 4, h: 14, culoare: 0x7d5735 });
+      forme.push({ fel: 'dr', x: 17, y: 10, w: 4, h: 10, culoare: 0x6b4a2c });
+      break;
+    case 'tarnacop':
+      forme.push({ fel: 'dr', x: 14, y: -1, w: 3, h: 28, culoare: 0x5b3a1a });
+      forme.push({ fel: 'dr', x: 14, y: -16, w: 18, h: 4, culoare: 0x7a7a84 });
+      break;
+    case 'sabie':
+      forme.push({ fel: 'dr', x: 15, y: 2, w: 4, h: 10, culoare: 0x5b3a1a });
+      forme.push({ fel: 'dr', x: 15, y: -4, w: 12, h: 3, culoare: 0xb08d3a });
+      forme.push({ fel: 'dr', x: 15, y: -16, w: 5, h: 22, culoare: 0xd8d8e0 });
+      break;
+    case 'topor':
+      forme.push({ fel: 'dr', x: 15, y: 0, w: 4, h: 28, culoare: 0x5b3a1a });
+      forme.push({ fel: 'dr', x: 19, y: -13, w: 10, h: 11, culoare: 0xb8bcc4 });
+      break;
+    case 'toiag':
+      forme.push({ fel: 'dr', x: 15, y: 0, w: 4, h: 32, culoare: 0x6a5232 });
+      forme.push({ fel: 'cerc', x: 15, y: -18, r: 6, culoare: 0x7fd0c0 });
+      forme.push({ fel: 'cerc', x: 15, y: -18, r: 3, culoare: 0xdff6ef });
+      break;
+    case 'pumnal':
+      forme.push({ fel: 'dr', x: 15, y: 6, w: 3, h: 7, culoare: 0x3a2c1c });
+      forme.push({ fel: 'dr', x: 15, y: -3, w: 4, h: 12, culoare: 0xc8ccd4 });
+      break;
+  }
+
+  // ---- picioarele si cizmele ----
+  forme.push({ fel: 'dr', x: -5, y: 17, w: 6, h: 9, culoare: umbra(op.haina, -40) });
+  forme.push({ fel: 'dr', x:  5, y: 17, w: 6, h: 9, culoare: umbra(op.haina, -40) });
+  forme.push({ fel: 'dr', x: -5, y: 22, w: 7, h: 5, culoare: 0x2a2018 });
+  forme.push({ fel: 'dr', x:  5, y: 22, w: 7, h: 5, culoare: 0x2a2018 });
+
+  // ---- trupul ----
+  forme.push({ fel: 'dr', x: 0, y: 6, w: 21, h: 21, culoare: op.haina });
+  forme.push({ fel: 'dr', x: -8, y: 6, w: 5, h: 21, culoare: umbra(op.haina, -26) });
+  forme.push({ fel: 'dr', x: 9, y: 6, w: 3, h: 21, culoare: umbra(op.haina, 22) });
+  forme.push({ fel: 'dr', x: 0, y: 6, w: 6, h: 21, culoare: op.accent });   // dunga din fata
+  forme.push({ fel: 'dr', x: 0, y: 13, w: 21, h: 4, culoare: umbra(op.haina, -46) });  // cureaua
+
+  // ---- bratele si mainile ----
+  forme.push({ fel: 'dr', x: -11, y: 7, w: 4, h: 13, culoare: umbra(op.haina, -16) });
+  forme.push({ fel: 'dr', x:  11, y: 7, w: 4, h: 13, culoare: umbra(op.haina, -16) });
+  forme.push({ fel: 'dr', x: -11, y: 15, w: 5, h: 5, culoare: op.piele });
+  forme.push({ fel: 'dr', x:  11, y: 15, w: 5, h: 5, culoare: op.piele });
+
+  // ---- gatul si capul ----
+  forme.push({ fel: 'dr', x: 0, y: -3, w: 7, h: 5, culoare: umbra(op.piele, -30) });
+  forme.push({ fel: 'cerc', x: 0, y: -10, r: 8, culoare: op.piele });
+  forme.push({ fel: 'dr', x: -5, y: -10, w: 3, h: 10, culoare: umbra(op.piele, -26) });
+
+  // ---- coltii orcilor ----
+  if (op.colti) {
+    forme.push({ fel: 'dr', x: -4, y: -5, w: 3, h: 5, culoare: 0xf2ece0 });
+    forme.push({ fel: 'dr', x:  4, y: -5, w: 3, h: 5, culoare: 0xf2ece0 });
+  }
+
+  // ---- ochii ----
+  forme.push({ fel: 'dr', x: -3.5, y: -11, w: 2, h: 2, culoare: 0x120f0c });
+  forme.push({ fel: 'dr', x:  3.5, y: -11, w: 2, h: 2, culoare: 0x120f0c });
+
+  // ---- parul, gluga sau coiful ----
+  if (op.casca) {
+    forme.push({ fel: 'dr', x: 0, y: -14, w: 18, h: 5, culoare: umbra(op.accent, -20) });
+    forme.push({ fel: 'dr', x: 0, y: -18, w: 15, h: 5, culoare: op.accent });
+  } else if (op.gluga) {
+    forme.push({ fel: 'dr', x: 0, y: -15, w: 20, h: 7, culoare: umbra(op.haina, -20) });
+    forme.push({ fel: 'dr', x: -9, y: -8, w: 4, h: 9, culoare: umbra(op.haina, -20) });
+    forme.push({ fel: 'dr', x:  9, y: -8, w: 4, h: 9, culoare: umbra(op.haina, -20) });
+  } else {
+    forme.push({ fel: 'dr', x: 0, y: -15, w: 17, h: 6, culoare: op.par });
+    forme.push({ fel: 'dr', x: 0, y: -17, w: 13, h: 3, culoare: umbra(op.par, 18) });
+  }
+
+  return forme;
+}

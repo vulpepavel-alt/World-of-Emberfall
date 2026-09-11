@@ -574,7 +574,7 @@
 }
 
 #scena-fereastra {
-  width: 660px; height: 460px;
+  width: 700px; height: 556px;
   display: flex; flex-direction: column;
   background: #14100c;
   border: 3px solid #8a6a2f;
