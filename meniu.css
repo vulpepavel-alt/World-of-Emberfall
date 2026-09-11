@@ -577,3 +577,91 @@
 .obiect-inv .unde { display: block; font-size: 9.5px; color: #7a6748; margin-top: 2px; }
 .obiect-inv .stat-obiect { display: block; font-size: 10px; color: #96805c; margin-top: 3px; }
 .inventar-gol { color: #7a6748; font-size: 13px; padding: 10px; }
+
+
+/* ==========================================================
+   PRADA SI TARABA
+   Acelasi cadru, doua continuturi. Sta peste joc, la mijloc.
+   ========================================================== */
+#ecran-fereastra {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6, 4, 2, .72);
+}
+
+#scena-fereastra {
+  width: 660px; height: 460px;
+  display: flex; flex-direction: column;
+  background: #14100c;
+  border: 3px solid #8a6a2f;
+  box-shadow: 0 0 0 3px #2e2311, 0 10px 34px rgba(0, 0, 0, .75);
+  font-family: Georgia, "Palatino Linotype", "Times New Roman", serif;
+  color: #e8dcc0;
+}
+
+.cap-fereastra {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 9px 12px;
+  border-bottom: 2px solid #4d3c22;
+  background: #1d1710;
+  font-size: 16px; color: #d9b555;
+}
+
+.corp-fereastra {
+  flex: 1; min-height: 0;
+  display: flex; flex-direction: column;
+  padding: 10px 12px;
+}
+
+.file-taraba { display: flex; gap: 6px; margin-bottom: 8px; }
+
+.lista-prada {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 5px;
+}
+
+/* Un rand din lista: cutiuta colorata, numele, si la taraba pretul. */
+.rand-prada {
+  display: flex; align-items: center; gap: 9px;
+  width: 100%; text-align: left;
+  padding: 6px 9px;
+  background: #201a12;
+  border: 2px solid #4d3c22;
+  border-radius: 2px;
+  color: #e8dcc0;
+  font-family: inherit;
+  cursor: pointer;
+}
+.rand-prada:hover { background: #2b2318; border-color: #8a6a2f; }
+
+/* Ce nu-ti permiti sta stins. */
+.rand-prada.scump { opacity: .45; }
+.rand-prada.scump:hover { border-color: #7a3128; }
+
+.rand-prada .cutiuta {
+  flex: 0 0 auto; width: 26px; height: 26px;
+  border: 2px solid #4d3c22; border-radius: 2px;
+}
+.rand-prada .text-prada { flex: 1; min-width: 0; }
+.rand-prada .nume-obiect {
+  display: block; font-size: 13px; line-height: 1.25;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.rand-prada .stat-obiect { display: block; font-size: 10px; color: #96805c; }
+.rand-prada .pret { flex: 0 0 auto; font-size: 12px; white-space: nowrap; }
+
+.moneda { font-weight: 700; }
+
+.jos-fereastra {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin-top: 9px; padding-top: 9px;
+  border-top: 2px solid #4d3c22;
+  font-size: 12px;
+}
+.mesaj-fereastra { color: #d9b555; }
+.punga { color: #c8bda4; }
+
+.gol-fereastra {
+  padding: 26px 10px; text-align: center;
+  color: #96805c; font-size: 13px; font-style: italic;
+}

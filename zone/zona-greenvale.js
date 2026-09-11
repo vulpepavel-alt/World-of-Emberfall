@@ -509,7 +509,9 @@ const ZONA_GREENVALE = {
   reinviere: { col: 89, rand: 279 },
 
   npci: [
-    { fel: 'marshal', col: 87, rand: 279 }
+    { fel: 'marshal', col: 87, rand: 279 },
+    { fel: 'negustor', col: 75, rand: 277 },
+    { fel: 'armurier', col: 98, rand: 276 }
   ],
 
   // 551 inamici, de la nivelul 1 langa tabara

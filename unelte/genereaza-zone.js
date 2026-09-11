@@ -288,7 +288,9 @@ function faGreenvale() {
   // drumul care leaga satul de drumul lung
   drumOrizontal(satR, satC, colDrumLung + 6);
 
-  npci.push({ fel: 'marshal', col: satC + 4, rand: satR + 1 });
+  npci.push({ fel: 'marshal',  col: satC + 4,  rand: satR + 1 });
+  npci.push({ fel: 'negustor', col: satC - 8,  rand: satR - 1 });
+  npci.push({ fel: 'armurier', col: satC + 15, rand: satR - 2 });
 
   const START = { col: satC + 6, rand: satR + 1 };
 
@@ -360,7 +362,7 @@ function faGreenvale() {
     // singure. Lucrurile blande stau jos, cele care lovesc tare sus.
     feluriPeNivel: {
       1:  ['rat'], 2: ['rat', 'boar'], 3: ['boar', 'wolf'],
-      4:  ['wolf', 'spider'], 5: ['wolf', 'spider'],
+      4:  ['wolf', 'spider'], 5: ['wolf', 'bandit'],
       6:  ['spider', 'bandit'], 7: ['bandit', 'spider'],
       8:  ['bandit', 'burrower'], 9: ['burrower', 'bandit'],
       10: ['burrower', 'bandit']
@@ -519,7 +521,9 @@ function faRedwaste() {
   pune(t, tabC, tabR - 4, 'F');       // focul din mijloc
   drumOrizontal(tabR, tabC + 28, colDrumLung + 6);
 
-  npci.push({ fel: 'chief', col: tabC + 3, rand: tabR + 1 });
+  npci.push({ fel: 'chief',       col: tabC + 3,  rand: tabR + 1 });
+  npci.push({ fel: 'negustorOrc', col: tabC - 6,  rand: tabR - 1 });
+  npci.push({ fel: 'armurierOrc', col: tabC + 16, rand: tabR - 2 });
   const START = { col: tabC + 6, rand: tabR + 1 };
 
   // ---- crapatura scorpionilor ----
@@ -572,8 +576,8 @@ function faRedwaste() {
 
     feluriPeNivel: {
       1:  ['rat'], 2: ['rat', 'boar'], 3: ['boar', 'vulture'],
-      4:  ['vulture', 'serpent'], 5: ['serpent', 'scorpid'],
-      6:  ['scorpid', 'serpent'], 7: ['scorpid', 'vulture'],
+      4:  ['vulture', 'serpent'], 5: ['serpent', 'raider'],
+      6:  ['scorpid', 'raider'], 7: ['raider', 'vulture'],
       8:  ['raider', 'scorpid'], 9: ['raider', 'serpent'],
       10: ['raider', 'scorpid']
     },

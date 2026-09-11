@@ -448,6 +448,7 @@ function calculeazaPersonaj(idRasa, idClasa, infatisare, nivel) {
     talente: {},
     echipament: {},
     inventar: [],
+    bani: 0,            // toti banii, socotiti in arame (vezi bani.js)
     rasa: rasa.nume,
     clasa: clasa.nume,
     factiune: rasa.factiune,

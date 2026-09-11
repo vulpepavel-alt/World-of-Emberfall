@@ -3,6 +3,8 @@
 //
 //  Fiecare fel are:
 //    nume    - cum il cheama pe ecran (textul sta in texte.js)
+//    neam    - 'fiara' sau 'umanoid'. Ca in WoW, FIARELE NU LASA
+//              BANI: un lup n-are punga. Lasa bani doar umanoizii.
 //    stats   - viata, damage, viteza de lovire, armura, nivel
 //    forme   - din ce bucati colorate e desenat
 //
@@ -56,6 +58,7 @@ const MOBI = {
 
   wolf: {
     nume: TEXT.WOLF,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  -6, y: 10, w:  4, h:  7, culoare: 0x5f6165 },  // picior
@@ -72,6 +75,7 @@ const MOBI = {
 
   burrower: {
     nume: TEXT.BURROWER,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  10, y: 11, w: 13, h:  5, culoare: 0x5e4630 },  // musuroiul din spate
@@ -86,6 +90,7 @@ const MOBI = {
 
   bandit: {
     nume: TEXT.BANDIT,
+    neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  11, y:  1, w:  3, h: 13, culoare: 0xc8ccd4 },  // pumnal
@@ -100,6 +105,7 @@ const MOBI = {
   // Sobolanul de camp: cel mai slab lucru din zona, chiar langa sat.
   rat: {
     nume: TEXT.RAT,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  11, y:  4, w:  9, h:  2, culoare: 0xa08a72 },  // coada
@@ -115,6 +121,7 @@ const MOBI = {
   // Paianjenul de padure: picioare lungi, trup rotund.
   spider: {
     nume: TEXT.SPIDER,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  -9, y: -6, w: 12, h:  2, culoare: 0x2b2028 },  // picioarele
@@ -134,6 +141,7 @@ const MOBI = {
 
   scorpid: {
     nume: TEXT.SCORPID,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  12, y: -2, w:  6, h:  6, culoare: 0xc99a45 },  // coada
@@ -149,6 +157,7 @@ const MOBI = {
 
   boar: {
     nume: TEXT.BOAR,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  -6, y: 12, w:  4, h:  7, culoare: 0x4f3c28 },  // picioare
@@ -166,6 +175,7 @@ const MOBI = {
   // Vulturul de praf: aripi late, gat golas.
   vulture: {
     nume: TEXT.VULTURE,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:   0, y:  2, w: 34, h:  5, culoare: 0x3f372e },  // aripile intinse
@@ -182,6 +192,7 @@ const MOBI = {
   // Sarpele de nisip: incolacit, cu capul ridicat.
   serpent: {
     nume: TEXT.SERPENT,
+    neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:   8, y: 12, w: 20, h:  5, culoare: 0x6b7a3a },  // coada incolacita
@@ -196,6 +207,7 @@ const MOBI = {
 
   raider: {
     nume: TEXT.RAIDER,
+    neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:  12, y:  2, w:  3, h: 15, culoare: 0x5b3a1a },  // coada toporului

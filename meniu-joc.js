@@ -123,6 +123,7 @@ function scriePaginaCharacter() {
     randStat(resursa, valoareResursa) +
     randStat('Experience', (p.nivel >= NIVEL_MAXIM)
       ? TEXT.MAX_LEVEL : Math.floor(p.xp) + ' / ' + p.xpNecesar) +
+    randStat('Money', baniHtml(p.bani || 0)) +
     '</div>';
 
   stat += '<div class="cutie"><h3>Attributes</h3>' +

@@ -55,5 +55,32 @@ const TEXT = {
   MARSHAL_NAME:  'Marshal Bren',
   MARSHAL_TITLE: 'Greenvale Marshal',
   CHIEF_NAME:    'Chief Gorrash',
-  CHIEF_TITLE:   'Warband Chief'
+  CHIEF_TITLE:   'Warband Chief',
+
+  // Negustorii
+  MERCHANT_NAME:      'Alden Hobb',
+  MERCHANT_TITLE:     'Trade Goods',
+  SMITH_NAME:         'Mira Steelhand',
+  SMITH_TITLE:        'Weaponsmith',
+  ORC_MERCHANT_NAME:  'Gurtok Ashpaw',
+  ORC_MERCHANT_TITLE: 'Trade Goods',
+  ORC_SMITH_NAME:     'Zelka Ironjaw',
+  ORC_SMITH_TITLE:    'Weaponsmith',
+
+  // Prada de la inamici
+  LOOT:          'Loot',
+  TAKE_ALL:      'Take All',
+  NOTHING_LEFT:  'Nothing left here.',
+  BAG_FULL:      'Your bags are full',
+  TOO_FAR:       'Too far away',
+
+  // Negustorul
+  BUY:             'Buy',
+  SELL:            'Sell',
+  YOUR_MONEY:      'Your money',
+  NOT_ENOUGH:      'Not enough money',
+  NOTHING_TO_SELL: 'You have nothing to sell.',
+  SOLD:            'Sold',
+  BOUGHT:          'Bought',
+  CLOSE:           'Close'
 };

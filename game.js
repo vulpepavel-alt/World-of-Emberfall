@@ -461,6 +461,8 @@ function create() {
 
   // --- Inamicii, exact unde ii scrie zona ---
   mobi = [];
+  saci.forEach(function (sac) { sac.destroy(); });
+  saci = [];
   // Inamicii apar si dispar dupa cum te apropii, la fel ca bucatile
   // de harta. Aici doar stergem semnele ramase de la o intrare veche.
   zona.mobi.forEach(function (loc) { loc.aparut = false; loc.mortPanaLa = 0; });
@@ -517,6 +519,11 @@ function create() {
       celMaiAproape.apasa(this);
       return;
     }
+
+    // Ai atins un sac de prada sau un negustor? Atunci nu pornim
+    // spre locul atins, ci deschidem fereastra lui.
+    if (atingiCeva(this, pointer.worldX, pointer.worldY)) return;
+
     tinta = { x: pointer.worldX, y: pointer.worldY };
   });
 
@@ -972,6 +979,114 @@ function clipesteButonul(scena, b) {
     scale: 0.88,
     duration: 70,
     yoyo: true
+  });
+}
+
+
+// Ai pus degetul pe ceva cu care se poate face ceva? Sacul de
+// prada si negustorul se deschid numai daca esti langa ei; altfel
+// iti spune ca esti prea departe, ca in WoW.
+function atingiCeva(scena, x, y) {
+
+  const sac = saculDeLangaTine(x, y);
+  if (sac) {
+    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, sac.x, sac.y) > RAZA_PRADA) {
+      aratacuvant(scena, jucator.x, jucator.y - 40, TEXT.TOO_FAR, UI.textStins);
+      return true;
+    }
+    deschidePrada(sac);
+    return true;
+  }
+
+  const negustorul = negustorulDeLangaTine(x, y);
+  if (negustorul) {
+    if (Phaser.Math.Distance.Between(jucator.x, jucator.y, negustorul.x, negustorul.y) > 90) {
+      aratacuvant(scena, jucator.x, jucator.y - 40, TEXT.TOO_FAR, UI.textStins);
+      return true;
+    }
+    deschideTaraba(negustorul);
+    return true;
+  }
+
+  return false;
+}
+
+
+// ================================================
+//  SACII DE PRADA
+//
+//  Cand un inamic moare si a lasat ceva, pe locul lui ramane un
+//  sac care sclipeste. Te duci langa el, il atingi, si se deschide
+//  fereastra de unde iei ce vrei. Daca nu te duci, dupa un minut
+//  si jumatate se face praf, ca in WoW.
+// ================================================
+const TIMP_SAC = 90000;        // cat sta pe jos un sac, in milisecunde
+const RAZA_PRADA = 70;         // de cat de aproape il poti deschide
+
+let saci = [];
+
+function faSac(scena, x, y, prada) {
+
+  const sac = scena.add.container(x, y);
+
+  sac.add(scena.add.ellipse(0, 6, 26, 9, 0x000000, 0.35));          // umbra
+  sac.add(scena.add.rectangle(0, 0, 18, 16, 0x2e2214));             // conturul
+  sac.add(scena.add.rectangle(0, 0, 14, 12, 0x7a5c34));             // sacul
+  sac.add(scena.add.rectangle(0, -7, 10, 4, 0x5b4326));             // gura legata
+  const lucire = scena.add.circle(0, -2, 9, 0xffe9ad, 0.28);        // sclipirea
+  sac.add(lucire);
+
+  // Sclipirea creste si scade, ca sa se vada de departe ca e ceva de luat.
+  scena.tweens.add({
+    targets: lucire, scale: 1.45, alpha: 0.08,
+    duration: 900, yoyo: true, repeat: -1
+  });
+
+  sac.setDepth(8);
+  sac.prada = prada;
+  sac.dispareLa = scena.time.now + TIMP_SAC;
+  saci.push(sac);
+  return sac;
+}
+
+
+function stergeSacul(sac) {
+  saci = saci.filter(function (s) { return s !== sac; });
+  sac.destroy();
+}
+
+
+// Sacul cel mai apropiat de un loc, daca e destul de aproape.
+function saculDeLangaTine(x, y) {
+  let celMaiAproape = null;
+  let ceaMaiMica = RAZA_PRADA;
+  saci.forEach(function (sac) {
+    const d = Phaser.Math.Distance.Between(x, y, sac.x, sac.y);
+    if (d < ceaMaiMica) { ceaMaiMica = d; celMaiAproape = sac; }
+  });
+  return celMaiAproape;
+}
+
+
+// Acelasi lucru pentru negustori.
+function negustorulDeLangaTine(x, y) {
+  let celMaiAproape = null;
+  let ceaMaiMica = 90;
+  npci.forEach(function (p) {
+    if (!p.marfa) return;
+    const d = Phaser.Math.Distance.Between(x, y, p.x, p.y);
+    if (d < ceaMaiMica) { ceaMaiMica = d; celMaiAproape = p; }
+  });
+  return celMaiAproape;
+}
+
+
+// Sacii nesters se fac praf singuri, dupa un timp.
+function actualizeazaSacii(scena) {
+  saci.slice().forEach(function (sac) {
+    if (scena.time.now < sac.dispareLa) return;
+    if (saculDeschis === sac) return;      // nu-l luam de sub mana ta
+    stergeSacul(sac);
   });
 }
 
@@ -1864,10 +1979,12 @@ function update(time, delta) {
   // si cu meniul deschis, si cat esti mort.
   actualizeazaTerenul(this);
   actualizeazaMobii(this);
+  actualizeazaSacii(this);
 
   // Cat timp e meniul deschis, jocul merge mai departe, dar
   // tastele si joystick-ul nu te mai misca.
-  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) {
+  if ((typeof meniuDeschis !== 'undefined' && meniuDeschis) ||
+      (typeof fereastraDeschisa !== 'undefined' && fereastraDeschisa)) {
     miscaMobii(this, delta);
     actualizeazaResursa(this, delta);
     regenerareViata(this, delta);
@@ -2312,6 +2429,11 @@ function creeazaNpc(scena, loc) {
   }).setOrigin(0.5));
 
   p.setDepth(9);
+
+  // Negustorii isi fac taraba o data, cand intri in zona.
+  p.cine = cine;
+  if (cine.vinde) p.marfa = faMarfa(cine.vinde);
+
   npci.push(p);
 }
 
@@ -2350,13 +2472,10 @@ function loveste(scena, mob, damageBrut, critic) {
     // Experienta pentru inamicul ucis.
     primesteXp(scena, xpDeLaMob(mob.stats.nivel, personaj.nivel));
 
-    // ...si, uneori, un obiect.
-    const lasat = obiectDeLaMob(mob.stats.nivel);
-    if (lasat) {
-      personaj.inventar = personaj.inventar || [];
-      personaj.inventar.push(lasat);
-      aratacuvant(scena, mob.x, mob.y - 30, lasat.nume, lasat.culoare);
-    }
+    // Ce a lasat in urma NU sare singur la tine, ca pana acum.
+    // Ramane in trupul lui, iar tu te duci si il iei - ca in WoW.
+    const prada = pradaDeLaMob(mob.stats.nivel, mob.fel.neam === 'umanoid');
+    if (pradaAreCeva(prada)) faSac(scena, mob.x, mob.y, prada);
 
     // CANNIBALIZE (Undead): dupa ce omori ceva, te refaci 10 secunde.
     if (personaj.idRasa === 'undead') {

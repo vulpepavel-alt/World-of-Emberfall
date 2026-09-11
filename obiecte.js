@@ -145,11 +145,40 @@ function raritateLaIntamplare() {
 
 // Ce lasa in urma un inamic. Da inapoi null daca n-a lasat nimic.
 const SANSA_SA_LASE_OBIECT = 35;   // din 100
+const SANSA_AL_DOILEA_OBIECT = 12; // sansa sa mai cada inca unul
 
 function obiectDeLaMob(nivelMob) {
   if (Math.random() * 100 >= SANSA_SA_LASE_OBIECT) return null;
   const slot = SLOTURI[Math.floor(Math.random() * SLOTURI.length)];
   return faObiect(slot.id, Math.max(1, nivelMob), raritateLaIntamplare());
+}
+
+
+// TOT ce lasa un inamic cand moare: bani si obiecte, la un loc.
+// Asta ajunge in trupul lui, de unde iei tu ce vrei - nu mai intra
+// singur in inventar, ca in WoW.
+function pradaDeLaMob(nivelMob, esteUmanoid) {
+
+  const obiecte = [];
+  const unul = obiectDeLaMob(nivelMob);
+  if (unul) {
+    obiecte.push(unul);
+    if (Math.random() * 100 < SANSA_AL_DOILEA_OBIECT) {
+      const slot = SLOTURI[Math.floor(Math.random() * SLOTURI.length)];
+      obiecte.push(faObiect(slot.id, Math.max(1, nivelMob), raritateLaIntamplare()));
+    }
+  }
+
+  return {
+    bani: baniDeLaMob(nivelMob, esteUmanoid),
+    obiecte: obiecte
+  };
+}
+
+
+// Are ceva de luat, sau e un trup gol?
+function pradaAreCeva(prada) {
+  return !!prada && (prada.bani > 0 || prada.obiecte.length > 0);
 }
 
 
