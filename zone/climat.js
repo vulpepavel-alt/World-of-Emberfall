@@ -48,7 +48,11 @@ function faClimat(op) {
   adauga('S', op.piatra, true,  'piatra');
   adauga('w', op.palisada, true, 'lemn');
   adauga('A', op.cort,   true,  'lemn');
-  adauga('F', op.foc,    true,  'foc');
+  // Focul are nevoie de DOUA culori: flacara si fierul vasului in care
+  // arde. Fara a doua, toate nuantele ieseau din acelasi portocaliu
+  // aprins, deci si "umbrele" erau portocalii si vasul nu se vedea -
+  // iesea un patrat portocaliu care semana a nisip, nu a foc.
+  adauga('F', op.foc,    true,  'foc', op.focVariatie || 0x2a2620);
   adauga('c', op.gaura,  true,  'neted');
   adauga('N', op.nicovala || 0x4a4a52, true, 'piatra');
   adauga('U', op.masaRune || 0x3a4a5c, true, 'lemn');

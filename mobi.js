@@ -102,8 +102,11 @@ const RANGURI = {
 
   // Rangul de SEF. Unul singur in tot jocul, la capatul povestii.
   // Reaparitia lunga e dinadins: nu e un mob de farmat, e un capat.
+  // Cel mai mare lucru din joc. Peste marimea asta se mai adauga
+  // sporul de sef de temnita (vezi creeazaMob), deci cel de la
+  // capatul raidului iese de trei ori si ceva cat un om.
   sef:    { id: 'sef',    viata: 14,  damage: 2.6, armura: 1.8,
-            culoare: '#d86a4a', xp: 30, marime: 1.9,  reaparitie: 1800000 }
+            culoare: '#d86a4a', xp: 30, marime: 2.2,  reaparitie: 1800000 }
 };
 
 

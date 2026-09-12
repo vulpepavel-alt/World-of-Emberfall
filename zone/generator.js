@@ -321,6 +321,127 @@ function construiesteOras(reteta) {
 
 const LAT_CORIDOR = 5;
 
+// ==========================================================
+//  CE E INAUNTRUL UNEI CAMERE DE TEMNITA
+//
+//  Pana acum o camera era un dreptunghi de podea si atat. Camera
+//  sefului din Moor Hollow are 40 pe 30 de casute - mai mare decat
+//  ecranul - deci tot ce vedeai era podea goala pana la marginea
+//  ecranului, in toate partile. Nu semana cu o temnita, semana cu un
+//  camp inchis la culoare.
+//
+//  Asa ca punem inauntru lucrurile dupa care ochiul isi da seama pe
+//  loc unde e: STALPI de piatra, FOCURI care lumineaza, MOLOZ cazut
+//  din tavan si NISE in pereti.
+//
+//  Doua reguli pe care le respecta tot ce se pune aici:
+//    - mijlocul camerei ramane LIBER, fiindca acolo sta seful si
+//      acolo te bati cu el
+//    - nimic nu se pune pe coridoare, ca sa nu se infunde drumul
+//
+//  Totul iese din samanta temnitei, deci aceeasi temnita arata la
+//  fel de fiecare data cand intri.
+// ==========================================================
+function impodobesteTemnita(t, camere, L, samanta) {
+
+  const zar = faZaruri(samanta + 5150);
+
+  camere.forEach(function (cam, indice) {
+
+    const c0 = cam.col - Math.floor(cam.lat / 2);
+    const r0 = cam.rand - Math.floor(cam.inalt / 2);
+    const c1 = c0 + cam.lat - 1;
+    const r1 = r0 + cam.inalt - 1;
+
+    // Cat de mare e cercul din mijloc pe care nu-l atingem.
+    const razaLibera = Math.max(5, Math.min(cam.lat, cam.inalt) * 0.30);
+    function eLiberMijlocul(c, r) {
+      const dc = c - cam.col, dr = r - cam.rand;
+      return Math.sqrt(dc * dc + dr * dr) < razaLibera;
+    }
+
+    // Nu scriem peste nimic care nu e podea: asa coridoarele care
+    // intra in camera raman deschise, si peretii raman pereti.
+    function pePodea(c, r, litera) {
+      if (ia(t, c, r) !== L.drum) return;
+      if (eLiberMijlocul(c, r)) return;
+      pune(t, c, r, litera);
+    }
+
+    // ---- stalpii ----
+    //
+    // Patru, in colturile dinauntru, la o treime de margine. Doi pe
+    // doi de casute: destul cat sa se vada, prea putin cat sa te
+    // incurce - printre ei ramane mai mult loc decat tine un coridor.
+    if (cam.lat >= 18 && cam.inalt >= 14) {
+      const dc = Math.round(cam.lat * 0.28);
+      const dr = Math.round(cam.inalt * 0.28);
+      [[-dc, -dr], [dc, -dr], [-dc, dr], [dc, dr]].forEach(function (p) {
+        for (let r = 0; r < 2; r++) {
+          for (let c = 0; c < 2; c++) {
+            pePodea(cam.col + p[0] + c, cam.rand + p[1] + r, L.piatra);
+          }
+        }
+        // Un foc langa fiecare stalp, in partea dinspre mijloc. El da
+        // lumina si culoare intr-un loc altfel numai cenusiu.
+        pePodea(cam.col + p[0] + (p[0] < 0 ? 3 : -1),
+                cam.rand + p[1] + (p[1] < 0 ? 3 : -1), L.foc);
+      });
+    }
+
+    // ---- molozul cazut din tavan ----
+    //
+    // Gramezi mici de stanca, mai dese pe langa pereti - acolo cade
+    // ce se desprinde. Numarul creste cu marimea camerei.
+    const cateGramezi = Math.round(cam.lat * cam.inalt / 90);
+    for (let i = 0; i < cateGramezi; i++) {
+      const c = c0 + 1 + Math.floor(zar() * (cam.lat - 2));
+      const r = r0 + 1 + Math.floor(zar() * (cam.inalt - 2));
+
+      // Cat de aproape de perete e. Langa perete punem mai des.
+      const spreMargine = Math.min(c - c0, c1 - c, r - r0, r1 - r);
+      if (spreMargine > 3 && zar() > 0.35) continue;
+
+      const marime = zar() < 0.3 ? 2 : 1;
+      for (let dr = 0; dr < marime; dr++) {
+        for (let dc = 0; dc < marime; dc++) pePodea(c + dc, r + dr, L.stanca);
+      }
+    }
+
+    // ---- nisele din pereti ----
+    //
+    // Scobituri de o casuta in peretele camerei, la distante egale.
+    // Nu duc nicaieri: rup linia dreapta a peretelui, atat. Fara ele
+    // o camera arata ca o cutie.
+    const pasNisa = 7;
+    for (let c = c0 + 4; c < c1 - 3; c += pasNisa) {
+      if (ia(t, c, r0 - 1) === L.piatra && ia(t, c, r0 - 2) === L.zid) {
+        pune(t, c, r0 - 2, L.drum); pune(t, c + 1, r0 - 2, L.drum);
+      }
+      if (ia(t, c, r1 + 1) === L.piatra && ia(t, c, r1 + 2) === L.zid) {
+        pune(t, c, r1 + 2, L.drum); pune(t, c + 1, r1 + 2, L.drum);
+      }
+    }
+
+    // ---- focurile de la intrarea in camera sefului ----
+    //
+    // Camera cu sef primeste doua focuri mari la marginea de jos, ca
+    // sa se vada din coridor ca ai ajuns undeva.
+    if (cam.sef) {
+      pePodea(cam.col - 4, r1 - 1, L.foc);
+      pePodea(cam.col + 4, r1 - 1, L.foc);
+    }
+
+    // Prima camera e intrarea: o lasam mai goala, dar cu doua focuri
+    // langa iesire, ca sa gasesti drumul inapoi.
+    if (indice === 0) {
+      pePodea(cam.col - 3, r1 - 1, L.foc);
+      pePodea(cam.col + 3, r1 - 1, L.foc);
+    }
+  });
+}
+
+
 function construiesteTemnita(reteta) {
 
   const COL = reteta.COL, RND = reteta.RND;
@@ -370,6 +491,9 @@ function construiesteTemnita(reteta) {
     dreptunghi(t, b.col - jum, Math.min(a.rand, b.rand),
                LAT_CORIDOR, Math.abs(b.rand - a.rand) + 1, L.drum);
   }
+
+  // ---- ce e INAUNTRUL camerelor ----
+  impodobesteTemnita(t, camere, L, reteta.samanta || 1);
 
   // ---- locurile, pentru harta si pentru misiunile de mers ----
   zona.locuri = camere.map(function (cam) {

@@ -349,16 +349,49 @@ function nuantaPixelului(textura, sx, sy, gx, gy, z) {
     }
 
     case 'foc': {
-      // Flacara: miez alb, limbi de foc, si fum care se ridica.
-      const limba = zgomot(gx >> 1, (gy >> 1) + 5);
-      const miez  = zgomot(gx >> 2, (gy >> 2) + 6);
+      // UN VAS CU JAR, nu o balta portocalie.
+      //
+      // Inainte flacara era numai zgomot imprastiat, deci iesea un
+      // patrat portocaliu care semana mai degraba a nisip. Un foc se
+      // citeste pe VERTICALA: jos vasul intunecat, peste el jarul, si
+      // din el limbi care se ingusteaza spre varf.
+      const mij = PIXELI_PE_CASUTA / 2;
+      const deLaMijloc = Math.abs(sx - mij + 0.5);
+      const inaltimeaVasului = 4;
+      const susulVasului = PIXELI_PE_CASUTA - inaltimeaVasului;
 
-      if (miez > 0.86 && z > 0.35) return 11;                 // miezul alb
-      if (limba > 0.82) return 10;
-      if (limba > 0.62) return 8;
-      if (limba > 0.45) return 6;
-      if (limba < 0.14) return 1;                             // fum
-      return z < 0.4 ? 4 : 5;
+      // Nuantele 9, 10 si 11 sunt FIERUL vasului (a doua culoare a
+      // casutei), nu portocaliu. Nuantele 0-8 sunt flacara.
+      const FIER = 9, FIER_LUMINAT = 11, FIER_UMBRA = 10;
+
+      // ---- vasul de fier ----
+      if (sy >= susulVasului) {
+        if (deLaMijloc > mij - 1.5) return FIER_UMBRA;   // peretii lui
+        if (sy === susulVasului) return FIER_LUMINAT;    // buza, luminata de jar
+        return FIER;
+      }
+
+      // ---- jarul din vas ----
+      if (sy >= susulVasului - 2 && deLaMijloc < mij - 2) {
+        return (zgomot(gx, gy) > 0.5) ? 7 : 3;
+      }
+
+      // ---- flacara ----
+      //
+      // 0 la baza, 1 la varf. Cu cat mai sus, cu atat mai ingusta.
+      const inalt = (susulVasului - 2 - sy) / (susulVasului - 2);
+      const latime = (mij - 1.5) * (1 - inalt * 0.8);
+      const unduire = (zgomotNetedTextura(gx / 2.2, gy / 2.2 + 11) - 0.5) * 3.2;
+
+      // In afara flacarii e intunericul din jurul focului, nu flacara
+      // stinsa: tot fier, ca sa nu iasa o balta portocalie.
+      if (deLaMijloc + unduire > latime) return FIER;
+
+      const spreMiez = 1 - (deLaMijloc / Math.max(0.9, latime));
+      if (spreMiez > 0.72 && inalt < 0.5) return 8;  // miezul, galben deschis
+      if (spreMiez > 0.48) return 7;
+      if (spreMiez > 0.26) return 5;
+      return 3;                                      // marginea, rosiatica
     }
 
     default:
@@ -4926,24 +4959,36 @@ function creeazaMob(scena, loc) {
 
   const mob = scena.add.container(x, y);
 
+  // ---- cat de mare e ----
+  //
+  // Rangul da marimea de baza. Peste ea, un SEF DE TEMNITA primeste
+  // inca jumatate: pana acum un sef din temnita era exact cat elitul
+  // care sta prin coltul unei zone obisnuite, si nu se simtea deloc
+  // ca ai ajuns la capatul unei camere. Acum se vede din usa cine e
+  // acolo - ca in Classic, unde seful e vizibil mai mare decat tot
+  // ce ai omorat pana la el.
+  const SPOR_SEF_DE_TEMNITA = 1.5;
+  const marime = rang.marime * (loc.sefDeTemnita ? SPOR_SEF_DE_TEMNITA : 1);
+  mob.marime = marime;
+
   // Umbra pe pamant, apoi bucatile scrise in mobi.js, cu contur.
-  mob.add(faUmbra(scena, 24 * rang.marime));
+  mob.add(faUmbra(scena, 24 * marime));
   deseneazaForme(scena, fel.forme).forEach(function (bucata) { mob.add(bucata); });
 
-  // Cei rari si cei elit sunt si mai MARI, ca sa se vada de departe
-  // ca nu-s de rand.
-  if (rang.id !== 'normal') {
+  // Cei rari, cei elit si sefii sunt si mai MARI, ca sa se vada de
+  // departe ca nu-s de rand.
+  if (marime !== 1) {
     mob.list.forEach(function (b) {
-      b.x = b.x * rang.marime;
-      b.y = b.y * rang.marime;
-      if (b.setScale) b.setScale(rang.marime);
+      b.x = b.x * marime;
+      b.y = b.y * marime;
+      if (b.setScale) b.setScale(marime);
     });
   }
 
   // Numele. Unul de rand se cheama dupa felul lui; unul rar are nume
   // propriu, scris cu ARGINTIU; unul elit, cu AURIU.
   const numeArata = loc.nume || fel.nume;
-  mob.add(scena.add.text(0, -40 * rang.marime,
+  mob.add(scena.add.text(0, -40 * marime,
     numeArata + ' (' + TEXT.LEVEL + ' ' + stats.nivel + ')', {
     fontFamily: UI.FONT,
     fontSize: (rang.id === 'normal') ? '10px' : '12px',
@@ -4955,7 +5000,7 @@ function creeazaMob(scena, loc) {
 
   // Rama din jurul barei de viata: argintie la rari, aurie la eliti.
   if (rang.id !== 'normal') {
-    mob.add(scena.add.text(0, -52 * rang.marime,
+    mob.add(scena.add.text(0, -52 * marime,
       rang.id === 'rar' ? TEXT.RARE
         : rang.id === 'sef' ? TEXT.BOSS : TEXT.ELITE, {
       fontFamily: UI.FONT,
@@ -4968,7 +5013,7 @@ function creeazaMob(scena, loc) {
   }
 
   // Bara lui de viata.
-  const susBara = -28 * rang.marime;
+  const susBara = -28 * marime;
   mob.add(scena.add.rectangle(0, susBara, 34, 8, culoareDinText(rang.culoare)).setOrigin(0.5));
   mob.add(scena.add.rectangle(0, susBara, 32, 6, 0x000000).setOrigin(0.5));
   const bara = scena.add.rectangle(-15, susBara - 3, 30, 4, 0xcc3322).setOrigin(0, 0);
