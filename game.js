@@ -5130,10 +5130,62 @@ function creeazaNpc(scena, loc, indice) {
 // Pune semnul potrivit deasupra unui personaj prietenos.
 function actualizeazaSemnul(p) {
   if (!p.semn) return;
+
   const semn = semnulLui(personaj, zona.nume, p.felul);
-  p.semn.setText(semn === '...' ? '?' : semn);
-  // Semnul stins inseamna "ai luat, dar n-ai terminat inca".
-  p.semn.setColor(semn === '...' ? '#7a6748' : '#ffd34d');
+
+  // Misiunile trec inaintea invatatului: '!' si '?' sunt mai grabnice.
+  if (semn) {
+    p.semn.setText(semn === '...' ? '?' : semn);
+    p.semn.setColor(semn === '...' ? '#7a6748' : '#ffd34d');
+    return;
+  }
+
+  // ---- semnul de ANTRENOR ----
+  //
+  // Antrenorul de clasa e "spell master"-ul: de la el se invata
+  // abilitatile. Pana acum nu avea NIMIC deasupra capului, deci intr-un
+  // oras plin de oameni nu aveai de unde sti ca omul ala are ceva
+  // pentru tine - trebuia sa intri in vorba cu toata lumea pe rand.
+  //
+  // Acum, cand ai ceva de invatat de la el, are un semn albastru
+  // deasupra. La fel si antrenorii de meserie.
+  if (arePentruTineDeInvatat(p)) {
+    p.semn.setText('≡');            // trei linii, ca un rand de carte
+    p.semn.setColor('#7ec8f0');
+    return;
+  }
+
+  p.semn.setText('');
+}
+
+
+// Are omul asta ceva ce poti invata CHIAR ACUM? Se uita si la bani,
+// si la nivel: un semn care te cheama degeaba e mai rau decat niciunul.
+function arePentruTineDeInvatat(p) {
+
+  const cine = p.cine;
+  if (!cine || !cine.invata || !personaj) return false;
+
+  // Antrenor de clasa: numai al clasei tale, si numai ce chiar poti
+  // invata acum - destul de mare si cu bani destui.
+  if (cine.invata === personaj.idClasa) {
+    if (typeof ceAreAntrenorul !== 'function') return false;
+    return ceAreAntrenorul(personaj).some(function (c) {
+      return !c.preaMic && !c.faraBani;
+    });
+  }
+
+  // Antrenor de meserie: ori te poate invata meseria, ori are retete
+  // noi pentru skill-ul tau de acum.
+  const idMeserie = Object.keys(MESERII).find(function (id) {
+    return MESERII[id].antrenor === p.felul;
+  });
+  if (!idMeserie) return false;
+
+  if (typeof arePentruTineLaMeserie === 'function') {
+    return arePentruTineLaMeserie(personaj, idMeserie);
+  }
+  return false;
 }
 
 function actualizeazaSemnele() {

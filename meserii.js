@@ -474,6 +474,22 @@ function urmatoareaTreapta(personajul, id) {
 }
 
 
+// Are antrenorul meseriei asteia ceva pentru tine CHIAR ACUM?
+//
+// Se foloseste pentru semnul de deasupra capului lui. Un semn care te
+// cheama degeaba e mai rau decat niciun semn, asa ca ne uitam si la
+// bani, si la nivel, si la cat de plin e skill-ul de acum.
+function arePentruTineLaMeserie(personajul, id) {
+
+  if (!aiMeseria(personajul, id)) {
+    return potiLuaMeseria(personajul, id).poti;
+  }
+
+  const u = urmatoareaTreapta(personajul, id);
+  return !!(u && !u.preaMic && !u.faraBani && !u.preaDevreme);
+}
+
+
 function ridicaTreapta(personajul, id) {
   const u = urmatoareaTreapta(personajul, id);
   if (!u || u.preaMic || u.faraBani) return null;

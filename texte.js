@@ -317,7 +317,9 @@ const TEXT = {
   REQUIRES:         'Requires level',
   NOT_ENOUGH_GOLD:  'Not enough money',
   LEARNED:          'Learned',
-  NEW_AT_TRAINER:   '{n} new at your trainer',
+  // Spune si UNDE e antrenorul. Fara asta stiai ca te asteapta ceva,
+  // dar nu si ca omul sta in Hall of Arms, in capitala.
+  NEW_AT_TRAINER:   '{n} new at your trainer - Hall of Arms, in the capital',
   ABILITY_BAR:      'Your four buttons',
   BAR_PAGE:         'Page',
   BAR_HELP:         'Tap an ability, then tap the slot you want it in. ' +
