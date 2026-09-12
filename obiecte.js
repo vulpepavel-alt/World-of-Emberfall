@@ -236,6 +236,22 @@ function pornesteIdurileObiectelor(deLa) {
   urmatorulIdObiect = Math.max(urmatorulIdObiect, deLa || 1);
 }
 
+// Un obiect cu numele scris de mana: prada unui sef anume.
+//
+// Se face ca orice alt obiect - ca sa nu socotim de doua ori
+// aceleasi cifre - si pe urma i se pune numele lui. Asta il face sa
+// merite cautat: "Corvin's Ledger Key" pica DOAR de la Corvin, si
+// oricine il vede stie de unde vine.
+function faObiectDeSef(def, nivel) {
+  const o = faObiect(def.slot, def.nivel || nivel, def.raritate || 'rar',
+                     def.felArmura ? { felArmura: def.felArmura } : undefined);
+  if (!o) return null;
+  o.nume = def.nume;
+  o.deLaSef = true;
+  return o;
+}
+
+
 // Alege unul la intamplare dintr-o lista.
 function unulDin(lista) {
   return lista[Math.floor(Math.random() * lista.length)];
@@ -685,7 +701,7 @@ function panzaDeLaUmanoid(nivelMob) {
 }
 
 
-function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
+function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona, locul) {
 
   const profil = (MOBI[felulMobului] || {}).prada || null;
   const prada = pradaDeLaMob(nivelMob, esteUmanoid, profil, numeZona, felulMobului);
@@ -696,6 +712,14 @@ function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
   if (esteUmanoid) {
     const panza = panzaDeLaUmanoid(nivelMob);
     if (panza) prada.obiecte.push(panza);
+  }
+
+  // Seful unei temnite lasa unul din lucrurile LUI, scrise langa el
+  // in reteta temnitei. Alea nu pica de nicaieri altundeva.
+  if (locul && locul.lasa && locul.lasa.length > 0) {
+    const def = locul.lasa[Math.floor(Math.random() * locul.lasa.length)];
+    const alLui = faObiectDeSef(def, nivelMob);
+    if (alLui) prada.obiecte.push(alLui);
   }
 
   // Cei rari si cei elit lasa INTOTDEAUNA ceva bun - de aceea ii

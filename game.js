@@ -4888,7 +4888,7 @@ function loveste(scena, mob, damageBrut, critic) {
     // pe el, ca prada dintr-un loc sa se simta ca vine de acolo.
     const prada = pradaCompleta(mob.stats.nivel, mob.fel.neam === 'umanoid',
                                 mob.felul, mob.rang.id,
-                                zona ? zona.nume : null);
+                                zona ? zona.nume : null, mob.locul);
 
     // Lucrurile cerute de misiuni cad in acelasi trup.
     prada.obiecteMisiune = obiecteDeMisiuneDeLa(personaj, mob.felul);

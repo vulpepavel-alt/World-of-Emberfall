@@ -43,13 +43,30 @@ inregistreazaZona({
   camere: [
     { id: 'gura',    nume: 'The Thorn Mouth',  c: 0.10, r: 0.72, lat: 24, inalt: 18 },
     { id: 'culcus',  nume: 'The Sleeping Floor', c: 0.30, r: 0.50, lat: 34, inalt: 26,
-      sef: { fel: 'bandit', nume: 'Wren Alder, Who Keeps the Watch', nivel: 19 } },
+      sef: { fel: 'bandit', nume: 'Wren Alder, Who Keeps the Watch', nivel: 19,
+             lasa: [
+               { nume: 'Watchkeeper\'s Hood', slot: 'cap', felArmura: 'piele', raritate: 'bun' },
+               { nume: 'The Long Whistle', slot: 'gat', raritate: 'bun' }
+             ] } },
     { id: 'groapa',  nume: 'The Old Digging',  c: 0.50, r: 0.74, lat: 30, inalt: 24,
-      sef: { fel: 'burrower', nume: 'The Thing They Dug Into', nivel: 20 } },
+      sef: { fel: 'burrower', nume: 'The Thing They Dug Into', nivel: 20,
+             lasa: [
+               { nume: 'Root-Torn Bracers', slot: 'incheieturi', felArmura: 'zale', raritate: 'bun' },
+               { nume: 'Digger\'s Broken Tooth', slot: 'talisman', raritate: 'bun' }
+             ] } },
     { id: 'camara',  nume: 'The Stores',       c: 0.70, r: 0.44, lat: 32, inalt: 24,
-      sef: { fel: 'spider', nume: 'Longleg', nivel: 21 } },
+      sef: { fel: 'spider', nume: 'Longleg', nivel: 21,
+             lasa: [
+               { nume: 'Longleg\'s Wrap', slot: 'piept', felArmura: 'panza', raritate: 'bun' },
+               { nume: 'Eight Small Eyes', slot: 'inel1', raritate: 'rar' }
+             ] } },
     { id: 'masa',    nume: 'The Long Table',   c: 0.88, r: 0.68, lat: 40, inalt: 30,
-      sef: { fel: 'raider', nume: 'Corvin Ashe, Who Was Paid', nivel: 22, rang: 'elit' } }
+      sef: { fel: 'raider', nume: 'Corvin Ashe, Who Was Paid', nivel: 22, rang: 'elit',
+             lasa: [
+               { nume: 'The Hand That Was Paid', slot: 'armaPrincipala', raritate: 'rar' },
+               { nume: 'Corvin\'s Ledger Key', slot: 'talisman', raritate: 'rar' },
+               { nume: 'Ashe-Marked Greaves', slot: 'picioare', felArmura: 'piele', raritate: 'rar' }
+             ] } }
   ],
 
   // Cati inamici marunti pe coridoare si prin camere.

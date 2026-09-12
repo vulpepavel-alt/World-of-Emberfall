@@ -1016,6 +1016,7 @@ function asazaSefiiTemnitei(zona, reteta) {
       nivel: cam.sef.nivel || reteta.nivelPanaLa,
       rang: cam.sef.rang || 'elit',
       nume: cam.sef.nume,
+      lasa: cam.sef.lasa || null,
       sefDeTemnita: true
     });
   });

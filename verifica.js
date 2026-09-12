@@ -226,7 +226,46 @@ function verificaTot() {
   });
 
   // ==========================================================
-  //  9. DESENELE: fiecare obiect trebuie sa aiba unul
+  //  9. TEMNITELE
+  //
+  //  Gura fiecarei temnite trebuie sa fie un loc care CHIAR exista
+  //  pe harta zonei-mame. Am scris trei cu id-uri ghicite si nu s-a
+  //  plans nimeni: temnita se incarca, dar nu se putea intra in ea
+  //  fiindca poarta se agata de un loc inexistent.
+  // ==========================================================
+  ZONE.filter(function (z) { return z.esteTemnita; }).forEach(function (z) {
+    if (!z.intrareDin) {
+      rau('temnite', z.id + ': nu spune de unde se intra in ea');
+      return;
+    }
+    const mama = retetaZonei(z.intrareDin.zona);
+    if (!mama) {
+      rau('temnite', z.id + ': se intra din "' + z.intrareDin.zona + '", care nu exista');
+      return;
+    }
+    const are = (mama.locuri || []).some(function (l) { return l.id === z.intrareDin.loc; });
+    if (!are) {
+      rau('temnite', z.id + ': se intra din ' + z.intrareDin.zona + ':"' +
+          z.intrareDin.loc + '", dar locul ala nu exista acolo');
+    }
+    if (!z.camere || z.camere.length < 2) {
+      rau('temnite', z.id + ': are mai putin de doua camere');
+    }
+    (z.camere || []).forEach(function (cam) {
+      if (cam.sef && !MOBI[cam.sef.fel]) {
+        rau('temnite', z.id + '/' + cam.id + ': seful e "' + cam.sef.fel + '", care nu exista');
+      }
+      ((cam.sef && cam.sef.lasa) || []).forEach(function (def) {
+        if (!gasesteSlot(def.slot)) {
+          rau('temnite', z.id + '/' + cam.id + ': "' + def.nume +
+              '" are slotul "' + def.slot + '", care nu exista');
+        }
+      });
+    });
+  });
+
+  // ==========================================================
+  //  10. DESENELE: fiecare obiect trebuie sa aiba unul
   // ==========================================================
   SLOTURI.forEach(function (sl) {
     for (let i = 0; i < 40; i++) {
