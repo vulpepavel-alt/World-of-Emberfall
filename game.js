@@ -1251,6 +1251,16 @@ function slabesteArmura(scena, mob, cat, catTine) {
 }
 
 
+// ---- damage-ul slabit ----
+// Nu se aduna peste el insusi: a doua atingere o ia de la capat pe
+// prima, altfel ai apasa butonul de cinci ori si n-ar mai lovi deloc.
+function slabesteDamage(scena, mob, cat, catTine) {
+  if (!mob || !mob.viu) return;
+  mob.dmgSlabitPanaLa = scena.time.now + catTine;
+  mob.dmgSlabitCu = Math.min(0.6, cat);
+}
+
+
 // ---- prefacutul mort: toti uita de tine ----
 let mortPrefacutPanaLa = 0;
 
@@ -3552,6 +3562,7 @@ function puneRana(scena, mob, ab) {
     urmatorul: scena.time.now + ab.laCat,
     laCat: ab.laCat,
     catDoare: ab.peTura,
+    iaViata: !!ab.iaViata,
     culoare: ab.culoare || null
   });
 }
@@ -3570,6 +3581,13 @@ function actualizeazaRanile(scena) {
 
     r.urmatorul += r.laCat;
     loveste(scena, r.mob, r.catDoare, false);
+
+    // Rotting Hunger: cat roade din el, atat primesti tu.
+    if (r.iaViata && !mort && personaj.viata < personaj.viataMaxima) {
+      personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + r.catDoare);
+      actualizeazaBaraViata();
+      aratacifraVerde(scena, jucator.x, jucator.y - 44, r.catDoare);
+    }
   }
 }
 
@@ -3885,10 +3903,19 @@ function porneisteEfectul(scena, ab, tintaAb) {
 
   } else if (ab.fel === 'slabire') {
     if (!tintaAb) return;
-    animatiaSabiei(scena);
-    slabesteArmura(scena, tintaAb, ab.slabesteCu, ab.tine);
-    const lov = damageulTau(armaDeAtac(), attackPowerFolosit(scena, false));
-    loveste(scena, tintaAb, lov.damage * (ab.inmultit || 1), lov.critic);
+
+    // Doua feluri de slabire. Cea a armurii e o lovitura cu arma:
+    // dai in incheieturi. Cea a damage-ului (Withering Touch) e o
+    // atingere, fara sabie si fara damage - slabeste si atat.
+    if (ab.slabesteDmg) {
+      slabesteDamage(scena, tintaAb, ab.slabesteDmg, ab.tine);
+      aratacuvant(scena, tintaAb.x, tintaAb.y - 40, ab.nume, '#b48fd0');
+    } else {
+      animatiaSabiei(scena);
+      slabesteArmura(scena, tintaAb, ab.slabesteCu, ab.tine);
+      const lov = damageulTau(armaDeAtac(), attackPowerFolosit(scena, false));
+      loveste(scena, tintaAb, lov.damage * (ab.inmultit || 1), lov.critic);
+    }
   }
 
   // Unele lovituri obisnuite lasa tinta schioapa.
@@ -4000,6 +4027,8 @@ function ratezi() {
 function evitiLovitura() {
   let sansa = bonusTalent(personaj, 'dodge');
   if (personaj.idRasa === 'nightelf') sansa += QUICKNESS_DODGE;
+  // Si o intarire poate adauga aici (Moonlit Step, Ancestor's Vigil).
+  sansa += dinIntariri('dodge');
   return sansa > 0 && (Math.random() * 100) < sansa;
 }
 
@@ -4971,6 +5000,11 @@ function mobTeLoveste(scena, mob) {
   const s = mob.stats;
   let brut = Phaser.Math.Between(s.dmgMin, s.dmgMax);
 
+  // Withering Touch: mana care l-a atins loveste mai slab o vreme.
+  if (mob.dmgSlabitPanaLa && scena.time.now < mob.dmgSlabitPanaLa) {
+    brut = brut * (1 - mob.dmgSlabitCu);
+  }
+
   // Si inamicii dau critical, ca sa aiba ce reduce Thick Bone.
   const criticMob = (Math.random() * 100) < SANSA_CRITIC_MOB;
   if (criticMob) {
@@ -4989,6 +5023,14 @@ function mobTeLoveste(scena, mob) {
   if (damage > 0) {
     personaj.viata = personaj.viata - damage;
     aratacifraRosie(scena, jucator.x, jucator.y - 44, damage);
+
+    // Turned Aside / Ancestor's Wrath: o parte din lovitura se
+    // intoarce la cel care a dat-o.
+    const parte = dinIntariri('intoarce');
+    if (parte > 0 && mob.viu) {
+      const inapoi = Math.max(1, Math.round(damage * parte));
+      loveste(scena, mob, inapoi, false);
+    }
   }
 
   // Warrior castiga rage si cand INCASEAZA, exact cum ai scris tu.

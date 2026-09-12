@@ -489,6 +489,84 @@ const ABILITATI = [
     fel: 'vindecare', nivel: 40, laCateNiveluri: 10, ranguri: 3, crestere: 1.25,
     costRage: 0, costMana: 160, pauza: 0, incantare: 2500,
     vindecaMin: 420, vindecaMax: 520
+  },
+
+  // ==========================================================
+  //  PREOTUL, DUPA RASA
+  //
+  //  Doua abilitati de fiecare rasa, la nivelele 10 si 20. Le are
+  //  DOAR preotul rasei aceleia: un preot Human nu vede niciodata
+  //  la antrenor ce stie unul Undead.
+  //
+  //  Campul 'rasa' e tot ce le deosebeste de restul listei.
+  //
+  //  Orcul are si el doua, desi in Classic nu exista preot orc.
+  //  La noi exista, si mi s-a parut nedrept sa fie singura rasa
+  //  fara nimic. Alea doua sunt inventate cap-coada.
+  // ==========================================================
+
+  // ---- Human: nu cedezi, si ce primesti dai inapoi ----
+  {
+    id: 'priest_race_human_01', clasa: 'priest', rasa: 'human', nume: 'Last Breath',
+    descriere: 'When there is nothing left, you find a little more. Mends you at once.',
+    fel: 'vindecare', nivel: 10, laCateNiveluri: 12, ranguri: 4, crestere: 1.3,
+    costRage: 0, costMana: 0, pauza: 300000, incantare: 0,
+    vindecaMin: 120, vindecaMax: 160
+  },
+  {
+    id: 'priest_race_human_02', clasa: 'priest', rasa: 'human', nume: 'Turned Aside',
+    descriere: 'For 15 seconds, part of every blow goes back where it came from.',
+    fel: 'intarire', nivel: 20, laCateNiveluri: 14, ranguri: 3, crestere: 1.15,
+    costRage: 0, costMana: 60, pauza: 180000, incantare: 0,
+    tine: 15000, da: { intoarce: 0.35 }
+  },
+
+  // ---- Duskborn: lumina rece, si pasul care nu se aude ----
+  {
+    id: 'priest_race_nightelf_01', clasa: 'priest', rasa: 'nightelf', nume: 'Star Splinter',
+    descriere: 'A sliver of cold light, left burning in the wound for 18 seconds.',
+    fel: 'arsura', nivel: 10, laCateNiveluri: 10, ranguri: 4, crestere: 1.25,
+    costRage: 0, costMana: 45, pauza: 12000, incantare: 0, deLaDistanta: true,
+    tine: 18000, laCat: 3000, peTura: 14
+  },
+  {
+    id: 'priest_race_nightelf_02', clasa: 'priest', rasa: 'nightelf', nume: 'Moonlit Step',
+    descriere: 'For 15 seconds you are harder to touch than you look.',
+    fel: 'intarire', nivel: 20, laCateNiveluri: 14, ranguri: 3, crestere: 1.2,
+    costRage: 0, costMana: 55, pauza: 120000, incantare: 0,
+    tine: 15000, da: { dodge: 15 }
+  },
+
+  // ---- Undead: mana care slabeste, si foamea care se hraneste ----
+  {
+    id: 'priest_race_undead_01', clasa: 'priest', rasa: 'undead', nume: 'Withering Touch',
+    descriere: 'What it strikes with grows weak. It hits softer for 20 seconds.',
+    fel: 'slabire', nivel: 10, laCateNiveluri: 12, ranguri: 4, crestere: 1.1,
+    costRage: 0, costMana: 40, pauza: 20000, incantare: 0, raza: 200,
+    slabesteDmg: 0.20, tine: 20000
+  },
+  {
+    id: 'priest_race_undead_02', clasa: 'priest', rasa: 'undead', nume: 'Rotting Hunger',
+    descriere: 'A rot that eats for 24 seconds, and feeds you what it takes.',
+    fel: 'arsura', nivel: 20, laCateNiveluri: 12, ranguri: 3, crestere: 1.25,
+    costRage: 0, costMana: 70, pauza: 24000, incantare: 0, deLaDistanta: true,
+    tine: 24000, laCat: 3000, peTura: 16, iaViata: true
+  },
+
+  // ---- Orc: ce ti-au lasat cei dinainte ----
+  {
+    id: 'priest_race_orc_01', clasa: 'priest', rasa: 'orc', nume: 'Ancestor\'s Vigil',
+    descriere: 'They stand around you for 20 seconds. Harder to hit, harder to hurt.',
+    fel: 'intarire', nivel: 10, laCateNiveluri: 12, ranguri: 4, crestere: 1.2,
+    costRage: 0, costMana: 50, pauza: 90000, incantare: 0,
+    tine: 20000, da: { dodge: 10, armura: 30 }
+  },
+  {
+    id: 'priest_race_orc_02', clasa: 'priest', rasa: 'orc', nume: 'Ancestor\'s Wrath',
+    descriere: 'For 25 seconds, what is done to you is done back, in part.',
+    fel: 'intarire', nivel: 20, laCateNiveluri: 14, ranguri: 3, crestere: 1.15,
+    costRage: 0, costMana: 70, pauza: 180000, incantare: 0,
+    tine: 25000, da: { intoarce: 0.30 }
   }
 ];
 
@@ -500,12 +578,26 @@ const ABILITATI = [
 //  au de ce sa creasca odata cu rangul; damage-ul si costul, da.
 // ----------------------------------------------------------
 const CE_CRESTE = ['dmgMin', 'dmgMax', 'vindecaMin', 'vindecaMax',
-                   'peTura', 'costMana', 'costRage'];
+                   'peTura', 'costMana', 'costRage',
+                   // Astea doua sunt fractiuni - cat de mult slabeste
+                   // lovitura armura sau damage-ul. Pana acum nu
+                   // cresteau deloc, deci un rang nou costa mai mult
+                   // si facea exact acelasi lucru.
+                   'slabesteCu', 'slabesteDmg'];
+
+
+// Cifrele mici, sub 1, sunt fractiuni: 0,35 din lovitura intoarsa
+// inapoi, 0,12 din armura data jos. Rotunjite la intreg s-ar face
+// zero, si abilitatea n-ar mai face nimic.
+function crestePastrandZecimalele(baza, spor) {
+  const val = baza * spor;
+  return (Math.abs(baza) < 1) ? Math.round(val * 100) / 100 : Math.round(val);
+}
 
 
 // Cu cat creste ce da o intarire (attackPower, armura, sta, int).
 function intarireaLaRang(ab, rang, cheie) {
-  return Math.round(ab.da[cheie] * Math.pow(ab.crestere, rang - 1));
+  return crestePastrandZecimalele(ab.da[cheie], Math.pow(ab.crestere, rang - 1));
 }
 
 
@@ -522,7 +614,9 @@ function abilitateaLaRang(ab, rang) {
   const iesire = Object.assign({}, ab);
 
   CE_CRESTE.forEach(function (cheie) {
-    if (typeof ab[cheie] === 'number') iesire[cheie] = Math.round(ab[cheie] * spor);
+    if (typeof ab[cheie] === 'number') {
+      iesire[cheie] = crestePastrandZecimalele(ab[cheie], spor);
+    }
   });
 
   if (ab.da) {
@@ -602,6 +696,9 @@ function ceAreAntrenorul(personajul) {
     // normal, cu bani, ca la orice alta abilitate.
     if (ab.prinQuest && acum === 0) return;
 
+    // Si unele tin de rasa ta, nu doar de clasa.
+    if (ab.rasa && ab.rasa !== personajul.idRasa) return;
+
     const nivelCerut = nivelulRangului(ab, urmator);
     const cost = costulInvatarii(nivelCerut);
 
@@ -641,6 +738,7 @@ function invataAbilitatea(personajul, id, rang) {
 
   const ab = gasesteAbilitatea(id);
   if (!ab || ab.clasa !== personajul.idClasa) return null;
+  if (ab.rasa && ab.rasa !== personajul.idRasa) return null;
 
   const acum = (personajul.stiute || {})[id] || 0;
   if (rang !== acum + 1 || rang > ab.ranguri) return null;
@@ -682,6 +780,7 @@ function daruiesteAbilitatea(personajul, id) {
 
   const ab = gasesteAbilitatea(id);
   if (!ab || ab.clasa !== personajul.idClasa) return null;
+  if (ab.rasa && ab.rasa !== personajul.idRasa) return null;
 
   personajul.stiute = personajul.stiute || {};
   if (personajul.stiute[id]) return null;             // o ai deja
@@ -729,6 +828,7 @@ function puneInLoc(personajul, loc, id) {
 function abilitatileDeStart(idClasa) {
   const stiute = {};
   abilitatileClasei(idClasa).forEach(function (ab) {
+    if (ab.rasa) return;                    // rasialele vin la nivelul 10
     if (ab.nivel <= 1) stiute[ab.id] = 1;
   });
   return stiute;
@@ -758,6 +858,7 @@ function faBaraDeStart(idClasa) {
 function daTotCeSeCuvine(personajul) {
   const stiute = {};
   abilitatileClasei(personajul.idClasa).forEach(function (ab) {
+    if (ab.rasa && ab.rasa !== personajul.idRasa) return;
     const r = rangulPosibil(ab, personajul.nivel);
     if (r > 0) stiute[ab.id] = r;
   });
