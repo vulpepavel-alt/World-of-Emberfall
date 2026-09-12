@@ -2609,6 +2609,14 @@ function atingiCeva(scena, x, y) {
 // prada, sau cineva prietenos. Sacii au intaietate - daca stai
 // peste un trup langa un negustor, cel mai probabil vrei trupul.
 function ceEDeschisLangaTine() {
+
+  // Cat esti duh, singurul lucru pe care il poti face e sa te ridici
+  // la trupul tau - si numai daca ai ajuns la el.
+  if (estiDuh()) {
+    const cat = Phaser.Math.Distance.Between(jucator.x, jucator.y, cadavrul.x, cadavrul.y);
+    return (cat <= RAZA_TRUP) ? { fel: 'trup' } : null;
+  }
+
   const sac = saculDeLangaTine(jucator.x, jucator.y);
   if (sac) return { fel: 'sac', ce: sac };
 
@@ -2637,6 +2645,7 @@ function interactioneaza(scena) {
   const gasit = ceEDeschisLangaTine();
   if (!gasit) return;
 
+  if (gasit.fel === 'trup') { teRidiciLaTrup(scena); return; }
   if (gasit.fel === 'sac') { deschidePrada(gasit.ce); return; }
   if (gasit.fel === 'nod') { incepeCulesul(scena, gasit.ce); return; }
   if (gasit.fel === 'apa') { arunciUndita(scena, gasit.ce); return; }
@@ -3029,6 +3038,19 @@ function actualizeazaMiniharta() {
     minihartaPanza.fill(culoare, 1, px - 4, py - 4, 8, 8);
   });
 
+  // Trupul tau, cat esti duh. Se lipeste de marginea minihartii
+  // daca e departe, ca portile - altfel ai cauta pe toata zona.
+  if (cadavrul) {
+    let px = mijloc + (cadavrul.x - jucator.x) * MINI_SCARA;
+    let py = mijloc + (cadavrul.y - jucator.y) * MINI_SCARA;
+    const m = 9;
+    px = Math.min(MINI_LAT - m, Math.max(m, px));
+    py = Math.min(MINI_LAT - m, Math.max(m, py));
+    minihartaPanza.fill(0x000000, 1, px - 5, py - 7, 10, 14);
+    minihartaPanza.fill(0xcfc4a8, 1, px - 1, py - 6, 2, 12);
+    minihartaPanza.fill(0xcfc4a8, 1, px - 4, py - 3, 8, 2);
+  }
+
   // Cine are ceva pentru tine se vede mai mare si mai aprins.
   npci.forEach(function (p) {
     const semn = p.semn ? p.semn.text : '';
@@ -3267,15 +3289,20 @@ function aplicaTalentele() {
   const parteViata = personaj.viataMaxima ? personaj.viata / personaj.viataMaxima : 1;
   const parteMana = personaj.manaMaxima ? personaj.mana / personaj.manaMaxima : 1;
 
+  // Raul de Inviere: jumatate din tot, doua minute. Se aplica peste
+  // toate, la sfarsit, ca sa nu trebuiasca socotit in zece locuri.
+  const slab = (jucator && jucator.scene)
+    ? slabiciuneaDeInviere(jucator.scene) : 1;
+
   // Atributele: cele de baza plus ce aduce echipamentul.
   // Atributele: cele de baza, plus echipamentul, plus intaririle
   // pe care le ai active acum (strigate, armuri de vraja, aspecte).
   personaj.atribute = {
-    str: baza.atribute.str + dinEchipament.str + dinIntariri('str'),
-    agi: baza.atribute.agi + dinEchipament.agi + dinIntariri('agi'),
-    sta: baza.atribute.sta + dinEchipament.sta + dinIntariri('sta'),
-    int: baza.atribute.int + dinEchipament.int + dinIntariri('int'),
-    spi: baza.atribute.spi + dinEchipament.spi + dinIntariri('spi')
+    str: Math.round((baza.atribute.str + dinEchipament.str + dinIntariri('str')) * slab),
+    agi: Math.round((baza.atribute.agi + dinEchipament.agi + dinIntariri('agi')) * slab),
+    sta: Math.round((baza.atribute.sta + dinEchipament.sta + dinIntariri('sta')) * slab),
+    int: Math.round((baza.atribute.int + dinEchipament.int + dinIntariri('int')) * slab),
+    spi: Math.round((baza.atribute.spi + dinEchipament.spi + dinIntariri('spi')) * slab)
   };
 
   // Din atribute ies restul, cu formulele din specificatia ta.
@@ -4325,6 +4352,14 @@ function update(time, delta) {
   actualizeazaAnimalul(this, delta);
   if (typeof actualizeazaTovarasii === 'function') actualizeazaTovarasii(this, delta);
   verificaIesireaDinLupta(this);
+
+  // Cand trece Raul de Inviere, statisticile se intorc la loc. Se
+  // verifica o data, nu la fiecare cadru.
+  if (rauDeInvierePanaLa && this.time.now >= rauDeInvierePanaLa) {
+    rauDeInvierePanaLa = 0;
+    aplicaTalentele();
+    aratacuvant(this, jucator.x, jucator.y - 60, TEXT.BACK_UP, '#8fd08f');
+  }
   // Ce tine in timp: ranile care dor, alinarile si intaririle.
   actualizeazaRanile(this);
   actualizeazaAlinarile(this);
@@ -4357,7 +4392,9 @@ function update(time, delta) {
     return;
   }
 
-  const pas = VITEZA * (delta / 1000);
+  // Duhul merge mai repede: drumul inapoi la trup e pedeapsa,
+  // dar n-are rost sa fie si lung, si incet.
+  const pas = VITEZA * (estiDuh() ? VITEZA_DUH : 1) * (delta / 1000);
 
   let dx = 0;
   let dy = 0;
@@ -5246,36 +5283,165 @@ function mori(scena) {
   mort = true;
   tinta = null;
 
-  // Te faci gri si transparent.
-  scena.tweens.add({ targets: jucator, alpha: 0.35, angle: 90, duration: 400 });
+  // Trupul ramane acolo unde ai cazut.
+  cadavrul = { x: jucator.x, y: jucator.y, zona: zona ? zona.id : null };
+  faSemnulCadavrului(scena);
 
   const mesaj = scena.add.text(LATIME / 2, INALTIME / 2 - 20,
-    TEXT.YOU_DIED + '\n' + TEXT.RETURNING, {
+    TEXT.YOU_DIED + '\n' + TEXT.WALK_BACK, {
       fontFamily: UI.FONT,
-      fontSize: '26px',
+      fontSize: '24px',
       color: '#c94a3a',
       align: 'center',
       stroke: '#000000',
       strokeThickness: 6
     }).setOrigin(0.5).setScrollFactor(0).setDepth(2000);
 
+  scena.tweens.add({ targets: jucator, alpha: 0.35, duration: 400 });
+
   scena.time.delayedCall(TIMP_REINVIERE, function () {
     mesaj.destroy();
-    reinvie(scena);
+    if (!mort) return;                  // te-ai ridicat intre timp
+
+    // Te muti in cimitir, ca duh: mai palid, si inamicii nu te vad.
+    jucator.x = zona.reinviere.col * TILE + TILE / 2;
+    jucator.y = zona.reinviere.rand * TILE + TILE / 2;
+    jucator.setAlpha(0.45).setAngle(0);
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.YOU_ARE_SPIRIT, '#a8d8f0');
+    faButonulDeRenuntare(scena);
   });
 }
 
 
-function reinvie(scena) {
+// ==========================================================
+//  MOARTEA COSTA TIMP
+//
+//  Pana acum mureai, asteptai trei secunde si erai iar in tabara cu
+//  viata plina. Nu pierdeai nimic, deci nu conta daca mureai - si
+//  daca nu conta, nici lupta nu conta.
+//
+//  Acum e ca in Classic:
+//    - mori si te faci DUH, in cimitirul zonei
+//    - trupul iti ramane acolo unde ai cazut, insemnat pe harta
+//    - duhul merge mai repede si inamicii nu-l vad
+//    - ajungi la trup si te ridici acolo, cu putina viata
+//    - SAU renunti si te ridici pe loc, dar cu Rau de Inviere:
+//      jumatate din toate statisticile, doua minute
+//
+//  Asa nu ramai niciodata blocata - poti renunta oricand - dar
+//  moartea te costa fie drum, fie doua minute de slabiciune.
+// ==========================================================
+
+let cadavrul = null;              // { x, y, zona } - unde ai cazut
+let semnulCadavrului = null;      // crucea desenata pe jos
+const VITEZA_DUH = 1.6;           // de cate ori mai repede merge duhul
+const RAZA_TRUP = 60;             // de la ce distanta te poti ridica
+const RAU_DE_INVIERE = 120000;    // doua minute
+// ATENTIE la cifra asta. Viata NU creste liniar cu Stamina: primele
+// 20 de puncte dau cate 1 viata, restul cate 10. Cu 0,5 am masurat
+// ca viata maxima cadea de la 280 la 60 - adica 79% pierdute, nu 50.
+// Cu 0,7 cade la 150, ceea ce doare destul cat sa nu vrei, dar te
+// lasa sa te intorci acasa pe picioarele tale.
+const CAT_SLABESTE = 0.7;
+let rauDeInvierePanaLa = 0;
+
+
+function estiDuh() {
+  return mort && cadavrul !== null;
+}
+
+
+// Cat de slab esti acum din cauza Raului de Inviere (1 = deloc).
+function slabiciuneaDeInviere(scena) {
+  if (!scena || scena.time.now >= rauDeInvierePanaLa) return 1;
+  return CAT_SLABESTE;
+}
+
+
+let butonRenunt = null;
+
+// Butonul care te scapa din drum, daca nu vrei sa-l faci. Apare numai
+// cat esti duh. Fara el, cine moare departe de tot ar putea ramane cu
+// un drum de cinci minute si nicio iesire.
+function faButonulDeRenuntare(scena) {
+  if (butonRenunt) butonRenunt.destroy();
+
+  const g = scena.add.container(LATIME / 2, INALTIME - 34);
+  const fundal = scena.add.rectangle(0, 0, 210, 42, 0x2a1410).setStrokeStyle(2, 0x8a4a3a);
+  const scris = scena.add.text(0, -6, TEXT.GIVE_UP, {
+    fontFamily: UI.FONT, fontSize: '13px', color: '#e0b0a8'
+  }).setOrigin(0.5);
+  const nota = scena.add.text(0, 10, TEXT.GIVE_UP_NOTE, {
+    fontFamily: UI.FONT, fontSize: '9px', color: '#9d7a72'
+  }).setOrigin(0.5);
+
+  g.add(fundal); g.add(scris); g.add(nota);
+  g.setScrollFactor(0).setDepth(1500);
+  fundal.setInteractive({ useHandCursor: true });
+  fundal.on('pointerdown', function () { renuntiLaTrup(scena); });
+
+  butonRenunt = g;
+}
+
+
+function stergeButonulDeRenuntare() {
+  if (butonRenunt) butonRenunt.destroy();
+  butonRenunt = null;
+}
+
+
+function faSemnulCadavrului(scena) {
+  if (semnulCadavrului) semnulCadavrului.destroy();
+  if (!cadavrul) { semnulCadavrului = null; return; }
+
+  const g = scena.add.container(cadavrul.x, cadavrul.y);
+  g.add(scena.add.rectangle(0, 0, 4, 22, 0xcfc4a8));
+  g.add(scena.add.rectangle(0, -5, 16, 4, 0xcfc4a8));
+  g.add(scena.add.rectangle(0, 0, 4, 22, 0x2a1206).setAlpha(0.35));
+  g.setDepth(3);
+  semnulCadavrului = g;
+}
+
+
+// Te ridici la trup: curat, fara nicio pedeapsa in afara drumului.
+function teRidiciLaTrup(scena) {
+  if (!cadavrul) return false;
+  stergeButonulDeRenuntare();
+  jucator.x = cadavrul.x;
+  jucator.y = cadavrul.y;
+  cadavrul = null;
+  if (semnulCadavrului) { semnulCadavrului.destroy(); semnulCadavrului = null; }
+  reinvie(scena, 0.3);
+  aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.BACK_UP, '#8fd08f');
+  return true;
+}
+
+
+// Renunti la drum: te ridici pe loc, dar slabit doua minute.
+function renuntiLaTrup(scena) {
+  if (!cadavrul) return false;
+  stergeButonulDeRenuntare();
+  cadavrul = null;
+  if (semnulCadavrului) { semnulCadavrului.destroy(); semnulCadavrului = null; }
+  reinvie(scena, 0.3);
+  rauDeInvierePanaLa = scena.time.now + RAU_DE_INVIERE;
+  aplicaTalentele();
+  aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.RES_SICKNESS, '#c94a3a');
+  return true;
+}
+
+
+function reinvie(scena, catDinViata) {
 
   // Te intorci in punctul de reinviere scris in fisierul zonei.
   jucator.x = zona.reinviere.col * TILE + TILE / 2;
   jucator.y = zona.reinviere.rand * TILE + TILE / 2;
   jucator.setAlpha(1).setAngle(0);
 
-  personaj.viata = personaj.viataMaxima;
+  const parte = (typeof catDinViata === 'number') ? catDinViata : 1;
+  personaj.viata = Math.max(1, Math.round(personaj.viataMaxima * parte));
   if (personaj.resursa === 'furie') personaj.furie = 0;
-  else personaj.mana = personaj.manaMaxima;
+  else personaj.mana = Math.round(personaj.manaMaxima * parte);
 
   mort = false;
   ultimaLupta = -99999;

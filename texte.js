@@ -107,6 +107,14 @@ const TEXT = {
   // Moartea si reinvierea
   YOU_DIED:   'You have died',
   RETURNING:  'Returning to your camp...',
+  WALK_BACK:      'Walk back to your body',
+  YOU_ARE_SPIRIT: 'You are a spirit. Nothing here can see you.',
+  BACK_UP:        'Back on your feet',
+  RES_SICKNESS:   'Resurrection sickness',
+  GIVE_UP:        'Give up the walk',
+  GIVE_UP_NOTE:   'Rise here, but weak for two minutes',
+  RISE_HERE:      'Rise',
+  YOUR_BODY:      'Your body',
 
   // Meniul de infatisare
   SEX:         'Body',
