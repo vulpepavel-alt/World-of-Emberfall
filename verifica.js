@@ -279,6 +279,150 @@ function verificaTot() {
   });
 
   // ==========================================================
+  //  DRUMUL DE LA 1 LA 60
+  //
+  //  Nu ajunge ca abilitatile si talentele sa existe: trebuie sa se
+  //  poata si INVATA, la nivelurile la care le promite jocul. Aici se
+  //  face drumul intreg, pentru fiecare clasa, prin chiar functiile
+  //  jocului (ceAreAntrenorul, invataAbilitatea, poateInvata,
+  //  invataTalent) - nu prin scurtaturi.
+  //
+  //  Ce s-ar prinde aici: un rang pus din greseala peste nivelul 60,
+  //  un talent de pe treapta a patra sub care nu incap destule puncte
+  //  ca s-o deschida, o prerechizita care arata spre alt arbore.
+  // ==========================================================
+  const CLASELE = ['warrior', 'hunter', 'mage', 'priest'];
+
+  CLASELE.forEach(function (cl) {
+
+    // --- 1. fiecare rang cade intre 1 si 60 ---
+    abilitatileClasei(cl).forEach(function (ab) {
+      for (let rang = 1; rang <= ab.ranguri; rang++) {
+        const n = nivelulRangului(ab, rang);
+        if (n < 1 || n > NIVEL_MAXIM) {
+          rau('niveluri', cl + '/' + ab.nume + ' rangul ' + rang +
+              ' cere nivelul ' + n + ', in afara lui 1-' + NIVEL_MAXIM);
+        }
+      }
+    });
+
+    // --- 2. drumul adevarat, nivel cu nivel ---
+    const p = calculeazaPersonaj('human', cl, infatisareImplicita(), 1);
+    p.stiute = {}; p.talente = {}; p.misiuni = {};
+
+    // Primul rang al catorva abilitati vine dintr-o misiune de clasa.
+    ABILITATI.filter(function (a) { return a.clasa === cl && a.prinQuest; })
+             .forEach(function (a) { p.stiute[a.id] = 1; });
+
+    for (let nivel = 1; nivel <= NIVEL_MAXIM; nivel++) {
+      p.nivel = nivel;
+      p.puncteTalent = puncteTalentLaNivel(nivel);
+      p.bani = 99999999;              // banii nu sunt subiectul probei
+
+      let mai = true, ture = 0;
+      while (mai && ture < 200) {
+        ture++; mai = false;
+        ceAreAntrenorul(p).filter(function (c) { return !c.preaMic && !c.faraBani; })
+          .forEach(function (c) {
+            if (invataAbilitatea(p, c.abilitate.id, c.rang)) mai = true;
+          });
+      }
+
+      let sigur = 0;
+      while (puncteRamase(p) > 0 && sigur < 400) {
+        sigur++;
+        let pus = false;
+        for (const arb of arboriiClasei(cl)) {
+          for (const t of arb.talente) {
+            if (poateInvata(p, t.id).poate && invataTalent(p, t.id)) { pus = true; break; }
+          }
+          if (pus) break;
+        }
+        if (!pus) break;
+      }
+    }
+
+    // --- 3. ce a iesit la capat ---
+    abilitatileClasei(cl).forEach(function (ab) {
+      if (ab.rasa && ab.rasa !== 'human') return;
+      const are = p.stiute[ab.id] || 0;
+      if (are !== ab.ranguri) {
+        rau('drumul la 60', cl + '/' + ab.nume + ' ramane la rangul ' + are +
+            ' din ' + ab.ranguri);
+      }
+    });
+
+    const puse = puncteCheltuite(cl, p.talente);
+    if (puse !== puncteTalentLaNivel(NIVEL_MAXIM)) {
+      rau('drumul la 60', cl + ': se pot pune doar ' + puse + ' din ' +
+          puncteTalentLaNivel(NIVEL_MAXIM) + ' puncte de talent');
+    }
+  });
+
+
+  // ==========================================================
+  //  TALENTELE: cifra din descriere = cifra care ajunge in joc
+  // ==========================================================
+  //
+  //  bonusTalent aduna rang x valoare. Daca cineva scrie alt efect
+  //  decat cele pe care jocul le citeste, talentul ramane doar text
+  //  frumos si nu face nimic - fara nicio eroare.
+  const EFECTE_FOLOSITE = ['dmgArma', 'dmgAbilitate', 'critic', 'viteza',
+    'viata', 'armura', 'damageIncasat', 'costResursa', 'pauza', 'regen',
+    'vindecare', 'dodge'];
+
+  CLASELE.forEach(function (cl) {
+    const p = calculeazaPersonaj('human', cl, infatisareImplicita(), NIVEL_MAXIM);
+
+    arboriiClasei(cl).forEach(function (arb) {
+
+      // treptele trebuie sa se poata deschide cu ce e sub ele
+      let subEle = 0;
+      const peTreapta = {};
+      arb.talente.forEach(function (t) {
+        peTreapta[t.treapta] = (peTreapta[t.treapta] || 0) + t.maxRang;
+      });
+      Object.keys(peTreapta).map(Number).sort(function (a, b) { return a - b; })
+        .forEach(function (tr) {
+          if (subEle < tr * PUNCTE_PE_TREAPTA) {
+            rau('talente', cl + '/' + arb.nume + ': treapta ' + tr + ' cere ' +
+                (tr * PUNCTE_PE_TREAPTA) + ' puncte in arbore, dar sub ea incap doar ' + subEle);
+          }
+          subEle += peTreapta[tr];
+        });
+
+      arb.talente.forEach(function (t) {
+
+        if (EFECTE_FOLOSITE.indexOf(t.efect) < 0) {
+          rau('talente', cl + '/' + t.nume + ': efectul "' + t.efect +
+              '" nu e citit nicaieri in joc, deci talentul n-ar face nimic');
+        }
+
+        if (t.cere) {
+          const inainte = arb.talente.find(function (x) { return x.id === t.cere; });
+          if (!inainte) {
+            rau('talente', cl + '/' + t.nume + ': cere "' + t.cere +
+                '", care nu e in acelasi arbore');
+          } else if (inainte.treapta > t.treapta) {
+            rau('talente', cl + '/' + t.nume + ': cere un talent de pe o treapta mai adanca');
+          }
+        }
+
+        // cifra promisa trebuie sa fie exact cea care iese
+        p.talente = {};
+        const fara = bonusTalent(p, t.efect);
+        p.talente[t.id] = t.maxRang;
+        const cu = bonusTalent(p, t.efect);
+        if (cu - fara !== t.maxRang * t.valoare) {
+          rau('talente', cl + '/' + t.nume + ': la rang maxim ar trebui sa dea ' +
+              (t.maxRang * t.valoare) + ', dar da ' + (cu - fara));
+        }
+      });
+    });
+  });
+
+
+  // ==========================================================
   //  Raportul
   // ==========================================================
   if (probleme.length === 0) {
