@@ -206,6 +206,12 @@ function faPersonajulDinSalvare(s) {
   }
   p.animal = s.animal || null;
   p.bara = (s.bara && s.bara.length === LOCURI_IN_BARA) ? s.bara : faBaraGoala();
+
+  // Cateva id-uri de abilitati s-au schimbat (vezi ID_VECHI_NOI in
+  // abilitati.js). O salvare mai veche le are pe cele vechi, si fara
+  // randul asta personajul s-ar trezi ca nu mai stie nimic.
+  mutaIdurileVechi(p);
+
   Object.keys(p.stiute).forEach(function (id) { asazaPeBaraDacaIncape(p, id); });
 
   // Obiectele noi trebuie sa primeasca numere mai mari decat

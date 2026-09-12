@@ -78,14 +78,14 @@ const ABILITATI = [
     costRage: 25, costMana: 0, pauza: 0, incantare: 0, inmultit: 2
   },
   {
-    id: 'warrior_shout_01', clasa: 'warrior', nume: 'War Cry',
+    id: 'warrior_warcry_01', clasa: 'warrior', nume: 'War Cry',
     descriere: 'A shout that raises your attack power for 60 seconds.',
     fel: 'intarire', nivel: 1, laCateNiveluri: 10, ranguri: 6, crestere: 1.25,
     costRage: 10, costMana: 0, pauza: 8000, incantare: 0,
     tine: 60000, da: { attackPower: 8 }
   },
   {
-    id: 'warrior_rend_01', clasa: 'warrior', nume: 'Gash',
+    id: 'warrior_gash_01', clasa: 'warrior', nume: 'Gash',
     descriere: 'Opens a wound that bleeds for 12 seconds.',
     fel: 'arsura', nivel: 4, laCateNiveluri: 8, ranguri: 6, crestere: 1.2,
     costRage: 15, costMana: 0, pauza: 0, incantare: 0,
@@ -106,20 +106,20 @@ const ABILITATI = [
     incetineste: 0.5, tineIncetinirea: 10000
   },
   {
-    id: 'warrior_over_01', clasa: 'warrior', nume: 'Opening',
+    id: 'warrior_opening_01', clasa: 'warrior', nume: 'Opening',
     descriere: 'A heavy blow that lands while the enemy is off balance.',
     fel: 'lovitura', nivel: 12, laCateNiveluri: 8, ranguri: 6, crestere: 1.15,
     costRage: 15, costMana: 0, pauza: 5000, incantare: 0, inmultit: 2.6
   },
   {
-    id: 'warrior_cleave_01', clasa: 'warrior', nume: 'Wide Swing',
+    id: 'warrior_wideswing_01', clasa: 'warrior', nume: 'Wide Swing',
     descriere: 'A wide swing that catches everything in front of you.',
     fel: 'val', nivel: 20, laCateNiveluri: 8, ranguri: 5, crestere: 1.18,
     costRage: 20, costMana: 0, pauza: 3000, incantare: 0,
     raza: 95, dmgMin: 14, dmgMax: 22
   },
   {
-    id: 'warrior_ww_01', clasa: 'warrior', nume: 'Spin Cut',
+    id: 'warrior_spincut_01', clasa: 'warrior', nume: 'Spin Cut',
     descriere: 'You turn on the spot and cut everything around you.',
     fel: 'val', nivel: 36, laCateNiveluri: 12, ranguri: 3, crestere: 1.2,
     costRage: 25, costMana: 0, pauza: 10000, incantare: 0,
@@ -137,14 +137,14 @@ const ABILITATI = [
     costRage: 0, costMana: 15, pauza: 0, incantare: 0, inmultit: 1.8
   },
   {
-    id: 'hunter_aspect_monkey', clasa: 'hunter', nume: 'Cat\'s Step',
+    id: 'hunter_aspect_cat', clasa: 'hunter', nume: 'Cat\'s Step',
     descriere: 'You move lighter. Armor rises for 10 minutes.',
     fel: 'intarire', nivel: 4, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 20, pauza: 2000, incantare: 0,
     tine: 600000, da: { armura: 20 }, aspect: true
   },
   {
-    id: 'hunter_sting_01', clasa: 'hunter', nume: 'Venom Arrow',
+    id: 'hunter_venomarrow_01', clasa: 'hunter', nume: 'Venom Arrow',
     descriere: 'A poisoned arrow. The wound burns for 15 seconds.',
     fel: 'arsura', nivel: 4, laCateNiveluri: 8, ranguri: 6, crestere: 1.2,
     costRage: 0, costMana: 20, pauza: 0, incantare: 0, deLaDistanta: true,
@@ -164,21 +164,21 @@ const ABILITATI = [
     incetineste: 0.4, tineIncetinirea: 8000
   },
   {
-    id: 'hunter_aspect_hawk', clasa: 'hunter', nume: 'Hawk\'s Eye',
+    id: 'hunter_aspect_eye', clasa: 'hunter', nume: 'Hawk\'s Eye',
     descriere: 'Your aim sharpens. Attack power rises for 10 minutes.',
     fel: 'intarire', nivel: 10, laCateNiveluri: 10, ranguri: 6, crestere: 1.25,
     costRage: 0, costMana: 25, pauza: 2000, incantare: 0,
     tine: 600000, da: { attackPower: 12 }, aspect: true
   },
   {
-    id: 'hunter_clip_01', clasa: 'hunter', nume: 'Tendon Cut',
+    id: 'hunter_tendoncut_01', clasa: 'hunter', nume: 'Tendon Cut',
     descriere: 'A close cut that leaves the target limping.',
     fel: 'lovitura', nivel: 12, laCateNiveluri: 16, ranguri: 3, crestere: 1.2,
     costRage: 0, costMana: 15, pauza: 0, incantare: 0, inmultit: 0.8,
     incetineste: 0.5, tineIncetinirea: 10000
   },
   {
-    id: 'hunter_multi_01', clasa: 'hunter', nume: 'Fan Shot',
+    id: 'hunter_fanshot_01', clasa: 'hunter', nume: 'Fan Shot',
     descriere: 'Three arrows at once, spread wide.',
     fel: 'val', nivel: 18, laCateNiveluri: 9, ranguri: 5, crestere: 1.18,
     costRage: 0, costMana: 35, pauza: 8000, incantare: 0,
@@ -197,7 +197,7 @@ const ABILITATI = [
     dmgMin: 8, dmgMax: 12, raza: 200, culoare: 0x2f6fd0
   },
   {
-    id: 'mage_armor_01', clasa: 'mage', nume: 'Rime Shield',
+    id: 'mage_rimeshield_01', clasa: 'mage', nume: 'Rime Shield',
     descriere: 'A skin of frost. Armor rises for 30 minutes.',
     fel: 'intarire', nivel: 1, laCateNiveluri: 12, ranguri: 4, crestere: 1.3,
     costRage: 0, costMana: 25, pauza: 2000, incantare: 0,
@@ -226,7 +226,7 @@ const ABILITATI = [
     dmgMin: 12, dmgMax: 17, raza: 200, culoare: 0xe8862f
   },
   {
-    id: 'mage_nova_01', clasa: 'mage', nume: 'Ice Ring',
+    id: 'mage_icering_01', clasa: 'mage', nume: 'Ice Ring',
     descriere: 'Ice bursts from your feet. Everything close freezes in place.',
     fel: 'val', nivel: 10, laCateNiveluri: 10, ranguri: 5, crestere: 1.2,
     costRage: 0, costMana: 35, pauza: 20000, incantare: 0,
@@ -241,7 +241,7 @@ const ABILITATI = [
     raza: 150, dmgMin: 14, dmgMax: 20, culoare: 0xb07cf0
   },
   {
-    id: 'mage_scorch_01', clasa: 'mage', nume: 'Sear',
+    id: 'mage_sear_01', clasa: 'mage', nume: 'Sear',
     descriere: 'A quick, cheap flame for when mana runs thin.',
     fel: 'vraja', nivel: 22, laCateNiveluri: 9, ranguri: 4, crestere: 1.18,
     costRage: 0, costMana: 14, pauza: 0, incantare: 900,
@@ -253,7 +253,7 @@ const ABILITATI = [
   //  PRIEST - lumina, umbra si scuturi
   // ==========================================================
   {
-    id: 'priest_smite_01', clasa: 'priest', nume: 'Holy Spark',
+    id: 'priest_holyspark_01', clasa: 'priest', nume: 'Holy Spark',
     descriere: 'A lance of light, thrown fast.',
     fel: 'vraja', nivel: 1, laCateNiveluri: 8, ranguri: 6, crestere: 1.2,
     costRage: 0, costMana: 18, pauza: 2500, incantare: 0,
@@ -267,7 +267,7 @@ const ABILITATI = [
     vindecaMin: 15, vindecaMax: 20
   },
   {
-    id: 'priest_fort_01', clasa: 'priest', nume: 'Steady Heart',
+    id: 'priest_steadyheart_01', clasa: 'priest', nume: 'Steady Heart',
     descriere: 'Your heart steadies. Stamina rises for 30 minutes.',
     fel: 'intarire', nivel: 1, laCateNiveluri: 12, ranguri: 5, crestere: 1.3,
     costRage: 0, costMana: 28, pauza: 2000, incantare: 0,
@@ -288,7 +288,7 @@ const ABILITATI = [
     tine: 15000, laCat: 3000, peTura: 8
   },
   {
-    id: 'priest_blast_01', clasa: 'priest', nume: 'Mindstrike',
+    id: 'priest_mindstrike_01', clasa: 'priest', nume: 'Mindstrike',
     descriere: 'A blow struck straight at the mind.',
     fel: 'vraja', nivel: 10, laCateNiveluri: 8, ranguri: 6, crestere: 1.2,
     costRage: 0, costMana: 35, pauza: 8000, incantare: 0,
@@ -311,27 +311,27 @@ const ABILITATI = [
 ,
 // ---- Warrior, restul ----
   {
-    id: 'warrior_charge_01', clasa: 'warrior', nume: 'Bull Rush',
+    id: 'warrior_bullrush_01', clasa: 'warrior', nume: 'Bull Rush',
     descriere: 'You close the distance in one step and come up swinging.',
     fel: 'saritura', laTinta: true, nivel: 4, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 0, pauza: 15000, incantare: 0, daRage: 15
   },
   {
-    id: 'warrior_sunder_01', prinQuest: true, clasa: 'warrior', nume: 'Armor Split',
+    id: 'warrior_armorsplit_01', prinQuest: true, clasa: 'warrior', nume: 'Armor Split',
     descriere: 'A blow aimed at the joints. Their armor holds less.',
     fel: 'slabire', nivel: 10, laCateNiveluri: 12, ranguri: 5, crestere: 1.12,
     costRage: 15, costMana: 0, pauza: 0, incantare: 0,
     inmultit: 0.9, slabesteCu: 0.12, tine: 30000
   },
   {
-    id: 'warrior_exec_01', clasa: 'warrior', nume: 'Finisher',
+    id: 'warrior_finisher_01', clasa: 'warrior', nume: 'Finisher',
     descriere: 'Only lands on an enemy near death \u2014 and it ends them.',
     fel: 'lovitura', nivel: 24, laCateNiveluri: 9, ranguri: 5, crestere: 1.18,
     costRage: 20, costMana: 0, pauza: 0, incantare: 0,
     inmultit: 1, doarSubViata: 0.25, inmultitFinal: 5
   },
   {
-    id: 'warrior_wall_01', clasa: 'warrior', nume: 'Iron Guard',
+    id: 'warrior_ironguard_01', clasa: 'warrior', nume: 'Iron Guard',
     descriere: 'You set yourself. Blows glance off for a short while.',
     fel: 'scut', nivel: 28, laCateNiveluri: 11, ranguri: 3, crestere: 1.5,
     costRage: 10, costMana: 0, pauza: 120000, incantare: 0,
@@ -345,7 +345,7 @@ const ABILITATI = [
     raza: 150, tine: 6000
   },
   {
-    id: 'warrior_intercept_01', prinQuest: true, clasa: 'warrior', nume: 'Closing Leap',
+    id: 'warrior_closingleap_01', prinQuest: true, clasa: 'warrior', nume: 'Closing Leap',
     descriere: 'A leap that catches something already running.',
     fel: 'saritura', laTinta: true, nivel: 30, laCateNiveluri: 14, ranguri: 3, crestere: 1,
     costRage: 10, costMana: 0, pauza: 25000, incantare: 0
@@ -353,32 +353,32 @@ const ABILITATI = [
 
   // ---- Hunter, restul ----
   {
-    id: 'hunter_mend_01', clasa: 'hunter', nume: 'Tend Companion',
+    id: 'hunter_tendcompanion_01', clasa: 'hunter', nume: 'Tend Companion',
     descriere: 'Binds your beast\'s wounds. Only works on the beast.',
     fel: 'alinare', peAnimal: true, nivel: 12, laCateNiveluri: 8, ranguri: 6,
     crestere: 1.2, costRage: 0, costMana: 30, pauza: 6000, incantare: 0,
     tine: 0, laCat: 0, peTura: 12
   },
   {
-    id: 'hunter_tame_01', prinQuest: true, clasa: 'hunter', nume: 'Bind Beast',
+    id: 'hunter_bindbeast_01', prinQuest: true, clasa: 'hunter', nume: 'Bind Beast',
     descriere: 'Bind a beast to you. It must be no higher level than you are.',
     fel: 'imblanzire', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 0, pauza: 20000, incantare: 4000, raza: 220
   },
   {
-    id: 'hunter_call_01', prinQuest: true, clasa: 'hunter', nume: 'Call Companion',
+    id: 'hunter_callcompanion_01', prinQuest: true, clasa: 'hunter', nume: 'Call Companion',
     descriere: 'Calls your beast to your side, or sends it away again.',
     fel: 'cheama', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 10, pauza: 4000, incantare: 0
   },
   {
-    id: 'hunter_revive_01', prinQuest: true, clasa: 'hunter', nume: 'Rouse Companion',
+    id: 'hunter_rousecompanion_01', prinQuest: true, clasa: 'hunter', nume: 'Rouse Companion',
     descriere: 'Brings your beast back on its feet, half mended.',
     fel: 'invie', nivel: 10, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 40, pauza: 30000, incantare: 3000
   },
   {
-    id: 'hunter_mark_01', clasa: 'hunter', nume: 'Marked Quarry',
+    id: 'hunter_markedquarry_01', clasa: 'hunter', nume: 'Marked Quarry',
     descriere: 'You mark it. Its guard drops for half a minute.',
     fel: 'slabire', nivel: 6, laCateNiveluri: 14, ranguri: 4, crestere: 1.15,
     costRage: 0, costMana: 12, pauza: 0, incantare: 0, deLaDistanta: true,
@@ -400,19 +400,19 @@ const ABILITATI = [
     culoare: 0xe8862f
   },
   {
-    id: 'hunter_dead_01', clasa: 'hunter', nume: 'Play Dead',
+    id: 'hunter_playdead_01', clasa: 'hunter', nume: 'Play Dead',
     descriere: 'You drop. Everything loses interest in you.',
     fel: 'mortPrefacut', nivel: 30, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 20, pauza: 40000, incantare: 0, tine: 6000
   },
   {
-    id: 'hunter_disengage_01', clasa: 'hunter', nume: 'Break Off',
+    id: 'hunter_breakoff_01', clasa: 'hunter', nume: 'Break Off',
     descriere: 'A quick step back, out of reach.',
     fel: 'saritura', laTinta: false, nivel: 20, laCateNiveluri: 14, ranguri: 3, crestere: 1,
     costRage: 0, costMana: 15, pauza: 20000, incantare: 0, sarePana: -170
   },
   {
-    id: 'hunter_rapid_01', clasa: 'hunter', nume: 'Quick Draw',
+    id: 'hunter_quickdraw_01', clasa: 'hunter', nume: 'Quick Draw',
     descriere: 'Your hands speed up. Attack power climbs for 15 seconds.',
     fel: 'intarire', nivel: 26, laCateNiveluri: 12, ranguri: 3, crestere: 1.3,
     costRage: 0, costMana: 30, pauza: 180000, incantare: 0,
@@ -421,7 +421,7 @@ const ABILITATI = [
 
   // ---- Mage, restul ----
   {
-    id: 'mage_blink_01', clasa: 'mage', nume: 'Step Through',
+    id: 'mage_stepthrough_01', clasa: 'mage', nume: 'Step Through',
     descriere: 'You are suddenly a little further along.',
     fel: 'saritura', laTinta: false, nivel: 20, laCateNiveluri: 0, ranguri: 1, crestere: 1,
     costRage: 0, costMana: 25, pauza: 15000, incantare: 0, sarePana: 170
@@ -434,20 +434,20 @@ const ABILITATI = [
     absoarbe: 120, tine: 30000
   },
   {
-    id: 'mage_poly_01', prinQuest: true, clasa: 'mage', nume: 'Shapebind',
+    id: 'mage_shapebind_01', prinQuest: true, clasa: 'mage', nume: 'Shapebind',
     descriere: 'One enemy forgets what it was doing, and stands there.',
     fel: 'farmec', nivel: 8, laCateNiveluri: 14, ranguri: 4, crestere: 1.2,
     costRage: 0, costMana: 30, pauza: 20000, incantare: 1500,
     raza: 220, tine: 12000
   },
   {
-    id: 'mage_evoc_01', clasa: 'mage', nume: 'Drawing Breath',
+    id: 'mage_drawingbreath_01', clasa: 'mage', nume: 'Drawing Breath',
     descriere: 'You stand still and your thinking comes back.',
     fel: 'refacere', nivel: 20, laCateNiveluri: 12, ranguri: 4, crestere: 1.4,
     costRage: 0, costMana: 0, pauza: 300000, incantare: 0, cat: 300
   },
   {
-    id: 'mage_icearmor_01', clasa: 'mage', nume: 'Glacier Skin',
+    id: 'mage_glacierskin_01', clasa: 'mage', nume: 'Glacier Skin',
     descriere: 'Deeper frost than the first. Armor rises for 30 minutes.',
     fel: 'intarire', nivel: 30, laCateNiveluri: 12, ranguri: 3, crestere: 1.3,
     costRage: 0, costMana: 40, pauza: 2000, incantare: 0,
@@ -470,14 +470,14 @@ const ABILITATI = [
     raza: 140, tine: 6000
   },
   {
-    id: 'priest_holyfire_01', clasa: 'priest', nume: 'Sunfire',
+    id: 'priest_sunfire_01', clasa: 'priest', nume: 'Sunfire',
     descriere: 'Light that catches and keeps burning.',
     fel: 'arsura', nivel: 20, laCateNiveluri: 9, ranguri: 5, crestere: 1.2,
     costRage: 0, costMana: 40, pauza: 10000, incantare: 0, deLaDistanta: true,
     tine: 12000, laCat: 2000, peTura: 14, culoare: 0xe8c15a
   },
   {
-    id: 'priest_flash_01', clasa: 'priest', nume: 'Quick Mercy',
+    id: 'priest_quickmercy_01', clasa: 'priest', nume: 'Quick Mercy',
     descriere: 'A fast mending, and a dear one.',
     fel: 'vindecare', nivel: 20, laCateNiveluri: 8, ranguri: 6, crestere: 1.22,
     costRage: 0, costMana: 80, pauza: 0, incantare: 800,
@@ -614,6 +614,77 @@ const ABILITATI = [
 //  Numai campurile de aici se inmultesc. Un cooldown sau o raza nu
 //  au de ce sa creasca odata cu rangul; damage-ul si costul, da.
 // ----------------------------------------------------------
+
+// ----------------------------------------------------------
+//  NUMELE VECHI ALE ABILITATILOR
+//
+//  Id-ul unei abilitati e eticheta dupa care o cauta jocul. Nu se
+//  vede nicaieri pe ecran, dar se SCRIE IN SALVARE: acolo sta ce
+//  abilitati stii si ce ai pus pe bara.
+//
+//  Cateva id-uri vechi erau facute din cuvinte care sunt si nume de
+//  abilitati din Classic (rend, cleave, sunder, blink, smite...).
+//  Tu ai cerut ca nici id-urile sa nu vina de acolo, asa ca acum
+//  fiecare e facut din numele NOSTRU: 'Gash' -> warrior_gash_01.
+//
+//  Tabelul de mai jos leaga vechiul de nou. Se foloseste o singura
+//  data, cand se incarca o salvare facuta inainte de schimbare -
+//  fara el, un personaj vechi s-ar trezi ca nu mai stie nimic si cu
+//  bara goala.
+// ----------------------------------------------------------
+const ID_VECHI_NOI = {
+  'hunter_aspect_hawk': 'hunter_aspect_eye',
+  'hunter_aspect_monkey': 'hunter_aspect_cat',
+  'hunter_call_01': 'hunter_callcompanion_01',
+  'hunter_clip_01': 'hunter_tendoncut_01',
+  'hunter_dead_01': 'hunter_playdead_01',
+  'hunter_disengage_01': 'hunter_breakoff_01',
+  'hunter_mark_01': 'hunter_markedquarry_01',
+  'hunter_mend_01': 'hunter_tendcompanion_01',
+  'hunter_multi_01': 'hunter_fanshot_01',
+  'hunter_rapid_01': 'hunter_quickdraw_01',
+  'hunter_revive_01': 'hunter_rousecompanion_01',
+  'hunter_sting_01': 'hunter_venomarrow_01',
+  'hunter_tame_01': 'hunter_bindbeast_01',
+  'mage_armor_01': 'mage_rimeshield_01',
+  'mage_blink_01': 'mage_stepthrough_01',
+  'mage_evoc_01': 'mage_drawingbreath_01',
+  'mage_icearmor_01': 'mage_glacierskin_01',
+  'mage_nova_01': 'mage_icering_01',
+  'mage_poly_01': 'mage_shapebind_01',
+  'mage_scorch_01': 'mage_sear_01',
+  'priest_blast_01': 'priest_mindstrike_01',
+  'priest_flash_01': 'priest_quickmercy_01',
+  'priest_fort_01': 'priest_steadyheart_01',
+  'priest_holyfire_01': 'priest_sunfire_01',
+  'priest_smite_01': 'priest_holyspark_01',
+  'warrior_charge_01': 'warrior_bullrush_01',
+  'warrior_cleave_01': 'warrior_wideswing_01',
+  'warrior_exec_01': 'warrior_finisher_01',
+  'warrior_intercept_01': 'warrior_closingleap_01',
+  'warrior_over_01': 'warrior_opening_01',
+  'warrior_rend_01': 'warrior_gash_01',
+  'warrior_shout_01': 'warrior_warcry_01',
+  'warrior_sunder_01': 'warrior_armorsplit_01',
+  'warrior_wall_01': 'warrior_ironguard_01',
+  'warrior_ww_01': 'warrior_spincut_01',
+};
+
+
+// Muta o salvare veche pe numele noi. Schimba obiectul primit.
+function mutaIdurileVechi(personajul) {
+
+  const stiute = {};
+  Object.keys(personajul.stiute || {}).forEach(function (id) {
+    stiute[ID_VECHI_NOI[id] || id] = personajul.stiute[id];
+  });
+  personajul.stiute = stiute;
+
+  personajul.bara = (personajul.bara || []).map(function (id) {
+    return id ? (ID_VECHI_NOI[id] || id) : id;
+  });
+}
+
 const CE_CRESTE = ['dmgMin', 'dmgMax', 'vindecaMin', 'vindecaMax',
                    'peTura', 'costMana', 'costRage',
                    // Astea doua sunt fractiuni - cat de mult slabeste

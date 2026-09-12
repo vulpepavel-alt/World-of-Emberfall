@@ -231,7 +231,7 @@ const CLASE = {
     },
     abilitati: [
       {
-        id: 'priest_smite_01',
+        id: 'priest_holyspark_01',
         nume: 'Holy Spark',
         descriere: 'Costs 18 mana, 2.5 second cooldown. Deals 6-10 damage',
         costRage: 0, costMana: 18, pauza: 2500, incantare: 0,

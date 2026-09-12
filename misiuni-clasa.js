@@ -63,7 +63,7 @@ const MISIUNI_DE_CLASA = [
           'you can do it without thinking about it, come back and I will ' +
           'put a name to what you already know how to do.',
     cerinta: { fel: 'ucide', mob: 'bandit', cati: 14 },
-    rasplata: { xp: 1100, bani: 700, abilitati: ['warrior_sunder_01'] }
+    rasplata: { xp: 1100, bani: 700, abilitati: ['warrior_armorsplit_01'] }
   },
 
   // ==========================================================
@@ -107,7 +107,7 @@ const MISIUNI_DE_CLASA = [
           'Go out once more, and every time something turns its back on ' +
           'you, be there before it finishes turning.',
     cerinta: { fel: 'ucide', mob: 'raider', cati: 20 },
-    rasplata: { xp: 5200, bani: 3000, abilitati: ['warrior_intercept_01'] }
+    rasplata: { xp: 5200, bani: 3000, abilitati: ['warrior_closingleap_01'] }
   },
 
   // ==========================================================
@@ -157,7 +157,7 @@ const MISIUNI_DE_CLASA = [
     cerinta: { fel: 'ucide', mob: 'vulture', cati: 10 },
     rasplata: {
       xp: 1150, bani: 720,
-      abilitati: ['hunter_tame_01', 'hunter_call_01', 'hunter_revive_01']
+      abilitati: ['hunter_bindbeast_01', 'hunter_callcompanion_01', 'hunter_rousecompanion_01']
     }
   },
 
@@ -206,7 +206,7 @@ const MISIUNI_DE_CLASA = [
           'instead of three. Go and prove to me you can pick which of ' +
           'three you would rather have.',
     cerinta: { fel: 'ucide', mob: 'bandit', cati: 10 },
-    rasplata: { xp: 900, bani: 580, abilitati: ['mage_poly_01'] }
+    rasplata: { xp: 900, bani: 580, abilitati: ['mage_shapebind_01'] }
   },
 
   // ==========================================================
