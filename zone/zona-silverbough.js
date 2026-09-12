@@ -17,7 +17,7 @@ inregistreazaZona({
   id: 'silverbough',
   nume: 'Silverbough',
   continent: 'karador',
-  factiune: 'Alliance',
+  factiune: 'Concord',
 
   nivelDeLa: 1,
   nivelPanaLa: 10,

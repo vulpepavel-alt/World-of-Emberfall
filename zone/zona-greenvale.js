@@ -17,7 +17,7 @@ inregistreazaZona({
   id: 'greenvale',
   nume: 'Greenvale',
   continent: 'eastmarch',
-  factiune: 'Alliance',
+  factiune: 'Concord',
 
   nivelDeLa: 1,
   nivelPanaLa: 10,

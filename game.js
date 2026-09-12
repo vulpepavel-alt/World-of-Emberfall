@@ -1693,28 +1693,28 @@ const INNER_WILL_MANA     = 2;    // Priest: 2 mana pe secunda, chiar si in lupt
 // ---- Reglaje pentru cele 8 pasive de RASA ----
 const SANSA_RATARE        = 5;      // % sanse sa ratezi o lovitura obisnuita
 const WEAPON_TRAINING     = 3;      // Human: cu atat scad ratarile
-const QUICKNESS_DODGE     = 5;      // Night Elf: % sanse sa eviti complet o lovitura
-const SHADOWMELD_SECUNDE  = 2;      // Night Elf: cat stai nemiscat ca sa te piarda
+const QUICKNESS_DODGE     = 5;      // Duskborn: % sanse sa eviti complet o lovitura
+const SHADOWMELD_SECUNDE  = 2;      // Duskborn: cat stai nemiscat ca sa te piarda
 const BLOOD_FURY_SPOR     = 0.50;   // Orc: +50% Attack Power
 const BLOOD_FURY_DUREAZA  = 15000;  // ...timp de 15 secunde
 const BLOOD_FURY_PAUZA    = 120000; // ...o data la 2 minute
 const HARDINESS_REDUCERE  = 0.15;   // Orc: cu 15% mai putin damage din critical
 const SANSA_CRITIC_MOB    = 5;      // ALES DE MINE - tu n-ai scris ca mobii dau critical,
-                                    // dar fara asta pasiva Hardiness n-ar avea ce reduce
+                                    // dar fara asta pasiva Thick Bone n-ar avea ce reduce
 const CANIBALIZARE_PARTE  = 0.30;   // Undead: 30% din viata maxima...
 const CANIBALIZARE_SECUNDE = 10;    // ...intinsa pe 10 secunde, dupa ce omori ceva
 const WILL_FORSAKEN_PARTE = 0.01;   // Undead: 1% viata maxima pe secunda, mereu
 const REGEN_VIATA_SPIRIT  = 10;     // ALES DE MINE - viata pe secunda in afara luptei
                                     // = Spirit impartit la 10
 
-// Cat tine Blood Fury si cand poate reveni.
+// Cat tine Red Surge si cand poate reveni.
 let bloodFuryPanaLa = 0;
 let bloodFuryUrmatorul = 0;
 
-// Cat mai tine vindecarea de la Cannibalize.
+// Cat mai tine vindecarea de la Grave Feast.
 let canibalizarePanaLa = 0;
 
-// Cand te-ai miscat ultima oara (pentru Shadowmeld).
+// Cand te-ai miscat ultima oara (pentru Go Unseen).
 let ultimaMiscare = 0;
 
 
@@ -1949,7 +1949,7 @@ function create() {
 //  DESENAREA TERENULUI, PE BUCATI
 //
 //  Pana acum desenam TOATA harta intr-o singura poza, la intrare.
-//  Mergea pentru o harta mica. La o harta cat Elwynn Forest, poza
+//  Mergea pentru o harta mica. La o harta cat o padure intreaga, poza
 //  ar avea 22.000 x 14.800 de pixeli - peste un gigabait de
 //  memorie. Telefonul s-ar inchide.
 //
@@ -3791,7 +3791,7 @@ function porneisteEfectul(scena, ab, tintaAb) {
     teFaciMort(scena, ab.tine);
 
   } else if (ab.fel === 'refacere') {
-    // Evocation: iti umple resursa.
+    // Rasuflarea: iti umple resursa.
     if (personaj.resursa === 'mana') {
       personaj.mana = Math.min(personaj.manaMaxima, personaj.mana + ab.cat);
       actualizeazaBaraResursa();
@@ -3942,7 +3942,7 @@ function ratezi() {
 }
 
 
-// QUICKNESS (Night Elf): sansa sa eviti complet o lovitura.
+// QUICKNESS (Duskborn): sansa sa eviti complet o lovitura.
 function evitiLovitura() {
   let sansa = bonusTalent(personaj, 'dodge');
   if (personaj.idRasa === 'nightelf') sansa += QUICKNESS_DODGE;
@@ -3961,7 +3961,7 @@ function porneisteBloodFury(scena) {
   numeleAbilitatii(scena, RASE[personaj.idRasa].pasive[0].nume);
 }
 
-// Attack Power-ul de folosit ACUM, cu Blood Fury daca e pornita.
+// Attack Power-ul de folosit ACUM, cu Red Surge daca e pornita.
 function attackPowerFolosit(scena, laDistanta) {
   let ap = laDistanta ? personaj.attackPowerDistanta : personaj.attackPower;
   if (personaj.idRasa === 'orc' && scena.time.now <= bloodFuryPanaLa) {
@@ -3971,7 +3971,7 @@ function attackPowerFolosit(scena, laDistanta) {
 }
 
 
-// SHADOWMELD (Night Elf): daca stai nemiscat 2 secunde in lupta,
+// SHADOWMELD (Duskborn): daca stai nemiscat 2 secunde in lupta,
 // inamicii te pierd din ochi si iesi din lupta.
 function shadowmeld(scena) {
   if (personaj.idRasa !== 'nightelf' || mort) return;
@@ -4194,7 +4194,7 @@ function update(time, delta) {
     else tinta = null;
   }
 
-  // Tinem minte cand te-ai miscat ultima oara - de asta depinde Shadowmeld.
+  // Tinem minte cand te-ai miscat ultima oara - de asta depinde Go Unseen.
   if (dx !== 0 || dy !== 0) ultimaMiscare = this.time.now;
 
   miscaMobii(this, delta);
@@ -4908,7 +4908,7 @@ function mobTeLoveste(scena, mob) {
 
   intraInLupta(scena);
 
-  // QUICKNESS (Night Elf): uneori te dai la o parte si nu incasezi nimic.
+  // QUICKNESS (Duskborn): uneori te dai la o parte si nu incasezi nimic.
   if (evitiLovitura()) {
     aratacuvant(scena, jucator.x, jucator.y - 44, 'Dodge', '#a8e8ff');
     return;
@@ -4917,7 +4917,7 @@ function mobTeLoveste(scena, mob) {
   const s = mob.stats;
   let brut = Phaser.Math.Between(s.dmgMin, s.dmgMax);
 
-  // Si inamicii dau critical, ca sa aiba ce reduce Hardiness.
+  // Si inamicii dau critical, ca sa aiba ce reduce Thick Bone.
   const criticMob = (Math.random() * 100) < SANSA_CRITIC_MOB;
   if (criticMob) {
     brut = brut * 2;

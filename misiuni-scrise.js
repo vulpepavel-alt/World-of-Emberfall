@@ -1413,7 +1413,7 @@ scrieZona('The Emberwastes', 'emberwastes', [
 //  KARADOR
 //
 //  Continentul celalalt: canion rosu, coasta si gheata. Aici incep
-//  Orc si Night Elf, si aici se vede: mai putine comitate si
+//  Orc si Duskborn, si aici se vede: mai putine comitate si
 //  castele, mai multe asezari de frontiera, capitani de ceata si
 //  cercetasi. Oamenii vorbesc mai scurt si se plang mai putin.
 // ==========================================================

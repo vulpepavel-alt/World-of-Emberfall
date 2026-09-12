@@ -17,7 +17,7 @@ inregistreazaZona({
   id: 'redwaste',
   nume: 'Redwaste',
   continent: 'karador',
-  factiune: 'Horde',
+  factiune: 'Pact',
 
   nivelDeLa: 1,
   nivelPanaLa: 10,

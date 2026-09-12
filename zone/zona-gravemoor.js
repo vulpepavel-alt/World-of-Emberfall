@@ -17,7 +17,7 @@ inregistreazaZona({
   id: 'gravemoor',
   nume: 'Gravemoor',
   continent: 'eastmarch',
-  factiune: 'Horde',
+  factiune: 'Pact',
 
   nivelDeLa: 1,
   nivelPanaLa: 10,

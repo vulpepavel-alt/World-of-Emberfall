@@ -70,7 +70,7 @@ const CONTINENTE = [
   { id: 'eastmarch', nume: 'Eastmarch',
     descriere: 'Padure, campie si munti de fier. Aici incep Human si Undead.' },
   { id: 'karador',   nume: 'Karador',
-    descriere: 'Canion rosu, coasta si gheata. Aici incep Orc si Night Elf.' }
+    descriere: 'Canion rosu, coasta si gheata. Aici incep Orc si Duskborn.' }
 ];
 
 // Zonele de pe grila unui continent. Orasele nu intra aici: harta

@@ -49,7 +49,7 @@ const RASE = {
 
   human: {
     nume: 'Human',
-    factiune: 'Alliance',
+    factiune: 'Concord',
     baza: { str: 20, agi: 20, sta: 20, int: 20, spi: 20 },
     optiuni: {
       piele: ['#f0c9a6', '#e3b78f', '#cf9a69', '#b07d57', '#8d5f3f'],
@@ -57,14 +57,14 @@ const RASE = {
     },
     nume_exemplu: ['Aldric', 'Elena', 'Marcus', 'Isolde', 'Roland', 'Brianna'],
     pasive: [
-      { nume: 'The Human Spirit',  descriere: '+5% Spirit, rounded down' },
-      { nume: 'Weapon Training',   descriere: '+3% chance to hit' }
+      { nume: 'Stubborn Heart',  descriere: '+5% Spirit, rounded down' },
+      { nume: 'Drilled Hand',   descriere: '+3% chance to hit' }
     ]
   },
 
   nightelf: {
-    nume: 'Night Elf',
-    factiune: 'Alliance',
+    nume: 'Duskborn',
+    factiune: 'Concord',
     baza: { str: 18, agi: 24, sta: 19, int: 20, spi: 20 },
     optiuni: {
       piele: ['#9d7fd8', '#8f6fce', '#b192e6', '#7d5fb8', '#c7aef0'],
@@ -72,14 +72,14 @@ const RASE = {
     },
     nume_exemplu: ['Shaeya', 'Talyndris', 'Ilyana', 'Kaelen', 'Nyssara', 'Faerin'],
     pasive: [
-      { nume: 'Quickness',  descriere: '+5% chance to fully dodge an incoming hit' },
-      { nume: 'Shadowmeld', descriere: 'Stand still for 2 seconds: mobs lose track of you and you leave combat' }
+      { nume: 'Slip Aside',  descriere: '+5% chance to fully dodge an incoming hit' },
+      { nume: 'Go Unseen', descriere: 'Stand still for 2 seconds: mobs lose track of you and you leave combat' }
     ]
   },
 
   orc: {
     nume: 'Orc',
-    factiune: 'Horde',
+    factiune: 'Pact',
     baza: { str: 23, agi: 18, sta: 22, int: 18, spi: 22 },
     optiuni: {
       piele: ['#5f9e63', '#4e8552', '#6faf72', '#3f6d45', '#84bd84'],
@@ -87,14 +87,14 @@ const RASE = {
     },
     nume_exemplu: ['Grokar', 'Murgash', 'Uzrek', 'Kagra', 'Thruk', 'Zolga'],
     pasive: [
-      { nume: 'Blood Fury', descriere: '+50% Attack Power for 15 seconds, once every 2 minutes' },
-      { nume: 'Hardiness',  descriere: 'Takes 15% less damage from critical hits' }
+      { nume: 'Red Surge', descriere: '+50% Attack Power for 15 seconds, once every 2 minutes' },
+      { nume: 'Thick Bone',  descriere: 'Takes 15% less damage from critical hits' }
     ]
   },
 
   undead: {
     nume: 'Undead',
-    factiune: 'Horde',
+    factiune: 'Pact',
     baza: { str: 20, agi: 19, sta: 21, int: 19, spi: 24 },
     optiuni: {
       piele: ['#adc0bb', '#98aca7', '#c3d2cd', '#8195a0', '#6f8188'],
@@ -102,8 +102,8 @@ const RASE = {
     },
     nume_exemplu: ['Mordris', 'Nezra', 'Ossian', 'Valka', 'Cryven', 'Gwynn'],
     pasive: [
-      { nume: 'Cannibalize',        descriere: 'After killing a mob, recovers 30% of maximum health over 10 seconds' },
-      { nume: 'Will of the Forsaken', descriere: 'Regenerates 1% of maximum health per second, even in combat' }
+      { nume: 'Grave Feast',        descriere: 'After killing a mob, recovers 30% of maximum health over 10 seconds' },
+      { nume: 'Unquiet Flesh', descriere: 'Regenerates 1% of maximum health per second, even in combat' }
     ]
   }
 };

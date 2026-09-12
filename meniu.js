@@ -80,7 +80,7 @@ function construiesteOptiunile() {
       actualizeaza();
     });
 
-    if (rasa.factiune === 'Alliance') tilesAlianta.appendChild(buton);
+    if (rasa.factiune === 'Concord') tilesAlianta.appendChild(buton);
     else tilesHoarda.appendChild(buton);
   });
 

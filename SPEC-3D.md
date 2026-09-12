@@ -81,11 +81,11 @@ pauzaÎntreLovituri (ms) = (arma.viteza × 1000) / 3 × reducereaTalentelor('vit
 ```
 SANSA_RATARE     = 5%   — șansa să ratezi o lovitură obișnuită
 WEAPON_TRAINING  = 3%   — Human ratează cu atât mai puțin (deci 2%)
-QUICKNESS_DODGE  = 5%   — Night Elf evită complet o lovitura
+QUICKNESS_DODGE  = 5%   — Duskborn evită complet o lovitura
 SANSA_CRITIC_MOB = 5%   — șansa ca un inamic să te lovească critic
 ```
 
-Ultimele două numere le-am adăugat eu, ca pasivele Quickness și Hardiness să aibă ce reduce.
+Ultimele două numere le-am adăugat eu, ca pasivele Slip Aside și Thick Bone să aibă ce reduce.
 
 ## 2.4 Resurse
 
@@ -136,30 +136,30 @@ Fiecare rasă are atributele de bază și **două pasive**.
 
 | Rasă | Facțiune | str | agi | sta | int | spi |
 |---|---|---|---|---|---|---|
-| **Human** | Alliance | 20 | 20 | 20 | 20 | 20 |
-| **Night Elf** | Alliance | 18 | 24 | 19 | 20 | 20 |
-| **Orc** | Horde | 23 | 18 | 22 | 18 | 22 |
-| **Undead** | Horde | 20 | 19 | 21 | 19 | 24 |
+| **Human** | Concord | 20 | 20 | 20 | 20 | 20 |
+| **Duskborn** | Concord | 18 | 24 | 19 | 20 | 20 |
+| **Orc** | Pact | 23 | 18 | 22 | 18 | 22 |
+| **Undead** | Pact | 20 | 19 | 21 | 19 | 24 |
 
 ### Cele 8 pasive de rasă
 
 | Rasă | Pasivă | Efect exact |
 |---|---|---|
-| Human | **The Human Spirit** | Spirit × 1.05, rotunjit în jos |
-| Human | **Weapon Training** | șansa de ratare scade de la 5% la 2% |
-| Night Elf | **Quickness** | 5% șansă să eviți complet o lovitură |
-| Night Elf | **Shadowmeld** | stai nemișcat 2 secunde → inamicii te pierd și ieși din luptă |
-| Orc | **Blood Fury** | +50% Attack Power timp de 15 secunde, o dată la 2 minute |
-| Orc | **Hardiness** | primești cu 15% mai puțin damage din loviturile critice |
-| Undead | **Cannibalize** | după ce omori ceva, îți revin 30% din viața maximă, întins pe 10 secunde |
-| Undead | **Will of the Forsaken** | 1% din viața maximă pe secundă, **și în luptă** |
+| Human | **Stubborn Heart** | Spirit × 1.05, rotunjit în jos |
+| Human | **Drilled Hand** | șansa de ratare scade de la 5% la 2% |
+| Duskborn | **Slip Aside** | 5% șansă să eviți complet o lovitură |
+| Duskborn | **Go Unseen** | stai nemișcat 2 secunde → inamicii te pierd și ieși din luptă |
+| Orc | **Red Surge** | +50% Attack Power timp de 15 secunde, o dată la 2 minute |
+| Orc | **Thick Bone** | primești cu 15% mai puțin damage din loviturile critice |
+| Undead | **Grave Feast** | după ce omori ceva, îți revin 30% din viața maximă, întins pe 10 secunde |
+| Undead | **Unquiet Flesh** | 1% din viața maximă pe secundă, **și în luptă** |
 
 ### Culori pentru înfățișare
 
 ```
 Human     piele: #f0c9a6 #e3b78f #cf9a69 #b07d57 #8d5f3f
           păr:   #3d2b1c #1b1512 #7a4a24 #caa96b #8d8d95
-Night Elf piele: #9d7fd8 #8f6fce #b192e6 #7d5fb8 #c7aef0
+Duskborn piele: #9d7fd8 #8f6fce #b192e6 #7d5fb8 #c7aef0
           păr:   #2f7f76 #1f5f58 #4aa89c #6f4fa8 #d8dce8
 Orc       piele: #5f9e63 #4e8552 #6faf72 #3f6d45 #84bd84
           păr:   #24331f #131a10 #4a3a22 #6b6b60 #8f2f2f
@@ -171,7 +171,7 @@ Alegi și: **Face** (Round / Narrow / Wide), **Hair Style** (Short / Long / Spik
 
 Nume de exemplu pentru butonul „Randomize":
 Human: Aldric, Elena, Marcus, Isolde, Roland, Brianna ·
-Night Elf: Shaeya, Talyndris, Ilyana, Kaelen, Nyssara, Faerin ·
+Duskborn: Shaeya, Talyndris, Ilyana, Kaelen, Nyssara, Faerin ·
 Orc: Grokar, Murgash, Uzrek, Kagra, Thruk, Zolga ·
 Undead: Mordris, Nezra, Ossian, Valka, Cryven, Gwynn
 
@@ -459,7 +459,7 @@ Doi în fiecare tabără: unul de **armuri**, unul de **arme**. Te apropii, îi 
 - Când n-ai destui bani: **„Not enough money"**, și nu-ți ia nimic.
 - Când rucsacul e plin: **„Your bags are full"**.
 
-Numele: Alden Hobb ‹Trade Goods›, Mira Steelhand ‹Weaponsmith› (Alliance) · Gurtok Ashpaw ‹Trade Goods›, Zelka Ironjaw ‹Weaponsmith› (Horde).
+Numele: Alden Hobb ‹Trade Goods›, Mira Steelhand ‹Weaponsmith› (Concord) · Gurtok Ashpaw ‹Trade Goods›, Zelka Ironjaw ‹Weaponsmith› (Pact).
 
 ---
 
@@ -487,9 +487,9 @@ Fila **Quest Log** în meniu arată la ce ești și cât mai ai.
 
 ## 12.2 Zece oameni care dau misiuni
 
-**Greenvale (Alliance):** Marshal Bren ‹Greenvale Marshal› (6 misiuni) · Edda Marrow ‹Barley Farmer› (3) · Coll Ashfen ‹Forest Warden› (3) · Prospector Dunn ‹Mine Foreman› (3) · Knight Ansel ‹Keep Captain› (3)
+**Greenvale (Concord):** Marshal Bren ‹Greenvale Marshal› (6 misiuni) · Edda Marrow ‹Barley Farmer› (3) · Coll Ashfen ‹Forest Warden› (3) · Prospector Dunn ‹Mine Foreman› (3) · Knight Ansel ‹Keep Captain› (3)
 
-**Redwaste (Horde):** Chief Gorrash ‹Warband Chief› (6) · Kaza Boneclaw ‹Beast Tracker› (3) · Old Murgh ‹Bonecaster› (3) · Zib Sandrunner ‹Warband Scout› (3) · Captain Drex ‹Warband Captain› (3)
+**Redwaste (Pact):** Chief Gorrash ‹Warband Chief› (6) · Kaza Boneclaw ‹Beast Tracker› (3) · Old Murgh ‹Bonecaster› (3) · Zib Sandrunner ‹Warband Scout› (3) · Captain Drex ‹Warband Captain› (3)
 
 **36 de misiuni**, 18 pe zonă. Fiecare are **90–135 de cuvinte** de text, în 4 paragrafe.
 
@@ -561,8 +561,8 @@ Ambele sunt exact **3:2**. Durotar e de **1,52 ori** mai mare liniar, de **2,3 o
 
 | Zona mea | Căsuțe | Echivalent |
 |---|---|---|
-| **Greenvale** (Alliance) | **694 × 463** | Elwynn Forest |
-| **Redwaste** (Horde) | **1058 × 705** | Durotar |
+| **Greenvale** (Concord) | **694 × 463** | Elwynn Forest |
+| **Redwaste** (Pact) | **1058 × 705** | Durotar |
 
 În 2D o căsuță are 32 px, deci Greenvale e 22.208 × 14.816 px. Cu viteza 160 px/s, traversarea durează **~2 min 20 s**. În 3D păstrează **raportul dintre zone** și traversarea de ~2 minute; alege tu unitatea potrivită.
 
