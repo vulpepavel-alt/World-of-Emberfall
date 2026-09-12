@@ -676,9 +676,12 @@ function foaieDeLaMob(nivelMob) {
 // haine au ce sa lase in urma.
 const SANSA_PANZA = 38;        // din 100, de la un umanoid
 
-function panzaDeLaUmanoid() {
+function panzaDeLaUmanoid(nivelMob) {
   if (Math.random() * 100 >= SANSA_PANZA) return null;
-  return faMaterial('Coarse Cloth', 6);
+  // Panza urca odata cu cel de la care vine: de la un talhar mic
+  // iei panza aspra, de la o garda de nivel 60 iei panza de sigilii.
+  const p = panzaDeLaNivel(nivelMob || 1);
+  return faMaterial(p.nume, p.valoare);
 }
 
 
@@ -691,7 +694,7 @@ function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
 
   // Panza, numai de la cei care poarta haine.
   if (esteUmanoid) {
-    const panza = panzaDeLaUmanoid();
+    const panza = panzaDeLaUmanoid(nivelMob);
     if (panza) prada.obiecte.push(panza);
   }
 

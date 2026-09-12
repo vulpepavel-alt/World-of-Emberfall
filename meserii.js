@@ -232,6 +232,12 @@ const NODURI = {
     culoare: 0xd07c9a, cat: [2, 3], valoare: 48
   },
 
+  oreEmber: {
+    cheie: 'oreEmber', meserie: 'delving', material: 'Ember Ore',
+    minim: 240, praguri: { portocaliu: 240, galben: 265, verde: 285, gri: 300 },
+    culoare: 0xd06a3a, cat: [2, 4], valoare: 82
+  },
+
   // ---- plante (Foraging) ----
   herbField: {
     cheie: 'herbField', meserie: 'foraging', material: 'Fieldleaf',
@@ -242,6 +248,11 @@ const NODURI = {
     cheie: 'herbNight', meserie: 'foraging', material: 'Nightbloom',
     minim: 70, praguri: { portocaliu: 70, galben: 95, verde: 120, gri: 170 },
     culoare: 0x9a6fd8, cat: [1, 2], valoare: 13
+  },
+  herbBloom: {
+    cheie: 'herbBloom', meserie: 'foraging', material: 'Emberbloom',
+    minim: 240, praguri: { portocaliu: 240, galben: 265, verde: 285, gri: 300 },
+    culoare: 0xe08a4a, cat: [1, 3], valoare: 78
   },
   herbSilver: {
     cheie: 'herbSilver', meserie: 'foraging', material: 'Mistleaf',
@@ -298,6 +309,42 @@ function pragurileJupuitului(cerut) {
 }
 
 
+// ----------------------------------------------------------
+//  PIELEA SI PANZA, PE TREPTE
+//
+//  Pana acum orice fiara din lume dadea aceeasi 'Raw Hide', si orice
+//  om aceeasi 'Coarse Cloth' - fie ca era de nivel 3, fie de 55.
+//  Asa, pielaria si tesutul nu aveau ce sa invete mai departe.
+//
+//  Acum amandoua urca odata cu inamicul de la care vin, ca in
+//  Classic: din fiara mica iese piele subtire, din cea batrana iese
+//  piele groasa, si din ea se fac lucruri mai bune.
+// ----------------------------------------------------------
+const PIEI = [
+  { panaLa: 14, nume: 'Raw Hide',    valoare: 3 },
+  { panaLa: 28, nume: 'Thick Hide',  valoare: 9 },
+  { panaLa: 42, nume: 'Prime Hide',  valoare: 22 },
+  { panaLa: 99, nume: 'Ancient Hide', valoare: 45 }
+];
+
+const PANZE = [
+  { panaLa: 14, nume: 'Coarse Cloth', valoare: 4 },
+  { panaLa: 28, nume: 'Woven Cloth',  valoare: 11 },
+  { panaLa: 42, nume: 'Fine Cloth',   valoare: 25 },
+  { panaLa: 99, nume: 'Sigil Cloth',  valoare: 50 }
+];
+
+function pieleaDeLaNivel(nivel) {
+  for (const p of PIEI) if (nivel <= p.panaLa) return p;
+  return PIEI[PIEI.length - 1];
+}
+
+function panzaDeLaNivel(nivel) {
+  for (const p of PANZE) if (nivel <= p.panaLa) return p;
+  return PANZE[PANZE.length - 1];
+}
+
+// Numele vechi, tinut ca sa nu se strice codul care il cere inca.
 const PIELEA_DE_LA_FIARA = 'Raw Hide';
 
 

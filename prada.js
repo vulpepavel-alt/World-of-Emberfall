@@ -126,7 +126,8 @@ function scriePrada() {
             (poti ? 'data-jupui="1"' : 'disabled') + '>' +
             '<span class="cutie-obiect punga-mica"></span>' +
             '<span class="text-prada">' +
-            '<span class="nume-obiect">' + TEXT.SKIN + ': ' + PIELEA_DE_LA_FIARA + '</span>' +
+            '<span class="nume-obiect">' + TEXT.SKIN + ': ' +
+            pieleaDeLaNivel(prada.deJupuit.nivel).nume + '</span>' +
             '<span class="stat-obiect' + (poti ? '' : ' rau') + '">' +
             (poti ? (TEXT.SKILL + ' ' + cerut) : motiv) + '</span>' +
             '</span></button>';
@@ -178,10 +179,11 @@ function jupoaie() {
     return;
   }
 
+  // Pielea urca odata cu fiara: dintr-un iepure nu iese piele groasa.
+  const felPiele = pieleaDeLaNivel(sac.prada.deJupuit.nivel);
   const cate = Math.random() < 0.35 ? 2 : 1;
   for (let i = 0; i < cate; i++) {
-    pomeneInRucsac(personaj, faMaterial(PIELEA_DE_LA_FIARA,
-                                        Math.max(2, Math.round(cerut / 4) + 2)));
+    pomeneInRucsac(personaj, faMaterial(felPiele.nume, felPiele.valoare));
   }
 
   const crescut = adaugaSkill(personaj, 'hidecraft', pragurileJupuitului(cerut));

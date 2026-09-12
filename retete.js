@@ -385,8 +385,153 @@ const RETETE = [
             efect: 'alinare', tine: 8000, laCat: 1000, peTura: 120,
             descriere: 'For wounds that would otherwise end it.' },
     invatataLa: 160
+  },
+
+  // ==========================================================
+  //  TREPTELE DE SUS
+  //
+  //  Pielea si panza urca acum odata cu inamicul de la care vin, iar
+  //  minereul si planta au fiecare o treapta in plus. Retetele de
+  //  aici sunt ce se face din ele - altfel materialele noi ar fi
+  //  stat degeaba in rucsac.
+  // ==========================================================
+
+  // ---- pielarie ----
+  {
+    id: 'tan_leather_02', meserie: 'tanning', nume: 'Heavy Leather',
+    cere: [{ nume: 'Thick Hide', cate: 2 }], statie: null,
+    praguri: { portocaliu: 75, galben: 100, verde: 125, gri: 165 },
+    face: { fel: 'material', nume: 'Heavy Leather', valoare: 24, cate: 1 },
+    invatataLa: 75
+  },
+  {
+    id: 'tan_leather_03', meserie: 'tanning', nume: 'Hardened Leather',
+    cere: [{ nume: 'Prime Hide', cate: 2 }, { nume: 'Heavy Leather', cate: 1 }],
+    statie: null,
+    praguri: { portocaliu: 150, galben: 175, verde: 200, gri: 245 },
+    face: { fel: 'material', nume: 'Hardened Leather', valoare: 58, cate: 1 },
+    invatataLa: 150
+  },
+  {
+    id: 'tan_leather_04', meserie: 'tanning', nume: 'Storied Leather',
+    cere: [{ nume: 'Ancient Hide', cate: 3 }, { nume: 'Hardened Leather', cate: 1 }],
+    statie: null,
+    praguri: { portocaliu: 240, galben: 260, verde: 280, gri: 300 },
+    face: { fel: 'material', nume: 'Storied Leather', valoare: 120, cate: 1 },
+    invatataLa: 240
+  },
+  {
+    id: 'tan_chest_02', meserie: 'tanning', nume: 'Heavy Jerkin',
+    cere: [{ nume: 'Heavy Leather', cate: 5 }, { nume: 'Woven Cloth', cate: 2 }],
+    statie: null,
+    praguri: { portocaliu: 130, galben: 155, verde: 180, gri: 220 },
+    face: { fel: 'echipament', slot: 'piept', nivel: 30, raritate: 'bun' },
+    invatataLa: 130
+  },
+  {
+    id: 'tan_chest_03', meserie: 'tanning', nume: 'Storied Hauberk',
+    cere: [{ nume: 'Storied Leather', cate: 6 }, { nume: 'Sigil Cloth', cate: 2 }],
+    statie: null,
+    praguri: { portocaliu: 260, galben: 275, verde: 290, gri: 300 },
+    face: { fel: 'echipament', slot: 'piept', nivel: 52, raritate: 'rar' },
+    invatataLa: 260
+  },
+
+  // ---- tesut ----
+  {
+    id: 'weave_bolt_02', meserie: 'weaving', nume: 'Fine Bolt',
+    cere: [{ nume: 'Woven Cloth', cate: 3 }], statie: null,
+    praguri: { portocaliu: 75, galben: 100, verde: 125, gri: 165 },
+    face: { fel: 'material', nume: 'Fine Bolt', valoare: 28, cate: 1 },
+    invatataLa: 75
+  },
+  {
+    id: 'weave_bolt_03', meserie: 'weaving', nume: 'Rune Bolt',
+    cere: [{ nume: 'Fine Cloth', cate: 3 }, { nume: 'Sigil Dust', cate: 1 }],
+    statie: null,
+    praguri: { portocaliu: 155, galben: 180, verde: 205, gri: 250 },
+    face: { fel: 'material', nume: 'Rune Bolt', valoare: 66, cate: 1 },
+    invatataLa: 155
+  },
+  {
+    id: 'weave_robe_02', meserie: 'weaving', nume: 'Rune Robe',
+    cere: [{ nume: 'Rune Bolt', cate: 4 }, { nume: 'Mistleaf', cate: 2 }],
+    statie: null,
+    praguri: { portocaliu: 200, galben: 225, verde: 250, gri: 285 },
+    face: { fel: 'echipament', slot: 'piept', nivel: 45, raritate: 'bun' },
+    invatataLa: 200
+  },
+  {
+    id: 'weave_robe_03', meserie: 'weaving', nume: 'Sigil Vestment',
+    cere: [{ nume: 'Sigil Cloth', cate: 5 }, { nume: 'Rune Bolt', cate: 2 }],
+    statie: null,
+    praguri: { portocaliu: 255, galben: 275, verde: 290, gri: 300 },
+    face: { fel: 'echipament', slot: 'piept', nivel: 54, raritate: 'rar' },
+    invatataLa: 255
+  },
+
+  // ---- fierarie ----
+  {
+    id: 'smith_ingot_04', meserie: 'smithing', nume: 'Ember Ingot',
+    cere: [{ nume: 'Ember Ore', cate: 2 }], statie: 'Anvil',
+    praguri: { portocaliu: 240, galben: 260, verde: 280, gri: 300 },
+    face: { fel: 'material', nume: 'Ember Ingot', valoare: 130, cate: 1 },
+    invatataLa: 240
+  },
+  {
+    id: 'smith_plate_02', meserie: 'smithing', nume: 'Ember Cuirass',
+    cere: [{ nume: 'Ember Ingot', cate: 6 }, { nume: 'Storied Leather', cate: 2 }],
+    statie: 'Anvil',
+    praguri: { portocaliu: 265, galben: 280, verde: 292, gri: 300 },
+    face: { fel: 'echipament', slot: 'piept', nivel: 56, raritate: 'rar' },
+    invatataLa: 265
+  },
+
+  // ---- fierturi ----
+  {
+    id: 'brew_heal_04', meserie: 'brewing', nume: 'Emberdraught',
+    cere: [{ nume: 'Emberbloom', cate: 2 }, { nume: 'Nightbloom', cate: 1 }],
+    statie: null,
+    praguri: { portocaliu: 250, galben: 270, verde: 288, gri: 300 },
+    face: { fel: 'consumabil', nume: 'Emberdraught', valoare: 140,
+            efect: 'vindecare', cat: 900,
+            descriere: 'Drink when nothing else is left.' },
+    invatataLa: 250
+  },
+
+  // ---- bucatarie ----
+  {
+    id: 'cook_fish_03', meserie: 'cookery', nume: 'Carp Supper',
+    cere: [{ nume: 'Reed Carp', cate: 1 }, { nume: 'Fieldleaf', cate: 1 }],
+    statie: 'Cookfire',
+    praguri: { portocaliu: 60, galben: 85, verde: 110, gri: 140 },
+    face: { fel: 'consumabil', nume: 'Carp Supper', valoare: 26,
+            efect: 'intarire', tine: 600000, da: { spi: 6 },
+            descriere: 'Spirit rises for ten minutes.' },
+    invatataLa: 60
+  },
+  {
+    id: 'cook_fish_04', meserie: 'cookery', nume: 'Smoked Eel',
+    cere: [{ nume: 'Glass Eel', cate: 1 }, { nume: 'Nightbloom', cate: 1 }],
+    statie: 'Cookfire',
+    praguri: { portocaliu: 190, galben: 215, verde: 240, gri: 275 },
+    face: { fel: 'consumabil', nume: 'Smoked Eel', valoare: 70,
+            efect: 'intarire', tine: 600000, da: { int: 10 },
+            descriere: 'Intellect rises for ten minutes.' },
+    invatataLa: 190
+  },
+  {
+    id: 'cook_meat_02', meserie: 'cookery', nume: 'Ember Roast',
+    cere: [{ nume: 'Ancient Hide', cate: 1 }, { nume: 'Emberbloom', cate: 1 }],
+    statie: 'Cookfire',
+    praguri: { portocaliu: 230, galben: 255, verde: 280, gri: 300 },
+    face: { fel: 'consumabil', nume: 'Ember Roast', valoare: 90,
+            efect: 'intarire', tine: 600000, da: { sta: 14 },
+            descriere: 'Stamina rises for ten minutes.' },
+    invatataLa: 230
   }
 ];
+
 
 
 // Dupa ce folosesti un bandaj, nu mai poti pune altul o vreme.
