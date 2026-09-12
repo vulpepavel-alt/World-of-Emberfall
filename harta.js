@@ -70,7 +70,7 @@ function deschideHarta() {
 
   // Daca esti intr-un oras, deschidem direct harta orasului: harta
   // lumii n-are unde sa-l arate, si oricum aia vrei s-o vezi.
-  ceAratam = zona.esteOras ? zona.id : 'lume';
+  ceAratam = (zona.esteOras || zona.esteTemnita) ? zona.id : 'lume';
   zonaAleasa = zona.id;
   ecranHarta.classList.remove('ascuns');
   faMeniulHartii();
@@ -657,7 +657,7 @@ function faHartaZonei(id) {
   // Un oras are cam un sfert din casutele unei zone, deci harta lui
   // iesea mica si numele cartierelor se calcau unele pe altele. Il
   // desenam la dublu: doi pixeli pe casuta in loc de unul.
-  const ori = z.esteOras ? 2 : 1;
+  const ori = (z.esteOras || z.esteTemnita) ? 2 : 1;
 
   const panza = document.createElement('canvas');
   panza.width = COL * ori;
@@ -704,8 +704,8 @@ function faHartaZonei(id) {
   // ---- locurile care conteaza ----
   // In oras totul e desenat la dublu, deci semnele si scrisul pot fi
   // mai mici in casute si sa iasa la fel de mari pe ecran.
-  const marimeSemn = z.esteOras ? 1.0 : 1.9;
-  const marimeScris = z.esteOras ? 10 : 17;
+  const marimeSemn = (z.esteOras || z.esteTemnita) ? 1.0 : 1.9;
+  const marimeScris = (z.esteOras || z.esteTemnita) ? 10 : 17;
 
   (z.locuri || []).forEach(function (loc) {
     semnulLocului(g, loc.fel, loc.col, loc.rand, marimeSemn);
@@ -733,7 +733,7 @@ function faHartaZonei(id) {
     g.arc(tr.col, tr.rand, 7, 0, Math.PI * 2);
     g.fill();
     eticheta(g, (v ? v.nume : tr.catre) + ' →', tr.col, tr.rand - 18, COL, RND,
-             z.esteOras ? 10 : 17);
+             (z.esteOras || z.esteTemnita) ? 10 : 17);
   });
 
   // ---- portul ----
@@ -779,7 +779,7 @@ function faHartaZonei(id) {
     g.fillStyle = '#ffd34d';
     g.beginPath(); g.arc(c, r, 5, 0, Math.PI * 2); g.fill();
 
-    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND, z.esteOras ? 10 : 17);
+    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND, (z.esteOras || z.esteTemnita) ? 10 : 17);
   }
 
   g.restore();

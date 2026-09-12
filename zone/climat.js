@@ -133,6 +133,18 @@ const CLIMATE = {
     palisada: 0x322824, cort: 0x584c42, foc: 0xff9a2a, gaura: 0x0c0a08
   },
 
+  pestera: {         // sub pamant: stanca, pamant batatorit, fara cer
+    fond: 0x2e2a26, fondVariatie: 0x36322c, texturaFond: 'piatra',
+    petec: 0x3a332b, petecVariatie: 0x443c32, texturaPetec: 'pamant',
+    inalt: 0x262320, inaltVariatie: 0x2c2824,
+    drum: 0x4a423a, drumVariatie: 0x554c42,
+    apa: 0x1f3a4a, apaVariatie: 0x264656, mal: 0x3a332b, pod: 0x4a423a,
+    des: 0x1a1714, marunt: 0x232019, stanca: 0x55504a,
+    zid: 0x17140f, texturaZid: 'piatra',
+    acoperis: 0x3a2a20, perete: 0x4a4038, usa: 0x241c14, piatra: 0x5e564c,
+    palisada: 0x35291e, cort: 0x453a2e, foc: 0xff9a2a, gaura: 0x0a0806
+  },
+
   coasta: {          // stanci, nisip, mare
     fond: 0x6f8a52, fondVariatie: 0x68824c, texturaFond: 'iarba',
     petec: 0xd8c894, petecVariatie: 0xe4d4a4, texturaPetec: 'nisip',
@@ -148,6 +160,15 @@ const CLIMATE = {
 
 // Copiaza un climat si schimba din el ce vrei.
 function climat(nume, schimbari) {
-  const baza = Object.assign({}, CLIMATE[nume]);
+
+  // Un nume gresit trecea pana acum fara sa spuna nimic: iesea un
+  // teren cu toate culorile nedefinite, si jocul crapa abia mai
+  // tarziu, in desen, cu o eroare care nu semana a nimic.
+  if (!CLIMATE[nume]) {
+    console.error('Climat necunoscut: "' + nume + '". Cele care exista: ' +
+                  Object.keys(CLIMATE).join(', '));
+  }
+
+  const baza = Object.assign({}, CLIMATE[nume] || CLIMATE.padure);
   return faClimat(Object.assign(baza, schimbari || {}));
 }

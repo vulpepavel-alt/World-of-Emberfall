@@ -28,13 +28,15 @@ function leagaZonele() {
 
   ZONE.forEach(function (z) { z.vecini = {}; });
 
-  // Orasele NU stau pe grila: nu au vecini pe laturi, se intra in
-  // ele pe poarta din zona-mama. Sar peste ele aici, altfel ar
-  // cauta o casuta pe harta lumii pe care n-o au.
+  // Orasele si temnitele NU stau pe grila: nu au vecini pe laturi,
+  // se intra in ele pe o poarta din zona-mama. Sar peste ele aici,
+  // altfel ar cauta o casuta pe harta lumii pe care n-o au.
+  function faraCasuta(z) { return z.esteOras || z.esteTemnita; }
+
   ZONE.forEach(function (a) {
-    if (a.esteOras) return;
+    if (faraCasuta(a)) return;
     ZONE.forEach(function (b) {
-      if (b.esteOras) return;
+      if (faraCasuta(b)) return;
       if (a === b || a.continent !== b.continent) return;
 
       const dc = b.peHarta.c - a.peHarta.c;
@@ -77,7 +79,7 @@ const CONTINENTE = [
 // lumii le arata ca semn in zona-mama, nu ca o casuta a lor.
 function zoneleContinentului(idContinent) {
   return ZONE.filter(function (z) {
-    return z.continent === idContinent && !z.esteOras;
+    return z.continent === idContinent && !z.esteOras && !z.esteTemnita;
   });
 }
 
