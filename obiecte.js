@@ -270,10 +270,15 @@ function piesaPentru(idSlot, nivel) {
 
 
 // Face un obiect nou pentru slotul dat.
-function faObiect(idSlot, nivel, idRaritate) {
+//  optiuni (toate pot lipsi):
+//    felArmura - 'panza' | 'piele' | 'zale' | 'placi'
+//    felArma   - 'sabie' | 'topor' | ...
+//    zona      - numele zonei, pentru lucrurile gasite acolo
+function faObiect(idSlot, nivel, idRaritate, optiuni) {
 
   const slot = gasesteSlot(idSlot);
   if (!slot) return null;
+  const cerut = optiuni || {};
 
   const raritate = gasesteRaritate(idRaritate);
   const marime = MARIME_SLOT[idSlot] || 0.8;
@@ -299,12 +304,18 @@ function faObiect(idSlot, nivel, idRaritate) {
   let numePiesa;
 
   if (idSlot === 'armaPrincipala') {
-    felArma = unulDin(FELURI_ARMA);
+    felArma = cerut.felArma
+      ? (FELURI_ARMA.find(function (f) { return f.id === cerut.felArma; }) || unulDin(FELURI_ARMA))
+      : unulDin(FELURI_ARMA);
     numePiesa = unulDin(felArma.nume);
 
   } else if (idSlot === 'armaSecundara') {
     numePiesa = unulDin(PIESE_SCUT);
     felArmura = (nivel < 20) ? 'piele' : (nivel < 40 ? 'zale' : 'placi');
+
+  } else if (cerut.felArmura && PIESE[idSlot] && PIESE[idSlot][cerut.felArmura]) {
+    felArmura = cerut.felArmura;
+    numePiesa = unulDin(PIESE[idSlot][felArmura]);
 
   } else {
     const p = piesaPentru(idSlot, nivel);
@@ -344,8 +355,15 @@ function faObiect(idSlot, nivel, idRaritate) {
   // Cuvantul materialului intra in nume doar din cand in cand. Pus
   // mereu, "Dull" ar aparea pe toate obiectele de sub nivelul 10 si
   // ar obosi; pus niciodata, treptele nu s-ar vedea.
-  const cuMaterial = Math.random() < 0.45;
-  const inceput = cuMaterial ? (treapta.nume + ' ' + numePiesa)
+  //
+  // Un lucru din patru luat dintr-o zona ii poarta numele. Asa prada
+  // dintr-un loc se simte ca vine de acolo: dupa o zi in Thornmoor
+  // ai in rucsac lucruri care scriu Thornmoor pe ele.
+  const cuZona = cerut.zona && Math.random() < 0.25;
+  const cuMaterial = !cuZona && Math.random() < 0.45;
+
+  const inceput = cuZona     ? (cerut.zona + ' ' + numePiesa)
+                : cuMaterial ? (treapta.nume + ' ' + numePiesa)
                              : (adjectiv + ' ' + numePiesa);
 
   // Cateva nume de piesa au deja un "of" in ele - "Coat of Rings".
@@ -437,10 +455,46 @@ function raritateDupaNivel(nivelMob) {
   return 'comun';
 }
 
-function obiectDeLaMob(nivelMob) {
-  if (Math.random() * 100 >= sansaDeObiect(nivelMob)) return null;
-  const slot = SLOTURI[Math.floor(Math.random() * SLOTURI.length)];
-  return faObiect(slot.id, Math.max(1, nivelMob), raritateDupaNivel(nivelMob));
+//  Ce lasa un inamic anume, dupa profilul lui din mobi.js.
+//
+//  Pana acum orice inamic putea lasa orice: un sobolan de camp
+//  scapa din el o platosa de placi. Acum un talhar lasa ce poarta
+//  un talhar - panza, piele, pumnale - iar o fiara nu lasa armura
+//  deloc: doar ce s-o fi gasit prin vizuina, un inel sau un lant.
+//
+//  Sloturile purtate, pentru cine chiar poarta haine.
+const SLOTURI_PURTATE = ['cap', 'umeri', 'piept', 'incheieturi', 'maini',
+                         'brau', 'picioare', 'talpi'];
+
+function obiectDeLaMob(nivelMob, profil, numeZona) {
+
+  const p = profil || {};
+  const catDes = (typeof p.catDes === 'number') ? p.catDes : 1;
+  if (Math.random() * 100 >= sansaDeObiect(nivelMob) * catDes) return null;
+
+  const nivel = Math.max(1, nivelMob);
+  const raritate = raritateDupaNivel(nivelMob);
+  const optiuni = { zona: numeZona };
+
+  // Are arme? Atunci uneori cade una din ale lui.
+  const arme = p.arme || [];
+  if (arme.length > 0 && Math.random() < 0.22) {
+    optiuni.felArma = arme[Math.floor(Math.random() * arme.length)];
+    return faObiect('armaPrincipala', nivel, raritate, optiuni);
+  }
+
+  // Poarta haine? Atunci cade o piesa de-a lui, din ce poarta el.
+  if (p.poarta) {
+    const armuri = p.armuri || CLASE_ARMURA;
+    optiuni.felArmura = armuri[Math.floor(Math.random() * armuri.length)];
+    const slot = SLOTURI_PURTATE[Math.floor(Math.random() * SLOTURI_PURTATE.length)];
+    return faObiect(slot, nivel, raritate, optiuni);
+  }
+
+  // Fiara: doar ce s-a nimerit sa fie prin vizuina.
+  const sloturi = p.sloturi || ['gat', 'inel1', 'talisman', 'spate'];
+  const slot = sloturi[Math.floor(Math.random() * sloturi.length)];
+  return faObiect(slot, nivel, raritate, optiuni);
 }
 
 
@@ -557,13 +611,13 @@ function faConsumabil(ce) {
 // TOT ce lasa un inamic cand moare: bani si obiecte, la un loc.
 // Asta ajunge in trupul lui, de unde iei tu ce vrei - nu mai intra
 // singur in inventar, ca in WoW.
-function pradaDeLaMob(nivelMob, esteUmanoid) {
+function pradaDeLaMob(nivelMob, esteUmanoid, profil, numeZona) {
 
   // Un singur obiect purtabil pe inamic, si acela rar. Inainte mai
   // exista o sansa sa cada si al doilea; acum, cu sansele coborate
   // la cat sunt in WoW, doua obiecte de la acelasi mob n-ar avea sens.
   const obiecte = [];
-  const unul = obiectDeLaMob(nivelMob);
+  const unul = obiectDeLaMob(nivelMob, profil, numeZona);
   if (unul) obiecte.push(unul);
 
   const foaie = foaieDeLaMob(nivelMob);
@@ -610,9 +664,10 @@ function panzaDeLaUmanoid() {
 }
 
 
-function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang) {
+function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
 
-  const prada = pradaDeLaMob(nivelMob, esteUmanoid);
+  const profil = (MOBI[felulMobului] || {}).prada || null;
+  const prada = pradaDeLaMob(nivelMob, esteUmanoid, profil, numeZona);
   const vechitura = vechituraDeLaMob(nivelMob, felulMobului);
   if (vechitura) prada.obiecte.push(vechitura);
 
@@ -631,8 +686,17 @@ function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang) {
     if (rang === 'elit') raritate = (zar < 25) ? 'maiestru' : 'rar';
     else                 raritate = (zar < 22) ? 'rar' : 'bun';
 
-    const slot = SLOTURI[Math.floor(Math.random() * SLOTURI.length)];
-    prada.obiecte.push(faObiect(slot.id, Math.max(1, nivelMob), raritate));
+    const optiuni = { zona: numeZona };
+    let slot;
+    if (profil && profil.poarta) {
+      optiuni.felArmura = (profil.armuri || CLASE_ARMURA)[
+        Math.floor(Math.random() * (profil.armuri || CLASE_ARMURA).length)];
+      slot = SLOTURI_PURTATE[Math.floor(Math.random() * SLOTURI_PURTATE.length)];
+    } else {
+      const ale = (profil && profil.sloturi) || ['gat', 'inel1', 'talisman', 'spate'];
+      slot = ale[Math.floor(Math.random() * ale.length)];
+    }
+    prada.obiecte.push(faObiect(slot, Math.max(1, nivelMob), raritate, optiuni));
 
     // Si mai multi bani: au fost mai greu de omorat.
     prada.bani = Math.round(prada.bani * (rang === 'elit' ? 8 : 3));

@@ -108,6 +108,7 @@ const MOBI = {
 
   wolf: {
     nume: TEXT.WOLF,
+    prada: { poarta: false, sloturi: ['gat','inel1','talisman','spate'], arme: ['pumnal'], catDes: 0.35 },
     vechituri: ['Chipped Fang', 'Ragged Pelt', 'Torn Ear'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -126,6 +127,7 @@ const MOBI = {
 
   burrower: {
     nume: TEXT.BURROWER,
+    prada: { poarta: false, sloturi: ['gat','inel1','talisman'], arme: ['pumnal','buzdugan'], catDes: 0.40 },
     vechituri: ['Dulled Claw', 'Shell Fragment', 'Grub Casing'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -145,6 +147,7 @@ const MOBI = {
   // De asta e si singurul inamic din joc care e mereu elit.
   garda: {
     nume: TEXT.GUARD,
+    prada: { poarta: true, armuri: ['zale','placi'], arme: ['sabie','buzdugan'], catDes: 1.6 },
     razaAgro: 210,          // te vede de departe: aia e treaba ei
     vechituri: ['Torn Tabard', 'Dented Helm Strap', 'Watch Whistle'],
     neam: 'umanoid',
@@ -164,6 +167,7 @@ const MOBI = {
 
   bandit: {
     nume: TEXT.BANDIT,
+    prada: { poarta: true, armuri: ['panza','piele'], arme: ['pumnal','sabie','arc'], catDes: 1.15 },
     vechituri: ['Bent Buckle', 'Empty Flask', 'Frayed Bandana', 'Cracked Dice'],
     neam: 'umanoid',
     stats: STATS_NIVEL_1,
@@ -180,6 +184,7 @@ const MOBI = {
   // Sobolanul de camp: cel mai slab lucru din zona, chiar langa sat.
   rat: {
     nume: TEXT.RAT,
+    prada: { poarta: false, sloturi: ['inel1','talisman'], arme: [], catDes: 0.25 },
     vechituri: ['Chewed Rat Tail', 'Matted Fur', 'Gnawed Bone'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -197,6 +202,7 @@ const MOBI = {
   // Paianjenul de padure: picioare lungi, trup rotund.
   spider: {
     nume: TEXT.SPIDER,
+    prada: { poarta: false, sloturi: ['gat','inel1','talisman','spate'], arme: [], catDes: 0.35 },
     vechituri: ['Dried Silk Bundle', 'Brittle Leg', 'Clouded Eye'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -218,6 +224,7 @@ const MOBI = {
 
   scorpid: {
     nume: TEXT.SCORPID,
+    prada: { poarta: false, sloturi: ['gat','inel1','talisman'], arme: ['pumnal'], catDes: 0.40 },
     vechituri: ['Cracked Carapace', 'Blunted Stinger', 'Chitin Shard'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -235,6 +242,7 @@ const MOBI = {
 
   boar: {
     nume: TEXT.BOAR,
+    prada: { poarta: false, sloturi: ['inel1','talisman'], arme: [], catDes: 0.30 },
     vechituri: ['Cracked Tusk', 'Coarse Bristle', 'Scrap of Hide'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -254,6 +262,7 @@ const MOBI = {
   // Vulturul de praf: aripi late, gat golas.
   vulture: {
     nume: TEXT.VULTURE,
+    prada: { poarta: false, sloturi: ['gat','inel1','spate'], arme: [], catDes: 0.35 },
     vechituri: ['Scorched Feather', 'Hooked Beak', 'Hollow Bone'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -272,6 +281,7 @@ const MOBI = {
   // Sarpele de nisip: incolacit, cu capul ridicat.
   serpent: {
     nume: TEXT.SERPENT,
+    prada: { poarta: false, sloturi: ['gat','inel1','talisman'], arme: ['pumnal'], catDes: 0.40 },
     vechituri: ['Shed Scale', 'Rattle Tip', 'Dried Venom Gland'],
     neam: 'fiara',
     stats: STATS_NIVEL_1,
@@ -288,6 +298,7 @@ const MOBI = {
 
   raider: {
     nume: TEXT.RAIDER,
+    prada: { poarta: true, armuri: ['piele','zale'], arme: ['topor','buzdugan','sabie'], catDes: 1.25 },
     vechituri: ['Notched Blade Fragment', 'Sun-bleached Strap', 'Dented Cup'],
     neam: 'umanoid',
     stats: STATS_NIVEL_1,

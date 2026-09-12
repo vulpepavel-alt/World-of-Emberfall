@@ -4884,8 +4884,11 @@ function loveste(scena, mob, damageBrut, critic) {
 
     // Ce a lasat in urma NU sare singur la tine, ca pana acum.
     // Ramane in trupul lui, iar tu te duci si il iei - ca in WoW.
+    // Numele zonei merge si el: un lucru din patru il poarta scris
+    // pe el, ca prada dintr-un loc sa se simta ca vine de acolo.
     const prada = pradaCompleta(mob.stats.nivel, mob.fel.neam === 'umanoid',
-                                mob.felul, mob.rang.id);
+                                mob.felul, mob.rang.id,
+                                zona ? zona.nume : null);
 
     // Lucrurile cerute de misiuni cad in acelasi trup.
     prada.obiecteMisiune = obiecteDeMisiuneDeLa(personaj, mob.felul);
