@@ -44,10 +44,14 @@ function gasesteSlot(id) {
 // Raritatile, de la cea mai simpla la cea mai buna.
 // putere = de cate ori mai bune sunt statisticile
 const RARITATI = [
-  { id: 'comun',    nume: 'Common',    culoare: '#c8c2b4', putere: 1.0, sansa: 50, adjective: ['Worn', 'Plain', 'Rough'] },
-  { id: 'bun',      nume: 'Uncommon',  culoare: '#5fbf5f', putere: 1.5, sansa: 32, adjective: ['Sturdy', 'Fine', 'Keen'] },
-  { id: 'rar',      nume: 'Rare',      culoare: '#5f9fe0', putere: 2.2, sansa: 14, adjective: ['Gleaming', 'Runed', 'Tempered'] },
-  { id: 'maiestru', nume: 'Epic',      culoare: '#b06fd8', putere: 3.2, sansa: 4,  adjective: ['Ancient', 'Dread', 'Storied'] }
+  { id: 'comun',    nume: 'Common',    culoare: '#c8c2b4', putere: 1.0, sansa: 50,
+    adjective: ['Worn', 'Plain', 'Rough', 'Chipped', 'Battered', 'Simple', 'Patched', 'Weathered'] },
+  { id: 'bun',      nume: 'Uncommon',  culoare: '#5fbf5f', putere: 1.5, sansa: 32,
+    adjective: ['Sturdy', 'Fine', 'Keen', 'Honed', 'Banded', 'Trued', 'Seasoned', 'Well-Made'] },
+  { id: 'rar',      nume: 'Rare',      culoare: '#5f9fe0', putere: 2.2, sansa: 14,
+    adjective: ['Gleaming', 'Runed', 'Tempered', 'Etched', 'Hallowed', 'Frostbound', 'Sunlit', 'Oathsworn'] },
+  { id: 'maiestru', nume: 'Epic',      culoare: '#b06fd8', putere: 3.2, sansa: 4,
+    adjective: ['Ancient', 'Dread', 'Storied', 'Undying', 'Sovereign', 'Wrathbound', 'Everdark', 'Kingsworn'] }
 ];
 
 function gasesteRaritate(id) {
@@ -55,23 +59,158 @@ function gasesteRaritate(id) {
 }
 
 
-// Numele piesei, pentru fiecare slot.
-const NUME_PIESA = {
-  cap: 'Helm', gat: 'Amulet', umeri: 'Pauldrons', spate: 'Cloak',
-  piept: 'Breastplate', incheieturi: 'Bracers', maini: 'Gloves',
-  brau: 'Belt', picioare: 'Greaves', talpi: 'Boots',
-  inel1: 'Band', inel2: 'Band', talisman: 'Charm',
-  armaPrincipala: 'Blade', armaSecundara: 'Shield'
+// ==========================================================
+//  DIN CE E FACUT UN OBIECT
+//
+//  Pana acum un obiect era "adjectiv + numele slotului + of ...",
+//  deci toate coifurile din joc se chemau Helm si toate armele
+//  se chemau Blade. Erau 225 de tipare de nume cu totul.
+//
+//  Acum un obiect are trei straturi, ca in Classic:
+//
+//    TREAPTA DE MATERIAL - se schimba cu nivelul. Fierul de la
+//        nivelul 5 nu e acelasi cu cel de la 50, si se vede si in
+//        nume, si in culoare.
+//    CLASA DE ARMURA - panza, piele, zale sau placi. Schimba
+//        numele piesei (papucii de panza nu-s sabatonii de placi),
+//        cat tine armura, si cum arata.
+//    FELUL ARMEI - sabie, topor, buzdugan, pumnal, toiag sau arc,
+//        fiecare cu viteza lui si cu numele lui.
+//
+//  ATENTIE: clasa de armura NU te opreste sa porti ceva. Tu ai scris
+//  ca "armor proficiency" nu intra in scopul jocului, deci ramane
+//  doar aroma, desenul si cata armura da.
+// ==========================================================
+
+
+// ---- Cele sase trepte de material, dupa nivelul obiectului ----
+// Cuvintele sunt aceleasi cu ale minereurilor din meserii (Dull,
+// Bright, Deep, Rich), ca lumea sa se lege intre ea.
+const TREPTE_MATERIAL = [
+  { panaLa:  9, nume: 'Dull',    baza: '#6f6a62', lumina: '#918b80', umbra: '#46423c', ornament: '#7d7059' },
+  { panaLa: 19, nume: 'Bright',  baza: '#8a8f96', lumina: '#b3b8c0', umbra: '#565b62', ornament: '#c0a462' },
+  { panaLa: 29, nume: 'Deep',    baza: '#5e6b7d', lumina: '#8593a6', umbra: '#39424e', ornament: '#b59a55' },
+  { panaLa: 39, nume: 'Rich',    baza: '#7d6a3c', lumina: '#a88f52', umbra: '#4d4124', ornament: '#d9c17b' },
+  { panaLa: 49, nume: 'Storied', baza: '#4d5f8c', lumina: '#7387b8', umbra: '#2e3a57', ornament: '#d9c07a' },
+  { panaLa: 99, nume: 'Ember',   baza: '#7a3f2e', lumina: '#a85f42', umbra: '#48241a', ornament: '#e6a84d' }
+];
+
+function treaptaMaterialului(nivel) {
+  for (const t of TREPTE_MATERIAL) if (nivel <= t.panaLa) return t;
+  return TREPTE_MATERIAL[TREPTE_MATERIAL.length - 1];
+}
+
+
+// ---- Clasele de armura ----
+// cataArmura = de cate ori mai multa armura da fata de zale
+const FELURI_ARMURA = {
+  panza:  { id: 'panza',  nume: 'Cloth',   cataArmura: 0.55 },
+  piele:  { id: 'piele',  nume: 'Leather', cataArmura: 0.80 },
+  zale:   { id: 'zale',   nume: 'Mail',    cataArmura: 1.00 },
+  placi:  { id: 'placi',  nume: 'Plate',   cataArmura: 1.35 }
 };
+
+const CLASE_ARMURA = ['panza', 'piele', 'zale', 'placi'];
+
+
+// ---- Numele piesei, pe slot SI pe clasa de armura ----
+//
+// De aici vine cea mai mare parte a variatiei. Un singur slot are
+// acum pana la douasprezece nume in loc de unul.
+const PIESE = {
+  cap: {
+    panza: ['Cowl', 'Hood', 'Circlet'],
+    piele: ['Cap', 'Mask', 'Headguard'],
+    zale:  ['Coif', 'Helm', 'Skullcap'],
+    placi: ['Greathelm', 'Faceplate', 'Warhelm']
+  },
+  umeri: {
+    panza: ['Mantle', 'Shoulderwrap', 'Amice'],
+    piele: ['Shoulderguards', 'Spaulders', 'Shoulderpads'],
+    zale:  ['Shoulderplates', 'Pauldrons', 'Mantle of Rings'],
+    placi: ['Shoulderplates', 'Great Pauldrons', 'Warshoulders']
+  },
+  piept: {
+    panza: ['Robe', 'Vestment', 'Tunic'],
+    piele: ['Jerkin', 'Vest', 'Hauberk'],
+    zale:  ['Chainmail', 'Ringmail', 'Coat of Rings'],
+    placi: ['Breastplate', 'Cuirass', 'Chestguard']
+  },
+  incheieturi: {
+    panza: ['Cuffs', 'Wristwraps', 'Armbands'],
+    piele: ['Bracers', 'Wristguards', 'Armguards'],
+    zale:  ['Vambraces', 'Wristplates', 'Bracers'],
+    placi: ['Armplates', 'Vambraces', 'Wristguards']
+  },
+  maini: {
+    panza: ['Gloves', 'Handwraps', 'Mitts'],
+    piele: ['Gloves', 'Grips', 'Handguards'],
+    zale:  ['Gauntlets', 'Handguards', 'Chain Gloves'],
+    placi: ['Gauntlets', 'Handplates', 'Warfists']
+  },
+  brau: {
+    panza: ['Cord', 'Sash', 'Girdle'],
+    piele: ['Belt', 'Girdle', 'Waistband'],
+    zale:  ['Chain Belt', 'Girdle', 'Waistguard'],
+    placi: ['Girdle', 'Waistplate', 'Warbelt']
+  },
+  picioare: {
+    panza: ['Leggings', 'Trousers', 'Pantaloons'],
+    piele: ['Britches', 'Leggings', 'Legguards'],
+    zale:  ['Legguards', 'Chausses', 'Chain Leggings'],
+    placi: ['Greaves', 'Legplates', 'Warlegs']
+  },
+  talpi: {
+    panza: ['Slippers', 'Sandals', 'Footwraps'],
+    piele: ['Boots', 'Treads', 'Shoes'],
+    zale:  ['Warboots', 'Sabatons', 'Greaves'],
+    placi: ['Sabatons', 'Stompers', 'Warboots']
+  }
+};
+
+// Sloturile care nu au clasa de armura: pelerina, podoabele.
+const PIESE_SIMPLE = {
+  spate:    ['Cloak', 'Cape', 'Drape', 'Shroud'],
+  gat:      ['Amulet', 'Pendant', 'Necklace', 'Choker', 'Torc'],
+  inel1:    ['Band', 'Ring', 'Signet', 'Loop', 'Seal'],
+  inel2:    ['Band', 'Ring', 'Signet', 'Loop', 'Seal'],
+  talisman: ['Charm', 'Idol', 'Talisman', 'Figurine', 'Token']
+};
+
+
+// ---- Felurile de arma ----
+// viteza  = secunde intre doua lovituri (mai incet = lovituri mai mari)
+// dmg     = de cate ori mai mult damage decat media, ca sa iasa
+//           acelasi DPS indiferent ce tii in mana
+const FELURI_ARMA = [
+  { id: 'sabie',    viteza: 2.2, dmg: 1.00, nume: ['Blade', 'Sword', 'Longsword', 'Saber'] },
+  { id: 'topor',    viteza: 2.6, dmg: 1.18, nume: ['Axe', 'Cleaver', 'Waraxe', 'Hatchet'] },
+  { id: 'buzdugan', viteza: 2.4, dmg: 1.09, nume: ['Mace', 'Hammer', 'Maul', 'Cudgel'] },
+  { id: 'pumnal',   viteza: 1.6, dmg: 0.73, nume: ['Dagger', 'Dirk', 'Shiv', 'Kris'] },
+  { id: 'toiag',    viteza: 2.8, dmg: 1.27, nume: ['Staff', 'Rod', 'Quarterstaff', 'Cane'] },
+  { id: 'arc',      viteza: 2.5, dmg: 1.14, nume: ['Bow', 'Shortbow', 'Longbow', 'Recurve'] }
+];
+
+const PIESE_SCUT = ['Shield', 'Buckler', 'Bulwark', 'Targe', 'Aegis'];
 
 
 // Coada "of ...": ce statistica primeste mai mult.
 const COZI = [
-  { text: 'of Might',    atribut: 'str' },
-  { text: 'of the Wind', atribut: 'agi' },
-  { text: 'of Stone',    atribut: 'sta' },
-  { text: 'of Insight',  atribut: 'int' },
-  { text: 'of the Spring', atribut: 'spi' }
+  { text: 'of Might',      atribut: 'str' },
+  { text: 'of the Bear',   atribut: 'str' },
+  { text: 'of the Forge',  atribut: 'str' },
+  { text: 'of the Wind',   atribut: 'agi' },
+  { text: 'of the Falcon', atribut: 'agi' },
+  { text: 'of the Fox',    atribut: 'agi' },
+  { text: 'of Stone',      atribut: 'sta' },
+  { text: 'of the Boar',   atribut: 'sta' },
+  { text: 'of Warding',    atribut: 'sta' },
+  { text: 'of Insight',    atribut: 'int' },
+  { text: 'of the Owl',    atribut: 'int' },
+  { text: 'of Embers',     atribut: 'int' },
+  { text: 'of the Spring', atribut: 'spi' },
+  { text: 'of the Tide',   atribut: 'spi' },
+  { text: 'of Quiet',      atribut: 'spi' }
 ];
 
 
@@ -97,6 +236,39 @@ function pornesteIdurileObiectelor(deLa) {
   urmatorulIdObiect = Math.max(urmatorulIdObiect, deLa || 1);
 }
 
+// Alege unul la intamplare dintr-o lista.
+function unulDin(lista) {
+  return lista[Math.floor(Math.random() * lista.length)];
+}
+
+
+// Ce clasa de armura are piesa asta? Nu e la intamplare de tot:
+// la nivel mic lumea poarta panza si piele, mai incolo apar zalele
+// si placile - la fel ca in Classic, unde armura grea vine tarziu.
+function claseleDeLaNivel(nivel) {
+  if (nivel < 10) return ['panza', 'piele'];
+  if (nivel < 25) return ['panza', 'piele', 'piele', 'zale'];
+  if (nivel < 40) return ['panza', 'piele', 'zale', 'zale', 'placi'];
+  return ['panza', 'piele', 'zale', 'placi', 'placi'];
+}
+
+
+// Numele piesei si clasa ei de armura, pentru un slot.
+function piesaPentru(idSlot, nivel) {
+
+  if (PIESE_SIMPLE[idSlot]) {
+    return { nume: unulDin(PIESE_SIMPLE[idSlot]), felArmura: null };
+  }
+
+  if (PIESE[idSlot]) {
+    const fel = unulDin(claseleDeLaNivel(nivel));
+    return { nume: unulDin(PIESE[idSlot][fel]), felArmura: fel };
+  }
+
+  return { nume: 'Trinket', felArmura: null };
+}
+
+
 // Face un obiect nou pentru slotul dat.
 function faObiect(idSlot, nivel, idRaritate) {
 
@@ -105,8 +277,9 @@ function faObiect(idSlot, nivel, idRaritate) {
 
   const raritate = gasesteRaritate(idRaritate);
   const marime = MARIME_SLOT[idSlot] || 0.8;
-  const coada = COZI[Math.floor(Math.random() * COZI.length)];
-  const adjectiv = raritate.adjective[Math.floor(Math.random() * raritate.adjective.length)];
+  const treapta = treaptaMaterialului(nivel);
+  const coada = unulDin(COZI);
+  const adjectiv = unulDin(raritate.adjective);
 
   // Cat de tare e obiectul, in mare: creste cu nivelul.
   const putere = (1 + nivel * 0.55) * raritate.putere * marime;
@@ -115,37 +288,83 @@ function faObiect(idSlot, nivel, idRaritate) {
   statistici[coada.atribut] = Math.max(1, Math.round(putere * 0.7));
 
   // Un al doilea atribut, mai mic, ales la intamplare.
-  const altul = COZI[Math.floor(Math.random() * COZI.length)].atribut;
+  const altul = unulDin(COZI).atribut;
   if (altul !== coada.atribut) {
     statistici[altul] = Math.max(1, Math.round(putere * 0.35));
   }
 
-  const armura = DA_ARMURA.includes(idSlot) ? Math.max(1, Math.round(putere * 2.2)) : 0;
+  // ---- ce fel de lucru e, si cum se cheama ----
+  let felArmura = null;
+  let felArma = null;
+  let numePiesa;
 
-  // O arma are si DAMAGE-UL ei, nu doar statistici.
-  //
-  // Fara asta, la nivelul 60 loveai tot cu sabia de start, 3-6
-  // damage, si un inamic cu 3.500 de viata nu putea fi omorat
-  // niciodata. Ca in WoW, arma din mana e cea care creste.
-  let arma = null;
   if (idSlot === 'armaPrincipala') {
-    const dmgMin = Math.max(2, Math.round((1 + nivel * 0.9) * raritate.putere));
+    felArma = unulDin(FELURI_ARMA);
+    numePiesa = unulDin(felArma.nume);
+
+  } else if (idSlot === 'armaSecundara') {
+    numePiesa = unulDin(PIESE_SCUT);
+    felArmura = (nivel < 20) ? 'piele' : (nivel < 40 ? 'zale' : 'placi');
+
+  } else {
+    const p = piesaPentru(idSlot, nivel);
+    numePiesa = p.nume;
+    felArmura = p.felArmura;
+  }
+
+  // ---- armura ----
+  // Acum conteaza si din ce e facuta: panza tine mai putin decat
+  // placile. Pana acum toate sloturile dadeau la fel.
+  let armura = 0;
+  if (DA_ARMURA.includes(idSlot)) {
+    const cat = felArmura ? FELURI_ARMURA[felArmura].cataArmura : 0.7;
+    armura = Math.max(1, Math.round(putere * 2.2 * cat));
+  }
+
+  // ---- arma ----
+  //
+  // Fiecare fel de arma are viteza lui. Un pumnal loveste des si
+  // marunt, un toiag rar si tare - dar amandoua scot cam acelasi
+  // damage pe secunda, ca sa nu fie unul mereu mai bun.
+  let arma = null;
+  if (felArma) {
+    const mediu = (1 + nivel * 0.9) * raritate.putere * felArma.dmg;
+    const dmgMin = Math.max(2, Math.round(mediu));
     arma = {
       dmgMin: dmgMin,
       dmgMax: Math.round(dmgMin * 1.6),
-      viteza: 2.0 + (nivel % 3) * 0.2,      // intre 2,0 si 2,4 secunde
-      nume: NUME_PIESA[idSlot]
+      viteza: felArma.viteza,
+      fel: felArma.id,
+      nume: numePiesa
     };
   }
+
+  // ---- numele intreg ----
+  //
+  // Cuvantul materialului intra in nume doar din cand in cand. Pus
+  // mereu, "Dull" ar aparea pe toate obiectele de sub nivelul 10 si
+  // ar obosi; pus niciodata, treptele nu s-ar vedea.
+  const cuMaterial = Math.random() < 0.45;
+  const inceput = cuMaterial ? (treapta.nume + ' ' + numePiesa)
+                             : (adjectiv + ' ' + numePiesa);
+
+  // Cateva nume de piesa au deja un "of" in ele - "Coat of Rings".
+  // Lipita peste, coada iesea "Coat of Rings of the Falcon", care
+  // suna a greseala. Alea raman fara coada; statisticile nu se
+  // schimba, doar numele e mai scurt.
+  const areDejaOf = numePiesa.indexOf(' of ') >= 0;
+  const numeIntreg = areDejaOf ? inceput : (inceput + ' ' + coada.text);
 
   return {
     id: urmatorulIdObiect++,
     slot: idSlot,
-    nume: adjectiv + ' ' + NUME_PIESA[idSlot] + ' ' + coada.text,
+    nume: numeIntreg,
     nivel: nivel,
     nivelCerut: nivel,    // de la ce nivel il poti pune pe tine
     raritate: raritate.id,
     culoare: raritate.culoare,
+    material: treapta.nume,     // pentru desen si pentru fisa
+    felArmura: felArmura,       // 'panza' | 'piele' | 'zale' | 'placi' | null
     statistici: statistici,
     armura: armura,
     arma: arma
