@@ -732,13 +732,18 @@ function adaugaLaMisiune(personajul, id) {
 
 // Ai omorat ceva. Se cheama din joc, la fiecare inamic ucis.
 // Da inapoi lista misiunilor care au avansat, ca sa scrie pe ecran.
-function amUcis(personajul, felulMobului) {
+//  numeleMobului = numele scris deasupra lui, daca are unul (sefii
+//  de temnita si cei rari au). O misiune care cere un SEF ANUME nu
+//  trebuie bifata de oricare inamic de acelasi fel: "omoara-l pe
+//  Corvin Ashe" nu se termina omorand un raider la intamplare.
+function amUcis(personajul, felulMobului, numeleMobului) {
 
   const avansate = [];
 
   misiuniActive(personajul).forEach(function (m) {
     if (m.cerinta.fel !== 'ucide') return;
     if (m.cerinta.mob !== felulMobului) return;
+    if (m.cerinta.numeSef && m.cerinta.numeSef !== numeleMobului) return;
     if (starea(personajul, m.id) !== 'activa') return;
 
     const terminata = adaugaLaMisiune(personajul, m.id);

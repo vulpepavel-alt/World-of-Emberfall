@@ -4998,7 +4998,7 @@ function loveste(scena, mob, damageBrut, critic) {
     if (pradaAreCeva(prada)) faSac(scena, mob.x, mob.y, prada);
 
     // Misiunile de tip "omoara atatia" isi numara singure.
-    amUcis(personaj, mob.felul).forEach(function (avans) {
+    amUcis(personaj, mob.felul, mob.locul && mob.locul.nume).forEach(function (avans) {
       aratacuvant(scena, jucator.x, jucator.y - 70,
         avans.terminata ? TEXT.QUEST_COMPLETE
                         : textulCerintei(personaj, avans.misiune),
