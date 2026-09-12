@@ -701,11 +701,15 @@ function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
   // Cei rari si cei elit lasa INTOTDEAUNA ceva bun - de aceea ii
   // cauti. Un rar da sigur verde, uneori albastru. Un elit da sigur
   // albastru, si cam unul din patru da mov.
-  if (rang === 'rar' || rang === 'elit') {
+  if (rang === 'rar' || rang === 'elit' || rang === 'sef') {
     const zar = Math.random() * 100;
     let raritate;
-    if (rang === 'elit') raritate = (zar < 25) ? 'maiestru' : 'rar';
-    else                 raritate = (zar < 22) ? 'rar' : 'bun';
+    // Seful e unul singur in tot jocul si se omoara o data. Da mov
+    // de fiecare data, si inca un lucru pe deasupra: daca ai mers
+    // pana la capatul lumii, nu pleci de acolo cu maini goale.
+    if (rang === 'sef')       raritate = 'maiestru';
+    else if (rang === 'elit') raritate = (zar < 25) ? 'maiestru' : 'rar';
+    else                      raritate = (zar < 22) ? 'rar' : 'bun';
 
     // Un rar sau un elit da piesa de set de trei ori mai des.
     const aleSet = (typeof seturileDeLa === 'function')
@@ -729,8 +733,16 @@ function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
     }
     prada.obiecte.push(faObiect(slot, Math.max(1, nivelMob), raritate, optiuni));
 
+    // Seful da inca un lucru, pe alt slot, tot mov.
+    if (rang === 'sef') {
+      const altSlot = SLOTURI_PURTATE[Math.floor(Math.random() * SLOTURI_PURTATE.length)];
+      prada.obiecte.push(faObiect(altSlot, Math.max(1, nivelMob), 'maiestru',
+                                  { zona: numeZona }));
+    }
+
     // Si mai multi bani: au fost mai greu de omorat.
-    prada.bani = Math.round(prada.bani * (rang === 'elit' ? 8 : 3));
+    prada.bani = Math.round(prada.bani *
+      (rang === 'sef' ? 25 : rang === 'elit' ? 8 : 3));
     if (prada.bani === 0) {
       // Chiar si o fiara rara lasa ceva: ce a inghitit de la altii.
       prada.bani = Math.max(1, Math.round(nivelMob * nivelMob * 0.6 *

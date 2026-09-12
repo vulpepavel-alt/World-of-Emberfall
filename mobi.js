@@ -98,7 +98,12 @@ const RANGURI = {
   rar:    { id: 'rar',    viata: 2.5, damage: 1.4, armura: 1.3,
             culoare: '#c9ccd4', xp: 4,  marime: 1.25, reaparitie: 600000 },
   elit:   { id: 'elit',   viata: 6,   damage: 2,   armura: 1.6,
-            culoare: '#e6c669', xp: 10, marime: 1.5,  reaparitie: 1200000 }
+            culoare: '#e6c669', xp: 10, marime: 1.5,  reaparitie: 1200000 },
+
+  // Rangul de SEF. Unul singur in tot jocul, la capatul povestii.
+  // Reaparitia lunga e dinadins: nu e un mob de farmat, e un capat.
+  sef:    { id: 'sef',    viata: 14,  damage: 2.6, armura: 1.8,
+            culoare: '#d86a4a', xp: 30, marime: 1.9,  reaparitie: 1800000 }
 };
 
 
@@ -162,6 +167,30 @@ const MOBI = {
       { fel: 'dr',   x:   0, y:-13, w:  3, h:  9, culoare: 0x5c6068 },  // creasta
       { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },
       { fel: 'dr',   x:   3, y: -8, w:  2, h:  2, culoare: 0x120f0c }
+    ]
+  },
+
+  // Omul de la capatul drumului. Nu e o fiara si nu e un monstru:
+  // e un functionar bine imbracat, cu o carte de socoteli in fata.
+  // Toata povestea jocului duce la el, si nimic din felul cum arata
+  // nu trebuie sa para eroic.
+  factor: {
+    nume: TEXT.FACTOR,
+    razaAgro: 260,
+    prada: { poarta: true, armuri: ['panza', 'piele'], arme: ['pumnal'], catDes: 3 },
+    vechituri: ['Ink-Stained Cuff', 'Brass Seal', 'Tally Stick'],
+    neam: 'umanoid',
+    stats: STATS_NIVEL_1,
+    forme: [
+      { fel: 'dr',   x:   0, y: 10, w: 20, h: 12, culoare: 0x2b3550 },  // roba lunga
+      { fel: 'dr',   x:   0, y:  4, w: 18, h:  8, culoare: 0x36426a },  // piept
+      { fel: 'dr',   x:   0, y:  4, w:  4, h:  8, culoare: 0xc9a961 },  // lantul de la gat
+      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xe0bb95 },  // cap
+      { fel: 'dr',   x:   0, y:-15, w: 17, h:  5, culoare: 0x1d2438 },  // par lins
+      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },
+      { fel: 'dr',   x:   3, y: -8, w:  2, h:  2, culoare: 0x120f0c },
+      { fel: 'dr',   x:  12, y:  6, w:  7, h:  9, culoare: 0xe6ddc4 },  // registrul
+      { fel: 'dr',   x:  12, y:  6, w:  7, h:  2, culoare: 0xf2ecd8 }
     ]
   },
 

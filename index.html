@@ -209,6 +209,18 @@
     </div>
   </div>
 
+  <!-- ============ ECRANUL DE LA CAPATUL POVESTII ============ -->
+  <!-- Se arata o singura data, cand predai ultima misiune. -->
+  <div id="ecran-final" class="ascuns">
+    <div id="cuprins-final">
+      <h2 id="titlu-final"></h2>
+      <div class="linie-titlu"></div>
+      <div id="text-final"></div>
+      <p id="nota-final"></p>
+      <button class="buton" id="inchide-final"></button>
+    </div>
+  </div>
+
   <!-- Fisa unui obiect. Se muta sub degetul tau si se arata
        cand tii apasat pe un obiect (sau cand treci cu mouse-ul). -->
   <div id="fisa-obiect" class="ascuns"></div>
@@ -311,6 +323,9 @@
   <script src="zone/zona-hollowroot.js"></script>
   <script src="zone/zona-sundercrag.js"></script>
 
+  <!-- Ultima zona din joc: coasta de dincolo de Sundercrag -->
+  <script src="zone/zona-quietcoast.js"></script>
+
   <!-- Orasele principale. Au harta lor, separata de a zonelor. -->
   <script src="zone/oras-ambervault.js"></script>
   <script src="zone/oras-karrakhold.js"></script>
@@ -323,6 +338,9 @@
   <!-- Misiunile de clasa: le da antrenorul tau, in orice oras, si le
        vede doar clasa ta. La capatul lor primesti o abilitate. -->
   <script src="misiuni-clasa.js"></script>
+
+  <!-- Lantul de la capatul povestii -->
+  <script src="misiuni-final.js"></script>
 
   <!-- Misiunile facute dupa tipare, pentru zonele fara povesti scrise -->
   <script src="misiuni-zone.js"></script>

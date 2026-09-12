@@ -1010,6 +1010,31 @@ function faci(idReteta, cate) {
 //  Nu e o fereastra de negustor si nu e una de misiune - foloseste
 //  acelasi cadru, ca tot restul.
 // ==========================================================
+// ==========================================================
+//  CAPATUL POVESTII
+//
+//  Se arata o singura data, cand predai ultima misiune. Nu opreste
+//  jocul si nu inchide nimic: lumea ramane deschisa dupa, si poti
+//  merge mai departe unde vrei.
+// ==========================================================
+function arataFinalul() {
+
+  const ecran = document.getElementById('ecran-final');
+  if (!ecran) return;
+
+  document.getElementById('titlu-final').textContent = TEXT.THE_END_TITLE;
+  document.getElementById('text-final').innerHTML = TEXT.THE_END_TEXT;
+  document.getElementById('nota-final').textContent = TEXT.THE_END_DONE;
+
+  const buton = document.getElementById('inchide-final');
+  buton.textContent = TEXT.THE_END_CLOSE;
+  buton.onclick = function () { ecran.classList.add('ascuns'); };
+
+  ecran.classList.remove('ascuns');
+  suna('nivelNou');
+}
+
+
 function deschideTeleportarea() {
 
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
@@ -1212,6 +1237,13 @@ function scrieMisiunile() {
     // Experienta o da jocul, ca sa se vada si sa urci in nivel.
     if (typeof primesteXp === 'function' && jucator) {
       primesteXp(jucator.scene, primit.xp);
+    }
+
+    // Ultima misiune din joc: se arata ecranul de final.
+    if (m.esteFinalul) {
+      personaj.terminat = true;
+      salveaza();
+      arataFinalul();
     }
 
     // Daca misiunea te-a invatat ceva, se striga deasupra capului si

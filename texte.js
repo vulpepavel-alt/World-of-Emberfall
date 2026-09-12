@@ -82,6 +82,7 @@ const TEXT = {
   VULTURE:  'Dust Vulture',
   SERPENT:  'Sand Serpent',
   GUARD:    'City Guard',
+  FACTOR:   'The Factor',
   ENEMY_CITY: 'Their city. The guards know your face.',
 
   // Moartea si reinvierea
@@ -314,6 +315,32 @@ const TEXT = {
   EMPTY_LOG:       'You have no quests. Look for a golden ! above someone in your camp.',
   REQUIRES_LEVEL:  'Requires level',
   NEEDS_BEFORE:    'Finish the quest before it first.',
+
+  // Ecranul de la capatul povestii
+  THE_END_TITLE: 'The Quiet Coast',
+  THE_END_TEXT:
+    'The lamp is still burning when you come down, because nobody thought ' +
+    'to put it out.<br><br>' +
+    'Four years of ledgers, and under them the older ones, in a different ' +
+    'hand, going back further than the marshal at the gate has been alive. ' +
+    'Valleys, roads, mines, a village with red roofs. A price beside each ' +
+    'one, and a date, and the name of whoever was paid.<br><br>' +
+    'Greenvale is in there. It is eleven years old and it is crossed out, ' +
+    'because the road stayed open and fourteen farmers with a rusted sword ' +
+    'were more expensive than the valley was worth.<br><br>' +
+    'The people in the waiting camp come down to the shingle when the ' +
+    'shouting stops. Nobody cheers. They stand and look at the water for a ' +
+    'while, and then somebody asks, out loud, whether the road east goes ' +
+    'anywhere - and for the first time in four years the answer is that it ' +
+    'goes home.<br><br>' +
+    'You burn the ledgers on the quay, where everyone can watch.<br><br>' +
+    'It will start again somewhere. It always does. But not this year, and ' +
+    'not here, and a hundred and thirty people in a town that keeps no ' +
+    'book will never know your name - which, all things considered, is ' +
+    'exactly how they would want it.',
+  THE_END_DONE:  'The world stays open. Go where you like.',
+  THE_END_CLOSE: 'Close',
+  FINISHED_GAME: 'Finished the story',
 
   // Abilitatile care vin dintr-o misiune, nu de la antrenor
   TEACHES_YOU:     'Teaches you:',

@@ -1165,3 +1165,27 @@
 
 /* Numele setului pe fisa unui obiect de set */
 .fisa-rand.fisa-set { color: #d9b555; font-weight: 600; margin-top: 3px; }
+
+/* ==========================================================
+   ECRANUL DE LA CAPATUL POVESTII
+   Se arata o singura data, cand predai ultima misiune.
+   ========================================================== */
+#ecran-final {
+  position: fixed; inset: 0; z-index: 400;
+  background: #07060a;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; box-sizing: border-box; overflow-y: auto;
+  font-family: Georgia, 'Palatino Linotype', 'Times New Roman', serif;
+}
+#cuprins-final {
+  max-width: 640px; width: 100%;
+  color: #cfc4a8; text-align: center;
+}
+#titlu-final {
+  font-size: 30px; color: #d9b555; margin: 0 0 10px; letter-spacing: 1px;
+}
+#text-final {
+  text-align: left; font-size: 14.5px; line-height: 1.65;
+  margin: 18px 0 20px; color: #bdb298;
+}
+#nota-final { color: #7d7460; font-size: 13px; font-style: italic; margin-bottom: 18px; }

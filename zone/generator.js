@@ -975,6 +975,23 @@ function asazaRariiSiElitul(zona, reteta, ajuns, start, mobi) {
                nume: numeDeElit(reteta.samanta, numeFel) });
   }
 
+  // --- SEFUL, daca zona are unul scris in reteta ---
+  //
+  // Elitul obisnuit se aseaza singur, in coltul cel mai departat.
+  // Seful nu: el sta intr-un loc anume, scris de mana, fiindca
+  // povestea spune unde e. Zona ii da numele si locul.
+  if (reteta.sef) {
+    const unde = (zona.locuri || []).find(function (l) {
+      return l.id === reteta.sef.la;
+    });
+    if (unde) {
+      const inima = unde.inima || unde;
+      cei.push({ fel: reteta.sef.fel, col: inima.col, rand: inima.rand,
+                 nivel: reteta.sef.nivel || reteta.nivelPanaLa,
+                 rang: 'sef', nume: reteta.sef.nume, esteSeful: true });
+    }
+  }
+
   // Facem loc in jurul lor: nimeni nu vrea sa se bata cu un elit
   // lipit de un copac.
   cei.forEach(function (x) { disc(zona.tabla, x.col, x.rand, 4, reteta.litere.fond); });
