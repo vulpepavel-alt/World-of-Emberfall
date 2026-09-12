@@ -3707,6 +3707,13 @@ function folosesteAbilitate(scena, ab) {
 
   if (!poateFolosi(scena, ab)) return;
 
+  // Teleportarea nu se face din lupta. Verificam INAINTE de plata,
+  // ca sa nu ramai si fara mana, si in mijlocul bataii.
+  if (ab.fel === 'teleport' && esteInLupta(scena)) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.NOT_IN_COMBAT, '#e06a5a');
+    return;
+  }
+
   // Are nevoie de o tinta? O cautam inainte sa platesti ceva.
   let tintaAb = null;
   if (ab.fel === 'lovitura') {
@@ -3747,6 +3754,7 @@ function folosesteAbilitate(scena, ab) {
                      ab.fel === 'scut' || ab.fel === 'capcana' ||
                      ab.fel === 'mortPrefacut' || ab.fel === 'refacere' ||
                      ab.fel === 'cheama' || ab.fel === 'invie' ||
+                     ab.fel === 'faceMancare' || ab.fel === 'teleport' ||
                      (ab.fel === 'saritura' && !ab.laTinta));
   if (!faraTinta && !tintaAb) return;   // n-ai pe cine
 
@@ -3765,7 +3773,11 @@ function folosesteAbilitate(scena, ab) {
     abilitateInCurs = ab;
     tintaVrajii = tintaAb;
     vrajaGata = scena.time.now + ab.incantare;
-    intoarceTeSpre(tintaAb.x, tintaAb.y);
+    // Nu toate vrajile cu bara au tinta: vindecarile, invierea
+    // animalului si teleportarea n-au pe cine. Pana acum randul asta
+    // crapa pe loc, deci un preot care apasa Mend fara niciun inamic
+    // langa el nu se vindeca niciodata.
+    if (tintaAb) intoarceTeSpre(tintaAb.x, tintaAb.y);
     baraCast.setDisplaySize(0, 4);
     fundalCast.setVisible(true);
     baraCast.setVisible(true);
@@ -3773,6 +3785,31 @@ function folosesteAbilitate(scena, ab) {
   }
 
   porneisteEfectul(scena, ab, tintaAb);
+}
+
+
+// ----------------------------------------------------------
+//  Magul scoate apa si paine din nimic
+//
+//  Nu cere materiale si nu cere statie - de asta o are doar el.
+//  Face doua bucati odata; daca n-ai loc in rucsac, nu se intampla
+//  nimic si ti se spune de ce.
+// ----------------------------------------------------------
+function faceMancarea(scena, ab) {
+
+  if (!maiEsteLocInRucsac(personaj)) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.BAG_FULL, '#e06a5a');
+    return;
+  }
+
+  const cate = ab.cate || 1;
+  for (let i = 0; i < cate; i++) {
+    pomeneInRucsac(personaj, faConsumabil(ab.face));
+  }
+
+  aratacuvant(scena, jucator.x, jucator.y - 60,
+    ab.face.nume + ' x' + cate, '#8fd0e8');
+  salveaza();
 }
 
 
@@ -3900,6 +3937,12 @@ function porneisteEfectul(scena, ab, tintaAb) {
 
   } else if (ab.fel === 'invie') {
     inviaAnimalul(scena);
+
+  } else if (ab.fel === 'faceMancare') {
+    faceMancarea(scena, ab);
+
+  } else if (ab.fel === 'teleport') {
+    deschideTeleportarea();
 
   } else if (ab.fel === 'slabire') {
     if (!tintaAb) return;

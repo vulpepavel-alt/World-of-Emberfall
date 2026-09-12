@@ -492,6 +492,43 @@ const ABILITATI = [
   },
 
   // ==========================================================
+  //  MAGUL: ce scoate din nimic, si drumul scurt spre casa
+  //
+  //  Apa si painea sunt doua consumabile facute pe loc, fara
+  //  materiale si fara statie - de asta le are doar magul.
+  //
+  //  Teleportarea are sens abia acum, cand lumea are doua orase.
+  //  Portalurile din Classic (o poarta prin care trec si ALTII) n-au
+  //  ce cauta intr-un joc de unul singur, asa ca n-am facut decat
+  //  drumul tau.
+  // ==========================================================
+  {
+    id: 'mage_water_01', clasa: 'mage', nume: 'Drawn Water',
+    descriere: 'Pulls clean water out of the air. Two flasks, to drink later.',
+    fel: 'faceMancare', nivel: 4, laCateNiveluri: 10, ranguri: 5, crestere: 1.35,
+    costRage: 0, costMana: 30, pauza: 3000, incantare: 2500, cate: 2,
+    face: { fel: 'consumabil', nume: 'Drawn Water', valoare: 1,
+            efect: 'mana', cat: 90,
+            descriere: 'Drink to get your thinking back.' }
+  },
+  {
+    id: 'mage_food_01', clasa: 'mage', nume: 'Drawn Bread',
+    descriere: 'Pulls bread out of the air. Two loaves, to eat later.',
+    fel: 'faceMancare', nivel: 6, laCateNiveluri: 10, ranguri: 5, crestere: 1.35,
+    costRage: 0, costMana: 30, pauza: 3000, incantare: 2500, cate: 2,
+    face: { fel: 'consumabil', nume: 'Drawn Bread', valoare: 1,
+            efect: 'alinare', tine: 20000, laCat: 2000, peTura: 12,
+            descriere: 'Sit and eat. Your wounds close while you chew.' }
+  },
+  {
+    id: 'mage_port_01', clasa: 'mage', nume: 'Long Step',
+    descriere: 'Folds the road. Takes you to a city you name. Not while fighting.',
+    fel: 'teleport', nivel: 20, laCateNiveluri: 0, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 120, pauza: 60000, incantare: 6000
+  },
+
+
+  // ==========================================================
   //  PREOTUL, DUPA RASA
   //
   //  Doua abilitati de fiecare rasa, la nivelele 10 si 20. Le are
@@ -618,6 +655,17 @@ function abilitateaLaRang(ab, rang) {
       iesire[cheie] = crestePastrandZecimalele(ab[cheie], spor);
     }
   });
+
+  // Ce SCOATE din nimic magul creste si el cu rangul: apa da mai
+  // multa mana, painea vindeca mai mult.
+  if (ab.face) {
+    iesire.face = Object.assign({}, ab.face);
+    ['cat', 'peTura'].forEach(function (cheie) {
+      if (typeof ab.face[cheie] === 'number') {
+        iesire.face[cheie] = crestePastrandZecimalele(ab.face[cheie], spor);
+      }
+    });
+  }
 
   if (ab.da) {
     iesire.da = {};

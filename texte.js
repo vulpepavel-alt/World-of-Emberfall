@@ -203,6 +203,13 @@ const TEXT = {
   RECIPE_WRONG_JOB: 'You lack the trade for this',
   RECIPE_TOO_LOW:   'Needs skill {n} in {p}',
   RECIPES_TAUGHT:   'Recipes he can teach',
+
+  // Magul: apa, paine si drumul scurt
+  NOT_IN_COMBAT:    'Not while fighting',
+  TELEPORT_TITLE:   'Where to?',
+  TELEPORT_HELP:    'The road folds. Pick a city and step through.',
+  TELEPORT_HERE:    'You are here',
+  TELEPORT_GO:      'Step',
   TAP_TO_LEARN:     'Tap to learn',
   ITEM_TRADE:       'Trade goods',
   ITEM_JUNK:        'Junk',

@@ -973,6 +973,68 @@ function faci(idReteta, cate) {
 }
 
 
+// ==========================================================
+//  TELEPORTAREA MAGULUI
+//
+//  Se deschide dupa ce s-a terminat bara de incantare. Arata
+//  orasele lumii; apesi pe unul si esti acolo.
+//
+//  Nu e o fereastra de negustor si nu e una de misiune - foloseste
+//  acelasi cadru, ca tot restul.
+// ==========================================================
+function deschideTeleportarea() {
+
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+
+  fereastraDeschisa = 'teleport';
+  mesajFereastra = '';
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+  scrieTeleportarea();
+}
+
+
+function scrieTeleportarea() {
+
+  titluFereastra.textContent = TEXT.TELEPORT_TITLE;
+
+  const orase = ZONE.filter(function (z) { return z.esteOras; });
+
+  function numeleContinentului(id) {
+    const c = CONTINENTE.find(function (x) { return x.id === id; });
+    return c ? c.nume : '';
+  }
+
+  let html = '<div class="cutie">';
+  html += '<div class="gol-fereastra">' + TEXT.TELEPORT_HELP + '</div>';
+  html += '<div class="lista-invatat">';
+
+  orase.forEach(function (o) {
+    const esteAici = (zona && zona.id === o.id);
+    html += '<div class="rand-invatat' + (esteAici ? ' nu-poti' : '') + '">';
+    html += '<div class="cap-invatat"><b>' + o.nume + '</b>' +
+            '<span class="stins">' + numeleContinentului(o.continent) + '</span></div>';
+    html += '<div class="jos-invatat"><span></span>' +
+            (esteAici
+              ? '<span class="stins">' + TEXT.TELEPORT_HERE + '</span>'
+              : '<button class="buton mic" data-teleport="' + o.id + '">' +
+                TEXT.TELEPORT_GO + '</button>') +
+            '</div></div>';
+  });
+
+  html += '</div></div>';
+  corpFereastra.innerHTML = html;
+
+  corpFereastra.querySelectorAll('[data-teleport]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const unde = b.dataset.teleport;
+      inchideFereastraDeschisa();
+      treciInZona(unde, null);
+    });
+  });
+}
+
+
 function deschideMisiunile(npcul) {
 
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
