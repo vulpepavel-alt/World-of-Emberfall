@@ -446,6 +446,14 @@ const RETETE = [
     invatataLa: 75
   },
   {
+    id: 'weave_back_02', meserie: 'weaving', nume: 'Fine Cloak',
+    cere: [{ nume: 'Fine Bolt', cate: 3 }, { nume: 'Heavy Leather', cate: 1 }],
+    statie: null,
+    praguri: { portocaliu: 120, galben: 145, verde: 170, gri: 205 },
+    face: { fel: 'echipament', slot: 'spate', nivel: 28, raritate: 'bun' },
+    invatataLa: 120
+  },
+  {
     id: 'weave_bolt_03', meserie: 'weaving', nume: 'Rune Bolt',
     cere: [{ nume: 'Fine Cloth', cate: 3 }, { nume: 'Sigil Dust', cate: 1 }],
     statie: null,
