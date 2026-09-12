@@ -323,6 +323,35 @@ const NPC = {
     nume: TEXT.TR_GOODS_NAME, titlu: TEXT.TR_GOODS_TITLE, vinde: 'retete',
     forme: faOmulet({ piele: 0xefc49e, haina: 0x6b5a3a, accent: 0xc9a961,
                       par: 0x8a6a32, tine: 'furca' })
+  },
+
+  // ---------- DRUMURILE ----------
+  //
+  // Trei oameni noi, si toti trei sunt despre acelasi lucru: sa nu se
+  // mai duca jumatate din joc pe mers. Masurat: 2 minute si 36 de
+  // secunde ca sa treci o zona pe jos, 13 minute ca sa treci un
+  // continent.
+
+  // Grajdarul: de la el se cumpara caii. Sta numai in capitale.
+  grajdar: {
+    nume: TEXT.STABLE_NAME, titlu: TEXT.STABLE_TITLE_NPC, grajd: true,
+    forme: faOmulet({ piele: 0xe0b088, haina: 0x6b4a2c, accent: 0x9c7038,
+                      par: 0x4a3826, tine: 'furca' })
+  },
+
+  // Hangiul: de el iti legi piatra de intoarcere.
+  hangiu: {
+    nume: TEXT.INN_NAME, titlu: TEXT.INN_TITLE_NPC, han: true,
+    forme: faOmulet({ piele: 0xf0c9a6, haina: 0x7a3f2e, accent: 0xd8c88a,
+                      par: 0x6b4a2c })
+  },
+
+  // Omul cu pasarile: la el ajungi pe jos o data, si de atunci incolo
+  // poti zbura aici de oriunde ai mai fost.
+  stapanZbor: {
+    nume: TEXT.FLIGHT_NAME, titlu: TEXT.FLIGHT_TITLE_NPC, zbor: true,
+    forme: faOmulet({ piele: 0xd8b08a, haina: 0x3a4a5c, accent: 0xc9ccd4,
+                      par: 0x2e2820, gluga: true })
   }
 };
 

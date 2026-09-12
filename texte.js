@@ -256,6 +256,47 @@ const TEXT = {
   // Ce scrie pe stalpul de la gura unei temnite, si pe harta.
   DUNGEON_SIGN:     'Dungeon',
   RAID_SIGN:        'Raid',
+
+  // ---- caii, piatra de intoarcere, drumurile de zbor ----
+  // Numele sunt ale noastre. In Warcraft piatra se cheama altfel, si
+  // numele ala e azi si numele unui joc intreg al lor.
+  MOUNT1_NAME:      'Valley Horse',
+  MOUNT1_DESC:      'A steady farm horse. Travel 60% faster.',
+  MOUNT2_NAME:      'Longroad Courser',
+  MOUNT2_DESC:      'Bred for the long roads. Travel twice as fast.',
+  MOUNTED:          'Mounted',
+  DISMOUNTED:       'You step down',
+  NO_RIDING_HERE:   'Not underground',
+  NO_RIDING_FIGHT:  'Not while fighting',
+  MOUNT_REQUIRES:   'Requires level {n}',
+  MOUNT_OWNED:      'Already yours',
+  BUY_MOUNT:        'Buy',
+  STABLE_TITLE:     'Horses for the road',
+
+  HOME_STONE:       'Homeward Stone',
+  HOME_STONE_DESC:  'Sends you back to the inn it is bound to.',
+  HOME_BOUND_TO:    'Bound to {l}',
+  HOME_NOT_BOUND:   'Not bound to any inn yet',
+  HOME_BIND:        'Make this your home',
+  HOME_BOUND_NOW:   'Your home is now {l}',
+  HOME_SOON:        'The stone is still cold - {n} min',
+  HOME_GOING:       'The road folds. You are going home.',
+  INN_TITLE:        'A bed and a fire',
+
+  FLIGHT_TITLE:     'Where to?',
+  FLIGHT_FOUND:     'New stop found: {l}',
+  FLIGHT_NONE:      'You have found no other stops yet. Walk to them once.',
+  FLIGHT_HERE:      'You are here',
+  FLIGHT_GO:        'Fly',
+  FLIGHT_POOR:      'Not enough coin',
+  FLIGHT_HELP:      'You can fly to any stop you have walked to once.',
+
+  STABLE_NAME:      'Hessa Brand',
+  STABLE_TITLE_NPC: 'Stablemaster',
+  INN_NAME:         'Corin Mallow',
+  INN_TITLE_NPC:    'Innkeeper',
+  FLIGHT_NAME:      'Wren Tallow',
+  FLIGHT_TITLE_NPC: 'Keeper of Birds',
   DUNGEONS_HERE:    'Dungeons in this zone',
   DUNGEON_VIA:      'entered at {l}',
 

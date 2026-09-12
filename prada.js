@@ -1220,6 +1220,176 @@ function scrieTeleportarea() {
 }
 
 
+// ==========================================================
+//  GRAJDUL, HANUL SI PASARILE
+//
+//  Trei ferestre noi, toate despre acelasi lucru: sa nu se mai duca
+//  jumatate din joc pe mers. Masurat: 2 minute si 36 de secunde ca sa
+//  traversezi o zona pe jos, 13 minute ca sa treci un continent.
+// ==========================================================
+
+function deschideGrajdul(npcul) {
+  suna('fereastra');
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+  fereastraDeschisa = 'grajd';
+  mesajFereastra = '';
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+  scrieGrajdul();
+}
+
+
+function scrieGrajdul() {
+
+  titluFereastra.textContent = TEXT.STABLE_TITLE;
+
+  let html = '<div class="cutie">';
+  html += '<div class="rand-detaliu"><span>' + TEXT.YOUR_MONEY + '</span>' +
+          '<span>' + baniHtml(personaj.bani || 0) + '</span></div>';
+  if (mesajFereastra) html += '<div class="mesaj-fereastra">' + mesajFereastra + '</div>';
+  html += '<div class="lista-invatat">';
+
+  CAI.forEach(function (c) {
+    const se = potiCumparaCalul(personaj, c.id);
+    const motiv = se.poti ? ''
+      : se.motiv === 'ai'    ? TEXT.MOUNT_OWNED
+      : se.motiv === 'nivel' ? TEXT.MOUNT_REQUIRES.replace('{n}', se.nivel)
+      : se.motiv === 'bani'  ? TEXT.NOT_ENOUGH_GOLD : '';
+
+    html += '<div class="rand-invatat' + (se.poti ? '' : ' nu-poti') + '">';
+    html += '<div class="cap-invatat"><b>' + c.nume + '</b>' +
+            '<span class="stins">' + TEXT.LEVEL + ' ' + c.nivel + '</span></div>';
+    html += '<div class="desc-invatat">' + c.descriere + '</div>';
+    html += '<div class="jos-invatat"><span>' + baniHtml(c.pret) + '</span>' +
+            (se.poti
+              ? '<button class="buton mic" data-cal="' + c.id + '">' + TEXT.BUY_MOUNT + '</button>'
+              : '<span class="rau">' + motiv + '</span>') +
+            '</div></div>';
+  });
+
+  html += '</div></div>';
+  corpFereastra.innerHTML = html;
+
+  corpFereastra.querySelectorAll('[data-cal]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const r = cumparaCalul(personaj, b.dataset.cal);
+      mesajFereastra = r.poti ? r.cal.nume
+        : r.motiv === 'rucsac' ? TEXT.BAG_FULL : TEXT.NOT_ENOUGH_GOLD;
+      if (r.poti) { suna('bani'); salveaza(); }
+      scrieGrajdul();
+    });
+  });
+}
+
+
+function deschideHanul(npcul) {
+  suna('fereastra');
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+  fereastraDeschisa = 'han';
+  mesajFereastra = '';
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+  scrieHanul();
+}
+
+
+function scrieHanul() {
+
+  titluFereastra.textContent = TEXT.INN_TITLE;
+
+  // Unde suntem, scris asa cum o sa apara si pe piatra.
+  const numeLocul = zona ? zona.nume : '';
+
+  let html = '<div class="cutie">';
+  if (mesajFereastra) html += '<div class="mesaj-fereastra">' + mesajFereastra + '</div>';
+  html += '<div class="rand-detaliu"><span>' + TEXT.HOME_STONE + '</span><span>' +
+          (personaj.acasa ? TEXT.HOME_BOUND_TO.replace('{l}', personaj.acasa.nume)
+                          : TEXT.HOME_NOT_BOUND) + '</span></div>';
+  html += '<div class="gol-fereastra">' + TEXT.HOME_STONE_DESC + '</div>';
+  html += '<div class="jos-invatat"><span></span>' +
+          '<button class="buton mic" id="leg-piatra">' + TEXT.HOME_BIND + '</button></div>';
+  html += '</div>';
+  corpFereastra.innerHTML = html;
+
+  const b = corpFereastra.querySelector('#leg-piatra');
+  if (b) b.addEventListener('click', function () {
+    legPiatraDe(personaj, zona.id, null, numeLocul);
+    // Daca nu are piatra (o salvare veche), i-o dam acum.
+    if (!aiPiatraDeIntoarcere(personaj) && maiEsteLocInRucsac(personaj)) {
+      pomeneInRucsac(personaj, faPiatraDeIntoarcere());
+    }
+    mesajFereastra = TEXT.HOME_BOUND_NOW.replace('{l}', numeLocul);
+    suna('fereastra');
+    salveaza();
+    scrieHanul();
+  });
+}
+
+
+function deschideZborul(npcul) {
+  suna('fereastra');
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+  fereastraDeschisa = 'zbor';
+  mesajFereastra = '';
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+  scrieZborul();
+}
+
+
+function scrieZborul() {
+
+  titluFereastra.textContent = TEXT.FLIGHT_TITLE;
+
+  const aici = nodulZoneiDeZbor(zona.id);
+  const unde = aici ? undePotiZbura(personaj, aici.id) : [];
+
+  let html = '<div class="cutie">';
+  html += '<div class="rand-detaliu"><span>' + TEXT.YOUR_MONEY + '</span>' +
+          '<span>' + baniHtml(personaj.bani || 0) + '</span></div>';
+  if (mesajFereastra) html += '<div class="mesaj-fereastra">' + mesajFereastra + '</div>';
+  html += '<div class="gol-fereastra">' + TEXT.FLIGHT_HELP + '</div>';
+
+  if (!unde.length) {
+    html += '<div class="gol-fereastra">' + TEXT.FLIGHT_NONE + '</div>';
+  } else {
+    html += '<div class="lista-invatat">';
+    unde.forEach(function (u) {
+      const arePlata = (personaj.bani || 0) >= u.cost;
+      const z = retetaZonei(u.nod.zona);
+      html += '<div class="rand-invatat' + (arePlata ? '' : ' nu-poti') + '">';
+      html += '<div class="cap-invatat"><b>' + u.nod.nume + '</b>' +
+              '<span class="stins">' + (z ? z.nume + ' &middot; ' + z.nivelDeLa + '–' + z.nivelPanaLa : '') +
+              '</span></div>';
+      html += '<div class="jos-invatat"><span>' + baniHtml(u.cost) + '</span>' +
+              (arePlata
+                ? '<button class="buton mic" data-zbor="' + u.nod.id + '">' + TEXT.FLIGHT_GO + '</button>'
+                : '<span class="rau">' + TEXT.FLIGHT_POOR + '</span>') +
+              '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+  corpFereastra.innerHTML = html;
+
+  corpFereastra.querySelectorAll('[data-zbor]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const nod = gasesteNodulDeZbor(b.dataset.zbor);
+      const cost = costulZborului(aici, nod);
+      if (!nod || (personaj.bani || 0) < cost) return;
+      personaj.bani -= cost;
+      suna('bani');
+      inchideFereastraDeschisa();
+      treceInCurs = true;
+      // Cobori chiar la omul cu pasarile de acolo, nu pe marginea zonei.
+      coboriLaOprirea = nod.loc;
+      treciInZona(nod.zona, zona ? zona.id : null);
+    });
+  });
+}
+
+
 function deschideMisiunile(npcul) {
   suna('fereastra');
 

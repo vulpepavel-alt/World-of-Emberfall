@@ -626,6 +626,11 @@ function ascundeIncarcarea() {
 //  vreo trei zecimi de secunda. In timpul asta se vede un ecran de
 //  incarcare, ca sa nu para ca jocul a inghetat.
 // ==========================================================
+// Cand ajungi cu pasarile, nu intri pe la marginea zonei: cobori
+// CHIAR la omul cu pasarile. Se pune aici inainte de plecare si se
+// citeste dupa ce zona noua e gata.
+let coboriLaOprirea = null;
+
 function treciInZona(idZona, dinspre) {
 
   suna('poarta');
@@ -660,7 +665,18 @@ function treciInZona(idZona, dinspre) {
     // Daca ai venit pe apa, apari langa portul de aici, nu pe margine.
     const peApa = zona.portul && zona.portul.catre === dinspre;
 
-    if (peApa) {
+    // Daca ai venit cu pasarile, cobori la oprire.
+    const oprirea = coboriLaOprirea;
+    coboriLaOprirea = null;
+    const locOprire = oprirea
+      ? (zona.locuri || []).find(function (l) { return l.id === oprirea; })
+      : null;
+
+    if (locOprire) {
+      const inima = locOprire.inima || locOprire;
+      locDePornire = { x: inima.col * TILE + TILE / 2,
+                       y: (inima.rand + 4) * TILE + TILE / 2 };
+    } else if (peApa) {
       locDePornire = {
         x: (zona.portul.col + 8) * TILE + TILE / 2,
         y: (zona.portul.rand + 8) * TILE + TILE / 2
@@ -887,6 +903,12 @@ function folosesteConsumabil(idObiect) {
   // O foaie de reteta nu se bea: se citeste. Merge pe acelasi drum
   // ca restul, fiindca si ea se apasa o data si dispare.
   if (o.retetaDe) return citesteFoaiaDeReteta(o);
+
+  // Calul si piatra de intoarcere sunt si ele obiecte din rucsac, ca
+  // in Classic - dar NU se consuma. De-aia ies din drumul obisnuit
+  // aici, inainte de randul care scade din gramada.
+  if (o.calarie) return urciSauCobori(scena, o);
+  if (o.piatraAcasa) return folosestePiatra(scena, o);
 
   if (!o.consumabil) return null;
 
@@ -2860,6 +2882,24 @@ function deschideCeTrebuie(npcul) {
   if (npcul.marfa) { deschideTaraba(npcul); return; }
   if (npcul.cine && npcul.cine.angajeaza) { deschideAngajatorul(npcul); return; }
 
+  // ---- oamenii drumului ----
+  if (npcul.cine && npcul.cine.grajd) { deschideGrajdul(npcul); return; }
+  if (npcul.cine && npcul.cine.han)   { deschideHanul(npcul); return; }
+
+  if (npcul.cine && npcul.cine.zbor) {
+    // Prima data cand ajungi la el PE JOS, i se deschide oprirea pe
+    // harta ta. De atunci incolo poti zbura aici de oriunde ai mai
+    // fost. Asta e ce face harta din Classic sa se simta castigata.
+    const nod = nodulZoneiDeZbor(zona.id);
+    if (nod && descoperaZborul(personaj, nod.id)) {
+      aratacuvant(jucator.scene, jucator.x, jucator.y - 70,
+        TEXT.FLIGHT_FOUND.replace('{l}', nod.nume), '#9ad0e8');
+      salveaza();
+    }
+    deschideZborul(npcul);
+    return;
+  }
+
   const invata = npcul.cine && npcul.cine.invata;
 
   if (invata && !areCevaDeSpus(npcul)) { deschideAntrenorul(npcul); return; }
@@ -3679,10 +3719,174 @@ function esteInLupta(scena) {
 }
 
 
+// ==========================================================
+//  CALARITUL
+//
+//  Calul nu e un buton nou pe ecran: e obiectul din rucsac, ca in
+//  Classic. Il apesi si te urci, il apesi din nou si cobori. Cand
+//  incepe o bataie, cobori singur.
+//
+//  Cat esti calare, personajul se deseneaza putin mai sus, pe un cal
+//  desenat sub el, si merge mai repede - de cate ori scrie la calul
+//  pe care il ai.
+// ==========================================================
+let calare = false;                // esti calare CHIAR ACUM
+let calulDesenat = null;           // desenul calului, sub tine
+
+
+// Viteza ta de mers, cu tot ce o schimba.
+function vitezaTa() {
+  if (estiDuh()) return VITEZA * VITEZA_DUH;
+  if (!calare) return VITEZA;
+  const c = celMaiBunCal(personaj);
+  return VITEZA * (c ? c.spor : 1);
+}
+
+
+function urciSauCobori(scena, obiect) {
+
+  if (calare) { coboriDinSa(scena, false); return { folosit: TEXT.DISMOUNTED }; }
+
+  // Sub pamant nu se calareste. Nici in mijlocul unei batai.
+  if (zona && (zona.esteTemnita || zona.esteRaid)) {
+    return { gresit: TEXT.NO_RIDING_HERE };
+  }
+  if (esteInLupta(scena)) return { gresit: TEXT.NO_RIDING_FIGHT };
+
+  const c = gasesteCalul(obiect.calarie);
+  if (!c || personaj.nivel < c.nivel) {
+    return { gresit: TEXT.MOUNT_REQUIRES.replace('{n}', c ? c.nivel : '?') };
+  }
+
+  calare = true;
+  deseneazaCalul(scena, c);
+  suna('poarta');
+  aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.MOUNTED, '#c9a84a');
+  return { folosit: c.nume };
+}
+
+
+function coboriDinSa(scena, taceti) {
+  calare = false;
+  if (calulDesenat) { calulDesenat.destroy(); calulDesenat = null; }
+  if (jucator) jucator.y = jucator.y;
+  if (!taceti && jucator) {
+    aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.DISMOUNTED, '#a89a7c');
+  }
+}
+
+
+// Calul de sub tine. Se tine langa jucator si se intoarce odata cu el.
+function deseneazaCalul(scena, c) {
+
+  if (calulDesenat) calulDesenat.destroy();
+
+  // MASURILE CONTEAZA. Prima oara calul era de 26 pe 12 si stateau
+  // amandoi in acelasi loc: trupul jucatorului il acoperea aproape de
+  // tot si se vedea doar capul, intr-o parte. Acum calul e mai LUNG
+  // decat e jucatorul de lat (capul iese bine in stanga, crupa in
+  // dreapta) si sta mai jos, iar calaretul urca in sa.
+  const baza = catreCss(c.culoare);
+  const g = scena.add.container(jucator.x, jucator.y + 10);
+  const forme = [
+    { x: -10, y: 11, w:  5, h: 11, c: nuanta(baza, -34) },   // picioarele din spate
+    { x:   8, y: 11, w:  5, h: 11, c: nuanta(baza, -34) },
+    { x:  -3, y: 12, w:  5, h: 10, c: nuanta(baza, -14) },   // cele din fata
+    { x:  14, y: 12, w:  5, h: 10, c: nuanta(baza, -14) },
+    { x: -11, y: 17, w:  6, h:  3, c: '#2a2018' },           // copitele
+    { x:  15, y: 17, w:  6, h:  3, c: '#2a2018' },
+    { x:  20, y: -3, w:  9, h:  5, c: catreCss(c.coama) },   // coada
+    { x:  25, y:  1, w:  5, h:  7, c: catreCss(c.coama) },
+    { x:   1, y:  2, w: 34, h: 14, c: baza },                // trupul, lung
+    { x:   1, y: -3, w: 31, h:  5, c: nuanta(baza, 24) },    // lumina pe spinare
+    { x:   1, y:  7, w: 31, h:  4, c: nuanta(baza, -28) },   // umbra sub burta
+    { x: -15, y: -5, w: 10, h: 14, c: baza },                // gatul
+    { x: -15, y:-10, w: 10, h:  5, c: catreCss(c.coama) },   // coama
+    { x: -21, y:-12, w: 10, h:  8, c: nuanta(baza, 12) },    // capul
+    { x: -26, y: -9, w:  5, h:  5, c: nuanta(baza, -34) },   // botul
+    { x: -19, y:-17, w:  3, h:  4, c: nuanta(baza, -20) },   // urechea
+    { x: -22, y:-13, w:  2, h:  2, c: '#120f0c' },           // ochiul
+    { x:  -2, y: -1, w: 14, h:  5, c: '#5b3a1a' },           // saua
+    { x:  -2, y: -3, w: 14, h:  2, c: '#7d5528' }
+  ];
+  forme.forEach(function (f) {
+    g.add(scena.add.rectangle(f.x, f.y, f.w + 2, f.h + 2, CULOARE_CONTUR));
+  });
+  forme.forEach(function (f) {
+    g.add(scena.add.rectangle(f.x, f.y, f.w, f.h, culoareDinText(f.c)));
+  });
+
+  g.setDepth(7);       // sub jucator, care sta la 8 sau mai sus
+  calulDesenat = g;
+}
+
+
+// Cat de sus sta calaretul fata de cum sta pe jos.
+//
+// Fara randul asta calul era desenat exact sub tine si il acopereai cu
+// trupul - se vedea doar o dunga maro pe la glezne. Acum tu urci, el
+// ramane jos, si se vede ca stai pe el.
+const INALTIMEA_SEI = 15;
+
+function asazaCalaretul() {
+  if (!jucator) return;
+  jucator.list.forEach(function (b) {
+    // Prima data ii tinem minte locul de pe jos. Daca personajul se
+    // reface (schimbi echipamentul), bucatile sunt noi si se masoara
+    // din nou - de asta se face aici, la fiecare cadru, nu o data.
+    if (b.__yPeJos === undefined) b.__yPeJos = b.y;
+    b.y = b.__yPeJos - (calare ? INALTIMEA_SEI : 0);
+  });
+}
+
+
+// Se cheama din update: calul sta sub tine si se uita incotro te uiti.
+function mutaCalul() {
+
+  asazaCalaretul();
+
+  if (!calare || !calulDesenat || !jucator) return;
+  calulDesenat.x = jucator.x;
+  calulDesenat.y = jucator.y + 10;
+  calulDesenat.setScale(directie === 'stanga' ? -1 : 1, 1);
+}
+
+
+// ---- piatra de intoarcere ----
+let piatraPanaLa = 0;              // cand se poate folosi din nou
+
+function folosestePiatra(scena, obiect) {
+
+  if (!personaj.acasa) return { gresit: TEXT.HOME_NOT_BOUND };
+
+  if (scena.time.now < piatraPanaLa) {
+    const min = Math.ceil((piatraPanaLa - scena.time.now) / 60000);
+    return { gresit: TEXT.HOME_SOON.replace('{n}', min) };
+  }
+  if (esteInLupta(scena)) return { gresit: TEXT.NOT_IN_COMBAT };
+
+  piatraPanaLa = scena.time.now + PAUZA_PIATRA;
+  personaj.piatraGataLa = Date.now() + PAUZA_PIATRA;
+
+  aratacuvant(scena, jucator.x, jucator.y - 60, TEXT.HOME_GOING, '#9ad0e8');
+  suna('poarta');
+  scena.time.delayedCall(700, function () {
+    treceInCurs = true;
+    treciInZona(personaj.acasa.zona, zona ? zona.id : null);
+  });
+  return { folosit: obiect.nume };
+}
+
+
 // Se cheama de fiecare data cand dai sau primesti o lovitura.
 // Daca tocmai ai intrat in lupta (erai linistit), tine minte
 // clipa asta - de ea depind Hunter's Eye si Arcane Barrier.
 function intraInLupta(scena) {
+
+  // Din sa se cade cand incepe bataia. Ca in Classic: calul e pentru
+  // drum, nu pentru lupta.
+  if (calare) coboriDinSa(scena, true);
+
   if (!esteInLupta(scena)) {
     inceputLupta = scena.time.now;
 
@@ -4558,6 +4762,7 @@ function update(time, delta) {
   actualizeazaPescuitul(this);
   actualizeazaCapcanele(this);
   actualizeazaAnimalul(this, delta);
+  mutaCalul();
   if (typeof actualizeazaTovarasii === 'function') actualizeazaTovarasii(this, delta);
   verificaIesireaDinLupta(this);
 
@@ -4602,7 +4807,8 @@ function update(time, delta) {
 
   // Duhul merge mai repede: drumul inapoi la trup e pedeapsa,
   // dar n-are rost sa fie si lung, si incet.
-  const pas = VITEZA * (estiDuh() ? VITEZA_DUH : 1) * (delta / 1000);
+  // Viteza vine acum dintr-un singur loc: duh, cal sau pe jos.
+  const pas = vitezaTa() * (delta / 1000);
 
   let dx = 0;
   let dy = 0;

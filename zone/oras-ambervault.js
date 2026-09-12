@@ -67,6 +67,10 @@ inregistreazaZona({
   ],
 
   npci: [
+    // ---- drumurile: grajd, han, pasari ----
+    { fel: 'grajdar',    la: 'piata', dc: -26, dr:  10 },
+    { fel: 'hangiu',     la: 'piata', dc:  26, dr:  10 },
+    { fel: 'stapanZbor', la: 'piata', dc:   0, dr:  22 },
     // ---- antrenorii de clasa, in Hall of Arms ----
     { fel: 'antrenorRazboinic', la: 'arme', dc: -14, dr: 4 },
     { fel: 'antrenorVanator',   la: 'arme', dc:  -5, dr: 8 },

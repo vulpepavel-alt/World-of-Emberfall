@@ -905,6 +905,12 @@ function daEchipamentulDeStart(personajul) {
     pomeneInRucsac(personajul, o);
   });
 
+  // Piatra de intoarcere pleaca la drum cu tine, ca in Classic. Nu e
+  // legata de nimic inca: o legi de primul han la care ajungi.
+  if (typeof faPiatraDeIntoarcere === 'function') {
+    pomeneInRucsac(personajul, faPiatraDeIntoarcere());
+  }
+
   return true;
 }
 

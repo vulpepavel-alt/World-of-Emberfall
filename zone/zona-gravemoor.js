@@ -44,6 +44,7 @@ inregistreazaZona({
   ],
 
   npci: [
+    { fel: 'stapanZbor',      la: 'tabara', dc:  6, dr:  6 },
     { fel: 'chief', la: 'sat', dc: 3, dr: 1 },
     { fel: 'negustorOrc', la: 'sat', dc: -6, dr: -1 },
     { fel: 'armurierOrc', la: 'sat', dc: 16, dr: -2 },

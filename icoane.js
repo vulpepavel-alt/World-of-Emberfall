@@ -458,6 +458,33 @@ function desenLucru(obiect) {
     ];
   }
 
+  // ---- calul si piatra de intoarcere ----
+  //
+  // Amandoua stau in rucsac, ca in Classic, deci au nevoie de desen.
+  if (obiect.calarie) return [
+    { x: 2,  y: 10, w: 2,  h: 4,  c: '#4a3524' },   // picioare
+    { x: 6,  y: 10, w: 2,  h: 4,  c: '#4a3524' },
+    { x: 10, y: 10, w: 2,  h: 4,  c: '#5e4630' },
+    { x: 13, y: 10, w: 2,  h: 4,  c: '#5e4630' },
+    { x: 2,  y: 5,  w: 12, h: 6,  c: '#7a5a3a' },   // trup
+    { x: 2,  y: 5,  w: 12, h: 2,  c: '#916d47' },   // lumina pe spinare
+    { x: 13, y: 3,  w: 3,  h: 3,  c: '#4a3524' },   // coada
+    { x: 1,  y: 2,  w: 4,  h: 5,  c: '#7a5a3a' },   // gat
+    { x: 1,  y: 1,  w: 4,  h: 2,  c: '#4a3524' },   // coama
+    { x: 0,  y: 1,  w: 4,  h: 3,  c: '#8a6a46' },   // cap
+    { x: 1,  y: 2,  w: 1,  h: 1,  c: '#120f0c' },   // ochi
+    { x: 5,  y: 4,  w: 5,  h: 2,  c: '#5b3a1a' }    // saua
+  ];
+
+  if (obiect.piatraAcasa) return [
+    { x: 4,  y: 3,  w: 8,  h: 10, c: '#4a6f86' },   // piatra
+    { x: 5,  y: 3,  w: 6,  h: 3,  c: '#7fb0cc' },   // fata luminata
+    { x: 4,  y: 11, w: 8,  h: 2,  c: '#2e4757' },   // umbra de jos
+    { x: 6,  y: 6,  w: 4,  h: 4,  c: '#9ad0e8' },   // miezul care luceste
+    { x: 7,  y: 7,  w: 2,  h: 2,  c: '#e2f4ff' },
+    { x: 3,  y: 6,  w: 1,  h: 4,  c: '#2e4757' }    // muchia din stanga
+  ];
+
   // ---- foaia de reteta ----
   if (obiect.retetaDe) return [
     { x: 3, y: 2,  w: 10, h: 12, c: '#e0d7bd' },

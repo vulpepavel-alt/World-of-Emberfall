@@ -123,6 +123,12 @@ function salveaza() {
     // ce ai strans
     talente: personaj.talente || {},
     echipament: personaj.echipament || {},
+    // Drumurile: ce cai ai, de ce han e legata piatra, si ce
+    // opriri de zbor ai descoperit mergand pe jos la ele.
+    cai: personaj.cai || {},
+    acasa: personaj.acasa || null,
+    zboruri: personaj.zboruri || {},
+    piatraGataLa: personaj.piatraGataLa || 0,
     inventar: personaj.inventar || [],
     bani: personaj.bani || 0,
     misiuni: personaj.misiuni || {},
@@ -182,6 +188,10 @@ function faPersonajulDinSalvare(s) {
   p.talente    = s.talente || {};
   p.echipament = s.echipament || {};
   p.inventar   = s.inventar || [];
+  p.cai        = s.cai || {};
+  p.acasa      = s.acasa || null;
+  p.zboruri    = s.zboruri || {};
+  p.piatraGataLa = s.piatraGataLa || 0;
   p.bani       = s.bani || 0;
   p.misiuni    = s.misiuni || {};
 
