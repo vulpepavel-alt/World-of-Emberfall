@@ -482,6 +482,29 @@ function desenLucru(obiect) {
       { x: 6, y: 4, w: 4,  h: 8, c: '#cfc3a2' },
       { x: 2, y: 10, w: 12, h: 1, c: '#b5a988' }
     ];
+
+    // O paine e o paine, nu o sticluta rosie. Fara randul asta,
+    // painea de start arata exact ca o poitune de viata.
+    if (ce.forma === 'paine') return [
+      { x: 3,  y: 5,  w: 10, h: 7, c: '#a9763f' },   // coaja
+      { x: 4,  y: 4,  w: 8,  h: 2, c: '#c28e4f' },   // partea de sus, mai deschisa
+      { x: 2,  y: 7,  w: 1,  h: 4, c: '#8c5f31' },   // capetele
+      { x: 13, y: 7,  w: 1,  h: 4, c: '#8c5f31' },
+      { x: 5,  y: 5,  w: 1,  h: 2, c: '#e0b478' },   // taieturile de cutit
+      { x: 8,  y: 5,  w: 1,  h: 2, c: '#e0b478' },
+      { x: 11, y: 5,  w: 1,  h: 2, c: '#e0b478' },
+      { x: 3,  y: 11, w: 10, h: 1, c: '#6e4823' }    // umbra dedesubt
+    ];
+
+    // Mancarea gatita: o bucata de carne pe os.
+    if (ce.efect === 'intarire') return [
+      { x: 4,  y: 3,  w: 7, h: 8, c: '#8a4a2e' },    // carnea
+      { x: 5,  y: 3,  w: 5, h: 2, c: '#a86040' },    // rumenit sus
+      { x: 4,  y: 10, w: 7, h: 1, c: '#5c2f1c' },
+      { x: 9,  y: 9,  w: 4, h: 2, c: '#e2ddcc' },    // osul
+      { x: 12, y: 8,  w: 2, h: 4, c: '#f0ece0' },
+      { x: 6,  y: 5,  w: 2, h: 2, c: '#a8623c' }
+    ];
     return [
       { x: 6, y: 1,  w: 4,  h: 3,  c: '#9aa0ab' },
       { x: 5, y: 4,  w: 6,  h: 2,  c: '#c8c2b4' },

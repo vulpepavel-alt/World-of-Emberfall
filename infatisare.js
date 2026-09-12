@@ -49,12 +49,58 @@ const MATERIALE = {
 };
 
 
+// Amesteca doua culori. cat = 0 inseamna prima, 1 inseamna a doua.
+function amestecaCulori(a, b, cat) {
+  const na = parseInt(a.replace('#', ''), 16);
+  const nb = parseInt(b.replace('#', ''), 16);
+  const r = Math.round(((na >> 16) & 255) * (1 - cat) + ((nb >> 16) & 255) * cat);
+  const g = Math.round(((na >> 8)  & 255) * (1 - cat) + ((nb >> 8)  & 255) * cat);
+  const bl = Math.round((na & 255)        * (1 - cat) + (nb & 255)        * cat);
+  return '#' + ((r << 16) | (g << 8) | bl).toString(16).padStart(6, '0');
+}
+
+
+// Din ce pare facuta piesa, in afara de metal.
+//
+// Raritatea singura nu ajunge: o roba de panza comuna iesea exact in
+// acelasi gri ca o platosa comuna, fiindca amandoua sunt "comun".
+// Un mag de nivelul 1 arata ca un soldat cenusiu. Asa ca panza trage
+// culoarea spre tesatura si pielea spre piele tabacita; zalele si
+// placile raman metal curat, ca pana acum.
+const TESATURI = {
+  panza: { baza: '#9a8f7c', lumina: '#bfb6a3', umbra: '#63594a', cat: 0.7 },
+  piele: { baza: '#77603e', lumina: '#9a7d50', umbra: '#473722', cat: 0.65 }
+};
+
+
 // Ce material are piesa dintr-un slot. Intoarce null daca slotul
 // e gol, iar atunci desenul foloseste culoarea clasei sau pielea.
 function materialul(p, idSlot) {
+
   const obiect = (p.echipament || {})[idSlot];
   if (!obiect) return null;
-  return MATERIALE[obiect.raritate] || MATERIALE.comun;
+
+  const m = MATERIALE[obiect.raritate] || MATERIALE.comun;
+  const t = TESATURI[obiect.felArmura];
+  if (!t) return m;
+
+  // Cat de mult trage spre tesatura depinde de raritate, si asta nu
+  // e o chichita: prima oara am amestecat la fel peste tot si o roba
+  // RARA iesea gri-maronie, adica pierdea exact albastrul dupa care
+  // se vede ca e rara. Deci: o piesa comuna arata ce e facuta (panza
+  // sau piele), iar una rara arata cat e de rara. Marimea e 0 la
+  // comun si 3 la Epic.
+  const cat = t.cat * (1 - 0.25 * m.marime);
+
+  return {
+    baza:     amestecaCulori(m.baza,   t.baza,   cat),
+    lumina:   amestecaCulori(m.lumina, t.lumina, cat),
+    umbra:    amestecaCulori(m.umbra,  t.umbra,  cat),
+    // Ornamentul ramane al raritatii: firul de aur de pe o roba rara
+    // e tot aur, nu pastreaza nimic din culoarea panzei.
+    ornament: m.ornament,
+    marime:   m.marime
+  };
 }
 
 

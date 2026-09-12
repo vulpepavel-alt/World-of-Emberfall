@@ -397,6 +397,9 @@ function intraInLume() {
   const p = calculeazaPersonaj(rasaAleasa, clasaAleasa, infatisareAleasa);
   p.nume = cuMajuscula(campNume.value.trim());
 
+  // Nu pleci gol la drum: o arma, doua haine si ceva de mancare.
+  daEchipamentulDeStart(p);
+
   ecran.classList.add('ascuns');
   porneste(p);
 }

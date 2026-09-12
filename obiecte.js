@@ -743,6 +743,172 @@ function faConsumabil(ce) {
 }
 
 
+// ==========================================================
+//  CU CE PLECI DE ACASA
+//
+//  Pana acum un personaj nou pornea gol de tot: fara arma, fara
+//  haine, cu rucsacul gol. Nu asa incepe nimeni. In Classic
+//  primesti o arma potrivita clasei, doua haine simple si ceva de
+//  mancare - atat cat sa ai cu ce da prima lovitura.
+//
+//  Lucrurile astea sunt COMUNE si de nivelul 1. Nu-ti dau un
+//  avans: le arunci dupa o ora de joc. Numele lor sunt scrise de
+//  mana, nu iesite din tabelele de sus, tocmai ca sa se vada ca
+//  sunt lucrurile cu care ai plecat de acasa, nu prada.
+//
+//  Fiecare clasa are UN singur atribut pe piese, cel care conteaza
+//  pentru ea. La nivelul 1 e vorba de un punct - e un semn, nu o
+//  cifra care schimba ceva.
+// ==========================================================
+
+// ATENTIE la numele de aici. Prima varianta pe care am scris-o suna
+// firesc - "Recruit's", "Apprentice's Robe", "Novice's" - tocmai
+// fiindca astea SUNT numele lucrurilor de start din Classic. Nu au
+// ce cauta in joc. Numele de mai jos sunt ale noastre: satul are o
+// oaste de tarani (levy), vanatorul isi face capcane din lemn,
+// magul invata la lumina unei lumanari de seu, preotul imparte
+// pomeni.
+const ECHIPAMENT_DE_START = {
+
+  warrior: {
+    atribut: 'str',
+    piese: [
+      { slot: 'armaPrincipala', felArma: 'sabie',    nume: 'Levy Blade' },
+      { slot: 'armaSecundara',                       nume: 'Levy Buckler' },
+      { slot: 'piept',          felArmura: 'piele',  nume: 'Levy Jerkin' },
+      { slot: 'picioare',       felArmura: 'piele',  nume: 'Levy Breeches' }
+    ]
+  },
+
+  hunter: {
+    atribut: 'agi',
+    piese: [
+      { slot: 'armaPrincipala', felArma: 'arc',      nume: 'Snarewood Bow' },
+      { slot: 'piept',          felArmura: 'piele',  nume: 'Snarewood Vest' },
+      { slot: 'picioare',       felArmura: 'piele',  nume: 'Snarewood Leggings' }
+    ]
+  },
+
+  mage: {
+    atribut: 'int',
+    piese: [
+      { slot: 'armaPrincipala', felArma: 'toiag',    nume: 'Tallowlight Rod' },
+      { slot: 'piept',          felArmura: 'panza',  nume: 'Tallowlight Robe' },
+      { slot: 'picioare',       felArmura: 'panza',  nume: 'Tallowlight Trousers' }
+    ]
+  },
+
+  priest: {
+    atribut: 'spi',
+    piese: [
+      { slot: 'armaPrincipala', felArma: 'buzdugan', nume: 'Almsgiver\'s Cudgel' },
+      { slot: 'piept',          felArmura: 'panza',  nume: 'Almsgiver\'s Vestment' },
+      { slot: 'picioare',       felArmura: 'panza',  nume: 'Almsgiver\'s Trousers' }
+    ]
+  }
+};
+
+
+// O piesa de start: se face ca orice alt obiect - ca sa nu socotim
+// de doua ori aceleasi cifre de armura si de damage - si pe urma i
+// se pune numele scris de mana si un singur atribut.
+function faPiesaDeStart(def, atribut) {
+
+  const optiuni = def.felArmura ? { felArmura: def.felArmura }
+                : def.felArma   ? { felArma:   def.felArma }
+                                : undefined;
+
+  const o = faObiect(def.slot, 1, 'comun', optiuni);
+  if (!o) return null;
+
+  o.nume = def.nume;
+  o.deStart = true;
+
+  // Statisticile iesite din tabel sunt la intamplare. Pe lucrurile
+  // de start nu vrem intamplare: doi razboinici nou facuti trebuie
+  // sa aiba exact aceleasi haine.
+  const st = {};
+  st[atribut] = 1;
+  o.statistici = st;
+
+  return o;
+}
+
+
+// Painea si apa cu care pleci la drum. Painea o are toata lumea;
+// apa doar cine bea mana - unui razboinic nu i-ar folosi la nimic.
+function mancareaDeStart(idClasa) {
+  const lista = [];
+
+  const paine = faConsumabil({
+    // "Refreshing Spring Water" e apa de start din Classic, deci nu
+    // folosim nici "Spring Water", nici "Traveller's" pe paine.
+    nume: 'Road Loaf', valoare: 2,
+    efect: 'vindecare', cat: 40, forma: 'paine',
+    descriere: 'Restores 40 health.'
+  });
+  paine.cate = 4;
+  lista.push(paine);
+
+  if (CLASE[idClasa] && CLASE[idClasa].resursa === 'mana') {
+    const apa = faConsumabil({
+      nume: 'Wellwater Flask', valoare: 2,
+      efect: 'mana', cat: 40,
+      descriere: 'Restores 40 mana.'
+    });
+    apa.cate = 4;
+    lista.push(apa);
+  }
+
+  return lista;
+}
+
+
+// Imbraca un personaj nou. Nu face nimic daca are deja ceva pe el:
+// asa poate fi chemata si pentru o salvare veche, facuta inainte sa
+// existe lucrurile astea, fara sa strice nimic celor care joaca de
+// mult.
+function daEchipamentulDeStart(personajul) {
+
+  if (!personajul) return false;
+  personajul.echipament = personajul.echipament || {};
+  if (Object.keys(personajul.echipament).length > 0) return false;
+
+  const set = ECHIPAMENT_DE_START[personajul.idClasa];
+  if (!set) return false;
+
+  const clasa = CLASE[personajul.idClasa];
+
+  set.piese.forEach(function (def) {
+    const o = faPiesaDeStart(def, set.atribut);
+    if (!o) return;
+
+    // ATENTIE, aici era o capcana. Cifrele iesite din faObiect pentru
+    // nivelul 1 sunt MAI MICI decat arma din care porneste clasa:
+    // sabia de start dadea 2-3, iar razboinicul fara nimic in mana
+    // dadea 3-6. Adica iti dadeam un cadou care te facea mai slab.
+    //
+    // Asa ca arma de start pleaca de la arma clasei - aceeasi viteza,
+    // deci acelasi ritm de lupta - si e cu un punct mai buna. Cat sa
+    // se simta ca ai primit ceva, nu cat sa sari peste primele niveluri.
+    if (o.arma && clasa) {
+      const aClasei = clasa.arme.distanta || clasa.arme.corpLaCorp;
+      o.arma.dmgMin = aClasei.dmgMin + 1;
+      o.arma.dmgMax = aClasei.dmgMax + 1;
+      o.arma.viteza = aClasei.viteza;
+    }
+
+    personajul.echipament[def.slot] = o;
+  });
+
+  mancareaDeStart(personajul.idClasa).forEach(function (o) {
+    pomeneInRucsac(personajul, o);
+  });
+
+  return true;
+}
+
+
 // TOT ce lasa un inamic cand moare: bani si obiecte, la un loc.
 // Asta ajunge in trupul lui, de unde iei tu ce vrei - nu mai intra
 // singur in inventar, ca in WoW.

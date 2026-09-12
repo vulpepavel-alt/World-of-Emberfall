@@ -240,6 +240,13 @@ function faPersonajulDinSalvare(s) {
     }
   });
 
+  // Echipamentul de start a aparut dupa ce jocul era deja jucat.
+  // Cine incepuse un personaj si nu apucase sa puna nimic pe el ar
+  // fi ramas gol pentru totdeauna, asa ca primeste si el hainele -
+  // dar NUMAI daca n-are absolut nimic echipat. Un personaj de
+  // nivelul 40 cu platosa pe el nu trebuie sa se trezeasca in zdrente.
+  daEchipamentulDeStart(p);
+
   return p;
 }
 
