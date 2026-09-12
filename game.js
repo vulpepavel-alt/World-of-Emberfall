@@ -868,6 +868,11 @@ function deCeNuPotiCulege(loc) {
   if (skillulTau(personaj, fel.meserie) < fel.minim) {
     return TEXT.NEED_SKILL.replace('{n}', fel.minim);
   }
+  // Mineritul cere tarnacop. Culesul de plante nu cere nimic, deci
+  // pentru el uneltaCareItiLipseste intoarce null si trecem mai departe.
+  const lipsa = uneltaCareItiLipseste(personaj, fel.meserie);
+  if (lipsa) return TEXT.NEED_TOOL.replace('{t}', lipsa);
+
   return null;
 }
 
@@ -1009,6 +1014,12 @@ function arunciUndita(scena, undeEApa) {
   if (!aiMeseria(personaj, 'angling')) {
     aratacuvant(scena, jucator.x, jucator.y - 60,
       TEXT.NEED_PROFESSION.replace('{p}', MESERII.angling.nume), '#e06a5a');
+    return;
+  }
+  const faraUndita = uneltaCareItiLipseste(personaj, 'angling');
+  if (faraUndita) {
+    aratacuvant(scena, jucator.x, jucator.y - 60,
+      TEXT.NEED_TOOL.replace('{t}', faraUndita), '#e06a5a');
     return;
   }
   if (!maiEsteLocInRucsac(personaj)) {

@@ -115,9 +115,11 @@ function scriePrada() {
     const cerut = skillDeJupuit(prada.deJupuit.nivel);
     const ai = aiMeseria(personaj, 'hidecraft');
     const skill = skillulTau(personaj, 'hidecraft');
-    const poti = ai && skill >= cerut;
+    const faraCutit = uneltaCareItiLipseste(personaj, 'hidecraft');
+    const poti = ai && skill >= cerut && !faraCutit;
     const motiv = !ai ? TEXT.NEED_PROFESSION.replace('{p}', MESERII.hidecraft.nume)
-                      : TEXT.NEED_SKILL.replace('{n}', cerut);
+                : (skill < cerut) ? TEXT.NEED_SKILL.replace('{n}', cerut)
+                : TEXT.NEED_TOOL.replace('{t}', faraCutit);
 
     html += '<button class="rand-prada' + (poti ? '' : ' misiune') + '" ' +
             (poti ? 'data-jupui="1"' : 'disabled') + '>' +
@@ -167,6 +169,7 @@ function jupoaie() {
   const cerut = skillDeJupuit(sac.prada.deJupuit.nivel);
   if (!aiMeseria(personaj, 'hidecraft')) return;
   if (skillulTau(personaj, 'hidecraft') < cerut) return;
+  if (uneltaCareItiLipseste(personaj, 'hidecraft')) return;   // fara cutit, nimic
 
   if (!maiEsteLocInRucsac(personaj)) {
     mesajFereastra = TEXT.BAG_FULL;
@@ -286,6 +289,15 @@ function dupaCeAiLuat() {
 // Ce tine pe taraba. Se face o data, cand intri in zona, si
 // ramane la fel cat timp joci.
 function faMarfa(ceVinde) {
+
+  // Negustorul de unelte din oras tine exact cele trei unelte de
+  // meserie, fiecare intr-un singur exemplar pe taraba. E singurul
+  // loc din afara antrenorilor de unde se iau.
+  if (ceVinde === 'unelte') {
+    return Object.keys(UNELTE).map(function (nume) {
+      return faUnealta(UNELTE[nume].nume, UNELTE[nume].valoare);
+    });
+  }
 
   const sloturi = SLOTURI.filter(function (s) {
     const eArma = (s.id === 'armaPrincipala' || s.id === 'armaSecundara');
@@ -419,8 +431,14 @@ function cumpara(idObiect) {
     return;
   }
 
-  // Ce cumperi pleaca de pe taraba si ajunge la tine.
+  // Ce cumperi pleaca de pe taraba si ajunge la tine. Uneltele fac
+  // exceptie: negustorul pune indata alta in loc. Altfel, cine isi
+  // vinde din greseala tarnacopul ar ramane fara el pana la
+  // reintrarea in zona, si n-ar avea de unde sa afle de ce.
   marfa.splice(unde, 1);
+  if (obiect.unealta) {
+    marfa.splice(unde, 0, faUnealta(obiect.nume, UNELTE[obiect.nume].valoare));
+  }
   pomeneInRucsac(personaj, obiect);
 
   mesajFereastra = TEXT.BOUGHT + ': ' + obiect.nume;
@@ -683,7 +701,43 @@ function scrieAntrenorulDeMeserie(id) {
   }
 
   html += '</div>';
+
+  // ---- unealta, cumparata tot de aici ----
+  //
+  // Fara randul asta ai lua mineritul in oras, ai iesi pe camp si
+  // n-ai avea cu ce sapa, fara sa stii de unde se ia tarnacopul.
+  // Asa, unealta se vede in aceeasi fereastra in care ai invatat.
+  const numeUnealta = uneltaMeseriei(id);
+  if (ai && numeUnealta) {
+    const u = UNELTE[numeUnealta];
+    const oAi = aiUnealta(personaj, numeUnealta);
+    const bani = (personaj.bani || 0) >= u.valoare;
+
+    html += '<div class="rand-invatat' + (oAi ? ' nu-poti' : '') + '">';
+    html += '<div class="cap-invatat"><b>' + u.nume + '</b>' +
+            '<span class="stins">' + TEXT.TOOLS_TITLE + '</span></div>';
+    html += '<div class="desc-invatat">' + descriereaUneltei(numeUnealta) + '</div>';
+    html += '<div class="jos-invatat"><span>' + baniHtml(u.valoare) + '</span>' +
+            (oAi ? '<span class="stins">' + TEXT.TOOL_IN_BAG + '</span>'
+             : !bani ? '<span class="rau">' + TEXT.NOT_ENOUGH_GOLD + '</span>'
+             : '<button class="buton mic" id="cumpar-unealta">' +
+               TEXT.BUY_TOOL.replace('{t}', u.nume) + '</button>') +
+            '</div></div>';
+  }
+
   corpFereastra.innerHTML = html;
+
+  const cumpUnealta = document.getElementById('cumpar-unealta');
+  if (cumpUnealta) cumpUnealta.addEventListener('click', function () {
+    const u = UNELTE[uneltaMeseriei(id)];
+    if ((personaj.bani || 0) < u.valoare) return;
+    if (!maiEsteLocInRucsac(personaj)) { mesajFereastra = TEXT.BAG_FULL; scrieAntrenorul(); return; }
+    personaj.bani -= u.valoare;
+    pomeneInRucsac(personaj, faUnealta(u.nume, u.valoare));
+    mesajFereastra = TEXT.BOUGHT + ': ' + u.nume;
+    salveaza();
+    scrieAntrenorul();
+  });
 
   const iau = document.getElementById('iau-meseria');
   if (iau) iau.addEventListener('click', function () {

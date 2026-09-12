@@ -233,6 +233,7 @@ const SANSA_VECHITURA = 55;        // din 100
 const CULOARE_VECHITURA = '#9d9d9d';
 const CULOARE_MATERIAL  = '#6fa8c0';   // materialele de meserie, albastrui
 const CULOARE_CONSUMABIL = '#7ad07a';  // ce se bea sau se mananca, verzui
+const CULOARE_UNEALTA   = '#c8b27a';   // uneltele de meserie, auriu stins
 const MAXIM_PE_GRAMADA = 20;
 
 function vechituraDeLaMob(nivelMob, felulMobului) {
@@ -267,6 +268,25 @@ function faMaterial(nume, valoare) {
     nume: nume,
     nivel: 1,
     culoare: CULOARE_MATERIAL,
+    cate: 1,
+    valoare: Math.max(1, valoare)
+  };
+}
+
+
+// O unealta de meserie: tarnacop, cutit de jupuit, undita. Nu se
+// echipeaza si nu se foloseste - e destul s-o ai in rucsac. Poarta
+// 'material: true' ca sa n-o mature butonul care arunca vechiturile:
+// ar fi urat sa ramai fara tarnacop dupa o curatenie in rucsac.
+function faUnealta(nume, valoare) {
+  return {
+    id: urmatorulIdObiect++,
+    vechitura: true,
+    material: true,
+    unealta: true,
+    nume: nume,
+    nivel: 1,
+    culoare: CULOARE_UNEALTA,
     cate: 1,
     valoare: Math.max(1, valoare)
   };
@@ -519,7 +539,12 @@ const NUME_ATRIBUT = { str: 'Strength', agi: 'Agility', sta: 'Stamina',
                        int: 'Intellect', spi: 'Spirit' };
 
 function descriereObiect(obiect) {
-  if (obiect.vechitura) return 'Junk';
+  // Un tarnacop nu e gunoi, si nici un minereu. Pana acum toate
+  // trei scriau 'Junk', fiindca merg pe acelasi drum al gramezilor.
+  if (obiect.unealta) return TEXT.ITEM_TOOL;
+  if (obiect.consumabil) return TEXT.USE;
+  if (obiect.material) return TEXT.ITEM_TRADE;
+  if (obiect.vechitura) return TEXT.ITEM_JUNK;
   const bucati = [];
   if (obiect.arma) bucati.push(obiect.arma.dmgMin + '-' + obiect.arma.dmgMax + ' dmg');
   Object.keys(obiect.statistici).forEach(function (a) {

@@ -189,6 +189,18 @@ const TEXT = {
   NEED_PROFESSION:  'You need {p}',
   NEED_SKILL:       'Needs skill {n}',
   CANNOT_GATHER:    'You cannot gather this',
+
+  // Uneltele de meserie
+  NEED_TOOL:        'You need a {t}',
+  BUY_TOOL:         'Buy {t}',
+  TOOL_IN_BAG:      'You are carrying one',
+  TOOLS_TITLE:      'Tools',
+  ITEM_TOOL:        'Tool',
+  ITEM_TRADE:       'Trade goods',
+  ITEM_JUNK:        'Junk',
+  TOOL_PICK:        'For cutting ore out of rock.',
+  TOOL_KNIFE:       'For taking the hide off a dead beast.',
+  TOOL_ROD:         'For fishing. A line, a hook and patience.',
   GATHER_STOPPED:   'Interrupted',
   BITE:             'A bite!',
   TOO_SOON:         'Too soon',

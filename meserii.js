@@ -123,6 +123,57 @@ const CATE_PRINCIPALE = 2;   // cel mult doua meserii principale
 
 
 // ----------------------------------------------------------
+//  UNELTELE
+//
+//  Trei meserii cer o unealta: mineritul un tarnacop, jupuitul un
+//  cutit, pescuitul o undita. Culesul de plante nu cere nimic.
+//
+//  Unealta sta in rucsac si atat: n-o echipezi si n-o apesi. Se
+//  cumpara de la antrenorul meseriei si de la negustorul de unelte
+//  din oras. Nu se strica si nu se consuma - o cumperi o data.
+// ----------------------------------------------------------
+const UNELTE = {
+  'Pick':           { nume: 'Pick',           valoare: 38 },
+  'Flensing Knife': { nume: 'Flensing Knife', valoare: 30 },
+  'Fishing Rod':    { nume: 'Fishing Rod',    valoare: 24 }
+};
+
+
+// Ce scrie sub numele uneltei in fereastra. Textul sta in texte.js,
+// ca tot ce se vede pe ecran.
+function descriereaUneltei(nume) {
+  if (nume === 'Pick') return TEXT.TOOL_PICK;
+  if (nume === 'Flensing Knife') return TEXT.TOOL_KNIFE;
+  if (nume === 'Fishing Rod') return TEXT.TOOL_ROD;
+  return '';
+}
+
+
+// Unealta ceruta de o meserie, sau null daca nu cere niciuna.
+function uneltaMeseriei(id) {
+  const m = MESERII[id];
+  return (m && m.unealta) ? m.unealta : null;
+}
+
+
+// O ai in rucsac?
+function aiUnealta(personajul, nume) {
+  if (!nume) return true;                       // meseria nu cere nimic
+  return (personajul.inventar || []).some(function (o) {
+    return o && o.nume === nume;
+  });
+}
+
+
+// Ce unealta iti lipseste ca sa lucrezi la meseria asta? null daca
+// nu-ti lipseste nimic.
+function uneltaCareItiLipseste(personajul, idMeserie) {
+  const nume = uneltaMeseriei(idMeserie);
+  return aiUnealta(personajul, nume) ? null : nume;
+}
+
+
+// ----------------------------------------------------------
 //  CULORILE DE GREUTATE
 //
 //  Fiecare nod si fiecare reteta are patru praguri:

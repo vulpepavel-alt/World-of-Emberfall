@@ -205,6 +205,17 @@ function faPersonajulDinSalvare(s) {
   });
   pornesteIdurileObiectelor(celMaiMare);
 
+  // Uneltele au aparut dupa ce meseriile erau deja in joc. Cine
+  // avea minerit, jupuit sau pescuit inainte ar fi ramas dintr-o
+  // data fara ce lucra, fara sa fi gresit cu nimic - asa ca primeste
+  // unealta gratis, o singura data.
+  Object.keys(p.meserii || {}).forEach(function (idMeserie) {
+    const nume = uneltaMeseriei(idMeserie);
+    if (nume && !aiUnealta(p, nume) && p.inventar.length < LOCURI_IN_RUCSAC) {
+      p.inventar.push(faUnealta(nume, UNELTE[nume].valoare));
+    }
+  });
+
   return p;
 }
 

@@ -11,7 +11,7 @@
 //    - NU au bara rosie de viata deasupra capului
 //
 //  Unii NPC sunt NEGUSTORI. Aceia au in plus:
-//    vinde: 'armura' sau 'arma' - ce fel de marfa tin pe taraba
+//    vinde: 'armura', 'arma' sau 'unelte' - ce tin pe taraba
 //  Cand te duci langa ei si ii atingi, se deschide taraba.
 //
 //  Formele se scriu la fel ca la inamici, in mobi.js:
@@ -307,7 +307,7 @@ const NPC = {
 
   // ---------- negustorii orasului ----------
   negustorUnelte: {
-    nume: TEXT.TR_TOOLS_NAME, titlu: TEXT.TR_TOOLS_TITLE, vinde: 'arma',
+    nume: TEXT.TR_TOOLS_NAME, titlu: TEXT.TR_TOOLS_TITLE, vinde: 'unelte',
     forme: faOmulet({ piele: 0xd8a87c, haina: 0x5a4a2c, accent: 0xb8bcc4,
                       par: 0x2e2418, tine: 'tarnacop' })
   },
