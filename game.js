@@ -841,6 +841,37 @@ function faNodul(scena, loc) {
     p.add(scena.add.circle(b[0], b[1], b[2], fel.culoare));
   });
 
+  // ---- scrisul de deasupra, ca la oameni ----
+  //
+  // Pana acum un nod era o gramajoara de bulgari colorati si atat:
+  // trebuia sa te duci pana la el ca sa afli ce e, si inca o data ca
+  // sa afli ca n-ai skill-ul. Acum scrie de departe ce e si de ce
+  // skill ai nevoie.
+  //
+  // Culoarea randului de jos spune totul dintr-o privire:
+  //   stins  - il poti culege
+  //   rosu   - iti lipseste meseria sau skill-ul
+  const meseria = MESERII[fel.meserie];
+  const aiMeseriaAsta = personaj && aiMeseria(personaj, fel.meserie);
+  const skill = personaj ? skillulTau(personaj, fel.meserie) : 0;
+  const potiAcum = aiMeseriaAsta && skill >= fel.minim;
+
+  p.add(scena.add.text(0, -34, fel.material, {
+    fontFamily: UI.FONT, fontSize: '10px',
+    color: potiAcum ? UI.textAuriu : UI.textStins,
+    stroke: '#000000', strokeThickness: 3
+  }).setOrigin(0.5));
+
+  const subtitlu = !aiMeseriaAsta
+    ? TEXT.NEED_PROFESSION.replace('{p}', meseria ? meseria.nume : '?')
+    : (meseria ? meseria.nume : '') + ' ' + fel.minim;
+
+  p.add(scena.add.text(0, -24, subtitlu, {
+    fontFamily: UI.FONT, fontSize: '9px',
+    color: potiAcum ? UI.textStins : '#e06a5a',
+    stroke: '#000000', strokeThickness: 3
+  }).setOrigin(0.5));
+
   p.setDepth(4);
   p.loc = loc;
   p.fel = fel;

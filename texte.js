@@ -55,6 +55,11 @@ const TEXT = {
 
   // Locurile de pe harta
   PLACE_CITY:     'City',
+  CAP_CLASS:      'Trainers for all four classes',
+  CAP_TRADES:     'Trainers for all twelve trades',
+  CAP_VENDORS:    'Tools, trade supplies and recipes',
+  CAP_LOOK:       'Look at {c}',
+  YOUR_CAPITAL:   'Your capital',
   PLACE_VILLAGE:  'Village',
   PLACE_CAMP:     'Camp',
   PLACE_CAVE:     'Cave',

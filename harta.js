@@ -145,6 +145,52 @@ const MARGINE_LUME = 26;
 // Unde sta fiecare zona pe panza, ca sa stim si unde ai apasat.
 let casuteleLumii = [];
 
+// Semnul unei capitale pe harta lumii.
+//
+// FARA SCRIS pe harta: am incercat intai cu numele scris sub turn,
+// dar harta e o grila deasa si textul se suprapunea peste numele
+// zonelor. Numele capitalei se scrie in panoul din dreapta, unde e
+// loc si unde oricum te uiti dupa lamuriri.
+function semnDeCapitala(g, x, y, oras) {
+
+  const aTa = personaj && oras.factiune && oras.factiune === personaj.factiune;
+  const auriu = aTa ? '#f0d890' : '#b3a894';
+
+  // turnul
+  g.fillStyle = '#2b241c';
+  g.fillRect(x - 9, y - 18, 18, 22);
+  g.fillStyle = aTa ? '#e0c070' : '#9d9384';
+  g.fillRect(x - 7, y - 16, 14, 18);
+  g.fillStyle = '#2b241c';
+  g.fillRect(x - 3, y - 6, 6, 8);
+  g.fillStyle = auriu;
+  [-7, -2, 3].forEach(function (dx) { g.fillRect(x + dx, y - 20, 4, 4); });
+
+  // steagul
+  g.fillStyle = '#2b241c';
+  g.fillRect(x - 1, y - 32, 2, 14);
+  g.fillStyle = auriu;
+  g.beginPath();
+  g.moveTo(x + 1, y - 32);
+  g.lineTo(x + 12, y - 28);
+  g.lineTo(x + 1, y - 24);
+  g.closePath();
+  g.fill();
+
+  // steaua, doar la capitala taberei tale
+  if (aTa) {
+    g.fillStyle = '#f0d890';
+    g.font = '700 14px Georgia, serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.strokeStyle = 'rgba(10,7,4,.9)';
+    g.lineWidth = 3;
+    g.strokeText('\u2605', x, y + 12);
+    g.fillText('\u2605', x, y + 12);
+  }
+}
+
+
 function deseneazaLumea() {
 
   const bucati = CONTINENTE.map(function (c) {
@@ -244,6 +290,26 @@ function deseneazaLumea() {
       const x = x0 + z.peHarta.c * CASUTA_LAT;
       const yy = y0 + z.peHarta.r * CASUTA_INALT;
       scrieNumeleZonei(g, z, x, yy);
+    });
+
+    // ---- CAPITALELE, peste toate ----
+    //
+    // Pana acum un oras principal era un semn mic printre alte cinci
+    // semne mici, si nu aveai de unde sti ca acolo sunt TOTI
+    // antrenorii de meserie si de clasa. Acum are steag, nume scris
+    // si o coroana daca e al taberei tale.
+    b.ale.forEach(function (z) {
+      (z.intrari || []).forEach(function (intrare) {
+        const oras = retetaZonei(intrare.catre);
+        if (!oras || !oras.esteOras) return;
+        // Semnul se pune in MIJLOCUL casutei, nu chiar peste locul
+        // orasului: numele e lat si la marginea continentului iesea
+        // din harta si se taia.
+        semnDeCapitala(g,
+          x0 + (z.peHarta.c + 0.5) * CASUTA_LAT,
+          y0 + (z.peHarta.r + 0.38) * CASUTA_INALT,
+          oras);
+      });
     });
   });
 
@@ -873,6 +939,31 @@ function scrieDetaliile() {
   html += '<div class="rand-detaliu"><span>Home of</span><span>' +
           (z.factiune || 'Both factions') + '</span></div>';
 
+  // ---- capitala, daca zona asta tine una ----
+  //
+  // Aici se scrie, nu pe harta: e loc destul si oricum te uiti
+  // incoace dupa lamuriri. Spune ce gasesti acolo, ca sa se vada
+  // de ce merita drumul.
+  (z.intrari || []).forEach(function (intrare) {
+    const oras = retetaZonei(intrare.catre);
+    if (!oras || !oras.esteOras) return;
+    const aTa = personaj && oras.factiune && oras.factiune === personaj.factiune;
+
+    html += '<div class="capitala' + (aTa ? ' a-ta' : '') + '">';
+    html += '<div class="nume-capitala">' + oras.nume +
+            (aTa ? ' \u2605' : '') + '</div>';
+    html += '<div class="stins">' +
+            (aTa ? TEXT.YOUR_CAPITAL : TEXT.PLACE_CITY) + ' \u00b7 ' +
+            oras.factiune + '</div>';
+    html += '<ul class="ce-gasesti">' +
+            '<li>' + TEXT.CAP_CLASS + '</li>' +
+            '<li>' + TEXT.CAP_TRADES + '</li>' +
+            '<li>' + TEXT.CAP_VENDORS + '</li></ul>';
+    html += '<button class="buton mic" data-zona="' + oras.id + '">' +
+            TEXT.CAP_LOOK.replace('{c}', oras.nume) + '</button>';
+    html += '</div>';
+  });
+
   // ---- ce e in zona ----
   if ((z.locuri || []).length) {
     html += '<div class="cap-detaliu">' + TEXT.WHATS_HERE + '</div><ul class="drumuri">';
@@ -916,6 +1007,17 @@ function scrieDetaliile() {
   }
 
   detaliiZona.innerHTML = html;
+
+  // Butonul din blocul de capitala: duce direct la harta orasului.
+  // Fara randul asta butonul se desena si nu facea nimic.
+  detaliiZona.querySelectorAll('[data-zona]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      zonaAleasa = b.dataset.zona;
+      ceAratam = b.dataset.zona;
+      alegeHarta.value = ceAratam;
+      scrieHarta();
+    });
+  });
 
   const vezi = document.getElementById('vezi-zona');
   if (vezi) vezi.addEventListener('click', function () {

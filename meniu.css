@@ -1189,3 +1189,15 @@
   margin: 18px 0 20px; color: #bdb298;
 }
 #nota-final { color: #7d7460; font-size: 13px; font-style: italic; margin-bottom: 18px; }
+
+/* Blocul de capitala din panoul hartii */
+.capitala {
+  margin: 12px 0 6px; padding: 10px 12px;
+  border: 1px solid #4a3d27; border-radius: 4px;
+  background: rgba(40, 32, 20, .5);
+}
+.capitala.a-ta { border-color: #8a6a2f; background: rgba(60, 47, 24, .6); }
+.nume-capitala { font-size: 15px; color: #d9b555; font-weight: 600; }
+.capitala.a-ta .nume-capitala { color: #f0d890; }
+.ce-gasesti { margin: 7px 0 9px; padding-left: 16px; font-size: 12px; color: #a99a7c; }
+.ce-gasesti li { margin: 2px 0; }
