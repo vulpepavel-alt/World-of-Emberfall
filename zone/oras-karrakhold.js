@@ -22,7 +22,8 @@ inregistreazaZona({
   id: 'karrakhold',
   nume: 'Karrak Hold',
   continent: 'karador',
-  factiune: null,
+  // Orasul e AL unei tabere. Cine vine din cealalta da de garzi.
+  factiune: 'Pact',
   esteOras: true,
 
   // Nu se lupta nimeni aici. Nivelurile sunt scrise doar ca harta

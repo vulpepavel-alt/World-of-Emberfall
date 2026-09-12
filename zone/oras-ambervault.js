@@ -22,7 +22,8 @@ inregistreazaZona({
   id: 'ambervault',
   nume: 'Ambervault',
   continent: 'eastmarch',
-  factiune: null,
+  // Orasul e AL unei tabere. Cine vine din cealalta da de garzi.
+  factiune: 'Concord',
   esteOras: true,
 
   // Nu se lupta nimeni aici. Nivelurile sunt scrise doar ca harta

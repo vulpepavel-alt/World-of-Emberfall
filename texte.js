@@ -81,6 +81,8 @@ const TEXT = {
   SPIDER:   'Forest Spider',
   VULTURE:  'Dust Vulture',
   SERPENT:  'Sand Serpent',
+  GUARD:    'City Guard',
+  ENEMY_CITY: 'Their city. The guards know your face.',
 
   // Moartea si reinvierea
   YOU_DIED:   'You have died',

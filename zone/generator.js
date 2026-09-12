@@ -778,10 +778,65 @@ function asazaNodurile(zona, reteta, ajuns) {
 }
 
 
+// ----------------------------------------------------------
+//  GARZILE ORASULUI
+//
+//  Un oras e AL unei tabere. Cine vine din cealalta da de garzi:
+//  la poarta, pe bulevard si in piata.
+//
+//  Se aseaza ca ORICE alt inamic - acelasi fel de punct, aceeasi
+//  lupta, aceeasi prada. Ce le face deosebite e un singur camp,
+//  'doarStraini': jocul le sare cu totul daca esti din tabara
+//  orasului, si atunci orasul e linistit exact ca pana acum.
+// ----------------------------------------------------------
+const GARZI_LA_POARTA = 4;
+const GARZI_LA_CARTIER = 3;
+
+function asazaGarzile(zona, reteta, ajuns) {
+
+  if (!reteta.factiune) return [];          // oras fara tabara: nimeni
+
+  const garzi = [];
+  const nivel = 60;
+
+  function pune(col, rand) {
+    if (rand < 0 || col < 0 || rand >= zona.RND || col >= zona.COL) return;
+    if (!ajuns[rand][col]) return;
+    const inghesuit = garzi.some(function (g) {
+      return Math.abs(g.col - col) < 3 && Math.abs(g.rand - rand) < 3;
+    });
+    if (inghesuit) return;
+    garzi.push({ fel: 'garda', col: col, rand: rand, nivel: nivel,
+                 rang: 'elit', doarStraini: true });
+  }
+
+  // La poarta, in doua randuri de o parte si de alta a drumului.
+  if (zona.poarta) {
+    for (let i = 0; i < GARZI_LA_POARTA; i++) {
+      const latura = (i % 2 === 0) ? -1 : 1;
+      const adanc = 6 + Math.floor(i / 2) * 7;
+      pune(zona.poarta.col + latura * 5, zona.poarta.rand - adanc);
+    }
+  }
+
+  // Cateva in fiecare cartier, unde stau oamenii.
+  (zona.locuri || []).forEach(function (loc) {
+    for (let i = 0; i < GARZI_LA_CARTIER; i++) {
+      const unghi = (i / GARZI_LA_CARTIER) * Math.PI * 2;
+      pune(Math.round(loc.col + Math.cos(unghi) * 11),
+           Math.round(loc.rand + Math.sin(unghi) * 11));
+    }
+  });
+
+  return garzi;
+}
+
+
 function asazaMobii(zona, reteta, ajuns, start) {
 
-  // Intr-un oras nu intra fiarele. Nici sobolani, nici talhari.
-  if (reteta.esteOras) return [];
+  // Intr-un oras nu intra fiarele. Nici sobolani, nici talhari -
+  // doar garzile, si alea numai pentru cine nu e de-al casei.
+  if (reteta.esteOras) return asazaGarzile(zona, reteta, ajuns);
 
   const zar = faZaruri(reteta.samanta + 4242);
   const mobi = [];

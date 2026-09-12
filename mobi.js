@@ -140,6 +140,28 @@ const MOBI = {
     ]
   },
 
+  // Garda orasului. Nu apare nicaieri pe harta obisnuita: sta numai
+  // in orasul unei tabere, si numai pentru cine vine din cealalta.
+  // De asta e si singurul inamic din joc care e mereu elit.
+  garda: {
+    nume: TEXT.GUARD,
+    razaAgro: 210,          // te vede de departe: aia e treaba ei
+    vechituri: ['Torn Tabard', 'Dented Helm Strap', 'Watch Whistle'],
+    neam: 'umanoid',
+    stats: STATS_NIVEL_1,
+    forme: [
+      { fel: 'dr',   x:  12, y: -6, w:  3, h: 26, culoare: 0xb8bcc4 },  // sulita
+      { fel: 'dr',   x:  12, y:-19, w:  5, h:  7, culoare: 0xd8dce4 },  // varful
+      { fel: 'dr',   x:   0, y:  5, w: 19, h: 19, culoare: 0x6b6f78 },  // platosa
+      { fel: 'dr',   x:   0, y:  2, w: 19, h:  5, culoare: 0x8f5a2c },  // curea
+      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xd8b08a },  // cap
+      { fel: 'dr',   x:   0, y:-13, w: 19, h:  9, culoare: 0x8a8f98 },  // coif
+      { fel: 'dr',   x:   0, y:-13, w:  3, h:  9, culoare: 0x5c6068 },  // creasta
+      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },
+      { fel: 'dr',   x:   3, y: -8, w:  2, h:  2, culoare: 0x120f0c }
+    ]
+  },
+
   bandit: {
     nume: TEXT.BANDIT,
     vechituri: ['Bent Buckle', 'Empty Flask', 'Frayed Bandana', 'Cracked Dice'],

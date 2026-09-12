@@ -1878,6 +1878,19 @@ function create() {
   // --- Stalpii de la portile catre zonele vecine ---
   faSemneleTrecerilor(this);
 
+  // --- Esti in orasul celeilalte tabere? ---
+  //
+  // Garzile pornesc spre tine fara sa spuna nimic, si ar fi urat sa
+  // nu intelegi de ce. Asa, primul lucru pe care il vezi e de ce.
+  //
+  // Se scrie PE LOC, nu dupa o asteptare. Prima data pusesem o pauza
+  // scurta ca sa nu cada peste ecranul de incarcare - dar ceasul
+  // scenei nu merge pana nu porneste jocul, asa ca asteptarea nu se
+  // consuma niciodata si mesajul nu aparea deloc.
+  if (estiStrainAici() && jucator) {
+    aratacuvant(this, jucator.x, jucator.y - 74, TEXT.ENEMY_CITY, '#e06a5a');
+  }
+
   // --- Animalul, daca il aveai chemat ---
   stergeAnimalul();
   if (personaj.animal && personaj.animal.chemat && personaj.animal.viata > 0) {
@@ -2886,6 +2899,14 @@ function actualizeazaSacii(scena) {
 const RAZA_APARITIE = 700;     // de la ce distanta se face un inamic
 const RAZA_DISPARITIE = 1100;  // de la ce distanta il stergem la loc
 
+// Esti din cealalta tabara decat locul in care te afli? Doar asta
+// desparte un oras linistit de unul cu garzi pe tine.
+function estiStrainAici() {
+  if (!zona || !zona.factiune || !personaj) return false;
+  return zona.factiune !== personaj.factiune;
+}
+
+
 function actualizeazaMobii(scena) {
 
   if (!zona || !jucator || !personaj) return;
@@ -2894,6 +2915,8 @@ function actualizeazaMobii(scena) {
   zona.mobi.forEach(function (loc) {
 
     if (loc.aparut) return;
+    // Garzile orasului nu exista pentru cine e de-al casei.
+    if (loc.doarStraini && !estiStrainAici()) return;
     if (loc.mortPanaLa && scena.time.now < loc.mortPanaLa) return;
 
     const x = loc.col * TILE + TILE / 2;
@@ -4951,7 +4974,15 @@ function miscaMobii(scena, delta) {
     const panaLaTine = Phaser.Math.Distance.Between(mob.x, mob.y, jucator.x, jucator.y);
 
     // --- se infurie daca te apropii ---
-    if (!mob.furios && !mort && panaLaTine <= RAZA_AGRO) {
+    //
+    // Garda orasului te vede de mai departe decat un lup: sta la
+    // drum si se uita la cine intra. Fara asta ai fi putut trece
+    // pe langa ea la cinci pasi fara sa te bage in seama, ceea ce
+    // n-ar semana deloc a paza.
+    const cataVede = MOBI[mob.felul] && MOBI[mob.felul].razaAgro
+      ? MOBI[mob.felul].razaAgro : RAZA_AGRO;
+
+    if (!mob.furios && !mort && panaLaTine <= cataVede) {
       mob.furios = true;
     }
 
