@@ -42,28 +42,28 @@ const RETETE = [
   },
   {
     id: 'smith_helm_01', meserie: 'smithing', nume: 'Plain Helm',
-    cere: [{ nume: 'Dull Ingot', cate: 3 }], statie: 'Anvil',
+    cere: [{ nume: 'Dull Ingot', cate: 3 }, { nume: 'Handful of Flux', cate: 1 }], statie: 'Anvil',
     praguri: { portocaliu: 20, galben: 45, verde: 65, gri: 90 },
     face: { fel: 'echipament', slot: 'cap', nivel: 8, raritate: 'comun' },
     invatataLa: 20
   },
   {
     id: 'smith_blade_01', meserie: 'smithing', nume: 'Plain Blade',
-    cere: [{ nume: 'Dull Ingot', cate: 4 }], statie: 'Anvil',
+    cere: [{ nume: 'Dull Ingot', cate: 4 }, { nume: 'Handful of Flux', cate: 1 }], statie: 'Anvil',
     praguri: { portocaliu: 35, galben: 60, verde: 80, gri: 105 },
     face: { fel: 'echipament', slot: 'armaPrincipala', nivel: 12, raritate: 'comun' },
     invatataLa: 35
   },
   {
     id: 'smith_ingot_02', meserie: 'smithing', nume: 'Bright Ingot',
-    cere: [{ nume: 'Bright Ore', cate: 2 }], statie: 'Anvil',
+    cere: [{ nume: 'Bright Ore', cate: 2 }, { nume: 'Handful of Flux', cate: 1 }], statie: 'Anvil',
     praguri: { portocaliu: 75, galben: 95, verde: 115, gri: 140 },
     face: { fel: 'material', nume: 'Bright Ingot', valoare: 30, cate: 1 },
     invatataLa: 75
   },
   {
     id: 'smith_chest_01', meserie: 'smithing', nume: 'Fine Breastplate',
-    cere: [{ nume: 'Bright Ingot', cate: 5 }, { nume: 'Cured Leather', cate: 2 }],
+    cere: [{ nume: 'Bright Ingot', cate: 5 }, { nume: 'Cured Leather', cate: 2 }, { nume: 'Handful of Flux', cate: 1 }],
     statie: 'Anvil',
     praguri: { portocaliu: 110, galben: 135, verde: 155, gri: 180 },
     face: { fel: 'echipament', slot: 'piept', nivel: 24, raritate: 'bun' },
@@ -71,21 +71,21 @@ const RETETE = [
   },
   {
     id: 'smith_ingot_03', meserie: 'smithing', nume: 'Deep Ingot',
-    cere: [{ nume: 'Deep Ore', cate: 2 }], statie: 'Anvil',
+    cere: [{ nume: 'Deep Ore', cate: 2 }, { nume: 'Handful of Flux', cate: 1 }], statie: 'Anvil',
     praguri: { portocaliu: 150, galben: 170, verde: 190, gri: 215 },
     face: { fel: 'material', nume: 'Deep Ingot', valoare: 62, cate: 1 },
     invatataLa: 150
   },
   {
     id: 'smith_blade_02', meserie: 'smithing', nume: 'Keen Blade',
-    cere: [{ nume: 'Deep Ingot', cate: 6 }], statie: 'Anvil',
+    cere: [{ nume: 'Deep Ingot', cate: 6 }, { nume: 'Handful of Flux', cate: 1 }], statie: 'Anvil',
     praguri: { portocaliu: 185, galben: 210, verde: 230, gri: 255 },
     face: { fel: 'echipament', slot: 'armaPrincipala', nivel: 40, raritate: 'bun' },
     invatataLa: 185
   },
   {
     id: 'smith_blade_03', meserie: 'smithing', nume: 'Storied Blade',
-    cere: [{ nume: 'Rich Ore', cate: 4 }, { nume: 'Deep Ingot', cate: 4 }],
+    cere: [{ nume: 'Rich Ore', cate: 4 }, { nume: 'Deep Ingot', cate: 4 }, { nume: 'Handful of Flux', cate: 1 }],
     statie: 'Anvil',
     praguri: { portocaliu: 240, galben: 265, verde: 285, gri: 300 },
     face: { fel: 'echipament', slot: 'armaPrincipala', nivel: 55, raritate: 'rar' },
@@ -105,28 +105,28 @@ const RETETE = [
   },
   {
     id: 'tan_boots_01', meserie: 'tanning', nume: 'Plain Boots',
-    cere: [{ nume: 'Cured Leather', cate: 3 }], statie: null,
+    cere: [{ nume: 'Cured Leather', cate: 3 }, { nume: 'Spool of Thread', cate: 1 }], statie: null,
     praguri: { portocaliu: 20, galben: 45, verde: 65, gri: 90 },
     face: { fel: 'echipament', slot: 'talpi', nivel: 9, raritate: 'comun' },
     invatataLa: 20
   },
   {
     id: 'tan_gloves_01', meserie: 'tanning', nume: 'Plain Gloves',
-    cere: [{ nume: 'Cured Leather', cate: 3 }], statie: null,
+    cere: [{ nume: 'Cured Leather', cate: 3 }, { nume: 'Spool of Thread', cate: 1 }], statie: null,
     praguri: { portocaliu: 40, galben: 65, verde: 85, gri: 110 },
     face: { fel: 'echipament', slot: 'maini', nivel: 14, raritate: 'comun' },
     invatataLa: 40
   },
   {
     id: 'tan_chest_01', meserie: 'tanning', nume: 'Fine Jerkin',
-    cere: [{ nume: 'Cured Leather', cate: 6 }], statie: null,
+    cere: [{ nume: 'Cured Leather', cate: 6 }, { nume: 'Spool of Thread', cate: 1 }], statie: null,
     praguri: { portocaliu: 100, galben: 125, verde: 145, gri: 170 },
     face: { fel: 'echipament', slot: 'piept', nivel: 22, raritate: 'bun' },
     invatataLa: 100
   },
   {
     id: 'tan_legs_01', meserie: 'tanning', nume: 'Keen Greaves',
-    cere: [{ nume: 'Cured Leather', cate: 8 }, { nume: 'Coarse Cloth', cate: 2 }],
+    cere: [{ nume: 'Cured Leather', cate: 8 }, { nume: 'Coarse Cloth', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 180, galben: 205, verde: 225, gri: 250 },
     face: { fel: 'echipament', slot: 'picioare', nivel: 38, raritate: 'bun' },
@@ -146,28 +146,28 @@ const RETETE = [
   },
   {
     id: 'weave_back_01', meserie: 'weaving', nume: 'Plain Cloak',
-    cere: [{ nume: 'Cloth Bolt', cate: 2 }], statie: null,
+    cere: [{ nume: 'Cloth Bolt', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }, { nume: 'Pot of Dye', cate: 1 }], statie: null,
     praguri: { portocaliu: 25, galben: 50, verde: 70, gri: 95 },
     face: { fel: 'echipament', slot: 'spate', nivel: 10, raritate: 'comun' },
     invatataLa: 25
   },
   {
     id: 'weave_chest_01', meserie: 'weaving', nume: 'Fine Robe',
-    cere: [{ nume: 'Cloth Bolt', cate: 5 }], statie: null,
+    cere: [{ nume: 'Cloth Bolt', cate: 5 }, { nume: 'Spool of Thread', cate: 1 }, { nume: 'Pot of Dye', cate: 1 }], statie: null,
     praguri: { portocaliu: 90, galben: 115, verde: 135, gri: 160 },
     face: { fel: 'echipament', slot: 'piept', nivel: 20, raritate: 'bun' },
     invatataLa: 90
   },
   {
     id: 'weave_bandage_cloth', meserie: 'weaving', nume: 'Clean Wrapping',
-    cere: [{ nume: 'Coarse Cloth', cate: 2 }], statie: null,
+    cere: [{ nume: 'Coarse Cloth', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }], statie: null,
     praguri: { portocaliu: 45, galben: 70, verde: 90, gri: 115 },
     face: { fel: 'material', nume: 'Clean Wrapping', valoare: 9, cate: 2 },
     invatataLa: 45
   },
   {
     id: 'weave_legs_01', meserie: 'weaving', nume: 'Keen Leggings',
-    cere: [{ nume: 'Cloth Bolt', cate: 7 }, { nume: 'Nightbloom', cate: 2 }],
+    cere: [{ nume: 'Cloth Bolt', cate: 7 }, { nume: 'Nightbloom', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 170, galben: 195, verde: 215, gri: 240 },
     face: { fel: 'echipament', slot: 'picioare', nivel: 36, raritate: 'bun' },
@@ -189,7 +189,7 @@ const RETETE = [
   },
   {
     id: 'brew_mana_01', meserie: 'brewing', nume: 'Small Clearwater',
-    cere: [{ nume: 'Fieldleaf', cate: 3 }], statie: null,
+    cere: [{ nume: 'Fieldleaf', cate: 3 }, { nume: 'Empty Vial', cate: 1 }], statie: null,
     praguri: { portocaliu: 30, galben: 55, verde: 75, gri: 100 },
     face: { fel: 'consumabil', nume: 'Small Clearwater', valoare: 22,
             efect: 'mana', cat: 80,
@@ -198,7 +198,7 @@ const RETETE = [
   },
   {
     id: 'brew_heal_02', meserie: 'brewing', nume: 'Healing Draught',
-    cere: [{ nume: 'Nightbloom', cate: 3 }], statie: null,
+    cere: [{ nume: 'Nightbloom', cate: 3 }, { nume: 'Empty Vial', cate: 1 }], statie: null,
     praguri: { portocaliu: 90, galben: 115, verde: 135, gri: 160 },
     face: { fel: 'consumabil', nume: 'Healing Draught', valoare: 52,
             efect: 'vindecare', cat: 260,
@@ -207,7 +207,7 @@ const RETETE = [
   },
   {
     id: 'brew_str_01', meserie: 'brewing', nume: 'Draught of Might',
-    cere: [{ nume: 'Nightbloom', cate: 2 }, { nume: 'Mistleaf', cate: 1 }],
+    cere: [{ nume: 'Nightbloom', cate: 2 }, { nume: 'Mistleaf', cate: 1 }, { nume: 'Empty Vial', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 150, galben: 175, verde: 195, gri: 225 },
     face: { fel: 'consumabil', nume: 'Draught of Might', valoare: 90,
@@ -217,7 +217,7 @@ const RETETE = [
   },
   {
     id: 'brew_heal_03', meserie: 'brewing', nume: 'Deep Healing Draught',
-    cere: [{ nume: 'Emberroot', cate: 2 }, { nume: 'Mistleaf', cate: 2 }],
+    cere: [{ nume: 'Emberroot', cate: 2 }, { nume: 'Mistleaf', cate: 2 }, { nume: 'Empty Vial', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 220, galben: 245, verde: 265, gri: 295 },
     face: { fel: 'consumabil', nume: 'Deep Healing Draught', valoare: 180,
@@ -399,14 +399,14 @@ const RETETE = [
   // ---- pielarie ----
   {
     id: 'tan_leather_02', meserie: 'tanning', nume: 'Heavy Leather',
-    cere: [{ nume: 'Thick Hide', cate: 2 }], statie: null,
+    cere: [{ nume: 'Thick Hide', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }], statie: null,
     praguri: { portocaliu: 75, galben: 100, verde: 125, gri: 165 },
     face: { fel: 'material', nume: 'Heavy Leather', valoare: 24, cate: 1 },
     invatataLa: 75
   },
   {
     id: 'tan_leather_03', meserie: 'tanning', nume: 'Hardened Leather',
-    cere: [{ nume: 'Prime Hide', cate: 2 }, { nume: 'Heavy Leather', cate: 1 }],
+    cere: [{ nume: 'Prime Hide', cate: 2 }, { nume: 'Heavy Leather', cate: 1 }, { nume: 'Spool of Thread', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 150, galben: 175, verde: 200, gri: 245 },
     face: { fel: 'material', nume: 'Hardened Leather', valoare: 58, cate: 1 },
@@ -414,7 +414,7 @@ const RETETE = [
   },
   {
     id: 'tan_leather_04', meserie: 'tanning', nume: 'Storied Leather',
-    cere: [{ nume: 'Ancient Hide', cate: 3 }, { nume: 'Hardened Leather', cate: 1 }],
+    cere: [{ nume: 'Ancient Hide', cate: 3 }, { nume: 'Hardened Leather', cate: 1 }, { nume: 'Spool of Thread', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 240, galben: 260, verde: 280, gri: 300 },
     face: { fel: 'material', nume: 'Storied Leather', valoare: 120, cate: 1 },
@@ -422,7 +422,7 @@ const RETETE = [
   },
   {
     id: 'tan_chest_02', meserie: 'tanning', nume: 'Heavy Jerkin',
-    cere: [{ nume: 'Heavy Leather', cate: 5 }, { nume: 'Woven Cloth', cate: 2 }],
+    cere: [{ nume: 'Heavy Leather', cate: 5 }, { nume: 'Woven Cloth', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 130, galben: 155, verde: 180, gri: 220 },
     face: { fel: 'echipament', slot: 'piept', nivel: 30, raritate: 'bun' },
@@ -430,7 +430,7 @@ const RETETE = [
   },
   {
     id: 'tan_chest_03', meserie: 'tanning', nume: 'Storied Hauberk',
-    cere: [{ nume: 'Storied Leather', cate: 6 }, { nume: 'Sigil Cloth', cate: 2 }],
+    cere: [{ nume: 'Storied Leather', cate: 6 }, { nume: 'Sigil Cloth', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 260, galben: 275, verde: 290, gri: 300 },
     face: { fel: 'echipament', slot: 'piept', nivel: 52, raritate: 'rar' },
@@ -440,14 +440,14 @@ const RETETE = [
   // ---- tesut ----
   {
     id: 'weave_bolt_02', meserie: 'weaving', nume: 'Fine Bolt',
-    cere: [{ nume: 'Woven Cloth', cate: 3 }], statie: null,
+    cere: [{ nume: 'Woven Cloth', cate: 3 }, { nume: 'Spool of Thread', cate: 1 }], statie: null,
     praguri: { portocaliu: 75, galben: 100, verde: 125, gri: 165 },
     face: { fel: 'material', nume: 'Fine Bolt', valoare: 28, cate: 1 },
     invatataLa: 75
   },
   {
     id: 'weave_back_02', meserie: 'weaving', nume: 'Fine Cloak',
-    cere: [{ nume: 'Fine Bolt', cate: 3 }, { nume: 'Heavy Leather', cate: 1 }],
+    cere: [{ nume: 'Fine Bolt', cate: 3 }, { nume: 'Heavy Leather', cate: 1 }, { nume: 'Spool of Thread', cate: 1 }, { nume: 'Pot of Dye', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 120, galben: 145, verde: 170, gri: 205 },
     face: { fel: 'echipament', slot: 'spate', nivel: 28, raritate: 'bun' },
@@ -455,7 +455,7 @@ const RETETE = [
   },
   {
     id: 'weave_bolt_03', meserie: 'weaving', nume: 'Rune Bolt',
-    cere: [{ nume: 'Fine Cloth', cate: 3 }, { nume: 'Sigil Dust', cate: 1 }],
+    cere: [{ nume: 'Fine Cloth', cate: 3 }, { nume: 'Sigil Dust', cate: 1 }, { nume: 'Spool of Thread', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 155, galben: 180, verde: 205, gri: 250 },
     face: { fel: 'material', nume: 'Rune Bolt', valoare: 66, cate: 1 },
@@ -463,7 +463,7 @@ const RETETE = [
   },
   {
     id: 'weave_robe_02', meserie: 'weaving', nume: 'Rune Robe',
-    cere: [{ nume: 'Rune Bolt', cate: 4 }, { nume: 'Mistleaf', cate: 2 }],
+    cere: [{ nume: 'Rune Bolt', cate: 4 }, { nume: 'Mistleaf', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }, { nume: 'Pot of Dye', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 200, galben: 225, verde: 250, gri: 285 },
     face: { fel: 'echipament', slot: 'piept', nivel: 45, raritate: 'bun' },
@@ -471,7 +471,7 @@ const RETETE = [
   },
   {
     id: 'weave_robe_03', meserie: 'weaving', nume: 'Sigil Vestment',
-    cere: [{ nume: 'Sigil Cloth', cate: 5 }, { nume: 'Rune Bolt', cate: 2 }],
+    cere: [{ nume: 'Sigil Cloth', cate: 5 }, { nume: 'Rune Bolt', cate: 2 }, { nume: 'Spool of Thread', cate: 1 }, { nume: 'Pot of Dye', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 255, galben: 275, verde: 290, gri: 300 },
     face: { fel: 'echipament', slot: 'piept', nivel: 54, raritate: 'rar' },
@@ -481,14 +481,14 @@ const RETETE = [
   // ---- fierarie ----
   {
     id: 'smith_ingot_04', meserie: 'smithing', nume: 'Ember Ingot',
-    cere: [{ nume: 'Ember Ore', cate: 2 }], statie: 'Anvil',
+    cere: [{ nume: 'Ember Ore', cate: 2 }, { nume: 'Handful of Flux', cate: 1 }], statie: 'Anvil',
     praguri: { portocaliu: 240, galben: 260, verde: 280, gri: 300 },
     face: { fel: 'material', nume: 'Ember Ingot', valoare: 130, cate: 1 },
     invatataLa: 240
   },
   {
     id: 'smith_plate_02', meserie: 'smithing', nume: 'Ember Cuirass',
-    cere: [{ nume: 'Ember Ingot', cate: 6 }, { nume: 'Storied Leather', cate: 2 }],
+    cere: [{ nume: 'Ember Ingot', cate: 6 }, { nume: 'Storied Leather', cate: 2 }, { nume: 'Handful of Flux', cate: 1 }],
     statie: 'Anvil',
     praguri: { portocaliu: 265, galben: 280, verde: 292, gri: 300 },
     face: { fel: 'echipament', slot: 'piept', nivel: 56, raritate: 'rar' },
@@ -498,7 +498,7 @@ const RETETE = [
   // ---- fierturi ----
   {
     id: 'brew_heal_04', meserie: 'brewing', nume: 'Emberdraught',
-    cere: [{ nume: 'Emberbloom', cate: 2 }, { nume: 'Nightbloom', cate: 1 }],
+    cere: [{ nume: 'Emberbloom', cate: 2 }, { nume: 'Nightbloom', cate: 1 }, { nume: 'Empty Vial', cate: 1 }],
     statie: null,
     praguri: { portocaliu: 250, galben: 270, verde: 288, gri: 300 },
     face: { fel: 'consumabil', nume: 'Emberdraught', valoare: 140,

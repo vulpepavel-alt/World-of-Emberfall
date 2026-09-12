@@ -67,6 +67,7 @@ function verificaTot() {
   PIEI.forEach(function (p) { seObtin[p.nume] = 'jupuit'; });
   PANZE.forEach(function (p) { seObtin[p.nume] = 'de la umanoizi'; });
   PESTII.forEach(function (p) { seObtin[p.nume] = 'pescuit'; });
+  MATERIALE_DE_VANZARE.forEach(function (m) { seObtin[m.nume] = 'de la negustor'; });
   RETETE.forEach(function (r) {
     if (r.face.fel === 'material') seObtin[r.face.nume] = 'reteta ' + r.id;
   });
@@ -93,6 +94,16 @@ function verificaTot() {
     if (seCer[nume]) return;
     rau('materiale', '"' + nume + '" se poate obtine (' + seObtin[nume] +
         ') dar nu-l cere nicio reteta');
+  });
+
+  // Materialele de la negustor trebuie sa fie chiar pe taraba lui,
+  // altfel ai o reteta pe care n-o poti face nicaieri in lume.
+  const peTaraba = {};
+  faMarfa('retete').forEach(function (o) { peTaraba[o.nume] = true; });
+  MATERIALE_DE_VANZARE.forEach(function (m) {
+    if (!peTaraba[m.nume]) {
+      rau('negustor', '"' + m.nume + '" ar trebui cumparat, dar nu e pe taraba');
+    }
   });
 
   // ==========================================================

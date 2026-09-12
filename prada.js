@@ -308,12 +308,24 @@ function faMarfa(ceVinde) {
   // nu se iau de la antrenor. Nu le tine pe toate: restul se gasesc
   // de la inamici, si asa ramane ceva de cautat.
   if (ceVinde === 'retete') {
+
+    // Intai materialele care nu se gasesc nicaieri altundeva. Alea
+    // sunt mereu pe raft, toate, in fiecare oras: daca ar lipsi, o
+    // reteta n-ar mai putea fi facuta deloc.
+    const marfa = MATERIALE_DE_VANZARE.map(function (m) {
+      return faMaterial(m.nume, m.valoare);
+    });
+
+    // Apoi cateva foi de reteta, altele la fiecare intrare in zona.
     const amestecate = RETETE_DIN_OBIECTE.slice().sort(function () {
       return Math.random() - 0.5;
     });
-    return amestecate.slice(0, 5).map(function (id) {
-      return faFoaieDeReteta(id);
-    }).filter(Boolean);
+    amestecate.slice(0, 5).forEach(function (id) {
+      const foaie = faFoaieDeReteta(id);
+      if (foaie) marfa.push(foaie);
+    });
+
+    return marfa;
   }
 
   const sloturi = SLOTURI.filter(function (s) {
@@ -456,6 +468,11 @@ function cumpara(idObiect) {
   marfa.splice(unde, 1);
   if (obiect.unealta) {
     marfa.splice(unde, 0, faUnealta(obiect.nume, UNELTE[obiect.nume].valoare));
+  }
+  // Nici ata si sticlutele nu se termina: sunt marfa de duzina, si
+  // daca s-ar sfarsi ai ramane cu o reteta pe care n-o poti face.
+  if (esteMaterialDeVanzare(obiect.nume)) {
+    marfa.splice(unde, 0, faMaterial(obiect.nume, obiect.valoare));
   }
   pomeneInRucsac(personaj, obiect);
 

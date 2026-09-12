@@ -349,6 +349,33 @@ const PIELEA_DE_LA_FIARA = 'Raw Hide';
 
 
 // ----------------------------------------------------------
+//  MATERIALELE CARE SE CUMPARA
+//
+//  Nu tot ce intra intr-o reteta se gaseste pe camp. Ata, vopseaua
+//  si sticlutele nu cresc din pamant si nu pica de la nimeni: le
+//  tine negustorul din piata, ieftine si mereu pe raft.
+//
+//  Asa se cheama negustorul de materiale cu adevarat la ceva - pana
+//  acum tinea doar cateva foi de reteta - si asa ai un motiv sa te
+//  intorci in oras cand pleci la muncit, ca in Classic.
+// ----------------------------------------------------------
+const MATERIALE_DE_VANZARE = [
+  { nume: 'Spool of Thread', valoare: 6,
+    descriere: 'Sold by the hand, never found in the grass.' },
+  { nume: 'Pot of Dye',      valoare: 9,
+    descriere: 'Boiled in town. Nobody carries it into the field.' },
+  { nume: 'Empty Vial',      valoare: 5,
+    descriere: 'Glass, blown in town. It holds what you brew.' },
+  { nume: 'Handful of Flux', valoare: 7,
+    descriere: 'Keeps the metal clean while it melts.' }
+];
+
+function esteMaterialDeVanzare(nume) {
+  return MATERIALE_DE_VANZARE.some(function (m) { return m.nume === nume; });
+}
+
+
+// ----------------------------------------------------------
 //  CE STIE PERSONAJUL
 //
 //  personaj.meserii = {
