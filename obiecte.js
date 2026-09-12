@@ -363,7 +363,11 @@ function faObiect(idSlot, nivel, idRaritate) {
     nivelCerut: nivel,    // de la ce nivel il poti pune pe tine
     raritate: raritate.id,
     culoare: raritate.culoare,
-    material: treapta.nume,     // pentru desen si pentru fisa
+    // ATENTIE la nume: campul 'material' inseamna deja ALTCEVA in
+    // joc - "asta e material de meserie, nu-l arunca". Daca puneam
+    // treapta tot acolo, fiecare platosa ar fi scris "Trade goods"
+    // sub ea. De asta se cheama 'treapta'.
+    treapta: treapta.nume,      // pentru desen si pentru fisa
     felArmura: felArmura,       // 'panza' | 'piele' | 'zale' | 'placi' | null
     statistici: statistici,
     armura: armura,
