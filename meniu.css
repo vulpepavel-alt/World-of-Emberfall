@@ -1162,3 +1162,6 @@
 
 /* Butonul de sunet cand e oprit: se vede ca e stins, dar se citeste. */
 .buton.stins-buton { opacity: 0.55; }
+
+/* Numele setului pe fisa unui obiect de set */
+.fisa-rand.fisa-set { color: #d9b555; font-weight: 600; margin-top: 3px; }

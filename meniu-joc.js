@@ -178,6 +178,23 @@ function htmlFisa(obiect) {
 
   html += '<div class="fisa-rand' + (preaMic ? ' rau' : '') + '">Requires Level ' +
           nivelulCerut(obiect) + '</div>';
+
+  // Piesa de set: scriem tot setul, cate ai din el si ce-ti da.
+  // Bonusurile pornite se vad verzi, cele care te asteapta, stinse.
+  if (obiect.set) {
+    const set = gasesteSetul(obiect.set);
+    if (set) {
+      const am = (pieseleDeSetPurtate(personaj)[set.id] || 0);
+      const cateTot = SLOTURI_DE_SET.length;
+      html += '<div class="fisa-rand fisa-set">' + set.nume +
+              ' (' + am + '/' + cateTot + ')</div>';
+      set.bonusuri.forEach(function (b) {
+        html += '<div class="fisa-rand ' + (am >= b.cate ? 'bun' : 'stins') + '">' +
+                '(' + b.cate + ') ' + scrieBonusul(b.da) + '</div>';
+      });
+    }
+  }
+
   html += '<div class="fisa-rand stins">Sell price: ' + baniHtml(pretDeVandut(obiect)) + '</div>';
   return html;
 }

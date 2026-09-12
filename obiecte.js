@@ -466,7 +466,12 @@ function raritateDupaNivel(nivelMob) {
 const SLOTURI_PURTATE = ['cap', 'umeri', 'piept', 'incheieturi', 'maini',
                          'brau', 'picioare', 'talpi'];
 
-function obiectDeLaMob(nivelMob, profil, numeZona) {
+// Din cate lucruri care pica, cate sunt piese de set. Una din opt:
+// destul de rara cat sa insemne ceva, destul de deasa cat sa aduni
+// un set intreg intr-o zona, nu in trei.
+const SANSA_PIESA_DE_SET = 0.12;
+
+function obiectDeLaMob(nivelMob, profil, numeZona, felMob) {
 
   const p = profil || {};
   const catDes = (typeof p.catDes === 'number') ? p.catDes : 1;
@@ -481,6 +486,19 @@ function obiectDeLaMob(nivelMob, profil, numeZona) {
   if (arme.length > 0 && Math.random() < 0.22) {
     optiuni.felArma = arme[Math.floor(Math.random() * arme.length)];
     return faObiect('armaPrincipala', nivel, raritate, optiuni);
+  }
+
+  // Din cand in cand, in loc de un lucru obisnuit, cade o piesa de
+  // set - dar numai de la inamicii care au setul ala, si numai in
+  // jurul nivelului lui.
+  if (typeof seturileDeLa === 'function' && felMob) {
+    const ale = seturileDeLa(felMob, nivelMob);
+    if (ale.length > 0 && Math.random() < SANSA_PIESA_DE_SET) {
+      const set = ale[Math.floor(Math.random() * ale.length)];
+      const slot = SLOTURI_DE_SET[Math.floor(Math.random() * SLOTURI_DE_SET.length)];
+      const piesa = faPiesaDeSet(set, slot);
+      if (piesa) return piesa;
+    }
   }
 
   // Poarta haine? Atunci cade o piesa de-a lui, din ce poarta el.
@@ -611,13 +629,13 @@ function faConsumabil(ce) {
 // TOT ce lasa un inamic cand moare: bani si obiecte, la un loc.
 // Asta ajunge in trupul lui, de unde iei tu ce vrei - nu mai intra
 // singur in inventar, ca in WoW.
-function pradaDeLaMob(nivelMob, esteUmanoid, profil, numeZona) {
+function pradaDeLaMob(nivelMob, esteUmanoid, profil, numeZona, felMob) {
 
   // Un singur obiect purtabil pe inamic, si acela rar. Inainte mai
   // exista o sansa sa cada si al doilea; acum, cu sansele coborate
   // la cat sunt in WoW, doua obiecte de la acelasi mob n-ar avea sens.
   const obiecte = [];
-  const unul = obiectDeLaMob(nivelMob, profil, numeZona);
+  const unul = obiectDeLaMob(nivelMob, profil, numeZona, felMob);
   if (unul) obiecte.push(unul);
 
   const foaie = foaieDeLaMob(nivelMob);
@@ -667,7 +685,7 @@ function panzaDeLaUmanoid() {
 function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
 
   const profil = (MOBI[felulMobului] || {}).prada || null;
-  const prada = pradaDeLaMob(nivelMob, esteUmanoid, profil, numeZona);
+  const prada = pradaDeLaMob(nivelMob, esteUmanoid, profil, numeZona, felulMobului);
   const vechitura = vechituraDeLaMob(nivelMob, felulMobului);
   if (vechitura) prada.obiecte.push(vechitura);
 
@@ -685,6 +703,16 @@ function pradaCompleta(nivelMob, esteUmanoid, felulMobului, rang, numeZona) {
     let raritate;
     if (rang === 'elit') raritate = (zar < 25) ? 'maiestru' : 'rar';
     else                 raritate = (zar < 22) ? 'rar' : 'bun';
+
+    // Un rar sau un elit da piesa de set de trei ori mai des.
+    const aleSet = (typeof seturileDeLa === 'function')
+      ? seturileDeLa(felulMobului, nivelMob) : [];
+    if (aleSet.length > 0 && Math.random() < SANSA_PIESA_DE_SET * 3) {
+      const set = aleSet[Math.floor(Math.random() * aleSet.length)];
+      const sl = SLOTURI_DE_SET[Math.floor(Math.random() * SLOTURI_DE_SET.length)];
+      const piesa = faPiesaDeSet(set, sl);
+      if (piesa) prada.obiecte.push(piesa);
+    }
 
     const optiuni = { zona: numeZona };
     let slot;
@@ -813,6 +841,15 @@ function bonusEchipament(personajul) {
     });
     total.armura += obiect.armura;
   });
+
+  // Peste ce dau piesele in sine vine ce dau seturile: daca ai doua,
+  // patru sau sase piese din aceeasi familie, primesti ceva in plus.
+  if (typeof bonusDeSet === 'function') {
+    const dinSet = bonusDeSet(personajul);
+    Object.keys(dinSet).forEach(function (k) {
+      total[k] = (total[k] || 0) + dinSet[k];
+    });
+  }
 
   return total;
 }
