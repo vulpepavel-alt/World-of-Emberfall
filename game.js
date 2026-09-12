@@ -46,8 +46,8 @@ const LOVITURI_MAI_DESE = 3;
 //  Ce textura are fiecare litera se scrie in fisierul zonei,
 //  langa culoare: textura: 'iarba'.
 // ================================================
-const PIXEL = 4;                 // latura unui pixel mare
-const PIXELI_PE_CASUTA = TILE / PIXEL;   // 8
+const PIXEL = 2;                 // latura unui pixel mare
+const PIXELI_PE_CASUTA = TILE / PIXEL;   // 16
 
 // Zgomot statornic: acelasi loc da mereu acelasi numar intre 0 si 1.
 // Asa textura nu "fierbe" cand misti camera.
@@ -61,6 +61,25 @@ function zgomot(x, y) {
   return ((n ^ (n >>> 16)) >>> 0) / 4294967295;
 }
 
+// Zgomot NETED. Cel de sus da o valoare sarita de la un punct la
+// altul, deci din el ies numai patrate. Asta ia patru puncte vecine
+// si face trecerea lina intre ele - si din el ies dealuri, vine si
+// crapaturi, adica forme care curg.
+function zgomotNeted(x, y) {
+  const x0 = Math.floor(x), y0 = Math.floor(y);
+  const fx = x - x0, fy = y - y0;
+  // curba care intra si iese lin, ca sa nu se vada colturile retelei
+  const ux = fx * fx * (3 - 2 * fx);
+  const uy = fy * fy * (3 - 2 * fy);
+
+  const a = zgomot(x0, y0), b = zgomot(x0 + 1, y0);
+  const c = zgomot(x0, y0 + 1), d = zgomot(x0 + 1, y0 + 1);
+
+  return (a * (1 - ux) + b * ux) * (1 - uy) +
+         (c * (1 - ux) + d * ux) * uy;
+}
+
+
 // Face o culoare mai deschisa (cat pozitiv) sau mai inchisa (negativ).
 function schimbaLumina(culoare, cat) {
   const r = Math.max(0, Math.min(255, ((culoare >> 16) & 255) + cat));
@@ -73,22 +92,33 @@ function catreCss(culoare) {
   return '#' + culoare.toString(16).padStart(6, '0');
 }
 
-// Cele OPT nuante din care se face textura unei litere.
-// Cu sase iesea plat; cu opt incap si umbre adanci, si sclipiri.
-//   0-2 = umbre, 3 = culoarea de baza, 4-5 = lumini,
-//   6-7 = culoarea a doua (variatie), pentru pete si accente
+// Cele DOUASPREZECE nuante din care se face textura unei litere.
+//
+// Erau opt. Cu pixeli de 4 ajungeau, fiindca oricum nu incapeau
+// multe nuante intr-o casuta. Acum casuta are 16 pe 16 pixeli, adica
+// de patru ori mai multe bucatele, si opt trepte se vedeau ca dungi:
+// treceau prea brusc de la o nuanta la alta.
+//
+//   0-3  = umbre, de la cea mai adanca
+//   4    = culoarea de baza
+//   5-8  = lumini, tot mai puternice
+//   9-11 = culoarea a doua (variatie), pentru pete si sclipiri
 function paletaTexturii(felul) {
   const baza = felul.culoare;
   const alta = (felul.variatie !== undefined) ? felul.variatie : baza;
   return [
-    catreCss(schimbaLumina(baza, -46)),
-    catreCss(schimbaLumina(baza, -28)),
-    catreCss(schimbaLumina(baza, -13)),
+    catreCss(schimbaLumina(baza, -52)),
+    catreCss(schimbaLumina(baza, -38)),
+    catreCss(schimbaLumina(baza, -25)),
+    catreCss(schimbaLumina(baza, -12)),
     catreCss(baza),
-    catreCss(schimbaLumina(baza, 13)),
+    catreCss(schimbaLumina(baza, 9)),
+    catreCss(schimbaLumina(baza, 18)),
     catreCss(schimbaLumina(baza, 28)),
-    catreCss(schimbaLumina(alta, 4)),
-    catreCss(schimbaLumina(alta, 30))
+    catreCss(schimbaLumina(baza, 40)),
+    catreCss(schimbaLumina(alta, -8)),
+    catreCss(schimbaLumina(alta, 8)),
+    catreCss(schimbaLumina(alta, 32))
   ];
 }
 
@@ -107,152 +137,224 @@ function nuantaPixelului(textura, sx, sy, gx, gy, z) {
   switch (textura) {
 
     case 'iarba': {
-      // Smocuri inchise, fire mai deschise peste ele, si din loc in
-      // loc cate un varf luminat de soare.
-      const smoc = zgomot(gx >> 1, gy >> 1);
-      const petec = zgomot(gx >> 2, (gy >> 2) + 300);
+      // Fiecare fir de iarba se vede acum ca fir, nu ca punct: la 16
+      // pixeli pe casuta incape un fir de doi-trei pixeli inaltime,
+      // cu varful luminat si cu umbra la radacina.
+      const smoc  = zgomot(gx >> 2, gy >> 2);                 // pete mari
+      const fir   = zgomot(gx, (gy >> 1) + 300);              // firul in sine
+      const uscat = zgomot(gx >> 1, (gy >> 1) + 909);
 
-      if (smoc < 0.16) return z < 0.5 ? 0 : 1;          // smoc des, umbrit
-      if (petec > 0.86 && z > 0.72) return 7;           // varf luminat
-      if (z > 0.93) return 5;                           // fir strabatut de soare
-      if (petec > 0.70) return z < 0.5 ? 4 : 5;         // petec mai insorit
-      return z < 0.22 ? 1 : z < 0.50 ? 2 : z < 0.82 ? 3 : 4;
+      // varful firului: pixelul de deasupra unui fir e mai deschis
+      const varf = zgomot(gx, (gy >> 1) + 301);
+
+      if (smoc < 0.13) return z < 0.5 ? 0 : 1;                // smoc des, la umbra
+      // Firul uscat e RAR si tot verzui-galbui, nu galben aprins:
+      // prima data l-am pus la 0,965 si cu culoarea a doua, si iesea
+      // confetti peste tot in loc de iarba.
+      if (uscat > 0.993) return 9;
+      if (fir > 0.90) return (sy % 2 === 0) ? 7 : 6;          // fir inalt
+      if (varf > 0.96) return 8;                              // varf in soare
+      if (smoc > 0.82) return z < 0.5 ? 5 : 6;                // petec insorit
+      return z < 0.18 ? 2 : z < 0.42 ? 3 : z < 0.72 ? 4 : 5;
     }
 
     case 'flori': {
-      // Iarba deschisa, presarata cu floricele de doua culori.
+      // Floarea are acum DOI pixeli: miez aprins si petala in jur.
       const floare = zgomot(gx >> 1, (gy >> 1) + 51);
-      if (floare > 0.955) return 7;                     // petala aprinsa
-      if (floare > 0.925) return 6;                     // petala a doua
-      if (floare < 0.06) return 1;                      // umbra de sub ele
-      return z < 0.18 ? 2 : z < 0.55 ? 3 : z < 0.85 ? 4 : 5;
+      const miez   = zgomot(gx, gy + 52);
+
+      if (floare > 0.945) return miez > 0.5 ? 11 : 10;        // floare
+      if (floare > 0.915) return 9;                           // petala a doua
+      if (floare < 0.05) return 1;                            // umbra de sub ea
+      const fir = zgomot(gx, (gy >> 1) + 300);
+      if (fir > 0.90) return 7;
+      return z < 0.16 ? 3 : z < 0.50 ? 4 : z < 0.82 ? 5 : 6;
     }
 
     case 'pamant': {
-      // Drum batatorit: urme late de roata, pietricele, praf.
-      const urma = zgomot(gx >> 3, (gy >> 1) + 17);
-      const piatra = zgomot(gx, gy + 91);
+      // Drum batatorit. Pietricelele au acum umbra dedesubt, deci se
+      // vad ca pietre, nu ca punctisoare mai deschise.
+      const urma   = zgomot(gx >> 3, (gy >> 1) + 17);
+      const piatra = zgomot(gx >> 1, (gy >> 1) + 91);
+      const subEa  = zgomot(gx >> 1, ((gy - 2) >> 1) + 91);
 
-      if (piatra > 0.975) return 5;                     // pietricica luminata
-      if (piatra < 0.02) return 0;                      // gaura mica
-      if (urma < 0.24) return z < 0.5 ? 1 : 2;          // urma de roata, mai adanca
-      return z < 0.20 ? 2 : z < 0.62 ? 3 : z < 0.88 ? 4 : 5;
+      if (piatra > 0.955) return 8;                           // pietricica luminata
+      if (subEa > 0.955) return 1;                            // umbra ei
+      if (piatra < 0.015) return 0;                           // gaura mica
+      if (urma < 0.22) return z < 0.5 ? 1 : 2;                // urma de roata
+      if (z > 0.96) return 7;                                 // praf ridicat
+      return z < 0.18 ? 2 : z < 0.45 ? 3 : z < 0.75 ? 4 : 5;
     }
 
     case 'crapat': {
-      // Pamant uscat: placi despartite de crapaturi, pe doua marimi.
-      const mare = zgomot(Math.floor(gx / 5) + 311, Math.floor(gy / 5) + 977);
-      const mica = zgomot(Math.floor(gx / 2) + 44, Math.floor(gy / 2) + 12);
+      // Pamant uscat, pe trei marimi de crapaturi in loc de doua.
+      // Crapaturile sunt LINII, nu pete. Se deseneaza acolo unde un
+      // camp neted trece printr-o valoare anume - asa ies suvite
+      // care curg si se ramifica. Cu zgomot sarit ieseau patrate.
+      const camp  = zgomotNeted(gx / 11 + 31, gy / 11 + 97);
+      const camp2 = zgomotNeted(gx / 5 + 4, gy / 5 + 12);
 
-      if (mare < 0.10) return 0;                        // crapatura adanca
-      if (mica < 0.07) return 1;                        // crapatura subtire
-      if (mare > 0.88) return z < 0.5 ? 4 : 5;          // placa ridicata, insorita
-      return z < 0.22 ? 2 : z < 0.70 ? 3 : 4;
+      const linieMare = Math.abs(camp - 0.5) < 0.022;
+      const linieMica = Math.abs(camp2 - 0.5) < 0.016;
+
+      if (linieMare) return 0;                                // crapatura adanca
+      if (Math.abs(camp - 0.5) < 0.045) return 1;             // marginea ei
+      if (linieMica) return 2;                                // crapatura subtire
+      if (camp > 0.78) return z < 0.5 ? 6 : 7;                // placa ridicata, in soare
+      return z < 0.20 ? 3 : z < 0.62 ? 4 : 5;
     }
 
     case 'nisip': {
-      // Valuri de vant, unele peste altele, si boabe stralucitoare.
-      const val = Math.sin(gx * 0.22 + Math.sin(gy * 0.09) * 3.4);
-      const bob = zgomot(gx, gy + 7);
+      // Valul are acum trei parti: creasta luminata, panta si umbra
+      // din spatele crestei. Asa nisipul are relief, nu doar dungi.
+      const val    = Math.sin(gx * 0.16 + Math.sin(gy * 0.07) * 3.4);
+      const valSus = Math.sin(gx * 0.16 + Math.sin((gy - 2) * 0.07) * 3.4);
+      const bob    = zgomot(gx, gy + 7);
 
-      if (bob > 0.985) return 7;                        // bob care sclipeste
-      if (val > 0.75) return 5;                         // creasta valului
-      if (val < -0.75) return 1;                        // adancitura dintre valuri
-      return z < 0.25 ? 2 : z < 0.60 ? 3 : 4;
+      if (bob > 0.99) return 11;                              // bob care sclipeste
+      if (val > 0.82) return 8;                               // creasta
+      if (val > 0.55 && valSus > 0.82) return 2;              // umbra din spatele ei
+      if (val < -0.80) return 1;                              // adancitura
+      return z < 0.22 ? 3 : z < 0.55 ? 4 : z < 0.85 ? 5 : 6;
     }
 
     case 'apa': {
-      // Adancime pe pete mari, valuri peste ea, spuma pe creste.
-      const adanc = zgomot(gx >> 2, (gy >> 2) + 61);
-      const val = (sy + Math.floor(gx / 3)) % 5;
+      // Adancime pe pete mari, valuri mai dese acum, si sclipiri de
+      // soare care nu mai cad chiar pe fiecare creasta.
+      // Valul e o unda lina, nu o dunga dreapta, si sclipirile sunt
+      // rare. Prima data erau pe fiecare creasta si apa arata ca o
+      // fata de masa cu puncte galbene.
+      const adanc  = zgomotNeted(gx / 10 + 61, gy / 10 + 13);
+      const unda   = Math.sin(gy * 0.55 + Math.sin(gx * 0.13) * 2.2);
+      const sclipe = zgomot(gx, gy + 404);
 
-      if (val === 0 && z > 0.55) return 7;              // spuma
-      if (val === 1) return 5;                          // creasta valului
-      if (adanc < 0.28) return z < 0.5 ? 0 : 1;         // apa adanca
-      return z < 0.35 ? 2 : z < 0.75 ? 3 : 4;
+      if (unda > 0.93 && sclipe > 0.972) return 11;           // sclipire de soare
+      if (unda > 0.90) return 8;                              // spuma pe creasta
+      if (unda > 0.60) return 7;
+      if (unda < -0.88) return 2;                             // adancitura dintre valuri
+      if (adanc < 0.30) return z < 0.5 ? 1 : 2;               // apa adanca
+      return z < 0.32 ? 3 : z < 0.72 ? 4 : 5;
     }
 
     case 'piatra': {
-      // Blocuri cioplite, cu rost intre ele. Fiecare bloc are nuanta
-      // lui, muchia de sus luminata si cate o ciobitura.
-      if (sx % 4 === 0 || sy % 4 === 0) return 0;       // rostul
+      // Blocuri cioplite. Acum blocul e de opt pixeli, nu de patru,
+      // deci incap si muchia luminata, si umbra, si ciobituri, si
+      // pestritura din piatra insasi.
+      const M = 8;
+      const inX = sx % M, inY = sy % M;
+      if (inX === 0 || inY === 0) return 1;                   // rostul
+      if (inX === 1 || inY === 1) return 2;                   // umbra din rost
 
-      const bloc = zgomot(Math.floor(gx / 4) + 7, Math.floor(gy / 4) + 53);
-      const baza = bloc < 0.30 ? 2 : bloc < 0.68 ? 3 : 4;
+      const bloc = zgomot(Math.floor(gx / M) + 7, Math.floor(gy / M) + 53);
+      const baza = bloc < 0.25 ? 3 : bloc < 0.55 ? 4 : bloc < 0.85 ? 5 : 6;
 
-      if (sy % 4 === 1) return Math.min(5, baza + 1);   // muchia de sus, luminata
-      if (sx % 4 === 3) return Math.max(0, baza - 1);   // muchia din dreapta, umbrita
-      if (z > 0.96) return 1;                           // ciobitura
+      if (inY === 2) return Math.min(8, baza + 2);            // muchia de sus
+      if (inX === M - 1) return Math.max(0, baza - 2);        // muchia din dreapta
+      if (inY === M - 1) return Math.max(0, baza - 1);        // muchia de jos
+      if (z > 0.97) return Math.max(0, baza - 3);             // ciobitura
+      if (z > 0.88) return Math.min(8, baza + 1);             // bob de cuart
       return baza;
     }
 
     case 'frunzis': {
-      // Coroana de copac: manunchiuri de frunze, gauri intre ele,
-      // si lumina care cade pe partea de sus-stanga a fiecarui manunchi.
-      const petec = zgomot(gx >> 1, (gy >> 1) + 17);
-      const gaura = zgomot(gx >> 2, (gy >> 2) + 401);
+      // Coroana: manunchiuri de frunze cu lumina pe umarul de
+      // sus-stanga, gauri intre ramuri, si cate o frunza intoarsa.
+      // Manunchiurile se fac tot din zgomot neted, ca sa fie rotunde.
+      // Cu zgomot sarit ieseau patrate de patru pe patru pixeli si
+      // coroana arata a tabla de sah, nu a frunze.
+      const manunchi = zgomotNeted(gx / 3.5 + 17, gy / 3.5 + 41);
+      const susStanga = zgomotNeted((gx - 1) / 3.5 + 17, (gy - 1) / 3.5 + 41);
+      const gaura = zgomotNeted(gx / 9 + 401, gy / 9 + 77);
 
-      if (gaura < 0.16) return 0;                       // gaura dintre ramuri
-      if (petec < 0.26) return 1;
-      if (petec > 0.80 && z > 0.55) return 5;           // frunza luminata
-      if (petec > 0.62) return 4;
-      return z < 0.30 ? 2 : z < 0.78 ? 3 : 4;
+      if (gaura < 0.24) return 0;                             // gaura dintre ramuri
+      if (manunchi < 0.30) return 1;                          // dedesubtul frunzelor
+      // umarul de sus-stanga al fiecarui manunchi prinde lumina
+      if (manunchi > 0.55 && susStanga < manunchi - 0.06) return 7;
+      if (manunchi > 0.72) return 6;
+      if (z > 0.97) return 8;                                 // frunza lucioasa
+      return z < 0.30 ? 3 : z < 0.70 ? 4 : 5;
     }
 
     case 'lemn': {
-      // Scanduri verticale: rost intre ele, fibra pe lung, noduri.
-      if (sx % 3 === 0) return 0;                       // rostul dintre scanduri
+      // Scanduri: rost intre ele, fibra pe lung cu trei adancimi, si
+      // noduri care au acum si un inel in jur.
+      const LAT = 6;
+      const inX = sx % LAT;
+      if (inX === 0) return 0;                                // rostul
+      if (inX === 1) return 1;                                // umbra din rost
 
-      const scandura = zgomot(Math.floor(gx / 3) + 5, 0);
-      const nod = zgomot(Math.floor(gx / 3) + 5, gy >> 2);
-      const fibra = zgomot(Math.floor(gx / 3) + 5, gy);
+      const scandura = zgomot(Math.floor(gx / LAT) + 5, 0);
+      const nod      = zgomot(Math.floor(gx / LAT) + 5, gy >> 3);
+      const inel     = zgomot(Math.floor(gx / LAT) + 5, (gy >> 3) + 1);
+      const fibra    = zgomot(Math.floor(gx / LAT) + 5, gy);
 
-      if (nod > 0.985) return 0;                        // nod in lemn
-      if (fibra < 0.14) return 1;                       // fibra inchisa
-      const baza = scandura < 0.40 ? 2 : scandura < 0.75 ? 3 : 4;
-      return (sx % 3 === 1) ? Math.min(5, baza + 1) : baza;
+      if (nod > 0.99) return 0;                               // nodul
+      if (inel > 0.985) return 2;                             // inelul din jurul lui
+      if (fibra < 0.10) return 2;                             // fibra inchisa
+      if (fibra > 0.94) return 7;                             // fibra deschisa
+      const baza = scandura < 0.35 ? 3 : scandura < 0.70 ? 4 : 5;
+      if (inX === LAT - 1) return Math.max(0, baza - 1);      // marginea umbrita
+      return (inX === 2) ? Math.min(8, baza + 1) : baza;
     }
 
     case 'zid': {
-      // Randuri de caramizi, decalate din doua in doua, cu mortar.
-      const rand = Math.floor(gy / 3);
-      const decalaj = (rand % 2) ? 2 : 0;
-      const colCaramida = Math.floor((gx + decalaj) / 5);
+      // Caramizi: rand decalat, mortar, muchie luminata sus si umbra
+      // jos, plus pestritura in fiecare caramida.
+      const INALT = 6, LAT = 10;
+      const rand = Math.floor(gy / INALT);
+      const decalaj = (rand % 2) ? Math.floor(LAT / 2) : 0;
+      const inY = gy % INALT;
+      const inX = (gx + decalaj) % LAT;
 
-      if (gy % 3 === 0) return 1;                       // mortarul orizontal
-      if ((gx + decalaj) % 5 === 0) return 1;           // mortarul vertical
+      if (inY === 0 || inY === 1) return 1;                   // mortar orizontal
+      if (inX === 0 || inX === 1) return 1;                   // mortar vertical
 
-      const caramida = zgomot(colCaramida + 3, rand + 71);
-      const baza = caramida < 0.32 ? 2 : caramida < 0.70 ? 3 : 4;
-      if (gy % 3 === 1) return Math.min(5, baza + 1);   // muchia de sus
-      return z > 0.90 ? Math.max(0, baza - 1) : baza;
+      const caramida = zgomot(Math.floor((gx + decalaj) / LAT) + 3, rand + 71);
+      const baza = caramida < 0.28 ? 3 : caramida < 0.62 ? 4 : 5;
+
+      if (inY === 2) return Math.min(8, baza + 2);            // muchia de sus
+      if (inY === INALT - 1) return Math.max(0, baza - 2);    // umbra de jos
+      if (z > 0.95) return Math.max(0, baza - 2);             // ciobitura
+      if (z > 0.85) return Math.min(8, baza + 1);
+      return baza;
     }
 
     case 'tigla': {
-      // Olane suprapuse: fiecare rand isi umbreste randul de dedesubt.
-      const rand = Math.floor(gy / 3);
-      const decalaj = (rand % 2) ? 2 : 0;
-      const olan = zgomot(Math.floor((gx + decalaj) / 4) + 9, rand + 31);
+      // Olane suprapuse, cu rotunjimea aratata prin trei trepte de
+      // lumina in loc de una.
+      const INALT = 6, LAT = 8;
+      const rand = Math.floor(gy / INALT);
+      const decalaj = (rand % 2) ? Math.floor(LAT / 2) : 0;
+      const inY = gy % INALT;
+      const inX = (gx + decalaj) % LAT;
+      const olan = zgomot(Math.floor((gx + decalaj) / LAT) + 9, rand + 31);
 
-      if (gy % 3 === 0) return Math.min(5, 4 + (olan > 0.6 ? 1 : 0));  // muchia luminata
-      if (gy % 3 === 2) return 1;                                       // umbra de sub olan
-      if ((gx + decalaj) % 4 === 0) return 2;                           // santul dintre olane
-      return olan < 0.45 ? 3 : 4;
+      if (inY === 0) return Math.min(8, 7 + (olan > 0.6 ? 1 : 0));  // muchia luminata
+      if (inY === 1) return 6;
+      if (inY === INALT - 1) return 0;                        // umbra de sub olan
+      if (inY === INALT - 2) return 1;
+      if (inX === 0) return 2;                                // santul dintre olane
+      if (inX === 1) return 3;
+      return olan < 0.40 ? 4 : olan < 0.75 ? 5 : 6;
     }
 
     case 'foc': {
-      // Flacara: miez alb-galben, valuri de foc in jur, funingine la margini.
+      // Flacara: miez alb, limbi de foc, si fum care se ridica.
       const limba = zgomot(gx >> 1, (gy >> 1) + 5);
-      if (limba > 0.80 && z > 0.4) return 7;            // miezul
-      if (limba > 0.55) return 5;
-      if (limba < 0.18) return 1;                       // fum
-      return z < 0.4 ? 3 : 4;
+      const miez  = zgomot(gx >> 2, (gy >> 2) + 6);
+
+      if (miez > 0.86 && z > 0.35) return 11;                 // miezul alb
+      if (limba > 0.82) return 10;
+      if (limba > 0.62) return 8;
+      if (limba > 0.45) return 6;
+      if (limba < 0.14) return 1;                             // fum
+      return z < 0.4 ? 4 : 5;
     }
 
     default:
       // 'neted' - o singura culoare, cu o urma de zgomot ca sa nu fie
       // o suprafata moarta.
-      return z < 0.15 ? 2 : z < 0.85 ? 3 : 4;
+      return z < 0.12 ? 3 : z < 0.88 ? 4 : 5;
   }
 }
 
