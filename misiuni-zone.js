@@ -756,7 +756,7 @@ function faMisiunileTuturorZonelor() {
   ZONE.forEach(function (reteta) {
     // Intr-un oras nu se omoara nimic, deci n-are ce misiune sa
     // primeasca de aici. Antrenorii lui vin la pasul urmator.
-    if (reteta.esteOras || reteta.esteTemnita) return;
+    if (reteta.esteOras || reteta.esteTemnita || reteta.esteRaid) return;
     faMisiunileZonei(reteta).forEach(function (m) { MISIUNI.push(m); });
   });
 }

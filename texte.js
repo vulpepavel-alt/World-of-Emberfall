@@ -40,6 +40,7 @@ const TEXT = {
   MAP: 'Map',
   RARE: '\u25C6 RARE \u25C6',
   ELITE: '\u25C6 ELITE \u25C6',
+  BOSS:  '\u2726 THE LAST NAME ON THE PAGE \u2726',
   ROADS: 'Where you can go',
   YOU_ARE_HERE_NOTE: 'Walk to the edge of the zone to cross into the next one.',
 

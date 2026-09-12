@@ -4749,7 +4749,8 @@ function creeazaMob(scena, loc) {
   // Rama din jurul barei de viata: argintie la rari, aurie la eliti.
   if (rang.id !== 'normal') {
     mob.add(scena.add.text(0, -52 * rang.marime,
-      rang.id === 'rar' ? TEXT.RARE : TEXT.ELITE, {
+      rang.id === 'rar' ? TEXT.RARE
+        : rang.id === 'sef' ? TEXT.BOSS : TEXT.ELITE, {
       fontFamily: UI.FONT,
       fontSize: '9px',
       fontStyle: 'bold',

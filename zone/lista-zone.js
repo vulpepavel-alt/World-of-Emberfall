@@ -31,7 +31,7 @@ function leagaZonele() {
   // Orasele si temnitele NU stau pe grila: nu au vecini pe laturi,
   // se intra in ele pe o poarta din zona-mama. Sar peste ele aici,
   // altfel ar cauta o casuta pe harta lumii pe care n-o au.
-  function faraCasuta(z) { return z.esteOras || z.esteTemnita; }
+  function faraCasuta(z) { return z.esteOras || z.esteTemnita || z.esteRaid; }
 
   ZONE.forEach(function (a) {
     if (faraCasuta(a)) return;
@@ -79,7 +79,7 @@ const CONTINENTE = [
 // lumii le arata ca semn in zona-mama, nu ca o casuta a lor.
 function zoneleContinentului(idContinent) {
   return ZONE.filter(function (z) {
-    return z.continent === idContinent && !z.esteOras && !z.esteTemnita;
+    return z.continent === idContinent && !z.esteOras && !z.esteTemnita && !z.esteRaid;
   });
 }
 

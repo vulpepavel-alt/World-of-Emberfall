@@ -331,7 +331,7 @@ function construiesteTemnita(reteta) {
 
   const zona = {
     id: reteta.id, nume: reteta.nume, continent: reteta.continent,
-    factiune: null, esteTemnita: true,
+    factiune: null, esteTemnita: true, esteRaid: !!reteta.esteRaid,
     nivelDeLa: reteta.nivelDeLa, nivelPanaLa: reteta.nivelPanaLa,
     vecini: {}, peHarta: null,
     teren: reteta.teren, harta: null,
@@ -393,7 +393,7 @@ function construiesteZona(reteta) {
   // Un oras principal are harta lui, facuta din strazi si case.
   // Mai departe merge prin exact acelasi cod ca orice zona.
   if (reteta.esteOras) return construiesteOras(reteta);
-  if (reteta.esteTemnita) return construiesteTemnita(reteta);
+  if (reteta.esteTemnita || reteta.esteRaid) return construiesteTemnita(reteta);
 
   const COL = reteta.COL, RND = reteta.RND, S = reteta.samanta;
   const L = reteta.litere;          // ce litera inseamna ce, in zona asta
@@ -835,7 +835,7 @@ function sapaSprePuncte(zona, reteta, ajuns, start) {
 // ==========================================================
 function asazaNodurile(zona, reteta, ajuns) {
 
-  if (reteta.esteOras || reteta.esteTemnita) return [];   // nu sapi aici
+  if (reteta.esteOras || reteta.esteTemnita || reteta.esteRaid) return [];
   if (typeof NODURI === 'undefined') return [];   // fara meserii, fara noduri
 
   const feluri = nodurilePotriviteZonei(reteta.nivelDeLa);
@@ -928,7 +928,7 @@ function asazaMobii(zona, reteta, ajuns, start) {
   // Intr-un oras nu intra fiarele. Nici sobolani, nici talhari -
   // doar garzile, si alea numai pentru cine nu e de-al casei.
   if (reteta.esteOras) return asazaGarzile(zona, reteta, ajuns);
-  if (reteta.esteTemnita) return asazaTrashul(zona, reteta, ajuns);
+  if (reteta.esteTemnita || reteta.esteRaid) return asazaTrashul(zona, reteta, ajuns);
 
   const zar = faZaruri(reteta.samanta + 4242);
   const mobi = [];
@@ -1066,7 +1066,7 @@ function asazaRariiSiElitul(zona, reteta, ajuns, start, mobi) {
   if (reteta.esteOras) return [];
   // Intr-o temnita, sefii sunt scrisi de mana in reteta: nu punem
   // si rari la intamplare peste ei.
-  if (reteta.esteTemnita) return asazaSefiiTemnitei(zona, reteta);
+  if (reteta.esteTemnita || reteta.esteRaid) return asazaSefiiTemnitei(zona, reteta);
 
   const zar = faZaruri(reteta.samanta + 777);
   const cei = [];
@@ -1175,7 +1175,7 @@ function faZona(reteta) {
   // cand s-a construit harta. Nu le mai facem o data si mai ales nu
   // le stergem: fara randul asta, harta temnitei ramanea fara nume
   // de camere si intrarea nu se mai gasea dupa id.
-  if (reteta.esteTemnita) {
+  if (reteta.esteTemnita || reteta.esteRaid) {
     (zona.locuri || []).forEach(function (loc) { asezate[loc.id] = loc; });
   }
 
@@ -1183,7 +1183,7 @@ function faZona(reteta) {
     asezate[loc.id] = faLocul(zona, loc);
   });
 
-  if (!reteta.esteTemnita) zona.locuri = (reteta.locuri || []).map(function (loc) {
+  if (!reteta.esteTemnita && !reteta.esteRaid) zona.locuri = (reteta.locuri || []).map(function (loc) {
     return { id: loc.id, fel: loc.fel,
              // Numele adevarat al locului, scris in reteta zonei. E
              // SINGURUL loc unde e scris: si harta, si misiunile il
@@ -1200,7 +1200,7 @@ function faZona(reteta) {
   // camera, si acolo e si iesirea. Ar fi un rand in plus de scris
   // la fiecare temnita, si unul in plus de gresit.
   const undeStart = reteta.start
-    || (reteta.esteTemnita && zona.camere && zona.camere.length
+    || ((reteta.esteTemnita || reteta.esteRaid) && zona.camere && zona.camere.length
         ? { la: zona.camere[0].id } : { la: null });
 
   const acasa = asezate[undeStart.la] || { col: Math.round(zona.COL / 2), rand: Math.round(zona.RND / 2) };
@@ -1268,7 +1268,7 @@ function faZona(reteta) {
 
   // Iesirea dintr-o temnita: inapoi in zona din care ai intrat.
   // Nu trebuie scrisa de mana, se stie din 'intrareDin'.
-  if (reteta.esteTemnita && reteta.intrareDin && zona.poarta) {
+  if ((reteta.esteTemnita || reteta.esteRaid) && reteta.intrareDin && zona.poarta) {
     zona.treceri.push({
       latura: 'poarta', catre: reteta.intrareDin.zona,
       col: zona.poarta.col, rand: zona.poarta.rand,
