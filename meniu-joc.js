@@ -759,6 +759,24 @@ document.querySelectorAll('[data-fila]').forEach(function (buton) {
 
 inchideMeniu.addEventListener('click', inchideMeniul);
 
+// Butonul de sunet: scrie singur daca e pornit sau oprit, si tine
+// minte alegerea in telefon, nu in personaj - e o setare a ta.
+const butonSunet = document.getElementById('buton-sunet');
+
+function scrieButonulDeSunet() {
+  if (!butonSunet) return;
+  butonSunet.textContent = TEXT.SOUND + ': ' +
+    (sunetulPornit ? TEXT.SOUND_ON : TEXT.SOUND_OFF);
+  butonSunet.classList.toggle('stins-buton', !sunetulPornit);
+}
+scrieButonulDeSunet();
+
+if (butonSunet) butonSunet.addEventListener('click', function () {
+  porneisteOpresteSunetul();
+  scrieButonulDeSunet();
+});
+
+
 document.getElementById('log-out').addEventListener('click', function () {
   inchideMeniul();
   iesiDinLume();

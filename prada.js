@@ -57,6 +57,7 @@ function inchideFereastraDeschisa() {
 //  PRADA
 // ==========================================================
 function deschidePrada(sac) {
+  suna('fereastra');
 
   // Doar o fereastra odata: pe telefon, doua una peste alta
   // nu se mai inteleg.
@@ -246,6 +247,7 @@ function iaObiectulDeMisiune(indice) {
 
 function iaBaniiDinSac() {
   if (!saculDeschis || saculDeschis.prada.bani <= 0) return;
+  suna('bani');
   iaBani(personaj, saculDeschis.prada.bani);
   saculDeschis.prada.bani = 0;
   dupaCeAiLuat();
@@ -253,6 +255,7 @@ function iaBaniiDinSac() {
 
 
 function iaObiectulDinSac(idObiect) {
+  suna('prada');
   if (!saculDeschis) return;
   const lista = saculDeschis.prada.obiecte;
   const unde = lista.findIndex(function (o) { return o.id === idObiect; });
@@ -330,6 +333,7 @@ function faMarfa(ceVinde) {
 
 
 function deschideTaraba(npcul) {
+  suna('fereastra');
 
   // Doar o fereastra odata: pe telefon, doua una peste alta
   // nu se mai inteleg.
@@ -453,6 +457,7 @@ function cumpara(idObiect) {
   }
   pomeneInRucsac(personaj, obiect);
 
+  suna('bani');
   mesajFereastra = TEXT.BOUGHT + ': ' + obiect.nume;
   scrieTaraba();
 }
@@ -513,6 +518,7 @@ window.addEventListener('keydown', function (e) {
 //  ganduri degeaba: crezi ca e stricat.
 // ==========================================================
 function deschideAntrenorul(npcul) {
+  suna('fereastra');
 
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
 
@@ -620,6 +626,7 @@ function scrieAntrenorul() {
       const r = invataAbilitatea(personaj, b.dataset.invat, Number(b.dataset.rang));
       if (!r) return;
 
+      suna('invatat');
       mesajFereastra = TEXT.LEARNED + ': ' + r.abilitate.nume +
                        '  (' + TEXT.RANK + ' ' + r.abilitate.rang + ')';
       // Butoanele din joc se refac: poate abilitatea noua a intrat
@@ -777,6 +784,7 @@ function scrieAntrenorulDeMeserie(id) {
     b.addEventListener('click', function () {
       const r = invataReteta(personaj, b.dataset.invatReteta);
       if (!r) return;
+      suna('invatat');
       mesajFereastra = TEXT.LEARNED + ': ' + r.nume;
       salveaza();
       scrieAntrenorul();
@@ -932,6 +940,7 @@ function scrieMeseria() {
 
 // Face reteta de cate ori se poate, pana la "cate" ori.
 function faci(idReteta, cate) {
+  suna('facut');
 
   const r = gasesteReteta(idReteta);
   if (!r) return;
@@ -1036,6 +1045,7 @@ function scrieTeleportarea() {
 
 
 function deschideMisiunile(npcul) {
+  suna('fereastra');
 
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
 
@@ -1161,6 +1171,7 @@ function scrieMisiunile() {
 
   const deLuat = document.getElementById('ia-misiune');
   if (deLuat) deLuat.addEventListener('click', function () {
+    suna('misiuneLuata');
     iaMisiunea(personaj, m.id);
     if (typeof actualizeazaSemnele === 'function') actualizeazaSemnele();
     inchideFereastraDeschisa();
@@ -1171,6 +1182,7 @@ function scrieMisiunile() {
 
     const primit = predaMisiunea(personaj, m.id, rasplataAleasa);
     if (!primit) return;
+    if (!primit.rucsacPlin) suna('misiuneGata');
 
     if (primit.rucsacPlin) {
       mesajFereastra = TEXT.BAG_FULL;

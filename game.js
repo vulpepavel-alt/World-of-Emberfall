@@ -483,6 +483,7 @@ function ascundeIncarcarea() {
 // ==========================================================
 function treciInZona(idZona, dinspre) {
 
+  suna('poarta');
   const reteta = retetaZonei(idZona);
   if (!reteta) { treceInCurs = false; return; }
 
@@ -982,6 +983,7 @@ function actualizeazaCulesul(scena) {
 
 function terminaCulesul(scena, loc) {
 
+  suna('cules');
   const fel = NODURI[loc.fel];
   const cate = Phaser.Math.Between(fel.cat[0], fel.cat[1]);
 
@@ -1108,6 +1110,7 @@ function tragiUndita(scena) {
   }
 
   const skill = skillulTau(personaj, 'angling');
+  suna('peste');
   const p = pestelePrins(skill);
 
   pomeneInRucsac(personaj, faMaterial(p.nume, p.valoare));
@@ -3291,6 +3294,8 @@ function primesteXp(scena, cat) {
 // se umplu la loc, iar de la nivelul 10 primesti si un punct de talent.
 function urcaInNivel(scena) {
 
+  suna('nivelNou');
+
   const nivelNou = personaj.nivel + 1;
   const proaspat = calculeazaPersonaj(personaj.idRasa, personaj.idClasa,
                                       personaj.infatisare, nivelNou);
@@ -3768,6 +3773,14 @@ function folosesteAbilitate(scena, ab) {
   intraInLupta(scena);
   numeleAbilitatii(scena, ab.nume);
 
+  // Ce se aude cand apesi butonul, dupa felul abilitatii.
+  suna(ab.incantare > 0 ? 'incantare'
+     : ab.fel === 'vindecare' || ab.fel === 'alinare' ? 'vindecare'
+     : ab.fel === 'scut' || ab.fel === 'intarire' ? 'scut'
+     : ab.fel === 'sageata' ? 'sageata'
+     : ab.fel === 'lovitura' || ab.fel === 'val' ? 'lovitura'
+     : 'vraja');
+
   // Are incantare? Atunci porneste bara si asteptam.
   if (ab.incantare > 0) {
     abilitateInCurs = ab;
@@ -3815,6 +3828,15 @@ function faceMancarea(scena, ab) {
 
 // Ce face de fapt abilitatea, cand pleaca.
 function porneisteEfectul(scena, ab, tintaAb) {
+
+  // Vrajile cu bara suna abia acum, cand chiar pleaca. La apasare
+  // s-a auzit doar zumzetul pregatirii.
+  if (ab.incantare > 0) {
+    suna(ab.fel === 'vindecare' || ab.fel === 'alinare' ? 'vindecare'
+       : ab.fel === 'teleport' ? 'poarta'
+       : 'vraja');
+  }
+
 
   if (ab.fel === 'lovitura') {
     animatiaSabiei(scena);
@@ -4817,6 +4839,7 @@ function loveste(scena, mob, damageBrut, critic) {
   mob.viata -= damage;
   actualizeazaBaraMob(mob);
   aratacifra(scena, mob.x, mob.y - 46, damage, critic);
+  suna(critic ? 'critic' : 'lovitura');
 
   // L-ai lovit: se infurie pe tine, chiar daca nu te vazuse.
   mob.furios = true;
@@ -4831,6 +4854,7 @@ function loveste(scena, mob, damageBrut, critic) {
 
   if (mob.viata <= 0) {
     mob.viu = false;
+    suna('mobMoare');
 
     // Experienta pentru inamicul ucis.
     primesteXp(scena, Math.round(xpDeLaMob(mob.stats.nivel, personaj.nivel) * mob.rang.xp));
@@ -5037,6 +5061,7 @@ function mobTeLoveste(scena, mob) {
   // QUICKNESS (Duskborn): uneori te dai la o parte si nu incasezi nimic.
   if (evitiLovitura()) {
     aratacuvant(scena, jucator.x, jucator.y - 44, 'Dodge', '#a8e8ff');
+    suna('ratat');
     return;
   }
 
@@ -5066,6 +5091,7 @@ function mobTeLoveste(scena, mob) {
   if (damage > 0) {
     personaj.viata = personaj.viata - damage;
     aratacifraRosie(scena, jucator.x, jucator.y - 44, damage);
+    suna('incasezi');
 
     // Turned Aside / Ancestor's Wrath: o parte din lovitura se
     // intoarce la cel care a dat-o.
@@ -5123,6 +5149,8 @@ function aratacifraRosie(scena, x, y, damage) {
 //  MOARTEA SI INTOARCEREA IN TABARA
 // ================================================
 function mori(scena) {
+
+  suna('moarte');
 
   mort = true;
   tinta = null;

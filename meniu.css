@@ -1159,3 +1159,6 @@
 .greu-galben     { color: #e0c15a; }
 .greu-verde      { color: #6fd06f; }
 .greu-gri        { color: #8d7a58; }
+
+/* Butonul de sunet cand e oprit: se vede ca e stins, dar se citeste. */
+.buton.stins-buton { opacity: 0.55; }
