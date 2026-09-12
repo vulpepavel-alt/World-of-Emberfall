@@ -1755,21 +1755,19 @@ function actualizeazaAnimalul(scena, delta) {
 }
 
 
-// Inamicul loveste animalul, cand animalul e mai aproape de el decat tu.
-function animalulTeAcopera(mob) {
-  if (!animalul || !personaj.animal || personaj.animal.viata <= 0) return false;
-  const laAnimal = Phaser.Math.Distance.Between(mob.x, mob.y, animalul.x, animalul.y);
-  const laTine = Phaser.Math.Distance.Between(mob.x, mob.y, jucator.x, jucator.y);
-  return laAnimal < laTine && laAnimal <= RAZA_ATAC_MOB;
-}
-
-
 function mobLovesteAnimalul(scena, mob) {
 
   const a = personaj.animal;
   if (!a) return;
 
-  const brut = Phaser.Math.Between(mob.stats.damageMin, mob.stats.damageMax);
+  // ATENTIE, aici era o greseala veche. Scria damageMin si damageMax,
+  // dar campurile se cheama dmgMin si dmgMax (vezi statsPentruNivel din
+  // mobi.js). Iesea Between(undefined, undefined) = NaN, deci viata
+  // animalului se facea NaN si bara lui nu mai insemna nimic. Se
+  // nimerea rar, fiindca animalul era lovit doar cand statea el mai
+  // aproape de inamic decat tine; cu socoteala amenintarii ar fi iesit
+  // des.
+  const brut = Phaser.Math.Between(mob.stats.dmgMin, mob.stats.dmgMax);
   const damage = Math.max(1, Math.round(brut * 0.8));
   a.viata = Math.max(0, a.viata - damage);
   actualizeazaBaraAnimalului();
@@ -4384,6 +4382,12 @@ function porneisteEfectul(scena, ab, tintaAb) {
     actualizeazaBaraViata();
     aratacifraVerde(scena, jucator.x, jucator.y - 44, cat);
 
+    // Si vindecarea ta se vede. Regula e aceeasi ca in Classic: un
+    // preot care se tine in viata isi trage inamicii inapoi pe el.
+    if (typeof amenintareDinVindecare === 'function') {
+      amenintareDinVindecare(jucator, cat);
+    }
+
   // ---- felurile noi ----
 
   } else if (ab.fel === 'arsura') {
@@ -5416,7 +5420,11 @@ function actualizeazaBaraMob(mob) {
 
 
 // Inamicul incaseaza damage.
-function loveste(scena, mob, damageBrut, critic) {
+// 'cine' e cel care a dat lovitura: tu, un tovaras sau animalul. Pana
+// acum nu se stia, fiindca tovarasii chemau ACEEASI functie ca tine -
+// deci inamicul n-avea de unde sa afle pe cine sa se supere. Cand
+// lipseste, se intelege ca ai lovit tu.
+function loveste(scena, mob, damageBrut, critic, cine) {
 
   // Armura lui ii taie o parte din damage.
   // Armura lui, mai mica daca i-ai spart-o cu o abilitate.
@@ -5434,6 +5442,13 @@ function loveste(scena, mob, damageBrut, critic) {
   }
 
   mob.viata -= damage;
+
+  // Socoteala inamicului: cine i-a facut cat rau. Dupa ea alege pe
+  // cine loveste (vezi amenintare.js).
+  if (typeof adaugaAmenintare === 'function') {
+    adaugaAmenintare(mob, cine || jucator, damage);
+  }
+
   actualizeazaBaraMob(mob);
   aratacifra(scena, mob.x, mob.y - 46, damage, critic);
   suna(critic ? 'critic' : 'lovitura');
@@ -5566,6 +5581,9 @@ function miscaMobii(scena, delta) {
     // --- l-ai tras prea departe, sau ai murit: renunta ---
     if (mob.furios && (departeDeCasa > RAZA_LESA || mort)) {
       mob.furios = false;
+      // S-a linistit: uita cine l-a suparat. Altfel, data viitoare cand
+      // dai in el ar sari direct la cine l-a batut acum zece minute.
+      if (typeof uitaAmenintarile === 'function') uitaAmenintarile(mob);
     }
 
     // Cand nu mai lupta, isi reface viata INCET, nu dintr-o data:
@@ -5577,25 +5595,31 @@ function miscaMobii(scena, delta) {
     }
 
     if (mob.furios) {
-      // --- vine dupa tine ---
-      if (panaLaTine <= RAZA_ATAC_MOB) {
-        // E langa tine: sta pe loc si loveste cand ii vine randul.
+
+      // --- dupa CINE se duce ---
+      //
+      // Pana acum venea mereu dupa tine si lovea pe cine se nimerea sa
+      // fie mai aproape. Acum are o socoteala: cine i-a facut cat rau.
+      // Se duce dupa cel de sus din ea - de obicei scutierul, care face
+      // de doua ori si jumatate mai multa amenintare din acelasi damage.
+      const cui = (typeof tintaMobului === 'function') ? tintaMobului(mob) : jucator;
+      if (!cui) { mob.dx = 0; mob.dy = 0; return; }
+
+      const panaLaEl = Phaser.Math.Distance.Between(mob.x, mob.y, cui.x, cui.y);
+
+      if (panaLaEl <= RAZA_ATAC_MOB) {
+        // E langa el: sta pe loc si loveste cand ii vine randul.
         mob.dx = 0;
         mob.dy = 0;
         if (scena.time.now >= mob.urmatoareaLovitura) {
           mob.urmatoareaLovitura = scena.time.now + mob.stats.viteza * 1000;
-          mobTeLoveste(scena, mob);
-        }
-      } else if (animalulTeAcopera(mob)) {
-        // Animalul e intre tine si el: il loveste pe el.
-        mob.dx = 0; mob.dy = 0;
-        if (scena.time.now >= mob.urmatoareaLovitura) {
-          mob.urmatoareaLovitura = scena.time.now + mob.stats.viteza * 1000;
-          mobLovesteAnimalul(scena, mob);
+          if (cui === jucator) mobTeLoveste(scena, mob);
+          else if (typeof animalul !== 'undefined' && cui === animalul) mobLovesteAnimalul(scena, mob);
+          else mobLovesteTovarasul(scena, mob, cui);
         }
       } else {
-        const vx = jucator.x - mob.x;
-        const vy = jucator.y - mob.y;
+        const vx = cui.x - mob.x;
+        const vy = cui.y - mob.y;
         const lung = Math.sqrt(vx * vx + vy * vy) || 1;
         mob.dx = vx / lung;
         mob.dy = vy / lung;
@@ -5666,12 +5690,10 @@ function mobTeLoveste(scena, mob) {
 
   intraInLupta(scena);
 
-  // Daca un tovaras s-a bagat intre tine si inamic, el incaseaza.
-  // Scutierul e ales primul: pentru asta il platesti.
-  if (typeof tovarasulCareTeAcopera === 'function') {
-    const scut = tovarasulCareTeAcopera(mob);
-    if (scut) { mobLovesteTovarasul(scena, mob, scut); return; }
-  }
+  // Aici se ajunge DOAR daca socoteala inamicului te-a ales pe tine
+  // (vezi amenintare.js). Vechea regula - "loveste pe cine e mai
+  // aproape de el decat tine" - a fost scoasa: alegea dupa pozitie, nu
+  // dupa cine i-a facut rau, si de aia scutierul platit nu tinea nimic.
 
   // QUICKNESS (Duskborn): uneori te dai la o parte si nu incasezi nimic.
   if (evitiLovitura()) {

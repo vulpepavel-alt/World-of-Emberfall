@@ -63,6 +63,7 @@ const TEXT = {
   HIRE_MEDIC:     'Field Medic',    HIRE_MEDIC_T:  'Closes wounds while you fight',
   HIRE_BOW:       'Longbowman',     HIRE_BOW_T:    'Shoots from behind you',
   HIRE_DOWN:      'Down!',
+  TAUNT:          'Face me!',
   HIRE_TITLE:     'Hirelings',
   HIRE_HIRE:      'Hire',
   HIRE_DISMISS:   'Dismiss',

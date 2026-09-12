@@ -209,6 +209,11 @@ const RAZA_ATAC_TOVARAS = 34;    // de aproape
 const RAZA_TRAS_TOVARAS = 220;   // de departe, pentru arcas
 const VITEZA_TOVARAS = 155;
 
+// Provocarea scutierului: cat de departe ajunge si cat de des o face.
+// Sase secunde e cam cat tine in Classic pauza dintre doua provocari.
+const RAZA_PROVOCARE = 260;
+const PAUZA_PROVOCARE = 6000;
+
 
 function stergeTovarasii() {
   tovarasii.forEach(function (t) { if (t.destroy) t.destroy(); });
@@ -255,6 +260,7 @@ function cheamaTovarasii(scena) {
     p.viataMaxima = st.viataMaxima;
     p.urmatoareaLovitura = 0;
     p.urmatoareaVindecare = 0;
+    p.urmatoareaProvocare = 0;
     p.locBun = { dc: Math.cos(unghi) * 46, dr: Math.sin(unghi) * 34 };
 
     tovarasii.push(p);
@@ -313,16 +319,26 @@ function actualizeazaTovarasii(scena, delta) {
       const bolnav = cineAreNevoieDeVindecare();
       if (bolnav) {
         t.urmatoareaVindecare = scena.time.now + f.pauzaVindecare;
+        let catAVindecat = 0;
         if (bolnav === 'tu') {
           const cat = Math.round(personaj.viataMaxima * f.vindeca);
           personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + cat);
           actualizeazaBaraViata();
           aratacifraVerde(scena, jucator.x, jucator.y - 44, cat);
+          catAVindecat = cat;
         } else {
           const cat = Math.round(bolnav.viataMaxima * f.vindeca);
           bolnav.viata = Math.min(bolnav.viataMaxima, bolnav.viata + cat);
           actualizeazaBaraTovarasului(bolnav);
           aratacifraVerde(scena, bolnav.x, bolnav.y - 40, cat);
+          catAVindecat = cat;
+        }
+
+        // Vindecatul se vede. Toti inamicii din lupta se supara putin
+        // pe el - de-aia in Classic vindecatorul isi ia inamicii in cap
+        // daca tancul nu tine bine.
+        if (typeof amenintareDinVindecare === 'function') {
+          amenintareDinVindecare(t, catAVindecat);
         }
         suna('vindecare');
       }
@@ -358,11 +374,44 @@ function actualizeazaTovarasii(scena, delta) {
       }
     }
 
+    // ---- PROVOCAREA ----
+    //
+    // Cea mai importanta bucata din "a fi tanc". Amenintarea singura
+    // nu ajunge: la inceputul unei batai tu ai lovit primul, deci
+    // inamicul e pe tine, si scutierul ar avea nevoie de cateva
+    // secunde bune ca sa te intreaca. Provocarea il ia pe loc.
+    //
+    // Ca in Classic, nu aduna amenintare: il aseaza pe scutier peste
+    // cel mai mare, cu zece la suta. De-aia merge chiar daca n-a
+    // apucat sa dea nicio lovitura.
+    if (t.rol === 'tanc' && scena.time.now >= t.urmatoareaProvocare) {
+      // Ii ia pe toti cei care se bat acum si NU sunt deja pe el.
+      const deLuat = mobi.filter(function (m) {
+        return m.viu && m.furios && m.tintaAleasa !== t &&
+          Phaser.Math.Distance.Between(t.x, t.y, m.x, m.y) < RAZA_PROVOCARE;
+      });
+      if (deLuat.length) {
+        t.urmatoareaProvocare = scena.time.now + PAUZA_PROVOCARE;
+        deLuat.forEach(function (m) { provoaca(scena, m, t); });
+        aratacuvant(scena, t.x, t.y - 50, TEXT.TAUNT, '#e0b45a');
+        suna('lovitura');
+      }
+    }
+
     // ---- loveste ----
     const razaLui = (t.rol === 'lovitor') ? RAZA_TRAS_TOVARAS : RAZA_ATAC_TOVARAS;
     if (tinta && cat <= razaLui && scena.time.now >= t.urmatoareaLovitura) {
       t.urmatoareaLovitura = scena.time.now + t.stats.viteza * 1000;
-      loveste(scena, tinta, Phaser.Math.Between(t.stats.dmgMin, t.stats.dmgMax), false);
+      // Al patrulea numar spune CINE a lovit. Fara el, inamicul nu avea
+      // de unde sti pe cine sa se supere - tovarasii cheama aceeasi
+      // functie ca tine.
+      const cat = Phaser.Math.Between(t.stats.dmgMin, t.stats.dmgMax);
+      loveste(scena, tinta, cat, false, t);
+
+      // Scutierul nu tine doar inamicul pe care il loveste: toti cei din
+      // jurul lui simt o parte din lovitura. Fara asta nu putea tine un
+      // grup, si inamicii pe care nu-i atinsese se duceau la vindecator.
+      if (typeof amenintareInJur === 'function') amenintareInJur(t, tinta, cat);
     }
   });
 }
