@@ -1794,10 +1794,22 @@ function faSemneleTrecerilor(scena) {
     const x = (tr.col + tr.spreInauntruC * 3) * TILE + TILE / 2;
     const y = (tr.rand + tr.spreInauntruR * 3) * TILE + TILE / 2;
 
-    unStalp(scena, x, y, vecina.nume,
-      'Level ' + vecina.nivelDeLa + '–' + vecina.nivelPanaLa, UI.textAuriu);
+    // O temnita nu e o zona vecina, si pana acum stalpul ei arata la
+    // fel ca oricare altul: acelasi lemn, acelasi auriu. Intr-o zona
+    // de 700 pe 462 de casute nu aveai de unde sti ca gaura aia din
+    // stanca duce undeva anume - sau ca duce in general. Acum scrie
+    // pe el, si e de alta culoare.
+    const eTemnita = vecina.esteTemnita || vecina.esteRaid;
+    const subtitlu = eTemnita
+      ? (vecina.esteRaid ? TEXT.RAID_SIGN : TEXT.DUNGEON_SIGN) +
+        ' · Level ' + vecina.nivelDeLa + '–' + vecina.nivelPanaLa
+      : 'Level ' + vecina.nivelDeLa + '–' + vecina.nivelPanaLa;
 
-    semneTreceri.push({ x: tr.col * TILE, y: tr.rand * TILE, fel: 'drum' });
+    unStalp(scena, x, y, vecina.nume, subtitlu,
+            eTemnita ? '#d09ae0' : UI.textAuriu);
+
+    semneTreceri.push({ x: tr.col * TILE, y: tr.rand * TILE,
+                        fel: eTemnita ? 'temnita' : 'drum' });
   });
 
   if (zona.portul) {
@@ -4000,7 +4012,21 @@ function folosesteAbilitate(scena, ab) {
                      ab.fel === 'cheama' || ab.fel === 'invie' ||
                      ab.fel === 'faceMancare' || ab.fel === 'teleport' ||
                      (ab.fel === 'saritura' && !ab.laTinta));
-  if (!faraTinta && !tintaAb) return;   // n-ai pe cine
+  // N-ai pe cine. Pana acum randul asta era doar "return": apasai
+  // butonul si nu se intampla nimic, fara niciun cuvant. Cel mai rau
+  // se vedea la Talon Strike - o lovitura de aproape, care prinde
+  // pana la 58 de pixeli, in timp ce vanatorul trage de la 260. Deci
+  // in lupta obisnuita nu pornea NICIODATA si parea stricata.
+  //
+  // Acum jocul spune de ce: daca exista un inamic prin preajma dar e
+  // prea departe pentru abilitatea asta, scrie "apropie-te"; daca nu
+  // e nimeni, scrie ca n-ai pe cine.
+  if (!faraTinta && !tintaAb) {
+    const cinevaPrinPreajma = celMaiApropiatMob(jucator.x, jucator.y, 600);
+    aratacuvant(scena, jucator.x, jucator.y - 60,
+      cinevaPrinPreajma ? TEXT.TARGET_TOO_FAR : TEXT.NO_TARGET, '#e0b45a');
+    return;
+  }
 
   // Se plateste, cu reducerea de la talente.
   if (ab.costMana > 0) personaj.mana = personaj.mana - costulAbilitatii(ab, 'mana');

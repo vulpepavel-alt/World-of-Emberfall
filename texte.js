@@ -246,6 +246,19 @@ const TEXT = {
   RECIPE_TOO_LOW:   'Needs skill {n} in {p}',
   RECIPES_TAUGHT:   'Recipes he can teach',
 
+  // De ce n-a pornit abilitatea. Pana acum nu scria nimic: apasai
+  // butonul si nu se intampla NIMIC, nici macar un cuvant - iar
+  // Talon Strike, care e o lovitura de aproape, parea stricat pentru
+  // orice vanator care statea la distanta de arc.
+  NO_TARGET:        'No one in reach',
+  TARGET_TOO_FAR:   'Too far - get closer',
+
+  // Ce scrie pe stalpul de la gura unei temnite, si pe harta.
+  DUNGEON_SIGN:     'Dungeon',
+  RAID_SIGN:        'Raid',
+  DUNGEONS_HERE:    'Dungeons in this zone',
+  DUNGEON_VIA:      'entered at {l}',
+
   // Magul: apa, paine si drumul scurt
   NOT_IN_COMBAT:    'Not while fighting',
   TELEPORT_TITLE:   'Where to?',

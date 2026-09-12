@@ -438,6 +438,25 @@ function deseneazaCasutaZonei(g, z, x, y) {
     semnulLocului(g, loc.fel, x + loc.c * CASUTA_LAT, y + loc.r * CASUTA_INALT, 0.85);
   });
 
+  // ---- unde sunt temnitele ----
+  //
+  // Pe harta lumii nu se vedea nicaieri ca o zona are temnita. Cine
+  // nu stia dinainte trebuia sa dea peste gura ei din intamplare,
+  // undeva pe o harta de sapte sute de casute. Acum zona care are una
+  // poarta un inel violet fix pe locul prin care se intra.
+  (typeof ZONE !== 'undefined' ? ZONE : []).forEach(function (t) {
+    if (!t.intrareDin || t.intrareDin.zona !== z.id) return;
+    const loc = (z.locuri || []).find(function (l) { return l.id === t.intrareDin.loc; });
+    if (!loc) return;
+
+    const mx = x + loc.c * CASUTA_LAT, my = y + loc.r * CASUTA_INALT;
+    g.fillStyle = 'rgba(150, 70, 190, .55)';
+    g.beginPath(); g.arc(mx, my, 11, 0, Math.PI * 2); g.fill();
+    g.strokeStyle = t.esteRaid ? '#ffce5a' : '#e2a8f5';
+    g.lineWidth = 2.5;
+    g.beginPath(); g.arc(mx, my, 11, 0, Math.PI * 2); g.stroke();
+  });
+
   g.restore();
 
   // ---- hotarul, subtire si sters ----
@@ -792,13 +811,34 @@ function faHartaZonei(id) {
   });
 
   // ---- portile catre zonele vecine ----
+  //
+  // Gura unei temnite se desena la fel ca o granita spre zona
+  // vecina: acelasi punct alb, aceeasi sageata. Nu aveai de unde sti
+  // ca acolo e o temnita - trebuia sa nimeresti peste ea. Acum e
+  // violeta, mai mare, cu un inel in jur, si scrie ce e si de ce
+  // nivel.
   (z.treceri || []).forEach(function (tr) {
     const v = retetaZonei(tr.catre);
-    g.fillStyle = '#e8dcc0';
+    const eTemnita = v && (v.esteTemnita || v.esteRaid);
+
+    g.fillStyle = eTemnita ? '#c07ad8' : '#e8dcc0';
     g.beginPath();
-    g.arc(tr.col, tr.rand, 7, 0, Math.PI * 2);
+    g.arc(tr.col, tr.rand, eTemnita ? 9 : 7, 0, Math.PI * 2);
     g.fill();
-    eticheta(g, (v ? v.nume : tr.catre) + ' →', tr.col, tr.rand - 18, COL, RND,
+
+    if (eTemnita) {
+      g.strokeStyle = '#f0d4ff';
+      g.lineWidth = 2.5;
+      g.beginPath();
+      g.arc(tr.col, tr.rand, 14, 0, Math.PI * 2);
+      g.stroke();
+    }
+
+    const scris = (v ? v.nume : tr.catre) +
+      (eTemnita ? '  ' + (v.esteRaid ? TEXT.RAID_SIGN : TEXT.DUNGEON_SIGN) +
+                  ' ' + v.nivelDeLa + '–' + v.nivelPanaLa
+                : ' →');
+    eticheta(g, scris, tr.col, tr.rand - (eTemnita ? 24 : 18), COL, RND,
              (z.esteOras || z.esteTemnita || z.esteRaid) ? 10 : 17);
   });
 
@@ -973,6 +1013,29 @@ function scrieDetaliile() {
     });
     html += '<li>' + (z.npci || []).length + ' <span class="stins">' +
             TEXT.PLACE_PEOPLE + '</span></li></ul>';
+  }
+
+  // ---- temnitele din zona asta ----
+  //
+  // Pana acum nu scria nicaieri ca zona are o temnita. In lista de
+  // locuri aparea doar "Moor Hollow - Cave", ca orice alta pestera
+  // din lume, si in lista de drumuri nu aparea deloc. Cine nu stia
+  // dinainte n-avea cum sa ajunga acolo decat din intamplare.
+  const temnitele = (typeof ZONE !== 'undefined' ? ZONE : []).filter(function (t) {
+    return t.intrareDin && t.intrareDin.zona === z.id;
+  });
+
+  if (temnitele.length) {
+    html += '<div class="cap-detaliu">' + TEXT.DUNGEONS_HERE + '</div><ul class="drumuri">';
+    temnitele.forEach(function (t) {
+      const prin = (z.locuri || []).find(function (l) { return l.id === t.intrareDin.loc; });
+      html += '<li><b>' + t.nume + '</b> <span class="stins">(' +
+              t.nivelDeLa + '&ndash;' + t.nivelPanaLa + ') &middot; ' +
+              (t.esteRaid ? TEXT.RAID_SIGN : TEXT.DUNGEON_SIGN) +
+              (prin ? ' &middot; ' + TEXT.DUNGEON_VIA.replace('{l}', prin.nume) : '') +
+              '</span></li>';
+    });
+    html += '</ul>';
   }
 
   // ---- cum ajungi acolo ----
