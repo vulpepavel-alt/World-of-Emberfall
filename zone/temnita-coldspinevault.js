@@ -61,6 +61,14 @@ inregistreazaZona({
 
   trash: 90,
 
+  // Cum se cheama inamicii marunti AICI. Un bandit din temnita nu e
+  // acelasi lucru cu unul de pe camp, si trebuie sa se vada.
+  numeTrash: {
+    garda:       'Vault Keeper',
+    bandit:      'Frost-Handed Thief',
+    raider:      'Coldspine Reaver'
+  },
+
   feluriPeNivel: function () {
     return ['garda','bandit','raider'];
   }

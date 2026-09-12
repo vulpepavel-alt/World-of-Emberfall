@@ -1194,8 +1194,16 @@ function asazaTrashul(zona, reteta, ajuns) {
     if (preaAproape) continue;
 
     const feluri = reteta.feluriPeNivel(reteta.nivelPanaLa);
-    mobi.push({ fel: feluri[Math.floor(zar() * feluri.length)],
-                col: c, rand: r,
+    const fel = feluri[Math.floor(zar() * feluri.length)];
+
+    // Numele din temnita. Pana acum un bandit din Moor Hollow se
+    // chema "Bandit", exact ca oricare de pe camp, si nimic nu spunea
+    // ca esti in alt loc. Fiecare temnita isi boteaza acum inamicii
+    // marunti, ca in Classic, unde pana si sobolanii din temnita au
+    // alt nume decat cei de afara.
+    const nume = (reteta.numeTrash && reteta.numeTrash[fel]) || null;
+
+    mobi.push({ fel: fel, col: c, rand: r, nume: nume,
                 nivel: reteta.nivelDeLa +
                        Math.floor(zar() * (reteta.nivelPanaLa - reteta.nivelDeLa + 1)) });
   }

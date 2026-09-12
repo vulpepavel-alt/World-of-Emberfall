@@ -61,6 +61,14 @@ inregistreazaZona({
 
   trash: 85,
 
+  // Cum se cheama inamicii marunti AICI. Un bandit din temnita nu e
+  // acelasi lucru cu unul de pe camp, si trebuie sa se vada.
+  numeTrash: {
+    spider:      'Warren Weaver',
+    wolf:        'Rootfang',
+    burrower:    'Hollowroot Grub'
+  },
+
   feluriPeNivel: function () {
     return ['spider','wolf','burrower'];
   }

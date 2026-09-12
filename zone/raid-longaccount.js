@@ -122,6 +122,14 @@ inregistreazaZona({
   // Mai multi decat intr-o temnita: e o cladire plina de oameni.
   trash: 140,
 
+  // Cum se cheama inamicii marunti AICI. Un bandit din temnita nu e
+  // acelasi lucru cu unul de pe camp, si trebuie sa se vada.
+  numeTrash: {
+    garda:       'Ledger Guard',
+    raider:      'Debt-Collector',
+    bandit:      'Quiet Clerk'
+  },
+
   feluriPeNivel: function () {
     return ['garda', 'raider', 'bandit'];
   }

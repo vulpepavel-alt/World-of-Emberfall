@@ -2478,7 +2478,14 @@ function deseneazaForme(scena, forme) {
   function cul(c) { return (typeof c === 'string') ? culoareDinText(c) : c; }
 
   // pasul 1: conturul
+  //
+  // O forma cu 'faraContur' nu-l primeste. Asta e pentru detaliile
+  // mici puse PESTE trup - umbra de sub burta, lumina de pe spinare,
+  // sclipirea din ochi. Cu contur negru in jurul lor, fiecare pata de
+  // lumina ar fi iesit ca un petic lipit, si inamicul ar fi aratat
+  // mai rau, nu mai bine.
   forme.forEach(function (f) {
+    if (f.faraContur) return;
     if (f.fel === 'cerc') bucati.push(scena.add.circle(f.x, f.y, f.r + 2, CULOARE_CONTUR));
     else bucati.push(scena.add.rectangle(f.x, f.y, f.w + 3, f.h + 3, CULOARE_CONTUR));
   });

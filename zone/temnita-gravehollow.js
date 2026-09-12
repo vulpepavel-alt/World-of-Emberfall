@@ -61,6 +61,14 @@ inregistreazaZona({
 
   trash: 80,
 
+  // Cum se cheama inamicii marunti AICI. Un bandit din temnita nu e
+  // acelasi lucru cu unul de pe camp, si trebuie sa se vada.
+  numeTrash: {
+    vulture:     'Gravepicker',
+    bandit:      'Bone-Robber',
+    serpent:     'Cairn Adder'
+  },
+
   feluriPeNivel: function () {
     return ['vulture','bandit','serpent'];
   }

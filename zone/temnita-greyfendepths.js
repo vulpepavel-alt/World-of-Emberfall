@@ -61,6 +61,14 @@ inregistreazaZona({
 
   trash: 70,
 
+  // Cum se cheama inamicii marunti AICI. Un bandit din temnita nu e
+  // acelasi lucru cu unul de pe camp, si trebuie sa se vada.
+  numeTrash: {
+    serpent:     'Fenwater Coil',
+    spider:      'Greyfen Weaver',
+    burrower:    'Silt-Digger'
+  },
+
   feluriPeNivel: function () {
     return ['serpent','spider','burrower'];
   }

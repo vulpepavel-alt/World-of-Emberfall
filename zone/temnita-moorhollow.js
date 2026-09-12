@@ -72,6 +72,14 @@ inregistreazaZona({
   // Cati inamici marunti pe coridoare si prin camere.
   trash: 70,
 
+  // Cum se cheama inamicii marunti AICI. Un bandit din temnita nu e
+  // acelasi lucru cu unul de pe camp, si trebuie sa se vada.
+  numeTrash: {
+    bandit:      'Hollow Cutthroat',
+    spider:      'Deepweb Spinner',
+    burrower:    'Root-Gnawer'
+  },
+
   feluriPeNivel: function () {
     return ['bandit', 'spider', 'burrower'];
   }

@@ -121,15 +121,29 @@ const MOBI = {
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  -6, y: 10, w:  4, h:  7, culoare: 0x5f6165 },  // picior
-      { fel: 'dr',   x:   6, y: 10, w:  4, h:  7, culoare: 0x5f6165 },
-      { fel: 'dr',   x:  13, y:  0, w:  9, h:  4, culoare: 0x6a6c71 },  // coada
-      { fel: 'dr',   x:   0, y:  3, w: 22, h: 12, culoare: 0x77797e },  // trup
-      { fel: 'dr',   x: -13, y: -8, w:  4, h:  5, culoare: 0x83858a },  // urechi
-      { fel: 'dr',   x:  -8, y: -8, w:  4, h:  5, culoare: 0x83858a },
-      { fel: 'dr',   x: -11, y: -1, w: 11, h: 10, culoare: 0x83858a },  // cap
-      { fel: 'dr',   x: -19, y:  2, w:  7, h:  5, culoare: 0x6a6c71 },  // bot
-      { fel: 'dr',   x: -13, y: -2, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+      { fel: 'dr',   x:  -8, y: 11, w:  4, h:  8, culoare: 0x4e5054 },  // picioarele din spate
+      { fel: 'dr',   x:   5, y: 11, w:  4, h:  8, culoare: 0x4e5054 },
+      { fel: 'dr',   x:  -3, y: 12, w:  4, h:  7, culoare: 0x5f6165 },  // picioarele din fata
+      { fel: 'dr',   x:   9, y: 12, w:  4, h:  7, culoare: 0x5f6165 },
+      { fel: 'dr',   x:  -9, y: 15, w:  5, h:  3, culoare: 0x2f3033 },  // labele
+      { fel: 'dr',   x:  10, y: 15, w:  5, h:  3, culoare: 0x2f3033 },
+      { fel: 'dr',   x:  14, y: -1, w: 10, h:  4, culoare: 0x6a6c71 },  // coada
+      { fel: 'dr',   x:  20, y: -3, w:  6, h:  4, culoare: 0x8e9095 },  // varful ei, mai deschis
+      { fel: 'dr',   x:   0, y:  3, w: 22, h: 12, culoare: 0x77797e },  // trupul
+      { fel: 'dr',   x:   0, y: -1, w: 20, h:  4, culoare: 0x91939a, faraContur: true },  // lumina de pe spinare
+      { fel: 'dr',   x:   0, y:  7, w: 20, h:  4, culoare: 0x585a5e, faraContur: true },  // umbra de sub burta
+      { fel: 'dr',   x:  -2, y: -4, w:  8, h:  5, culoare: 0x9ca2a8, faraContur: true },  // gulerul de blana
+      { fel: 'dr',   x: -13, y: -8, w:  4, h:  6, culoare: 0x83858a },  // urechile
+      { fel: 'dr',   x:  -8, y: -8, w:  4, h:  6, culoare: 0x83858a },
+      { fel: 'dr',   x: -13, y: -8, w:  2, h:  3, culoare: 0x4a3634, faraContur: true },  // pe dinauntru
+      { fel: 'dr',   x:  -8, y: -8, w:  2, h:  3, culoare: 0x4a3634, faraContur: true },
+      { fel: 'dr',   x: -11, y: -1, w: 11, h: 10, culoare: 0x83858a },  // capul
+      { fel: 'dr',   x: -11, y: -4, w: 10, h:  3, culoare: 0x9ca2a8, faraContur: true },  // lumina de pe frunte
+      { fel: 'dr',   x: -19, y:  2, w:  7, h:  5, culoare: 0x6a6c71 },  // botul
+      { fel: 'dr',   x: -22, y:  1, w:  3, h:  3, culoare: 0x1c1a18, faraContur: true },  // nasul
+      { fel: 'dr',   x: -18, y:  5, w:  6, h:  2, culoare: 0xe8e2d4, faraContur: true },  // coltii
+      { fel: 'dr',   x: -13, y: -2, w:  3, h:  3, culoare: 0xc9a83a },  // ochiul
+      { fel: 'dr',   x: -14, y: -3, w:  1, h:  1, culoare: 0xfff4d0, faraContur: true }   // sclipirea din el
     ]
   },
 
@@ -140,13 +154,23 @@ const MOBI = {
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  10, y: 11, w: 13, h:  5, culoare: 0x5e4630 },  // musuroiul din spate
-      { fel: 'cerc', x:   0, y:  3, r: 11,        culoare: 0x7a5a3a },  // trup
-      { fel: 'dr',   x: -12, y:  8, w:  8, h:  3, culoare: 0xe2ddd2 },  // gheare
-      { fel: 'dr',   x: -12, y: 12, w:  8, h:  3, culoare: 0xe2ddd2 },
-      { fel: 'cerc', x:  -9, y:  0, r:  7,        culoare: 0x8a6a46 },  // cap
-      { fel: 'dr',   x: -16, y:  1, w:  6, h:  4, culoare: 0xd6a6a0 },  // ras
-      { fel: 'dr',   x: -10, y: -3, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+      { fel: 'dr',   x:  11, y: 12, w: 15, h:  5, culoare: 0x5e4630 },  // musuroiul rascolit
+      { fel: 'dr',   x:  12, y: 10, w: 11, h:  3, culoare: 0x715540, faraContur: true },
+      { fel: 'cerc', x:   0, y:  3, r: 11,        culoare: 0x7a5a3a },  // trupul
+      { fel: 'dr',   x:   2, y: -4, w: 13, h:  5, culoare: 0x916d47, faraContur: true },  // lumina de pe spinare
+      { fel: 'dr',   x:   0, y:  9, w: 16, h:  4, culoare: 0x5c432b, faraContur: true },  // umbra de dedesubt
+      { fel: 'dr',   x:   4, y:  1, w:  3, h:  9, culoare: 0x6b4e33, faraContur: true },  // dungi pe blana
+      { fel: 'dr',   x:   9, y:  2, w:  3, h:  7, culoare: 0x6b4e33, faraContur: true },
+      { fel: 'dr',   x: -12, y:  8, w:  9, h:  3, culoare: 0xd8d2c4 },  // ghearele de sapat
+      { fel: 'dr',   x: -12, y: 12, w:  9, h:  3, culoare: 0xd8d2c4 },
+      { fel: 'dr',   x: -17, y:  8, w:  3, h:  2, culoare: 0xf4f0e6, faraContur: true },  // varfurile lor
+      { fel: 'dr',   x: -17, y: 12, w:  3, h:  2, culoare: 0xf4f0e6, faraContur: true },
+      { fel: 'cerc', x:  -9, y:  0, r:  7,        culoare: 0x8a6a46 },  // capul
+      { fel: 'dr',   x:  -9, y: -5, w:  9, h:  3, culoare: 0xa07c54, faraContur: true },  // lumina de pe crestet
+      { fel: 'dr',   x: -16, y:  1, w:  7, h:  5, culoare: 0xd6a6a0 },  // ratul
+      { fel: 'dr',   x: -18, y:  0, w:  2, h:  2, culoare: 0x8a5c58, faraContur: true },  // narile
+      { fel: 'dr',   x: -15, y:  4, w:  5, h:  2, culoare: 0xe8e2d4, faraContur: true },  // dintii
+      { fel: 'dr',   x: -10, y: -3, w:  2, h:  2, culoare: 0x120f0c }   // ochiul, mic si slab
     ]
   },
 
@@ -161,14 +185,25 @@ const MOBI = {
     neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  12, y: -6, w:  3, h: 26, culoare: 0xb8bcc4 },  // sulita
-      { fel: 'dr',   x:  12, y:-19, w:  5, h:  7, culoare: 0xd8dce4 },  // varful
+      { fel: 'dr',   x:  12, y: -6, w:  3, h: 26, culoare: 0x6b4a2c },  // sulita
+      { fel: 'dr',   x:  12, y:-19, w:  5, h:  8, culoare: 0xd8dce4 },  // varful
+      { fel: 'dr',   x:  12, y:-21, w:  2, h:  4, culoare: 0xf0f4fa, faraContur: true },  // lucirea lui
+      { fel: 'dr',   x:  -7, y: 16, w:  6, h:  6, culoare: 0x3a3028 },  // cizmele
+      { fel: 'dr',   x:   4, y: 16, w:  6, h:  6, culoare: 0x3a3028 },
       { fel: 'dr',   x:   0, y:  5, w: 19, h: 19, culoare: 0x6b6f78 },  // platosa
-      { fel: 'dr',   x:   0, y:  2, w: 19, h:  5, culoare: 0x8f5a2c },  // curea
-      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xd8b08a },  // cap
-      { fel: 'dr',   x:   0, y:-13, w: 19, h:  9, culoare: 0x8a8f98 },  // coif
+      { fel: 'dr',   x:  -6, y:  4, w:  5, h: 15, culoare: 0x7f838c, faraContur: true },  // lumina pe ea
+      { fel: 'dr',   x:   7, y:  6, w:  4, h: 13, culoare: 0x55585f, faraContur: true },  // umbra din dreapta
+      { fel: 'dr',   x: -10, y: -1, w:  6, h:  7, culoare: 0x8a8f98 },  // umerarele
+      { fel: 'dr',   x:  10, y: -1, w:  6, h:  7, culoare: 0x8a8f98 },
+      { fel: 'dr',   x:   0, y:  2, w: 19, h:  5, culoare: 0x8f5a2c },  // cureaua
+      { fel: 'dr',   x:   0, y:  2, w:  5, h:  5, culoare: 0xc9a961, faraContur: true },  // catarama
+      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xd8b08a },  // capul
+      { fel: 'dr',   x:   0, y: -4, w: 10, h:  4, culoare: 0x8a7358, faraContur: true },  // barba scurta
+      { fel: 'dr',   x:   0, y:-13, w: 19, h:  9, culoare: 0x8a8f98 },  // coiful
+      { fel: 'dr',   x:   0, y:-16, w: 17, h:  3, culoare: 0xa4a9b2, faraContur: true },  // lumina de pe el
       { fel: 'dr',   x:   0, y:-13, w:  3, h:  9, culoare: 0x5c6068 },  // creasta
-      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },
+      { fel: 'dr',   x:   0, y:-19, w:  5, h:  4, culoare: 0x9c3a2c },  // penajul rosu
+      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },  // ochii
       { fel: 'dr',   x:   3, y: -8, w:  2, h:  2, culoare: 0x120f0c }
     ]
   },
@@ -185,15 +220,26 @@ const MOBI = {
     neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:   0, y: 10, w: 20, h: 12, culoare: 0x2b3550 },  // roba lunga
-      { fel: 'dr',   x:   0, y:  4, w: 18, h:  8, culoare: 0x36426a },  // piept
-      { fel: 'dr',   x:   0, y:  4, w:  4, h:  8, culoare: 0xc9a961 },  // lantul de la gat
-      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xe0bb95 },  // cap
-      { fel: 'dr',   x:   0, y:-15, w: 17, h:  5, culoare: 0x1d2438 },  // par lins
-      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },
+      { fel: 'dr',   x:   0, y: 10, w: 20, h: 13, culoare: 0x2b3550 },  // roba lunga
+      { fel: 'dr',   x:  -6, y: 10, w:  4, h: 13, culoare: 0x35415f, faraContur: true },  // cutele ei
+      { fel: 'dr',   x:   4, y: 11, w:  3, h: 11, culoare: 0x222b42, faraContur: true },
+      { fel: 'dr',   x:   0, y:  4, w: 18, h:  8, culoare: 0x36426a },  // pieptul
+      { fel: 'dr',   x: -10, y:  6, w:  5, h: 11, culoare: 0x2b3550 },  // manecile
+      { fel: 'dr',   x:  10, y:  6, w:  5, h: 11, culoare: 0x2b3550 },
+      { fel: 'dr',   x:   0, y:  0, w: 12, h:  3, culoare: 0xe6ddc4, faraContur: true },  // gulerul alb
+      { fel: 'dr',   x:   0, y:  4, w:  3, h:  8, culoare: 0xc9a961 },  // lantul de la gat
+      { fel: 'dr',   x:   0, y:  8, w:  5, h:  4, culoare: 0xe6c669, faraContur: true },  // pecetea de pe el
+      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xe0bb95 },  // capul
+      { fel: 'dr',   x:  -5, y: -6, w:  4, h:  5, culoare: 0xc9a583, faraContur: true },  // obrazul supt
+      { fel: 'dr',   x:   0, y:-15, w: 17, h:  5, culoare: 0x1d2438 },  // parul lins
+      { fel: 'dr',   x:   0, y:-17, w: 14, h:  2, culoare: 0x2b3550, faraContur: true },
+      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },  // ochii
       { fel: 'dr',   x:   3, y: -8, w:  2, h:  2, culoare: 0x120f0c },
-      { fel: 'dr',   x:  12, y:  6, w:  7, h:  9, culoare: 0xe6ddc4 },  // registrul
-      { fel: 'dr',   x:  12, y:  6, w:  7, h:  2, culoare: 0xf2ecd8 }
+      { fel: 'dr',   x:   0, y: -4, w:  6, h:  1, culoare: 0x9c7a5e, faraContur: true },  // gura subtire
+      { fel: 'dr',   x:  13, y:  6, w:  8, h: 10, culoare: 0xe6ddc4 },  // registrul
+      { fel: 'dr',   x:  13, y:  2, w:  8, h:  2, culoare: 0xf2ecd8, faraContur: true },  // muchia paginilor
+      { fel: 'dr',   x:  13, y:  6, w:  6, h:  1, culoare: 0x8a7f66, faraContur: true },  // randurile scrise
+      { fel: 'dr',   x:  13, y:  9, w:  6, h:  1, culoare: 0x8a7f66, faraContur: true }
     ]
   },
 
@@ -204,12 +250,25 @@ const MOBI = {
     neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  11, y:  1, w:  3, h: 13, culoare: 0xc8ccd4 },  // pumnal
-      { fel: 'dr',   x:   0, y:  5, w: 18, h: 18, culoare: 0x3f4a3d },  // trup
-      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xd8b08a },  // cap
-      { fel: 'dr',   x:   0, y:-14, w: 18, h:  7, culoare: 0x2c352a },  // gluga
-      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0x120f0c },  // ochi
-      { fel: 'dr',   x:   3, y: -8, w:  2, h:  2, culoare: 0x120f0c }
+      { fel: 'dr',   x:  11, y:  1, w:  3, h: 13, culoare: 0xc8ccd4 },  // pumnalul
+      { fel: 'dr',   x:  11, y: -4, w:  2, h:  5, culoare: 0xf0f4fa, faraContur: true },  // taisul lui
+      { fel: 'dr',   x:  11, y:  8, w:  5, h:  4, culoare: 0x5b3a1a },  // manerul
+      { fel: 'dr',   x:  -6, y: 16, w:  6, h:  6, culoare: 0x2e2820 },  // cizmele
+      { fel: 'dr',   x:   5, y: 16, w:  6, h:  6, culoare: 0x2e2820 },
+      { fel: 'dr',   x:   0, y:  5, w: 18, h: 18, culoare: 0x3f4a3d },  // trupul
+      { fel: 'dr',   x:  -5, y:  4, w:  5, h: 14, culoare: 0x4c5a49, faraContur: true },  // lumina
+      { fel: 'dr',   x:   6, y:  6, w:  4, h: 12, culoare: 0x333d32, faraContur: true },  // umbra
+      { fel: 'dr',   x:   0, y:  8, w: 18, h:  3, culoare: 0x6b4a2c, faraContur: true },  // cureaua
+      { fel: 'dr',   x:  -4, y:  8, w:  3, h:  3, culoare: 0xa8955e, faraContur: true },  // catarama
+      { fel: 'dr',   x:   0, y: -1, w: 14, h:  3, culoare: 0x5a3a2a, faraContur: true },  // curelele peste piept
+      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xd8b08a },  // capul
+      { fel: 'dr',   x:   0, y:-14, w: 18, h:  8, culoare: 0x2c352a },  // gluga
+      { fel: 'dr',   x:   0, y: -9, w: 14, h:  3, culoare: 0x1c231b, faraContur: true },  // umbra ei peste ochi
+      { fel: 'dr',   x:  -8, y: -8, w:  3, h:  7, culoare: 0x2c352a, faraContur: true },  // marginile glugii
+      { fel: 'dr',   x:   8, y: -8, w:  3, h:  7, culoare: 0x2c352a, faraContur: true },
+      { fel: 'dr',   x:  -3, y: -8, w:  2, h:  2, culoare: 0xc9b878, faraContur: true },  // ochii, sclipind din umbra
+      { fel: 'dr',   x:   3, y: -8, w:  2, h:  2, culoare: 0xc9b878, faraContur: true },
+      { fel: 'dr',   x:   0, y: -3, w:  7, h:  2, culoare: 0x8a6a52, faraContur: true }   // basmaua peste gura
     ]
   },
 
@@ -221,13 +280,23 @@ const MOBI = {
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  11, y:  4, w:  9, h:  2, culoare: 0xa08a72 },  // coada
-      { fel: 'dr',   x:   0, y:  4, w: 16, h:  9, culoare: 0x6e5f4e },  // trup
-      { fel: 'dr',   x:  -7, y: -3, w:  3, h:  4, culoare: 0x7d6d59 },  // urechi
-      { fel: 'dr',   x:  -2, y: -3, w:  3, h:  4, culoare: 0x7d6d59 },
-      { fel: 'dr',   x:  -7, y:  2, w:  9, h:  7, culoare: 0x7d6d59 },  // cap
-      { fel: 'dr',   x: -13, y:  4, w:  5, h:  4, culoare: 0x8d7c66 },  // bot
-      { fel: 'dr',   x:  -8, y:  0, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+      { fel: 'dr',   x:  11, y:  4, w: 10, h:  2, culoare: 0xa08a72 },  // coada
+      { fel: 'dr',   x:  17, y:  2, w:  6, h:  2, culoare: 0xb59c80 },
+      { fel: 'dr',   x:  -4, y: 10, w:  3, h:  4, culoare: 0x5e5142 },  // labutele
+      { fel: 'dr',   x:   4, y: 10, w:  3, h:  4, culoare: 0x5e5142 },
+      { fel: 'dr',   x:   0, y:  4, w: 16, h:  9, culoare: 0x6e5f4e },  // trupul
+      { fel: 'dr',   x:   0, y:  1, w: 14, h:  3, culoare: 0x83725d, faraContur: true },  // lumina pe spinare
+      { fel: 'dr',   x:   0, y:  7, w: 14, h:  3, culoare: 0x574a3c, faraContur: true },  // umbra sub burta
+      { fel: 'dr',   x:  -7, y: -3, w:  4, h:  5, culoare: 0x7d6d59 },  // urechile
+      { fel: 'dr',   x:  -2, y: -3, w:  4, h:  5, culoare: 0x7d6d59 },
+      { fel: 'dr',   x:  -7, y: -3, w:  2, h:  3, culoare: 0xc2918c, faraContur: true },  // pe dinauntru, roz
+      { fel: 'dr',   x:  -2, y: -3, w:  2, h:  3, culoare: 0xc2918c, faraContur: true },
+      { fel: 'dr',   x:  -7, y:  2, w:  9, h:  7, culoare: 0x7d6d59 },  // capul
+      { fel: 'dr',   x: -13, y:  4, w:  6, h:  4, culoare: 0x8d7c66 },  // botul
+      { fel: 'dr',   x: -16, y:  4, w:  2, h:  2, culoare: 0xc2918c, faraContur: true },  // nasul
+      { fel: 'dr',   x: -13, y:  6, w:  4, h:  2, culoare: 0xe8e2d4, faraContur: true },  // dintii din fata
+      { fel: 'dr',   x: -13, y:  2, w:  7, h:  1, culoare: 0x4a3f33, faraContur: true },  // mustatile
+      { fel: 'dr',   x:  -8, y:  0, w:  2, h:  2, culoare: 0x1a1410 }   // ochiul
     ]
   },
 
@@ -239,16 +308,28 @@ const MOBI = {
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  -9, y: -6, w: 12, h:  2, culoare: 0x2b2028 },  // picioarele
-      { fel: 'dr',   x:   9, y: -6, w: 12, h:  2, culoare: 0x2b2028 },
-      { fel: 'dr',   x: -11, y:  2, w: 14, h:  2, culoare: 0x2b2028 },
-      { fel: 'dr',   x:  11, y:  2, w: 14, h:  2, culoare: 0x2b2028 },
-      { fel: 'dr',   x:  -9, y: 10, w: 12, h:  2, culoare: 0x2b2028 },
-      { fel: 'dr',   x:   9, y: 10, w: 12, h:  2, culoare: 0x2b2028 },
-      { fel: 'cerc', x:   6, y:  3, r: 10,        culoare: 0x4a3550 },  // abdomen
-      { fel: 'cerc', x:  -7, y:  1, r:  7,        culoare: 0x5b4362 },  // cap
-      { fel: 'dr',   x: -10, y: -2, w:  2, h:  2, culoare: 0xd8d0a0 },  // ochii
-      { fel: 'dr',   x:  -6, y: -2, w:  2, h:  2, culoare: 0xd8d0a0 }
+      { fel: 'dr',   x:  -9, y: -7, w: 13, h:  2, culoare: 0x2b2028 },  // picioarele
+      { fel: 'dr',   x:   9, y: -7, w: 13, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x: -11, y:  2, w: 15, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x:  11, y:  2, w: 15, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x:  -9, y: 11, w: 13, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x:   9, y: 11, w: 13, h:  2, culoare: 0x2b2028 },
+      { fel: 'dr',   x: -15, y: -4, w:  2, h:  5, culoare: 0x201820, faraContur: true },  // incheieturile lor
+      { fel: 'dr',   x:  15, y: -4, w:  2, h:  5, culoare: 0x201820, faraContur: true },
+      { fel: 'dr',   x: -17, y:  4, w:  2, h:  5, culoare: 0x201820, faraContur: true },
+      { fel: 'dr',   x:  17, y:  4, w:  2, h:  5, culoare: 0x201820, faraContur: true },
+      { fel: 'cerc', x:   6, y:  3, r: 10,        culoare: 0x4a3550 },  // abdomenul
+      { fel: 'dr',   x:   6, y: -2, w: 11, h:  4, culoare: 0x5e4468, faraContur: true },  // lumina de pe el
+      { fel: 'dr',   x:   7, y:  4, w:  6, h:  3, culoare: 0xc9a84a, faraContur: true },  // semnul galben de pe spate
+      { fel: 'dr',   x:   7, y:  9, w:  4, h:  2, culoare: 0xc9a84a, faraContur: true },
+      { fel: 'cerc', x:  -7, y:  1, r:  7,        culoare: 0x5b4362 },  // capul
+      { fel: 'dr',   x:  -7, y: -3, w:  8, h:  3, culoare: 0x6f5378, faraContur: true },
+      { fel: 'dr',   x: -13, y:  5, w:  4, h:  3, culoare: 0x2b2028 },  // coltii
+      { fel: 'dr',   x: -13, y:  6, w:  2, h:  2, culoare: 0xe8e2d4, faraContur: true },
+      { fel: 'dr',   x: -10, y: -2, w:  3, h:  3, culoare: 0xe8dc9a, faraContur: true },  // ochii mari
+      { fel: 'dr',   x:  -6, y: -2, w:  3, h:  3, culoare: 0xe8dc9a, faraContur: true },
+      { fel: 'dr',   x: -11, y:  2, w:  2, h:  2, culoare: 0xb8ac6a, faraContur: true },  // si cei mici de sub ei
+      { fel: 'dr',   x:  -7, y:  2, w:  2, h:  2, culoare: 0xb8ac6a, faraContur: true }
     ]
   },
 
@@ -261,14 +342,26 @@ const MOBI = {
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  12, y: -2, w:  6, h:  6, culoare: 0xc99a45 },  // coada
-      { fel: 'dr',   x:  15, y: -8, w:  6, h:  6, culoare: 0xc99a45 },
-      { fel: 'dr',   x:  17, y:-14, w:  5, h:  6, culoare: 0x2c2418 },  // acul
-      { fel: 'dr',   x:   0, y:  4, w: 20, h: 13, culoare: 0xb98a3a },  // trup
-      { fel: 'dr',   x: -19, y: -2, w:  9, h:  4, culoare: 0xd8a94f },  // clesti
-      { fel: 'dr',   x: -19, y:  9, w:  9, h:  4, culoare: 0xd8a94f },
-      { fel: 'dr',   x: -11, y:  3, w:  9, h:  9, culoare: 0xc99a45 },  // cap
-      { fel: 'dr',   x: -12, y:  1, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+      { fel: 'dr',   x:  12, y: -2, w:  7, h:  7, culoare: 0xc99a45 },  // coada, inel cu inel
+      { fel: 'dr',   x:  15, y: -8, w:  7, h:  7, culoare: 0xd8a94f },
+      { fel: 'dr',   x:  17, y:-15, w:  6, h:  7, culoare: 0x2c2418 },  // acul
+      { fel: 'dr',   x:  17, y:-18, w:  3, h:  3, culoare: 0x6b5a3a, faraContur: true },  // varful lui lucios
+      { fel: 'dr',   x:  12, y: -4, w:  6, h:  2, culoare: 0xe2b86a, faraContur: true },  // lumina pe inele
+      { fel: 'dr',   x:  15, y:-10, w:  6, h:  2, culoare: 0xe2b86a, faraContur: true },
+      { fel: 'dr',   x:  -5, y: 12, w:  4, h:  4, culoare: 0x9c7830 },  // picioruse
+      { fel: 'dr',   x:   3, y: 12, w:  4, h:  4, culoare: 0x9c7830 },
+      { fel: 'dr',   x:   0, y:  4, w: 20, h: 13, culoare: 0xb98a3a },  // trupul
+      { fel: 'dr',   x:   0, y:  0, w: 18, h:  4, culoare: 0xd3a04a, faraContur: true },  // carapacea luminata
+      { fel: 'dr',   x:   0, y:  8, w: 18, h:  3, culoare: 0x966e2c, faraContur: true },  // umbra
+      { fel: 'dr',   x:  -4, y:  4, w:  2, h: 11, culoare: 0x966e2c, faraContur: true },  // cusaturile carapacei
+      { fel: 'dr',   x:   3, y:  4, w:  2, h: 11, culoare: 0x966e2c, faraContur: true },
+      { fel: 'dr',   x: -19, y: -2, w: 10, h:  5, culoare: 0xd8a94f },  // clestii
+      { fel: 'dr',   x: -19, y:  9, w: 10, h:  5, culoare: 0xd8a94f },
+      { fel: 'dr',   x: -23, y: -3, w:  4, h:  2, culoare: 0x2c2418, faraContur: true },  // varfurile lor
+      { fel: 'dr',   x: -23, y:  8, w:  4, h:  2, culoare: 0x2c2418, faraContur: true },
+      { fel: 'dr',   x: -11, y:  3, w:  9, h:  9, culoare: 0xc99a45 },  // capul
+      { fel: 'dr',   x: -12, y:  0, w:  2, h:  2, culoare: 0x1a1410 },  // ochii
+      { fel: 'dr',   x:  -8, y:  0, w:  2, h:  2, culoare: 0x1a1410 }
     ]
   },
 
@@ -279,15 +372,27 @@ const MOBI = {
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  -6, y: 12, w:  4, h:  7, culoare: 0x4f3c28 },  // picioare
-      { fel: 'dr',   x:   7, y: 12, w:  4, h:  7, culoare: 0x4f3c28 },
-      { fel: 'dr',   x:   0, y:  4, w: 24, h: 15, culoare: 0x6b5236 },  // trup
-      { fel: 'dr',   x: -11, y: -4, w:  4, h:  4, culoare: 0x5c4530 },  // ureche
-      { fel: 'dr',   x: -12, y:  3, w: 11, h: 12, culoare: 0x7a5f40 },  // cap
-      { fel: 'dr',   x: -20, y:  5, w:  7, h:  7, culoare: 0x93755a },  // rat
-      { fel: 'dr',   x: -21, y:  1, w:  5, h:  3, culoare: 0xece5d2 },  // colti
-      { fel: 'dr',   x: -21, y: 11, w:  5, h:  3, culoare: 0xece5d2 },
-      { fel: 'dr',   x: -13, y:  0, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+      { fel: 'dr',   x:  -7, y: 12, w:  4, h:  8, culoare: 0x4f3c28 },  // picioarele
+      { fel: 'dr',   x:   7, y: 12, w:  4, h:  8, culoare: 0x4f3c28 },
+      { fel: 'dr',   x:  -1, y: 13, w:  4, h:  7, culoare: 0x5c4630 },
+      { fel: 'dr',   x:  12, y: 13, w:  4, h:  7, culoare: 0x5c4630 },
+      { fel: 'dr',   x:  -8, y: 16, w:  5, h:  3, culoare: 0x2a2018 },  // copitele
+      { fel: 'dr',   x:   8, y: 16, w:  5, h:  3, culoare: 0x2a2018 },
+      { fel: 'dr',   x:  14, y:  0, w:  4, h:  5, culoare: 0x5c4530 },  // codita
+      { fel: 'dr',   x:   0, y:  4, w: 24, h: 15, culoare: 0x6b5236 },  // trupul
+      { fel: 'dr',   x:   0, y: -1, w: 20, h:  4, culoare: 0x806342, faraContur: true },  // spinarea luminata
+      { fel: 'dr',   x:   0, y:  9, w: 20, h:  4, culoare: 0x53402a, faraContur: true },  // umbra sub burta
+      { fel: 'dr',   x:  -2, y: -4, w: 14, h:  4, culoare: 0x3e2f1f, faraContur: true },  // coama de peri aspri
+      { fel: 'dr',   x: -11, y: -5, w:  4, h:  5, culoare: 0x5c4530 },  // urechea
+      { fel: 'dr',   x: -12, y:  3, w: 11, h: 12, culoare: 0x7a5f40 },  // capul
+      { fel: 'dr',   x: -12, y:  0, w: 10, h:  3, culoare: 0x8d7050, faraContur: true },
+      { fel: 'dr',   x: -20, y:  5, w:  8, h:  8, culoare: 0x93755a },  // ratul
+      { fel: 'dr',   x: -22, y:  5, w:  2, h:  2, culoare: 0x5c4028, faraContur: true },  // narile
+      { fel: 'dr',   x: -22, y:  9, w:  2, h:  2, culoare: 0x5c4028, faraContur: true },
+      { fel: 'dr',   x: -21, y:  1, w:  6, h:  3, culoare: 0xece5d2 },  // coltii
+      { fel: 'dr',   x: -21, y: 11, w:  6, h:  3, culoare: 0xece5d2 },
+      { fel: 'dr',   x: -24, y:  0, w:  3, h:  2, culoare: 0xfaf6ec, faraContur: true },
+      { fel: 'dr',   x: -13, y:  0, w:  2, h:  2, culoare: 0x1a1410 }   // ochiul
     ]
   },
 
@@ -300,13 +405,24 @@ const MOBI = {
     stats: STATS_NIVEL_1,
     forme: [
       { fel: 'dr',   x:   0, y:  2, w: 34, h:  5, culoare: 0x3f372e },  // aripile intinse
-      { fel: 'dr',   x: -14, y: -1, w:  9, h:  4, culoare: 0x4b4239 },
-      { fel: 'dr',   x:  14, y: -1, w:  9, h:  4, culoare: 0x4b4239 },
-      { fel: 'dr',   x:   0, y:  7, w: 14, h: 12, culoare: 0x554a3d },  // trup
-      { fel: 'dr',   x:  -1, y: -3, w:  4, h:  7, culoare: 0xa38f6a },  // gat
-      { fel: 'cerc', x:  -1, y: -8, r:  5,        culoare: 0xb09a72 },  // cap
-      { fel: 'dr',   x:  -7, y: -7, w:  5, h:  3, culoare: 0xe0b055 },  // cioc
-      { fel: 'dr',   x:  -2, y: -9, w:  2, h:  2, culoare: 0x120f0c }   // ochi
+      { fel: 'dr',   x: -14, y: -1, w: 10, h:  4, culoare: 0x4b4239 },
+      { fel: 'dr',   x:  14, y: -1, w: 10, h:  4, culoare: 0x4b4239 },
+      { fel: 'dr',   x: -13, y:  4, w:  9, h:  2, culoare: 0x2e2820, faraContur: true },  // penele mari
+      { fel: 'dr',   x:  13, y:  4, w:  9, h:  2, culoare: 0x2e2820, faraContur: true },
+      { fel: 'dr',   x: -15, y:  0, w:  5, h:  2, culoare: 0x5b5147, faraContur: true },  // lumina pe aripa
+      { fel: 'dr',   x:  15, y:  0, w:  5, h:  2, culoare: 0x5b5147, faraContur: true },
+      { fel: 'dr',   x:   0, y:  7, w: 14, h: 12, culoare: 0x554a3d },  // trupul
+      { fel: 'dr',   x:   0, y:  3, w: 12, h:  3, culoare: 0x685c4c, faraContur: true },
+      { fel: 'dr',   x:   0, y: 11, w: 12, h:  4, culoare: 0x433a30, faraContur: true },
+      { fel: 'dr',   x:  -4, y: 15, w:  3, h:  4, culoare: 0xc9a04a },  // ghearele
+      { fel: 'dr',   x:   4, y: 15, w:  3, h:  4, culoare: 0xc9a04a },
+      { fel: 'dr',   x:  -1, y:  0, w:  9, h:  3, culoare: 0xe0d8c4, faraContur: true },  // gulerul de puf
+      { fel: 'dr',   x:  -1, y: -3, w:  4, h:  7, culoare: 0xa38f6a },  // gatul golas
+      { fel: 'cerc', x:  -1, y: -8, r:  5,        culoare: 0xb09a72 },  // capul
+      { fel: 'dr',   x:  -1, y:-11, w:  6, h:  2, culoare: 0xc4ae86, faraContur: true },
+      { fel: 'dr',   x:  -7, y: -7, w:  6, h:  3, culoare: 0xe0b055 },  // ciocul
+      { fel: 'dr',   x:  -9, y: -6, w:  3, h:  2, culoare: 0x8a6a2a, faraContur: true },  // varful lui incovoiat
+      { fel: 'dr',   x:  -2, y: -9, w:  2, h:  2, culoare: 0xe8dc9a, faraContur: true }   // ochiul galben
     ]
   },
 
@@ -318,13 +434,26 @@ const MOBI = {
     neam: 'fiara',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:   8, y: 12, w: 20, h:  5, culoare: 0x6b7a3a },  // coada incolacita
+      { fel: 'dr',   x:   8, y: 12, w: 21, h:  6, culoare: 0x6b7a3a },  // coada incolacita
       { fel: 'dr',   x:  -4, y:  8, w: 22, h:  6, culoare: 0x7a8b43 },
       { fel: 'dr',   x:   2, y:  1, w: 18, h:  6, culoare: 0x7a8b43 },
+      { fel: 'dr',   x:   9, y: 10, w: 18, h:  2, culoare: 0x869a45, faraContur: true },  // lumina pe inele
+      { fel: 'dr',   x:  -3, y:  6, w: 19, h:  2, culoare: 0x8a9c4e, faraContur: true },
+      { fel: 'dr',   x:   2, y: -1, w: 15, h:  2, culoare: 0x8a9c4e, faraContur: true },
+      { fel: 'dr',   x:   4, y: 12, w:  3, h:  5, culoare: 0x59682f, faraContur: true },  // solzii de pe spate
+      { fel: 'dr',   x:  12, y: 12, w:  3, h:  5, culoare: 0x59682f, faraContur: true },
+      { fel: 'dr',   x:   0, y:  8, w:  3, h:  5, culoare: 0x59682f, faraContur: true },
+      { fel: 'dr',   x:   8, y:  1, w:  3, h:  5, culoare: 0x59682f, faraContur: true },
       { fel: 'dr',   x:  -4, y: -5, w:  6, h: 13, culoare: 0x87994b },  // gatul ridicat
-      { fel: 'cerc', x:  -4, y:-11, r:  6,        culoare: 0x95a855 },  // cap
-      { fel: 'dr',   x: -11, y: -9, w:  5, h:  2, culoare: 0xd85a4a },  // limba
-      { fel: 'dr',   x:  -6, y:-12, w:  2, h:  2, culoare: 0xe8c84a }   // ochi
+      { fel: 'dr',   x:  -6, y: -5, w:  2, h: 12, culoare: 0x9aad57, faraContur: true },
+      { fel: 'cerc', x:  -4, y:-11, r:  6,        culoare: 0x95a855 },  // capul
+      { fel: 'dr',   x:  -4, y:-14, w:  7, h:  2, culoare: 0xa8bb62, faraContur: true },
+      { fel: 'dr',   x: -11, y: -9, w:  6, h:  2, culoare: 0xd85a4a },  // limba despicata
+      { fel: 'dr',   x: -14, y:-10, w:  3, h:  1, culoare: 0xd85a4a, faraContur: true },
+      { fel: 'dr',   x: -14, y: -8, w:  3, h:  1, culoare: 0xd85a4a, faraContur: true },
+      { fel: 'dr',   x:  -8, y: -7, w:  3, h:  2, culoare: 0xe8e2d4, faraContur: true },  // coltii
+      { fel: 'dr',   x:  -6, y:-12, w:  3, h:  3, culoare: 0xe8c84a },  // ochiul
+      { fel: 'dr',   x:  -6, y:-12, w:  1, h:  3, culoare: 0x2a2010, faraContur: true }   // pupila despicata
     ]
   },
 
@@ -335,12 +464,26 @@ const MOBI = {
     neam: 'umanoid',
     stats: STATS_NIVEL_1,
     forme: [
-      { fel: 'dr',   x:  12, y:  2, w:  3, h: 15, culoare: 0x5b3a1a },  // coada toporului
-      { fel: 'dr',   x:  16, y: -4, w:  8, h:  8, culoare: 0xb8bcc4 },  // lama
-      { fel: 'dr',   x:   0, y:  5, w: 19, h: 18, culoare: 0x7a4a30 },  // trup
-      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xc99a6a },  // cap
-      { fel: 'dr',   x:   0, y:-12, w: 18, h:  5, culoare: 0x9c3a2c },  // banderola rosie
-      { fel: 'dr',   x:  -3, y: -7, w:  2, h:  2, culoare: 0x120f0c },  // ochi
+      { fel: 'dr',   x:  12, y:  2, w:  3, h: 16, culoare: 0x5b3a1a },  // coada toporului
+      { fel: 'dr',   x:  16, y: -4, w:  9, h:  9, culoare: 0xb8bcc4 },  // lama
+      { fel: 'dr',   x:  19, y: -5, w:  3, h:  6, culoare: 0xe2e6ee, faraContur: true },  // taisul
+      { fel: 'dr',   x:  13, y: -3, w:  3, h:  4, culoare: 0x8a8f98, faraContur: true },  // legatura de fier
+      { fel: 'dr',   x:  -6, y: 16, w:  6, h:  6, culoare: 0x3a2c1e },  // cizmele
+      { fel: 'dr',   x:   5, y: 16, w:  6, h:  6, culoare: 0x3a2c1e },
+      { fel: 'dr',   x:   0, y:  5, w: 19, h: 18, culoare: 0x7a4a30 },  // trupul
+      { fel: 'dr',   x:  -5, y:  4, w:  5, h: 14, culoare: 0x8d5a3c, faraContur: true },  // lumina
+      { fel: 'dr',   x:   6, y:  6, w:  4, h: 12, culoare: 0x633a24, faraContur: true },  // umbra
+      { fel: 'dr',   x: -10, y: -1, w:  6, h:  6, culoare: 0x6b6f78 },  // umerarul de fier
+      { fel: 'dr',   x: -10, y: -3, w:  5, h:  2, culoare: 0x8a8f98, faraContur: true },
+      { fel: 'dr',   x:   0, y:  8, w: 19, h:  3, culoare: 0x4a3018, faraContur: true },  // cureaua lata
+      { fel: 'dr',   x:   2, y:  8, w:  4, h:  3, culoare: 0xa8955e, faraContur: true },  // catarama
+      { fel: 'dr',   x:   0, y:  0, w: 15, h:  3, culoare: 0x5a3a2a, faraContur: true },  // curea peste piept
+      { fel: 'cerc', x:   0, y: -9, r:  8,        culoare: 0xc99a6a },  // capul
+      { fel: 'dr',   x:   0, y: -4, w: 11, h:  5, culoare: 0x6b4a2c, faraContur: true },  // barba deasa
+      { fel: 'dr',   x:   0, y:-12, w: 18, h:  6, culoare: 0x9c3a2c },  // banderola rosie
+      { fel: 'dr',   x:   0, y:-14, w: 16, h:  2, culoare: 0xb8503c, faraContur: true },
+      { fel: 'dr',   x:   8, y:-11, w:  4, h:  7, culoare: 0x9c3a2c, faraContur: true },  // capatul ei fluturand
+      { fel: 'dr',   x:  -3, y: -7, w:  2, h:  2, culoare: 0x120f0c },  // ochii
       { fel: 'dr',   x:   3, y: -7, w:  2, h:  2, culoare: 0x120f0c }
     ]
   }

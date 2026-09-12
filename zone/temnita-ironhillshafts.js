@@ -61,6 +61,14 @@ inregistreazaZona({
 
   trash: 75,
 
+  // Cum se cheama inamicii marunti AICI. Un bandit din temnita nu e
+  // acelasi lucru cu unul de pe camp, si trebuie sa se vada.
+  numeTrash: {
+    raider:      'Shaft Breaker',
+    burrower:    'Tunnel Grub',
+    scorpid:     'Oretail Stinger'
+  },
+
   feluriPeNivel: function () {
     return ['raider','burrower','scorpid'];
   }
