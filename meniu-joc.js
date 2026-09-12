@@ -136,6 +136,15 @@ function htmlFisa(obiect) {
              '<div class="fisa-rand bun">' + obiect.consumabil.descriere + '</div>' +
              '<div class="fisa-rand stins">Tap to use</div>' + pret;
     }
+    if (obiect.retetaDe) {
+      const r = gasesteReteta(obiect.retetaDe);
+      const stiu = stiiReteta(personaj, obiect.retetaDe);
+      return cap +
+             '<div class="fisa-rand bun">' + MESERII[r.meserie].nume + ' \u00b7 ' +
+             TEXT.SKILL + ' ' + r.invatataLa + '</div>' +
+             '<div class="fisa-rand stins">' +
+             (stiu ? TEXT.RECIPE_KNOWN : TEXT.TAP_TO_LEARN) + '</div>' + pret;
+    }
     if (obiect.material) {
       return cap + '<div class="fisa-rand stins">Trade material</div>' + pret;
     }
@@ -606,7 +615,7 @@ function scriePaginaInventory() {
     // lui nu mai echipeaza nimic - intreaba daca sa-l arunce.
     const semnX = modAruncare ? '<span class="semn-arunca">&times;</span>' : '';
     const ceFace = modAruncare ? ' data-arunca="' + o.id + '"'
-                 : o.consumabil ? ' data-folosesc="' + o.id + '"'
+                 : (o.consumabil || o.retetaDe) ? ' data-folosesc="' + o.id + '"'
                  : (o.vechitura ? '' : ' data-echipeaza="' + o.id + '"');
 
     if (o.vechitura) {

@@ -299,6 +299,18 @@ function faMarfa(ceVinde) {
     });
   }
 
+  // Negustorul de materiale tine cateva foi de reteta din cele care
+  // nu se iau de la antrenor. Nu le tine pe toate: restul se gasesc
+  // de la inamici, si asa ramane ceva de cautat.
+  if (ceVinde === 'retete') {
+    const amestecate = RETETE_DIN_OBIECTE.slice().sort(function () {
+      return Math.random() - 0.5;
+    });
+    return amestecate.slice(0, 5).map(function (id) {
+      return faFoaieDeReteta(id);
+    }).filter(Boolean);
+  }
+
   const sloturi = SLOTURI.filter(function (s) {
     const eArma = (s.id === 'armaPrincipala' || s.id === 'armaSecundara');
     return (ceVinde === 'arma') ? eArma : !eArma;
@@ -725,7 +737,51 @@ function scrieAntrenorulDeMeserie(id) {
             '</div></div>';
   }
 
+  // ---- retetele pe care le vinde ----
+  //
+  // Aceeasi forma ca la antrenorul de clasa: ce poti lua acum are
+  // buton, ce nu poti are motivul scris cu rosu. Cele care nu se iau
+  // de la el (vin de pe o foaie gasita) nu apar deloc aici - le vezi
+  // in fereastra meseriei, cand le stii.
+  if (ai) {
+    const deVanzare = ceTeInvataAntrenorul(personaj, id);
+    if (deVanzare.length > 0) {
+      html += '<div class="cap-sectiune">' + TEXT.RECIPES_TAUGHT + '</div>';
+      html += '<div class="lista-invatat">';
+      deVanzare.forEach(function (c) {
+        const r = c.reteta;
+        const poate = !c.preaMic && !c.faraBani;
+        const motiv = c.preaMic ? (TEXT.NEED_SKILL.replace('{n}', r.invatataLa))
+                    : c.faraBani ? TEXT.NOT_ENOUGH_GOLD : '';
+
+        html += '<div class="rand-invatat' + (poate ? '' : ' nu-poti') + '">';
+        html += '<div class="cap-invatat"><b>' + r.nume + '</b>' +
+                '<span class="stins">' + TEXT.SKILL + ' ' + r.invatataLa + '</span></div>';
+        html += '<div class="desc-invatat">' + r.cere.map(function (c) {
+                  return c.nume + ' x' + c.cate;
+                }).join(' \u00b7 ') + '</div>';
+        html += '<div class="jos-invatat"><span>' + baniHtml(c.cost) + '</span>' +
+                (poate
+                  ? '<button class="buton mic" data-invat-reteta="' + r.id + '">' +
+                    TEXT.LEARN + '</button>'
+                  : '<span class="rau">' + motiv + '</span>') +
+                '</div></div>';
+      });
+      html += '</div>';
+    }
+  }
+
   corpFereastra.innerHTML = html;
+
+  corpFereastra.querySelectorAll('[data-invat-reteta]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const r = invataReteta(personaj, b.dataset.invatReteta);
+      if (!r) return;
+      mesajFereastra = TEXT.LEARNED + ': ' + r.nume;
+      salveaza();
+      scrieAntrenorul();
+    });
+  });
 
   const cumpUnealta = document.getElementById('cumpar-unealta');
   if (cumpUnealta) cumpUnealta.addEventListener('click', function () {

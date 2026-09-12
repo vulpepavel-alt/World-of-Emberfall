@@ -368,6 +368,14 @@ function invataMeseria(personajul, id) {
   personajul.bani -= se.cost;
   personajul.meserii = personajul.meserii || {};
   personajul.meserii[id] = { skill: 1, treapta: 1 };
+
+  // Pleci de la antrenor cu retetele de inceput deja stiute.
+  if (typeof reteteleDeStart === 'function') {
+    reteteleDeStart(id).forEach(function (r) {
+      invataReteta(personajul, r.id, true);
+    });
+  }
+
   return { meserie: MESERII[id], cost: se.cost };
 }
 
@@ -405,6 +413,14 @@ function ridicaTreapta(personajul, id) {
 function lasaMeseria(personajul, id) {
   if (!aiMeseria(personajul, id)) return false;
   delete personajul.meserii[id];
+
+  // Si retetele ei se pierd, cum scrie in intrebarea de dinainte.
+  // Daca te razgandesti si o iei din nou, le inveti de la capat.
+  Object.keys(personajul.retete || {}).forEach(function (idReteta) {
+    const r = gasesteReteta(idReteta);
+    if (r && r.meserie === id) delete personajul.retete[idReteta];
+  });
+
   return true;
 }
 

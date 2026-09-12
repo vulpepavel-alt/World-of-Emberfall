@@ -129,6 +129,7 @@ function salveaza() {
     // Ce abilitati ai invatat la antrenor, si cum ti-ai asezat bara.
     stiute: personaj.stiute || {},
     meserii: personaj.meserii || {},
+    retete: personaj.retete || {},
     animal: personaj.animal || null,
     bara: personaj.bara || null,
 
@@ -190,6 +191,19 @@ function faPersonajulDinSalvare(s) {
     ? s.stiute : daTotCeSeCuvine(p);
 
   p.meserii = s.meserii || {};
+
+  // Retetele. O salvare facuta INAINTE de ele n-are niciuna, iar pe
+  // atunci le stiai pe toate cele ajunse la skill-ul tau - asa ca le
+  // primesti pe alea, sa nu pierzi nimic din ce puteai face ieri.
+  p.retete = s.retete || {};
+  if (!s.retete) {
+    Object.keys(p.meserii).forEach(function (idMeserie) {
+      const skill = p.meserii[idMeserie].skill || 0;
+      reteteleMeseriei(idMeserie).forEach(function (r) {
+        if (skill >= r.invatataLa) p.retete[r.id] = true;
+      });
+    });
+  }
   p.animal = s.animal || null;
   p.bara = (s.bara && s.bara.length === LOCURI_IN_BARA) ? s.bara : faBaraGoala();
   Object.keys(p.stiute).forEach(function (id) { asazaPeBaraDacaIncape(p, id); });

@@ -693,13 +693,56 @@ function estiLangaStatie(numeStatie) {
 // ==========================================================
 let bandajPanaLa = 0;
 
+// Citirea unei foi de reteta. Poate da gres in trei feluri, si de
+// fiecare data spune de ce - altfel ai apasa pe ea la nesfarsit
+// fara sa intelegi ce vrea.
+function citesteFoaiaDeReteta(o) {
+
+  const r = gasesteReteta(o.retetaDe);
+  if (!r) return null;
+
+  if (stiiReteta(personaj, r.id)) return { gresit: TEXT.RECIPE_KNOWN };
+
+  if (!aiMeseria(personaj, r.meserie)) {
+    return { gresit: TEXT.RECIPE_WRONG_JOB };
+  }
+  if (skillulTau(personaj, r.meserie) < r.invatataLa) {
+    return { gresit: TEXT.RECIPE_TOO_LOW
+      .replace('{n}', r.invatataLa).replace('{p}', MESERII[r.meserie].nume) };
+  }
+
+  invataReteta(personaj, r.id, true);
+
+  // Foaia se face praf dupa citire, ca in Classic.
+  o.cate = (o.cate || 1) - 1;
+  if (o.cate <= 0) {
+    const unde = personaj.inventar.indexOf(o);
+    if (unde >= 0) personaj.inventar.splice(unde, 1);
+  }
+
+  const scena = jucator && jucator.scene;
+  if (scena) {
+    aratacuvant(scena, jucator.x, jucator.y - 70,
+      TEXT.RECIPE_LEARNED.replace('{r}', r.nume), '#ffd34d');
+  }
+  salveaza();
+  return { invatat: r };
+}
+
+
 function folosesteConsumabil(idObiect) {
 
   const scena = jucator && jucator.scene;
   if (!scena || mort) return null;
 
   const o = (personaj.inventar || []).find(function (x) { return x.id === idObiect; });
-  if (!o || !o.consumabil) return null;
+  if (!o) return null;
+
+  // O foaie de reteta nu se bea: se citeste. Merge pe acelasi drum
+  // ca restul, fiindca si ea se apasa o data si dispare.
+  if (o.retetaDe) return citesteFoaiaDeReteta(o);
+
+  if (!o.consumabil) return null;
 
   const ce = o.consumabil;
 

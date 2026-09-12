@@ -234,6 +234,7 @@ const CULOARE_VECHITURA = '#9d9d9d';
 const CULOARE_MATERIAL  = '#6fa8c0';   // materialele de meserie, albastrui
 const CULOARE_CONSUMABIL = '#7ad07a';  // ce se bea sau se mananca, verzui
 const CULOARE_UNEALTA   = '#c8b27a';   // uneltele de meserie, auriu stins
+const CULOARE_RETETA    = '#d0a0d8';   // foile de reteta, liliachiu
 const MAXIM_PE_GRAMADA = 20;
 
 function vechituraDeLaMob(nivelMob, felulMobului) {
@@ -293,6 +294,26 @@ function faUnealta(nume, valoare) {
 }
 
 
+// O foaie de reteta: o apesi in rucsac si inveti ce scrie pe ea.
+// Dupa aceea foaia se face praf, ca in Classic. Cade de la inamici
+// si se vinde la negustorul de materiale din oras.
+function faFoaieDeReteta(idReteta) {
+  const r = gasesteReteta(idReteta);
+  if (!r) return null;
+  return {
+    id: urmatorulIdObiect++,
+    vechitura: true,
+    material: true,            // nu se arunca la gramada cu gunoiul
+    retetaDe: idReteta,
+    nume: TEXT.RECIPE_ITEM.replace('{r}', r.nume),
+    nivel: 1,
+    culoare: CULOARE_RETETA,
+    cate: 1,
+    valoare: Math.max(2, Math.round(costulRetetei(r) / 2))
+  };
+}
+
+
 // Un consumabil: se apasa in rucsac si se foloseste. Ce face scrie
 // in reteta din care a iesit.
 function faConsumabil(ce) {
@@ -322,10 +343,34 @@ function pradaDeLaMob(nivelMob, esteUmanoid) {
   const unul = obiectDeLaMob(nivelMob);
   if (unul) obiecte.push(unul);
 
+  const foaie = foaieDeLaMob(nivelMob);
+  if (foaie) obiecte.push(foaie);
+
   return {
     bani: baniDeLaMob(nivelMob, esteUmanoid),
     obiecte: obiecte
   };
+}
+
+
+// Sansa ca inamicul sa lase o foaie de reteta. E mica - o foaie la
+// vreo optzeci de inamici - fiindca sunt doar paisprezece in tot
+// jocul si trebuie sa insemne ceva cand cade una.
+const SANSA_FOAIE = 1.2;
+
+function foaieDeLaMob(nivelMob) {
+
+  if (Math.random() * 100 >= SANSA_FOAIE) return null;
+
+  // Un inamic mic nu lasa reteta pe care ai invata-o la skill 240.
+  // Inmultitul cu 6 face ca pe la nivelul 40 sa poata cadea oricare.
+  const potrivite = RETETE.filter(function (r) {
+    return r.sursa === 'obiect' && r.invatataLa <= nivelMob * 6;
+  });
+  if (potrivite.length === 0) return null;
+
+  const aleasa = potrivite[Math.floor(Math.random() * potrivite.length)];
+  return faFoaieDeReteta(aleasa.id);
 }
 
 
@@ -541,6 +586,7 @@ const NUME_ATRIBUT = { str: 'Strength', agi: 'Agility', sta: 'Stamina',
 function descriereObiect(obiect) {
   // Un tarnacop nu e gunoi, si nici un minereu. Pana acum toate
   // trei scriau 'Junk', fiindca merg pe acelasi drum al gramezilor.
+  if (obiect.retetaDe) return TEXT.ITEM_RECIPE;
   if (obiect.unealta) return TEXT.ITEM_TOOL;
   if (obiect.consumabil) return TEXT.USE;
   if (obiect.material) return TEXT.ITEM_TRADE;

@@ -405,16 +405,109 @@ function gasesteReteta(id) {
 }
 
 
-// Retetele pe care le stii intr-o meserie: cele pe care antrenorul
-// ti le-a dat pana la skill-ul tau de acum.
+// ==========================================================
+//  DE UNDE VINE O RETETA
 //
-// In Classic unele retete se cumpara sau cad de la inamici. Aici
-// toate vin de la antrenor, odata cu skill-ul - o singura cale, mai
-// usor de urmarit. Cele care se gasesc vin cand va fi cazul.
-function reteteleStiute(personajul, idMeserie) {
-  const skill = skillulTau(personajul, idMeserie);
+//  Doua cai, ca in Classic:
+//
+//    'antrenor' - o cumperi de la antrenorul meseriei, pe bani, cand
+//                 ai skill-ul cerut. Asa vin cele mai multe.
+//    'obiect'   - vine scrisa pe o foaie. Foaia cade de la inamici
+//                 sau se cumpara de la negustorul de materiale din
+//                 oras; o apesi in rucsac si o inveti.
+//
+//  Lista de mai jos e a celor care NU se cumpara de la antrenor.
+//  Sunt raspandite peste toate meseriile, ca fiecare meserie sa
+//  aiba ceva de cautat, nu doar de platit.
+// ==========================================================
+const RETETE_DIN_OBIECTE = [
+  'smith_blade_02', 'smith_blade_03',
+  'tan_legs_01',
+  'weave_bandage_cloth', 'weave_legs_01',
+  'brew_str_01', 'brew_heal_03',
+  'rune_charm_01', 'rune_amulet_01',
+  'tink_bomb_01', 'tink_trinket_01',
+  'cook_feast_01', 'cook_fish_02',
+  'band_03'
+];
+
+RETETE.forEach(function (r) {
+  r.sursa = RETETE_DIN_OBIECTE.indexOf(r.id) >= 0 ? 'obiect' : 'antrenor';
+});
+
+
+// Cat costa o reteta la antrenor. Creste cu skill-ul cerut, ca sa
+// coste mai mult cele de care ai nevoie mai tarziu, cand ai si bani.
+function costulRetetei(reteta) {
+  return Math.round(5 * Math.pow(Math.max(1, reteta.invatataLa), 1.3));
+}
+
+
+// Retetele cu care pornesti la drum cand inveti meseria. Fara ele
+// ai iesi de la antrenor cu o meserie si nimic de facut cu ea.
+function reteteleDeStart(idMeserie) {
   return reteteleMeseriei(idMeserie).filter(function (r) {
-    return skill >= r.invatataLa;
+    return r.sursa === 'antrenor' && r.invatataLa <= 1;
+  });
+}
+
+
+function stiiReteta(personajul, id) {
+  return !!(personajul.retete || {})[id];
+}
+
+
+// O inveti: ori pe bani la antrenor, ori gratis (de pe o foaie sau
+// la inceputul meseriei). Intoarce reteta, sau null daca n-a mers.
+function invataReteta(personajul, id, gratis) {
+
+  const r = gasesteReteta(id);
+  if (!r) return null;
+  if (stiiReteta(personajul, id)) return null;
+
+  if (!gratis) {
+    if (r.sursa !== 'antrenor') return null;
+    if (!aiMeseria(personajul, r.meserie)) return null;
+    if (skillulTau(personajul, r.meserie) < r.invatataLa) return null;
+
+    const cost = costulRetetei(r);
+    if ((personajul.bani || 0) < cost) return null;
+    personajul.bani -= cost;
+  }
+
+  personajul.retete = personajul.retete || {};
+  personajul.retete[id] = true;
+  return r;
+}
+
+
+// Ce are antrenorul de meserie de vandut acum: retetele pe care nu
+// le stii si care vin de la el. Se scriu si cele pe care inca nu le
+// poti lua, cu motivul, ca sa vezi ce te asteapta.
+function ceTeInvataAntrenorul(personajul, idMeserie) {
+
+  const skill = skillulTau(personajul, idMeserie);
+
+  return reteteleMeseriei(idMeserie)
+    .filter(function (r) {
+      return r.sursa === 'antrenor' && !stiiReteta(personajul, r.id);
+    })
+    .map(function (r) {
+      const cost = costulRetetei(r);
+      return {
+        reteta: r, cost: cost,
+        preaMic: skill < r.invatataLa,
+        faraBani: (personajul.bani || 0) < cost
+      };
+    })
+    .sort(function (a, b) { return a.reteta.invatataLa - b.reteta.invatataLa; });
+}
+
+
+// Retetele pe care le stii intr-o meserie, in ordinea skill-ului.
+function reteteleStiute(personajul, idMeserie) {
+  return reteteleMeseriei(idMeserie).filter(function (r) {
+    return stiiReteta(personajul, r.id);
   });
 }
 
