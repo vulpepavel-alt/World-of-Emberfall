@@ -252,6 +252,96 @@ function faObiectDeSef(def, nivel) {
 }
 
 
+// ==========================================================
+//  DURABILITATEA
+//
+//  Fiecare arma si fiecare piesa de armura are un numar de puncte.
+//  Scad cand lovesti, cand incasezi si - mai ales - cand mori.
+//  La zero, lucrul nu mai da NIMIC: nici statistici, nici armura,
+//  nici damage. Il repari la armurier, pe bani.
+//
+//  Podoabele nu se strica: un inel nu se toceste.
+// ==========================================================
+
+// Cat tine fiecare slot. Armele si piesele mari se strica mai
+// repede, fiindca ele iau lovitura.
+const DURABILITATE_SLOT = {
+  cap: 55, umeri: 60, spate: 40, piept: 80, incheieturi: 45,
+  maini: 50, brau: 45, picioare: 75, talpi: 55,
+  armaPrincipala: 70, armaSecundara: 80
+};
+
+function durabilitateaSlotului(idSlot, nivel) {
+  const baza = DURABILITATE_SLOT[idSlot] || 50;
+  // Lucrurile de nivel mare tin mai mult, dar nu mult mai mult:
+  // vrem ca reparatul sa ramana o cheltuiala, la orice nivel.
+  return Math.round(baza * (1 + nivel / 90));
+}
+
+
+function esteStricat(obiect) {
+  return obiect && obiect.durabilitateMaxima > 0 && obiect.durabilitate <= 0;
+}
+
+
+// Cat costa sa repari un lucru, dupa cat de stricat e si cat e de bun.
+function costulReparatiei(obiect) {
+  if (!obiect || !obiect.durabilitateMaxima) return 0;
+  const lipsa = obiect.durabilitateMaxima - obiect.durabilitate;
+  if (lipsa <= 0) return 0;
+  const peLovitura = 1 + (obiect.nivel || 1) * 0.5 *
+                     (gasesteRaritate(obiect.raritate).putere);
+  return Math.max(1, Math.round(lipsa * peLovitura));
+}
+
+
+// Toate lucrurile pe care le porti si care se pot repara.
+function ceAiDeReparat(personajul) {
+  const lista = [];
+  const echipate = personajul.echipament || {};
+  Object.keys(echipate).forEach(function (sl) {
+    const o = echipate[sl];
+    if (o && o.durabilitateMaxima > 0 && o.durabilitate < o.durabilitateMaxima) {
+      lista.push(o);
+    }
+  });
+  (personajul.inventar || []).forEach(function (o) {
+    if (o && o.durabilitateMaxima > 0 && o.durabilitate < o.durabilitateMaxima) {
+      lista.push(o);
+    }
+  });
+  return lista;
+}
+
+
+function costulReparatiilorTuturor(personajul) {
+  return ceAiDeReparat(personajul).reduce(function (t, o) {
+    return t + costulReparatiei(o);
+  }, 0);
+}
+
+
+function reparaTot(personajul) {
+  const cost = costulReparatiilorTuturor(personajul);
+  if (cost <= 0) return { nimic: true };
+  if ((personajul.bani || 0) < cost) return { faraBani: true, cost: cost };
+  personajul.bani -= cost;
+  ceAiDeReparat(personajul).forEach(function (o) {
+    o.durabilitate = o.durabilitateMaxima;
+  });
+  return { cost: cost };
+}
+
+
+// Toceste un lucru. Intoarce true daca tocmai s-a stricat de tot.
+function toceste(obiect, cat) {
+  if (!obiect || !obiect.durabilitateMaxima) return false;
+  if (obiect.durabilitate <= 0) return false;
+  obiect.durabilitate = Math.max(0, obiect.durabilitate - (cat || 1));
+  return obiect.durabilitate <= 0;
+}
+
+
 // Alege unul la intamplare dintr-o lista.
 function unulDin(lista) {
   return lista[Math.floor(Math.random() * lista.length)];
@@ -389,10 +479,21 @@ function faObiect(idSlot, nivel, idRaritate, optiuni) {
   const areDejaOf = numePiesa.indexOf(' of ') >= 0;
   const numeIntreg = areDejaOf ? inceput : (inceput + ' ' + coada.text);
 
+  // ---- durabilitatea ----
+  //
+  // Ca in Classic: armele si armura se strica de la folosit si de la
+  // moarte, si se repara pe bani la armurier. Podoabele - lant,
+  // inele, talisman - NU se strica: nu le folosesti cu nimic.
+  const arePiele = (idSlot !== 'gat' && idSlot !== 'inel1' &&
+                    idSlot !== 'inel2' && idSlot !== 'talisman');
+  const durMax = arePiele ? durabilitateaSlotului(idSlot, nivel) : 0;
+
   return {
     id: urmatorulIdObiect++,
     slot: idSlot,
     nume: numeIntreg,
+    durabilitate: durMax,
+    durabilitateMaxima: durMax,
     nivel: nivel,
     nivelCerut: nivel,    // de la ce nivel il poti pune pe tine
     raritate: raritate.id,
@@ -875,6 +976,8 @@ function bonusEchipament(personajul) {
   Object.keys(echipate).forEach(function (idSlot) {
     const obiect = echipate[idSlot];
     if (!obiect) return;
+    // Un lucru stricat de tot ramane pe tine, dar nu mai da nimic.
+    if (esteStricat(obiect)) return;
     Object.keys(obiect.statistici).forEach(function (a) {
       total[a] = (total[a] || 0) + obiect.statistici[a];
     });

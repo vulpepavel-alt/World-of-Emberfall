@@ -116,6 +116,14 @@ const TEXT = {
   RISE_HERE:      'Rise',
   YOUR_BODY:      'Your body',
 
+  // Durabilitatea
+  BROKE:          '{o} has broken',
+  DURABILITY:     'Durability',
+  BROKEN:         'Broken \u2014 gives nothing until repaired',
+  REPAIR:         'Repair all',
+  REPAIR_NOTHING: 'Nothing needs repair',
+  REPAIR_DONE:    'Repaired',
+
   // Meniul de infatisare
   SEX:         'Body',
   SKIN_COLOR:  'Skin Color',

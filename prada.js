@@ -375,6 +375,20 @@ function scrieTaraba() {
     '<button class="fila' + (filaTarabei === 'sell' ? ' aleasa' : '') + '" data-fila-taraba="sell">' + TEXT.SELL + '</button>' +
     '</div>';
 
+  // ---- reparatul ----
+  //
+  // Orice negustor repara. In Classic doar unii o fac, dar aici ar
+  // insemna sa umbli prin oras cautand pe cine trebuie, si aia nu e
+  // greutate, e bataie de cap.
+  const deReparat = ceAiDeReparat(personaj);
+  const costRep = costulReparatiilorTuturor(personaj);
+  html += '<div class="rand-detaliu"><span>' +
+          (deReparat.length ? (deReparat.length + ' \u00b7 ' + baniHtml(costRep))
+                            : TEXT.REPAIR_NOTHING) + '</span>' +
+          (deReparat.length
+            ? '<button class="buton mic" id="repara">' + TEXT.REPAIR + '</button>'
+            : '<span></span>') + '</div>';
+
   html += '<div class="lista-prada">';
 
   if (filaTarabei === 'buy') {
@@ -428,6 +442,19 @@ function scrieTaraba() {
       mesajFereastra = '';
       scrieTaraba();
     });
+  });
+
+  const butonRep = document.getElementById('repara');
+  if (butonRep) butonRep.addEventListener('click', function () {
+    const r = reparaTot(personaj);
+    if (r.faraBani) { mesajFereastra = TEXT.NOT_ENOUGH; }
+    else if (r.cost) {
+      mesajFereastra = TEXT.REPAIR_DONE + ': ' + baniHtml(r.cost);
+      suna('bani');
+      if (typeof aplicaTalentele === 'function') aplicaTalentele();
+      salveaza();
+    }
+    scrieTaraba();
   });
 
   corpFereastra.querySelectorAll('[data-cumpar]').forEach(function (b) {

@@ -176,6 +176,16 @@ function htmlFisa(obiect) {
     html += '<div class="fisa-rand bun">+' + obiect.statistici[a] + ' ' + NUME_ATRIBUT[a] + '</div>';
   });
 
+  if (obiect.durabilitateMaxima > 0) {
+    const stricat = esteStricat(obiect);
+    html += '<div class="fisa-rand' + (stricat ? ' rau' : '') + '">' +
+            TEXT.DURABILITY + ' ' + obiect.durabilitate + ' / ' +
+            obiect.durabilitateMaxima + '</div>';
+    if (stricat) {
+      html += '<div class="fisa-rand rau">' + TEXT.BROKEN + '</div>';
+    }
+  }
+
   html += '<div class="fisa-rand' + (preaMic ? ' rau' : '') + '">Requires Level ' +
           nivelulCerut(obiect) + '</div>';
 
