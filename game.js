@@ -1922,6 +1922,9 @@ function create() {
     aratacuvant(this, jucator.x, jucator.y - 74, TEXT.ENEMY_CITY, '#e06a5a');
   }
 
+  // --- Tovarasii angajati: vin singuri, atatia cati incap aici ---
+  if (typeof cheamaTovarasii === 'function') cheamaTovarasii(this);
+
   // --- Animalul, daca il aveai chemat ---
   stergeAnimalul();
   if (personaj.animal && personaj.animal.chemat && personaj.animal.viata > 0) {
@@ -2652,6 +2655,7 @@ function interactioneaza(scena) {
 function deschideCeTrebuie(npcul) {
 
   if (npcul.marfa) { deschideTaraba(npcul); return; }
+  if (npcul.cine && npcul.cine.angajeaza) { deschideAngajatorul(npcul); return; }
 
   const invata = npcul.cine && npcul.cine.invata;
 
@@ -3437,6 +3441,18 @@ function actualizeazaBaraResursa() {
 // ================================================
 
 // Esti in lupta acum?
+// Cand iesi din lupta, tovarasii cazuti se ridica singuri.
+let eramInLupta = false;
+
+function verificaIesireaDinLupta(scena) {
+  const acum = esteInLupta(scena);
+  if (eramInLupta && !acum && typeof ridicaTovarasiiCazuti === 'function') {
+    ridicaTovarasiiCazuti();
+  }
+  eramInLupta = acum;
+}
+
+
 function esteInLupta(scena) {
   return (scena.time.now - ultimaLupta) < IESIRE_DIN_LUPTA;
 }
@@ -4307,6 +4323,8 @@ function update(time, delta) {
   actualizeazaPescuitul(this);
   actualizeazaCapcanele(this);
   actualizeazaAnimalul(this, delta);
+  if (typeof actualizeazaTovarasii === 'function') actualizeazaTovarasii(this, delta);
+  verificaIesireaDinLupta(this);
   // Ce tine in timp: ranile care dor, alinarile si intaririle.
   actualizeazaRanile(this);
   actualizeazaAlinarile(this);
@@ -5122,6 +5140,13 @@ function mobTeLoveste(scena, mob) {
   if (mort) return;
 
   intraInLupta(scena);
+
+  // Daca un tovaras s-a bagat intre tine si inamic, el incaseaza.
+  // Scutierul e ales primul: pentru asta il platesti.
+  if (typeof tovarasulCareTeAcopera === 'function') {
+    const scut = tovarasulCareTeAcopera(mob);
+    if (scut) { mobLovesteTovarasul(scena, mob, scut); return; }
+  }
 
   // QUICKNESS (Duskborn): uneori te dai la o parte si nu incasezi nimic.
   if (evitiLovitura()) {

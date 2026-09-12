@@ -306,6 +306,14 @@ const NPC = {
   },
 
   // ---------- negustorii orasului ----------
+  // Cel care tine oameni de inchiriat. Sta in Hall of Arms, langa
+  // antrenorii de clasa: acolo te duci oricum cand te pregatesti.
+  angajator: {
+    nume: TEXT.TR_HIRE_NAME, titlu: TEXT.TR_HIRE_TITLE, angajeaza: true,
+    forme: faOmulet({ piele: 0xd8b08a, haina: 0x4a4237, accent: 0xc9a961,
+                      par: 0x3a3128, tine: 'sabie' })
+  },
+
   negustorUnelte: {
     nume: TEXT.TR_TOOLS_NAME, titlu: TEXT.TR_TOOLS_TITLE, vinde: 'unelte',
     forme: faOmulet({ piele: 0xd8a87c, haina: 0x5a4a2c, accent: 0xb8bcc4,

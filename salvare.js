@@ -130,6 +130,7 @@ function salveaza() {
     stiute: personaj.stiute || {},
     meserii: personaj.meserii || {},
     retete: personaj.retete || {},
+    tovarasi: personaj.tovarasi || [],
     terminat: !!personaj.terminat,
     animal: personaj.animal || null,
     bara: personaj.bara || null,
@@ -197,6 +198,7 @@ function faPersonajulDinSalvare(s) {
   // atunci le stiai pe toate cele ajunse la skill-ul tau - asa ca le
   // primesti pe alea, sa nu pierzi nimic din ce puteai face ieri.
   p.terminat = !!s.terminat;
+  p.tovarasi = s.tovarasi || [];
   p.retete = s.retete || {};
   if (!s.retete) {
     Object.keys(p.meserii).forEach(function (idMeserie) {

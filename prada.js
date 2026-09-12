@@ -1035,6 +1035,111 @@ function arataFinalul() {
 }
 
 
+// ==========================================================
+//  OAMENII DE INCHIRIAT
+//
+//  Ii angajezi o data si raman ai tai. Nu trebuie sa-i chemi: vin
+//  singuri, atatia cati incap in locul in care esti - unul in lume,
+//  trei intr-o temnita, cinci intr-un raid.
+// ==========================================================
+let angajatorulDeschis = null;
+
+function deschideAngajatorul(npcul) {
+  if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();
+  fereastraDeschisa = 'angajator';
+  angajatorulDeschis = npcul;
+  mesajFereastra = '';
+  ecranFereastra.classList.remove('ascuns');
+  potrivesteFereastra();
+  suna('fereastra');
+  scrieAngajatorul();
+}
+
+
+function scrieAngajatorul() {
+
+  const cine = angajatorulDeschis.cine;
+  titluFereastra.textContent = cine.nume + '  <' + cine.titlu + '>';
+
+  const limite = limiteleLocului(zona);
+
+  let html = '<div class="cutie">';
+  html += '<div class="rand-detaliu"><span>' + TEXT.YOUR_MONEY + '</span>' +
+          '<span>' + baniHtml(personaj.bani || 0) + '</span></div>';
+  html += '<div class="gol-fereastra">' +
+          TEXT.HIRE_HERE.replace('{n}', limite.total) + '</div>';
+
+  if (mesajFereastra) {
+    html += '<div class="mesaj-fereastra">' + mesajFereastra + '</div>';
+  }
+
+  // ---- cine e deja al tau ----
+  const ai = tovarasiiTai(personaj);
+  if (ai.length) {
+    html += '<div class="cap-sectiune">' + TEXT.HIRE_HIRED + '</div>';
+    html += '<div class="lista-invatat">';
+    ai.forEach(function (t, i) {
+      const f = TOVARASI[t.fel];
+      html += '<div class="rand-invatat">';
+      html += '<div class="cap-invatat"><b>' + f.nume + '</b>' +
+              '<span class="stins">' + f.titlu + '</span></div>';
+      html += '<div class="jos-invatat"><span></span>' +
+              '<button class="buton mic rau" data-concediez="' + i + '">' +
+              TEXT.HIRE_DISMISS + '</button></div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  // ---- cine se mai poate angaja ----
+  html += '<div class="cap-sectiune">' + TEXT.HIRE_TITLE + '</div>';
+  html += '<div class="lista-invatat">';
+  Object.keys(TOVARASI).forEach(function (fel) {
+    const f = TOVARASI[fel];
+    const se = potiAngaja(personaj, fel);
+    const motiv = se.poti ? ''
+      : se.motiv === 'bani' ? TEXT.NOT_ENOUGH_GOLD
+      : se.motiv === 'rol'  ? TEXT.HIRE_ROLE_FULL
+      : TEXT.HIRE_FULL;
+
+    html += '<div class="rand-invatat' + (se.poti ? '' : ' nu-poti') + '">';
+    html += '<div class="cap-invatat"><b>' + f.nume + '</b>' +
+            '<span class="stins">' + f.titlu + '</span></div>';
+    html += '<div class="jos-invatat"><span>' + baniHtml(f.pret) + '</span>' +
+            (se.poti
+              ? '<button class="buton mic" data-angajez="' + fel + '">' +
+                TEXT.HIRE_HIRE + '</button>'
+              : '<span class="rau">' + motiv + '</span>') +
+            '</div></div>';
+  });
+  html += '</div></div>';
+
+  corpFereastra.innerHTML = html;
+
+  corpFereastra.querySelectorAll('[data-angajez]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      const f = angajeaza(personaj, b.dataset.angajez);
+      if (!f) return;
+      mesajFereastra = TEXT.HIRE_HIRED + ': ' + f.nume;
+      suna('invatat');
+      salveaza();
+      if (jucator && typeof cheamaTovarasii === 'function') cheamaTovarasii(jucator.scene);
+      scrieAngajatorul();
+    });
+  });
+
+  corpFereastra.querySelectorAll('[data-concediez]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      concediaza(personaj, Number(b.dataset.concediez));
+      mesajFereastra = '';
+      salveaza();
+      if (jucator && typeof cheamaTovarasii === 'function') cheamaTovarasii(jucator.scene);
+      scrieAngajatorul();
+    });
+  });
+}
+
+
 function deschideTeleportarea() {
 
   if (typeof meniuDeschis !== 'undefined' && meniuDeschis) inchideMeniul();

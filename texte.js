@@ -56,6 +56,19 @@ const TEXT = {
   // Locurile de pe harta
   PLACE_CITY:     'City',
   CAP_CLASS:      'Trainers for all four classes',
+
+  // Tovarasii de inchiriat
+  HIRE_SHIELD:    'Sworn Shield',   HIRE_SHIELD_T: 'Takes the blows meant for you',
+  HIRE_MEDIC:     'Field Medic',    HIRE_MEDIC_T:  'Closes wounds while you fight',
+  HIRE_BOW:       'Longbowman',     HIRE_BOW_T:    'Shoots from behind you',
+  HIRE_DOWN:      'Down!',
+  HIRE_TITLE:     'Hirelings',
+  HIRE_HIRE:      'Hire',
+  HIRE_DISMISS:   'Dismiss',
+  HIRE_HIRED:     'With you',
+  HIRE_FULL:      'You have all you can keep',
+  HIRE_ROLE_FULL: 'You already keep enough of these',
+  HIRE_HERE:      'Here you may bring {n}',
   CAP_TRADES:     'Trainers for all twelve trades',
   CAP_VENDORS:    'Tools, trade supplies and recipes',
   CAP_LOOK:       'Look at {c}',
@@ -181,6 +194,7 @@ const TEXT = {
   TR_FISH_NAME:    'Angler',         TR_FISH_TITLE:    'Angling Trainer',
 
   TR_TOOLS_NAME:   'Toolwright',     TR_TOOLS_TITLE:   'Tools and Gear',
+  TR_HIRE_NAME:    'Serjeant Halt',  TR_HIRE_TITLE:    'Hirelings',
   TR_GOODS_NAME:   'Supplier',       TR_GOODS_TITLE:   'Trade Supplies',
 
   // Meseriile

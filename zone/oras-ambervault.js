@@ -72,6 +72,7 @@ inregistreazaZona({
     { fel: 'antrenorVanator',   la: 'arme', dc:  -5, dr: 8 },
     { fel: 'antrenorMag',       la: 'arme', dc:   5, dr: 8 },
     { fel: 'antrenorPreot',     la: 'arme', dc:  14, dr: 4 },
+    { fel: 'angajator',         la: 'arme', dc:   0, dr: 14 },
 
     // ---- fierarie, minerit, inginerie ----
     { fel: 'antrenorFierarie',  la: 'forja', dc: -8, dr: -4 },
