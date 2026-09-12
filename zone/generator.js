@@ -944,9 +944,28 @@ function asazaMobii(zona, reteta, ajuns, start) {
     return Math.max(deLa, Math.min(panaLa, Math.round(deLa + parte * (panaLa - deLa))));
   }
 
+  // ---- CATE TABERE ----
+  //
+  // Numarul scris in fisierul zonei nu tinea cont de cat e zona de
+  // mare, si iesea altfel in fiecare loc. Masurat in Thornmoor: din
+  // 300 de puncte pe unde puteai umbla, 98 (o treime) n-aveau NICIUN
+  // inamic in raza in care apar - adica mergeai minute intregi prin
+  // gol. In WoW sunt si acolo bucati goale, dar nu o treime din zona.
+  //
+  // Acum taberele ies din SUPRAFATA zonei, una la fiecare 3600 de
+  // casute (adica o tabara la un patrat de vreo 60x60). Numarul scris
+  // de mana ramane ca prag de jos: nicio zona nu primeste mai putin
+  // decat avea.
+  const cateTabere = Math.max(reteta.tabere || 0,
+                              Math.round(zona.COL * zona.RND / 3600));
+
+  // Cat de aproape pot sta doua tabere. Mai stranse decat inainte,
+  // altfel n-ar incapea cele noi si s-ar opri la jumatate.
+  const DEPARTE_INTRE_TABERE = 30;
+
   const tabere = [];
   let incercari = 0;
-  while (tabere.length < reteta.tabere && incercari < reteta.tabere * 900) {
+  while (tabere.length < cateTabere && incercari < cateTabere * 900) {
     incercari++;
 
     const c = Math.floor(zar() * zona.COL);
@@ -955,7 +974,7 @@ function asazaMobii(zona, reteta, ajuns, start) {
 
     const inghesuit = tabere.some(function (tab) {
       const dc = tab.c - c, dr = tab.r - r;
-      return Math.sqrt(dc * dc + dr * dr) < 40;
+      return Math.sqrt(dc * dc + dr * dr) < DEPARTE_INTRE_TABERE;
     });
     if (inghesuit) continue;
 

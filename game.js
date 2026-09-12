@@ -61,11 +61,21 @@ function zgomot(x, y) {
   return ((n ^ (n >>> 16)) >>> 0) / 4294967295;
 }
 
-// Zgomot NETED. Cel de sus da o valoare sarita de la un punct la
-// altul, deci din el ies numai patrate. Asta ia patru puncte vecine
-// si face trecerea lina intre ele - si din el ies dealuri, vine si
-// crapaturi, adica forme care curg.
-function zgomotNeted(x, y) {
+// Zgomot NETED, pentru TEXTURI. Cel de sus da o valoare sarita de la
+// un punct la altul, deci din el ies numai patrate. Asta ia patru
+// puncte vecine si face trecerea lina intre ele - si din el ies
+// dealuri, vine si crapaturi, adica forme care curg.
+//
+// ATENTIE LA NUME. Prima oara am chemat-o "zgomotNeted", si asa se
+// cheama si o functie din zone/generator.js - dar aceea ia PATRU
+// numere (x, y, marime, samanta). Fiindca game.js se incarca dupa
+// generator.js, a mea a luat-o pe a lui, iar generatorul a inceput
+// sa cheme functia gresita: drumurile s-au rupt in bucati, fiindca
+// abaterea lor nu mai era lina. Nu s-a plans nimic, doar lumea
+// arata prost. De-aia numele de aici spune raspicat ce e.
+// Verificatorul din verifica-dubluri.js cauta acum asemenea
+// suprapuneri, ca sa nu mai treaca in tacere.
+function zgomotNetedTextura(x, y) {
   const x0 = Math.floor(x), y0 = Math.floor(y);
   const fx = x - x0, fy = y - y0;
   // curba care intra si iese lin, ca sa nu se vada colturile retelei
@@ -191,8 +201,8 @@ function nuantaPixelului(textura, sx, sy, gx, gy, z) {
       // Crapaturile sunt LINII, nu pete. Se deseneaza acolo unde un
       // camp neted trece printr-o valoare anume - asa ies suvite
       // care curg si se ramifica. Cu zgomot sarit ieseau patrate.
-      const camp  = zgomotNeted(gx / 11 + 31, gy / 11 + 97);
-      const camp2 = zgomotNeted(gx / 5 + 4, gy / 5 + 12);
+      const camp  = zgomotNetedTextura(gx / 11 + 31, gy / 11 + 97);
+      const camp2 = zgomotNetedTextura(gx / 5 + 4, gy / 5 + 12);
 
       const linieMare = Math.abs(camp - 0.5) < 0.022;
       const linieMica = Math.abs(camp2 - 0.5) < 0.016;
@@ -224,7 +234,7 @@ function nuantaPixelului(textura, sx, sy, gx, gy, z) {
       // Valul e o unda lina, nu o dunga dreapta, si sclipirile sunt
       // rare. Prima data erau pe fiecare creasta si apa arata ca o
       // fata de masa cu puncte galbene.
-      const adanc  = zgomotNeted(gx / 10 + 61, gy / 10 + 13);
+      const adanc  = zgomotNetedTextura(gx / 10 + 61, gy / 10 + 13);
       const unda   = Math.sin(gy * 0.55 + Math.sin(gx * 0.13) * 2.2);
       const sclipe = zgomot(gx, gy + 404);
 
@@ -262,9 +272,9 @@ function nuantaPixelului(textura, sx, sy, gx, gy, z) {
       // Manunchiurile se fac tot din zgomot neted, ca sa fie rotunde.
       // Cu zgomot sarit ieseau patrate de patru pe patru pixeli si
       // coroana arata a tabla de sah, nu a frunze.
-      const manunchi = zgomotNeted(gx / 3.5 + 17, gy / 3.5 + 41);
-      const susStanga = zgomotNeted((gx - 1) / 3.5 + 17, (gy - 1) / 3.5 + 41);
-      const gaura = zgomotNeted(gx / 9 + 401, gy / 9 + 77);
+      const manunchi = zgomotNetedTextura(gx / 3.5 + 17, gy / 3.5 + 41);
+      const susStanga = zgomotNetedTextura((gx - 1) / 3.5 + 17, (gy - 1) / 3.5 + 41);
+      const gaura = zgomotNetedTextura(gx / 9 + 401, gy / 9 + 77);
 
       if (gaura < 0.24) return 0;                             // gaura dintre ramuri
       if (manunchi < 0.30) return 1;                          // dedesubtul frunzelor
@@ -2205,6 +2215,14 @@ function construiesteBucata(scena, bc, br) {
   const panza = scena.textures.createCanvas(cheie, CHUNK_PX, CHUNK_PX);
   const ctx = panza.getContext();
 
+  // Ce se socoteste "carare": drumul si podul peste apa.
+  const LIT = zona.litereScurt || { drum: 'P', pod: 'B' };
+  function esteCarare(cc, rr) {
+    if (rr < 0 || rr >= randuri || cc < 0 || cc >= coloane) return false;
+    const l = zona.harta[rr][cc];
+    return l === LIT.drum || l === LIT.pod;
+  }
+
   for (let r = br * CHUNK; r < (br + 1) * CHUNK; r++) {
     if (r >= randuri) break;
 
@@ -2234,6 +2252,28 @@ function construiesteBucata(scena, bc, br) {
           ctx.fillStyle = paleta[nuantaPixelului(textura, sx, sy, gx, gy, zgomot(gx, gy))];
           ctx.fillRect(localX + sx * PIXEL, localY + sy * PIXEL, PIXEL, PIXEL);
         }
+      }
+
+      // ---- marginea cararii ----
+      //
+      // Asta e ce face un drum sa se vada ca drum. Culoarea singura nu
+      // ajunge: o pata de alta culoare tot pata ramane. Dar o dunga mai
+      // inchisa exact pe unde se termina drumul o citeste ochiul pe loc
+      // ca "pamant batatorit, calcat de lume" - la fel ca in WoW, unde
+      // fiecare carare are marginea ei.
+      //
+      // Se deseneaza numai pe laturile dinspre care NU mai e drum, deci
+      // mijlocul cararii ramane curat si nu iese un caroiaj.
+      if (esteCarare(c, r)) {
+        const GROS = PIXEL * 2;                 // 4 pixeli de ecran
+        ctx.save();
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = paleta[0];              // cea mai inchisa nuanta a drumului
+        if (!esteCarare(c, r - 1)) ctx.fillRect(localX, localY, TILE, GROS);
+        if (!esteCarare(c, r + 1)) ctx.fillRect(localX, localY + TILE - GROS, TILE, GROS);
+        if (!esteCarare(c - 1, r)) ctx.fillRect(localX, localY, GROS, TILE);
+        if (!esteCarare(c + 1, r)) ctx.fillRect(localX + TILE - GROS, localY, GROS, TILE);
+        ctx.restore();
       }
     }
   }

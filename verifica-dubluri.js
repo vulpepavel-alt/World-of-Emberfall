@@ -96,9 +96,72 @@ DE_VERIFICAT.forEach(function (pereche) {
 });
 
 
+// ==========================================================
+//  FUNCTII CU ACELASI NUME IN FISIERE DIFERITE
+//
+//  Jocul e facut din fisiere legate cu <script>, nu din module. Ele
+//  impart acelasi spatiu de nume, deci doua functii cu acelasi nume
+//  nu dau nicio eroare: pur si simplu cea din fisierul incarcat mai
+//  tarziu o sterge pe cealalta. Restul codului cheama mai departe
+//  numele, primeste functia gresita si nu se plange nimeni.
+//
+//  M-a pacalit de doua ori:
+//    - 'zgomot' din sunete.js peste 'zgomot' din game.js: toate
+//      sunetele de lovitura si-au pierdut bufnitura
+//    - 'zgomotNeted' din game.js peste cea din zone/generator.js:
+//      drumurile s-au rupt in bucati prin toata lumea
+//
+//  De-aia se verifica automat de acum.
+// ==========================================================
+const path = require('path');
+
+function toateFisiereleJs(radacina) {
+  const gasite = [];
+  (function mergi(unde) {
+    fs.readdirSync(unde, { withFileTypes: true }).forEach(function (intrare) {
+      const drum = path.join(unde, intrare.name);
+      if (intrare.isDirectory()) {
+        if (intrare.name !== 'node_modules' && intrare.name[0] !== '.') mergi(drum);
+      } else if (intrare.name.endsWith('.js')) {
+        gasite.push(drum);
+      }
+    });
+  })(radacina);
+  return gasite;
+}
+
+// Numai functiile scrise la marginea din stanga, adica cele globale.
+// Cele dinauntrul altei functii sunt indentate si nu deranjeaza pe nimeni.
+const undeEFunctia = {};
+toateFisiereleJs(__dirname).forEach(function (drum) {
+  const scurt = path.relative(__dirname, drum);
+  // Verificatoarele si fisierele de proba n-ajung in joc.
+  if (scurt.indexOf('verifica') === 0 || scurt.indexOf('test-') === 0) return;
+
+  fs.readFileSync(drum, 'utf8').split('\n').forEach(function (rand, i) {
+    const m = rand.match(/^function\s+([A-Za-z_$][\w$]*)\s*\(/);
+    if (!m) return;
+    const nume = m[1];
+    (undeEFunctia[nume] = undeEFunctia[nume] || []).push(scurt + ':' + (i + 1));
+  });
+});
+
+let suprapuneri = 0;
+Object.keys(undeEFunctia).sort().forEach(function (nume) {
+  const locuri = undeEFunctia[nume];
+  if (locuri.length < 2) return;
+  console.log('  functia "' + nume + '" e scrisa in ' + locuri.length +
+              ' locuri: ' + locuri.join(', '));
+  console.log('      cea din fisierul incarcat ultimul le sterge pe celelalte');
+  suprapuneri++;
+  probleme++;
+});
+
+
 if (probleme === 0) {
   console.log('Nicio cheie scrisa de doua ori in cele ' +
               DE_VERIFICAT.length + ' tabele verificate.');
+  console.log('Nicio functie globala scrisa de doua ori in fisiere diferite.');
 } else {
   console.log('\n' + probleme + ' de reparat.');
   process.exitCode = 1;
