@@ -89,9 +89,13 @@
     /* Your frame, and the thing you are fighting immediately to the
        right of it. They belong side by side: in a fight you are
        reading both bars at once, and a target frame parked in the
-       middle of the screen made that two separate glances. */
-    #panou-tau   { left: 14px; top: 8px; }
-    #panou-tinta { left: 262px; top: 8px; }
+       middle of the screen made that two separate glances.
+       A ROW, so that widening a frame can never make them overlap. */
+    #randul-panourilor {
+      position: absolute; left: 14px; top: 8px;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+    #randul-panourilor .panou-lupta { position: static; }
     .nume-lupta { display: flex; justify-content: space-between; margin-bottom: 5px; }
     .nume-lupta span:first-child { color: #d9b555; }
     .nume-lupta span:last-child { color: #a08a63; font-size: 11px; }
@@ -771,6 +775,10 @@
   <script src="harta3d.js"></script>
   <script src="busola3d.js"></script>
   <script src="meniu3d.js"></script>
+
+  <!-- Apasa fiecare abilitate a fiecarei clase si se uita daca face
+       ceva. Nu porneste singura: numai cu ?proba=1 in adresa. -->
+  <script src="proba-abilitati.js"></script>
 
   <script src="../titlu.js"></script>
 

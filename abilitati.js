@@ -702,8 +702,28 @@ function mutaIdurileVechi(personajul) {
   });
 }
 
+// COSTRAGE NU MAI CRESTE CU RANGUL, si asta e o indreptare, nu o
+// scutire.
+//
+// Mana creste cu nivelul: un mag are 345 la nivelul 1 si 1575 la 60,
+// de patru ori si jumatate mai multa. Deci si costMana poate sa
+// creasca odata cu rangul - raman in aceeasi proportie.
+//
+// RAGE NU CRESTE NICIODATA. E 100 la nivelul 1 si 100 la nivelul 60,
+// fiindca asta e ideea de rage: nu-l aduni, ti-l castigi lovind, in
+// fiecare lupta de la zero.
+//
+// Cu costRage in lista asta, Heavy Strike ajungea de la 25 la 50, War
+// Cry de la 10 la 31, Gash de la 15 la 37 - adica trei butoane care
+// impreuna cer 117 rage dintr-un vas de 100. Un warrior de nivel 60
+// apuca sa apese unul si jumatate pe lupta, si pe urma se uita la el
+// cum loveste cu arma. Nu era greu, era stricat.
+//
+// Damage-ul creste in continuare cu rangul, deci un rang nou e tot
+// mai bun - doar ca nu mai costa si mai mult dintr-un vas care n-a
+// crescut niciodata.
 const CE_CRESTE = ['dmgMin', 'dmgMax', 'vindecaMin', 'vindecaMax',
-                   'peTura', 'costMana', 'costRage',
+                   'peTura', 'costMana',
                    // Astea doua sunt fractiuni - cat de mult slabeste
                    // lovitura armura sau damage-ul. Pana acum nu
                    // cresteau deloc, deci un rang nou costa mai mult

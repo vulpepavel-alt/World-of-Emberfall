@@ -500,7 +500,13 @@ function faPanourileLuptei() {
   // is not decoration: yours shows what you are actually wearing,
   // and your target's is drawn from that creature's own shapes, so
   // you can tell a rat from a bandit without reading the name.
+  // The two frames sit in a ROW, not at two positions measured out by
+  // hand. They used to be at left:14 and left:262, which was right
+  // until the frames were made eight pixels wider - and then they
+  // overlapped, because a number written in one place has to be
+  // remembered in the other. A row cannot overlap itself.
   gazda.innerHTML =
+    '<div id="randul-panourilor">' +
     '<div id="panou-tau" class="panou-lupta">' +
       '<div class="portret"><div class="inauntru" id="portret-tau"></div></div>' +
       '<div class="cifrele">' +
@@ -516,6 +522,7 @@ function faPanourileLuptei() {
         '<div class="nume-lupta"><span id="nume-tinta"></span><span id="nivel-tinta"></span></div>' +
         '<div class="sant"><span id="viata-tintei" class="viata rosu"></span></div>' +
       '</div>' +
+    '</div>' +
     '</div>';
   document.body.appendChild(gazda);
   panouTau = document.getElementById('panou-tau');

@@ -54,10 +54,26 @@ const RESURSA_MANA  = 'mana';
 const CASUTA_IN_PIXELI = 32;
 
 function razaAbilitatii(ab) {
-  if (ab.raza) return ab.raza / CASUTA_IN_PIXELI;
-  if (ab.fel === 'sageata' || ab.fel === 'vraja' || ab.deLaDistanta) return 9;
-  if (ab.fel === 'intrerupere') return personaj.idClasa === 'warrior' ? 2.6 : 9;
-  return RAZA_TA;
+  let raza;
+  if (ab.raza) raza = ab.raza / CASUTA_IN_PIXELI;
+  else if (ab.fel === 'sageata' || ab.fel === 'vraja' || ab.deLaDistanta) raza = 9;
+  else if (ab.fel === 'intrerupere') raza = (personaj.idClasa === 'warrior') ? 2.6 : 9;
+  else raza = RAZA_TA;
+
+  // NIMIC NU POATE AJUNGE MAI APROAPE DECAT PROPRIA TA SABIE.
+  //
+  // Razele scrise de mana in abilitati.js sunt in pixeli de-ai
+  // jocului 2D, unde corp la corp inseamna 34 de pixeli - o casuta
+  // si ceva. Aici corp la corp inseamna 2,4 casute, fiindca lumea e
+  // vazuta altfel si de la o casuta nu ajungi la nimic.
+  //
+  // Cine a intins doar una din cele doua a facut ca Shield Knock, cu
+  // raza lui de 58 de pixeli, sa ajunga 1,81 casute: stateai lipit
+  // de lup, il loveai cu sabia, si intreruperea spunea "prea
+  // departe". Deci: orice raza sub bataia sabiei devine bataia
+  // sabiei. Pe cele adevarat lungi - cea mai scurta dintre ele e de
+  // aproape trei casute - nu le atinge deloc.
+  return Math.max(raza, RAZA_TA);
 }
 
 
@@ -663,9 +679,33 @@ function actualizeazaLucrurileCareTin(acum) {
 }
 
 
+// AN INTERRUPT THAT LIED.
+//
+// This printed "Interrupted!" over whatever you had picked, always,
+// and did nothing else - because nothing in the 3D world prepares an
+// attack yet. The creatures that do are the dungeon bosses, and
+// their behaviour is not wired in here (see the list of what is
+// missing at the end of the README). So a wolf standing there doing
+// nothing was solemnly interrupted, several times a minute.
+//
+// Now it says what is true. And when a creature IS given something
+// to prepare, this already stops it and keeps it from starting
+// another special attack for four seconds - which is what the
+// ability's own description has promised all along.
 function intrerupeTinta(ab) {
   if (!tintaEVie()) return;
-  cifraPeMob(tinta, TEXT.INTERRUPTED || 'Interrupted!', '#ffe184', false);
+
+  const acum = performance.now();
+  const pregateste = tinta.incantare && tinta.incantare.pana > acum;
+
+  if (!pregateste) {
+    spuneCeva(TEXT.NO_CAST_TO_STOP);
+    return;
+  }
+
+  tinta.incantare = null;
+  tinta.faraSpecialPanaLa = acum + (ab.tineTacerea || 4000);
+  cifraPeMob(tinta, TEXT.INTERRUPTED, '#ffe184', false);
 }
 
 
@@ -715,8 +755,20 @@ const RAGE_PE_LOVITURA  = 12;
 const RAGE_LA_INCASARE  = 6;
 const RAGE_SCURS_PE_SEC = 25;
 
+// THE EXACT MISTAKE THE NAME AT THE TOP OF THIS FILE WAS MEANT TO
+// PREVENT, made again on this one line: it said 'rage', and the
+// warrior's resource is written 'furie'. The comparison never
+// matched, so this function returned on its first line every single
+// time and NO RAGE WAS EVER GAINED, from a blow landed or a blow
+// taken. The bar sat at zero for ever and every warrior ability was
+// unaffordable.
+//
+// It survived because everything around it looked right: the bar was
+// drawn, rage drained correctly out of combat, the costs were
+// deducted correctly - all of that used the name. Only the one place
+// that PUTS rage in used the English word.
 function castigaRage(cat) {
-  if (personaj.resursa !== 'rage') return;
+  if (personaj.resursa !== RESURSA_FURIE) return;
   personaj.rage = Math.min(RAGE_MAXIM, (personaj.rage || 0) + cat);
 }
 

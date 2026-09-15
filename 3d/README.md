@@ -710,3 +710,102 @@ came out empty.
 printed **"New stop found: {l}"** across the screen. There is now a
 check that reads every `TEXT.X` used with a `.replace()` in the 3D
 files and compares the mark against what `texte.js` actually writes.
+
+## Every ability of every class, pressed
+
+`3d/proba-abilitati.js`, run with `?proba=1` and then `probeazaTot()`.
+
+It takes each class to level 60, gives it everything it can learn,
+and **presses every ability in turn** — in a real zone, with a real
+creature in front of it — then measures whether the thing the
+ability claims to do actually happened. Twenty-two kinds of ability,
+each with its own idea of what "it worked" means: a wound that ticks,
+a shield that absorbs, a creature that flees, a companion that stands
+up. The priest is run four times, once per race, because two of its
+abilities belong to the race rather than the class.
+
+```
+warrior/human   15/15      priest/human     16/16
+hunter/human    19/19      priest/nightelf  16/16
+mage/human      17/17      priest/orc       16/16
+                           priest/undead    16/16
+                                    115 / 115
+```
+
+It found four real faults.
+
+### The warrior never gained a single point of rage
+
+`castigaRage()` began with `if (personaj.resursa !== 'rage') return;`
+— and a warrior's resource is written **`furie`**. The comparison
+never matched, so the function returned on its first line every time
+it was called, from every blow landed and every blow taken. **The
+rage bar sat at zero for ever and no warrior ability was ever
+affordable.**
+
+The bitter part: the file had a comment at the top, over a constant
+called `RESURSA_FURIE`, saying precisely this had happened once
+before and had been written down as a name so it could not be
+mistyped again. One line in the same file still used the English
+word.
+
+### Rage costs grew with rank; the rage pool never did
+
+A mage's mana goes from 345 at level 1 to 1575 at level 60, so a
+spell costing more at a higher rank stays in proportion. **Rage is
+100 at level 1 and 100 at level 60** — that is what rage is, earned
+inside each fight from nothing.
+
+But `costRage` was in the list of things that grow with rank. So
+Heavy Strike went 25 → 50, War Cry 10 → 31, Gash 15 → 37: three
+buttons wanting 117 rage out of a pot of 100. A level-60 warrior got
+to press one and a half of them per fight and then watch himself
+swing a sword. Costs are flat now; damage still grows with rank, so
+a new rank is still worth having.
+
+### The interrupt announced a success that never happened
+
+`intrerupeTinta()` printed "Interrupted!" over whatever you had
+picked — always — and did nothing else. Nothing in the 3D world
+prepares an attack yet (the creatures that do are the dungeon
+bosses, which are on the list of what is not here). So wolves
+standing about doing nothing were being solemnly interrupted several
+times a minute.
+
+It now says "No attack being prepared" when there is nothing to
+stop, and genuinely stops one when there is — the test gives its
+target something to prepare and checks it is gone afterwards.
+
+### Shield Knock could not reach as far as the sword that swings it
+
+Ranges written by hand in `abilitati.js` are in the 2D game's pixels,
+where melee reach is 34 of them — a tile and a bit. In the 3D world
+melee reach is 2.4 tiles, because from one tile away you cannot
+reach anything. Only one of the two was ever stretched, so Shield
+Knock's 58 pixels came out as 1.81 tiles: **you could stand against a
+wolf hitting it with your sword and be told the interrupt was too
+far away.** No ability may now reach less far than your own swing.
+The genuinely long ones — the shortest is nearly three tiles — are
+untouched.
+
+### And four faults in the test itself, which are worth naming
+
+A test that lies is worse than no test. These all reported healthy
+code as broken:
+
+- **A dead tester tests nothing, and does not complain.**
+  `folosesteAbilitatea3d()` returns on its first line if you are
+  dead, silently. The first time the creatures killed the test
+  character, every ability after that "did nothing" — and four
+  priest abilities were reported broken which, tried one at a time,
+  work perfectly.
+- **The companion's body is called `animalulDesenat`, not
+  `animalul`.** `typeof` on a name that does not exist does not
+  throw; it quietly says no. So taming and summoning were reported
+  as failures by a test looking for the wrong thing.
+- **A charge has nowhere to charge to** if you are already standing
+  against the target — reported as "you did not move".
+- **A correct refusal is not a fault.** "You have no companion",
+  "You have found no other city yet" — the test now makes those
+  things true before pressing the button, so the ability is tested
+  rather than the absence of a pet.
