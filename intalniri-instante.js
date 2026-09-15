@@ -61,7 +61,36 @@ const INTALNIRI_INSTANTE = {
   }
 };
 
-function faAbilitateaInstantei(descriere, raid) {
+// Cat de tare lovesc mecanicile, dupa cat de devreme e instanta.
+//
+// MASURAT pe toate cele noua instante: cat vindeca medicul, fata de cat
+// primeste tancul de la seful final, in faza lui finala.
+//   Moor Hollow (18-22)    113%   <- prima temnita, cea mai stransa
+//   Greyfen (26-30)        171%
+//   Ironhill (34-38)       171%
+//   Gravehollow (42-46)    139%
+//   Glasswaste (42-46)     143%
+//   Hollowroot (48-52)     187%
+//   Coldspine (54-58)      158%
+//   Thornspire (57-60)     208%
+//   The Long Account (60)  115%   <- raidul, si asa trebuie sa fie
+//
+// Curba iesea pe dos: PRIMA temnita era la fel de stransa ca raidul de
+// la capat, si mai grea decat toate cele sapte dintre ele. Nu era o
+// scapare de formula - pur si simplu Corvin Ashe nimerise cele doua
+// mecanici care lovesc cel mai tare (izbitura 1,8 si conul 2,0), in
+// timp ce sefii de mai tarziu au primit combinatii mai blande.
+//
+// Prima temnita e locul unde inveti ce inseamna o zona rosie pe jos si
+// un con in fata. Trebuie sa te si lase sa inveti.
+const SCADERE_PRIMA_TEMNITA = 0.7;
+
+function scadereaDupaNivel(z) {
+  if (!z || z.esteRaid) return 1;
+  return (z.nivelDeLa < 25) ? SCADERE_PRIMA_TEMNITA : 1;
+}
+
+function faAbilitateaInstantei(descriere, raid, scadere) {
   const [fel, text, invoca] = descriere.split(':');
   const c = { fel, text, pregatire: 1800, pauza: 6000, raza: raid ? 110 : 88, putere: 1.8 };
   if (fel === 'con') { c.raza = 150; c.unghi = Math.PI / 3; c.putere = 2; }
@@ -70,6 +99,7 @@ function faAbilitateaInstantei(descriere, raid) {
   if (fel === 'chemare') { c.invoca = invoca; c.cati = raid ? 3 : 2; c.raza = 220; c.pauza = 8000; c.putere = 1; }
   if (fel === 'aruncator') { c.raza = 240; c.putere = 1.5; c.pregatire = 1500; }
   if (fel === 'vindecator') { c.raza = 260; c.parteVindecata = 0.12; c.pregatire = 2200; c.pauza = 9000; }
+  if (scadere && scadere !== 1) c.putere = +(c.putere * scadere).toFixed(2);
   return c;
 }
 
@@ -81,7 +111,8 @@ function pregatesteIntalnirileInstantelor() {
       if (!cam.sef) return;
       const lista = intalniri[cam.id];
       if (!lista) throw new Error('Lipseste seful: ' + z.id + '/' + cam.id);
-      cam.sef.comportament = { abilitati: lista.map(function (a) { return faAbilitateaInstantei(a, z.esteRaid); }),
+      const scadere = scadereaDupaNivel(z);
+      cam.sef.comportament = { abilitati: lista.map(function (a) { return faAbilitateaInstantei(a, z.esteRaid, scadere); }),
         pragFurie: i === z.camere.length - 1 ? 0.4 : 0.3, sporFurie: 1.2 };
       cam.sef.sporViata = z.esteRaid ? 1.6 : i === z.camere.length - 1 ? 1.4 : 1.15;
       // Verde la inceput, albastru in temnitele avansate, mov in raid.
@@ -94,8 +125,8 @@ function pregatesteIntalnirileInstantelor() {
       z.comportamenteTrash = {};
       z.feluriPeNivel(z.nivelPanaLa).forEach(function (fel) {
         const tip = ({ bandit: 'vindecator', spider: 'vindecator', raider: 'aruncator', burrower: 'lovituraSol', serpent: 'zonaSol' })[fel] || 'con';
-        const c = faAbilitateaInstantei(tip + ':' + (tip === 'aruncator' ? 'INSTANCE_SHOT' : tip === 'vindecator' ? 'INSTANCE_MEND' : tip === 'zonaSol' || tip === 'lovituraSol' ? 'INSTANCE_GROUND' : 'INSTANCE_SWEEP'), false);
-        c.putere = 1.2; c.pregatire = 1500; c.pauza = 6500;
+        const c = faAbilitateaInstantei(tip + ':' + (tip === 'aruncator' ? 'INSTANCE_SHOT' : tip === 'vindecator' ? 'INSTANCE_MEND' : tip === 'zonaSol' || tip === 'lovituraSol' ? 'INSTANCE_GROUND' : 'INSTANCE_SWEEP'), false, scadereaDupaNivel(z));
+        c.putere = +(1.2 * scadereaDupaNivel(z)).toFixed(2); c.pregatire = 1500; c.pauza = 6500;
         z.comportamenteTrash[fel] = c;
       });
     }
