@@ -586,3 +586,31 @@ const VIETATI = {
 };
 
 const ID_VIETATI = Object.keys(VIETATI);
+
+
+// ==========================================================
+//  ANIMALUL IMBLANZIT
+//
+//  Mutate din game.js. Cat viata si cat damage are fiara pe care ti-ai
+//  facut-o tovaras, si cu cat loveste mai tare cand e multumita, sunt
+//  reguli despre fiare - stau langa statsPentruNivel(), din care ies.
+//  Le citeste si lumea 3D.
+// ==========================================================
+function sporulFericirii(a) {
+  if (a.fericire >= 70) return 1.15;
+  if (a.fericire >= 35) return 1;
+  return 0.75;
+}
+
+function statsleAnimalului(fel, nivel) {
+  const s = statsPentruNivel(nivel, 'normal');
+  // ATENTIE: campurile se cheama dmgMin si dmgMax, nu damageMin.
+  // Cu numele gresite, damage-ul animalului iesea NaN si inamicul
+  // ramanea cu viata "NaN" - adica invincibil.
+  return {
+    viataMaxima: Math.round(s.viata * 1.3),
+    dmgMin: Math.round(s.dmgMin * 0.8),
+    dmgMax: Math.round(s.dmgMax * 0.8),
+    viteza: 2.0
+  };
+}

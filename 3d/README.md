@@ -197,8 +197,48 @@ up, and his mark turns back to ! because the next quest has opened.
 At the merchant: buy for 19 copper, sell back for 5 (the game's own
 25% cut), and with an empty purse it says so and takes nothing.
 
-**Still missing:** no talents in combat, no pet, no professions, no
-travel between zones.
+## The world joins up
+
+Walk to the edge of a zone and you cross into the next one. Every
+gate has a ring on the ground and the name of what is on the other
+side floating over it.
+
+`faZona()` had already cut the gates — `zona.treceri` says which
+square is a gate, which zone is beyond it, and which way is inwards.
+City gates and dungeon mouths are on that same list, so they all
+work without a line written about them.
+
+Two things had to be right, and both had bitten the 2D game first:
+you must not arrive **on** a gate, or it sends you straight back for
+ever — you arrive ten squares inside; and a gate ignores you until
+you have stepped off every gate once.
+
+Measured: Greenvale → Thornmoor → Gravemoor → Thornmoor →
+Gravemoor, arriving exactly 10 squares from the return gate every
+time, never inside anything.
+
+## The hunter's companion
+
+Tame a beast off the map with **Bind Beast**, call it, and it walks
+at your heel and fights what you fight. If it goes down, **Rouse
+Companion** brings it back at half health; **Tend Companion** mends
+it.
+
+A tamed beast *is* the beast you tamed — the same entry in
+`mobi.js`, the same coloured rectangles, so a tamed wolf looks like
+a wild one. Its health and damage come from `statsleAnimalului()`
+and the 1.15× it gets for being content comes from
+`sporulFericirii()` — two more rules that were stuck inside
+`game.js` and now live in `mobi.js` where both games read them.
+
+While it is fighting, roughly half the bites aimed at you land on it
+instead. That is the whole point of having one.
+
+Measured: a tamed wolf bites every 2 seconds for 3–6 — its base 2–5
+times the contentment bonus.
+
+**Still missing:** no talents in combat, no professions, no flight
+paths, no cooking.
 
 ## The point: where the world comes from
 

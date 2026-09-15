@@ -245,10 +245,20 @@ function faceEfectul(ab, acum) {
       puneCapcana(ab, acum);
       break;
 
-    // Three kinds still need a system the 3D world has not got:
-    // 'cheama', 'invie' and 'imblanzire' need the hunter's pet, and
-    // 'faceMancare' and 'teleport' need bags and city travel. They
-    // do nothing yet rather than pretending to.
+    case 'imblanzire':
+      imblanzesteFiara(ab);
+      break;
+
+    case 'cheama':
+      cheamaAnimalul(ab);
+      break;
+
+    case 'invie':
+      invieAnimalul(ab);
+      break;
+
+    // Still missing: 'faceMancare' needs cooking, 'teleport' needs
+    // travel between cities. They say so rather than pretending.
     default:
       spuneCeva('Not in the 3D world yet');
       break;
@@ -558,6 +568,10 @@ function puneRana3d(ab, acum) {
 }
 
 function puneAlinarea(ab, acum) {
+  // 'peAnimal' means it mends the companion, not you - and Tend
+  // Companion is instant, with no ticks at all.
+  if (ab.peAnimal) { vindecaAnimalul(ab); return; }
+
   lucruriCareTin.push({
     fel: 'alinare', ab: ab,
     peTic: (ab.peTura || 0) + sporulRanii(ab),
@@ -707,6 +721,7 @@ function actualizeazaAbilitatile(delta, acum, inLupta) {
   actualizeazaIncantarea(acum);
   actualizeazaLucrurileCareTin(acum);
   actualizeazaCapcanele(acum);
+  if (typeof actualizeazaAnimalul === 'function') actualizeazaAnimalul(delta, acum);
   actualizeazaResursa3d(delta, inLupta);
   actualizeazaInterfata(acum);
 }

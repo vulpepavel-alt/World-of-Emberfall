@@ -772,7 +772,7 @@ const cutiaStare = document.getElementById('stare');
 const scrisUnde = document.getElementById('unde');
 const alegeZona = document.getElementById('alege-zona');
 
-function intraInZona(id, unde) {
+function intraInZona(id, unde, dinspre) {
 
   cutiaStare.classList.remove('gata');
   cutiaStare.innerHTML = 'Building the zone&hellip;<span class="mic">Same recipe, same seed as the 2D game.</span>';
@@ -809,6 +809,12 @@ function intraInZona(id, unde) {
     // back from a save, on the very square you left from.
     let c = zona.start ? zona.start.col : Math.round(zona.COL / 2);
     let r = zona.start ? zona.start.rand : Math.round(zona.RND / 2);
+    // Coming through a gate: you appear on the matching gate of the
+    // new zone, ten squares inside it. See treceri3d.js.
+    if (!unde && dinspre && typeof undeIntriDinspre === 'function') {
+      unde = undeIntriDinspre(dinspre);
+    }
+
     if (unde && unde.col !== null && unde.col !== undefined) {
       c = Math.max(0, Math.min(zona.COL - 1, Math.round(unde.col)));
       r = Math.max(0, Math.min(zona.RND - 1, Math.round(unde.rand)));
@@ -827,12 +833,15 @@ function intraInZona(id, unde) {
     jucator.position.set(c, inaltimeaSolului(c, r), r);
     uitaToateFapturile();
     if (typeof uitaLupta === 'function') uitaLupta();
+    if (typeof stergeSemneleTrecerilor === 'function') stergeSemneleTrecerilor();
     construiesteLumea(c, r);
     actualizeazaFapturile();
 
     scrisUnde.innerHTML = '<b>' + zona.nume + '</b> &nbsp;levels ' +
       zona.nivelDeLa + '&ndash;' + zona.nivelPanaLa + ' &nbsp;·&nbsp; ' +
       zona.COL + '&times;' + zona.RND + ' tiles';
+
+    if (typeof gataDeTrecere === 'function') gataDeTrecere();
 
     cutiaStare.classList.add('gata');
   }, 30);
@@ -1043,6 +1052,9 @@ function cadru(acum) {
     // Everything that is alive: wandering, chasing, hitting,
     // dying, coming back. See lupta3d.js.
     if (typeof actualizeazaLupta === 'function') actualizeazaLupta(delta, acum);
+
+    // Standing on a gate to the next zone? See treceri3d.js.
+    if (typeof verificaTrecerea3d === 'function') verificaTrecerea3d();
 
     // Where the camera would like to sit, and where it actually can.
     const ochi = { x: jucator.position.x, y: jucator.position.y + 1.3, z: jucator.position.z };

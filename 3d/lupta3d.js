@@ -364,6 +364,12 @@ function teLoveste(m, acum) {
 
   let cat = Math.max(1, Math.round(dupaArmura(brut, personaj.armura)));
 
+  // If your companion is at its throat, roughly half the bites land
+  // on it instead of you. That is the whole point of having one.
+  if (typeof loveaAnimalul === 'function' && Math.random() < 0.5) {
+    if (loveaAnimalul(m, cat)) return;
+  }
+
   // A shield swallows the blow before your health does, and only
   // what is left over reaches you.
   if (typeof inghiteScutul === 'function') cat = inghiteScutul(cat);
@@ -680,6 +686,7 @@ function actualizeazaLupta(delta, acum) {
 // Leaving a zone: forget who you were fighting.
 function uitaLupta() {
   if (typeof uitaPrada === 'function') uitaPrada();
+  if (typeof uitaAnimalul === 'function') uitaAnimalul();
   tinta = null;
   luptiSingur = false;
   mortPanaLa = 0;
