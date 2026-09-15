@@ -31,7 +31,8 @@ const TIMP_REINVIERE = 3500;  // dupa cat timp te intorci in tabara, dupa ce mor
 //       jocul se simte mult mai viu.
 // Daca vrei sa si omori mai repede, nu doar sa lovesti mai des,
 // urca numarul de aici FARA sa imparti damage-ul - vezi damageulTau().
-const LOVITURI_MAI_DESE = 3;
+// LOVITURI_MAI_DESE si formula de damage stau acum in lupta.js,
+// ca sa le poata citi si lumea 3D. Cifrele sunt neschimbate.
 
 
 // ================================================
@@ -1969,16 +1970,13 @@ const ARCANE_BARRIER_SCUT = 15;   // Mage: scut care inghite 15 damage
 const INNER_WILL_MANA     = 2;    // Priest: 2 mana pe secunda, chiar si in lupta
 
 // ---- Reglaje pentru cele 8 pasive de RASA ----
-const SANSA_RATARE        = 5;      // % sanse sa ratezi o lovitura obisnuita
-const WEAPON_TRAINING     = 3;      // Human: cu atat scad ratarile
-const QUICKNESS_DODGE     = 5;      // Duskborn: % sanse sa eviti complet o lovitura
+// SANSA_RATARE, WEAPON_TRAINING si QUICKNESS_DODGE: vezi lupta.js
 const SHADOWMELD_SECUNDE  = 2;      // Duskborn: cat stai nemiscat ca sa te piarda
 const BLOOD_FURY_SPOR     = 0.50;   // Orc: +50% Attack Power
 const BLOOD_FURY_DUREAZA  = 15000;  // ...timp de 15 secunde
 const BLOOD_FURY_PAUZA    = 120000; // ...o data la 2 minute
 const HARDINESS_REDUCERE  = 0.15;   // Orc: cu 15% mai putin damage din critical
-const SANSA_CRITIC_MOB    = 5;      // ALES DE MINE - tu n-ai scris ca mobii dau critical,
-                                    // dar fara asta pasiva Thick Bone n-ar avea ce reduce
+// SANSA_CRITIC_MOB: vezi lupta.js
 const CANIBALIZARE_PARTE  = 0.30;   // Undead: 30% din viata maxima...
 const CANIBALIZARE_SECUNDE = 10;    // ...intinsa pe 10 secunde, dupa ce omori ceva
 const WILL_FORSAKEN_PARTE = 0.01;   // Undead: 1% viata maxima pe secunda, mereu
@@ -4631,11 +4629,6 @@ function aratacifraVerde(scena, x, y, cat) {
 
 // WEAPON TRAINING (Human): ratezi mai rar decat ceilalti.
 // Ratarea se aplica doar loviturilor obisnuite, nu si abilitatilor.
-function ratezi() {
-  let sansa = SANSA_RATARE;
-  if (personaj.idRasa === 'human') sansa = sansa - WEAPON_TRAINING;
-  return (Math.random() * 100) < sansa;
-}
 
 
 // QUICKNESS (Duskborn): sansa sa eviti complet o lovitura.
@@ -5022,9 +5015,6 @@ function ataca(scena) {
 
 
 // Cat astepti intre doua lovituri. Talentele de viteza o scurteaza.
-function pauzaIntreLovituri(arma) {
-  return (arma.viteza * 1000) / LOVITURI_MAI_DESE * reducereTalent(personaj, 'viteza');
-}
 
 
 // Clasa ta trage cu arcul? (Hunter are arma "distanta", ceilalti nu.)
@@ -5038,25 +5028,6 @@ function tragiCuArcul() {
 // conteaza. Daca n-ai nimic, ramai cu arma de start a clasei.
 // Hunter trage cu arcul oricum, dar arcul lui devine mai bun odata
 // cu ce are echipat.
-function armaDeAtac() {
-
-  const deStart = personaj.arme.distanta || personaj.arme.corpLaCorp;
-  const echipata = (personaj.echipament || {}).armaPrincipala;
-
-  // O arma stricata de tot nu mai loveste: te intorci la pumni, adica
-  // la arma de start. Asa reparatul chiar conteaza.
-  if (!echipata || !echipata.arma || esteStricat(echipata)) return deStart;
-
-  // Pastram numele armei de start (arc, toiag, sabie) - conteaza
-  // pentru cum se deseneaza si pentru cum se lupta - dar luam
-  // cifrele de la obiectul echipat.
-  return {
-    nume: deStart.nume,
-    dmgMin: echipata.arma.dmgMin,
-    dmgMax: echipata.arma.dmgMax,
-    viteza: echipata.arma.viteza
-  };
-}
 
 
 // Rage-ul castigat si mana consumata se impart la fel ca damage-ul,
@@ -5166,26 +5137,7 @@ function intoarceTeSpre(x, y) {
 //    critical  = damage dublu
 //    din armura se scade: armura / (armura + 485)
 // ================================================
-function damageulTau(arma, attackPower) {
-  const dinArma = Phaser.Math.Between(arma.dmgMin, arma.dmgMax);
-  const dinAP = (attackPower / 14) * arma.viteza;
 
-  // Lovesti de LOVITURI_MAI_DESE ori mai des, deci fiecare lovitura
-  // face de atatea ori mai putin. Pe secunda iese acelasi damage.
-  let damage = (dinArma + dinAP) / LOVITURI_MAI_DESE;
-
-  // Talentele care cresc damage-ul cu arma.
-  damage = damage * inmultitorTalent(personaj, 'dmgArma');
-
-  const critic = (Math.random() * 100) < personaj.critical;
-  if (critic) damage = damage * 2;
-
-  return { damage: damage, critic: critic };
-}
-
-function dupaArmura(damage, armura) {
-  return damage * (1 - armura / (armura + 485));
-}
 
 
 // Cel mai apropiat inamic viu fata de un punct, in raza data.
