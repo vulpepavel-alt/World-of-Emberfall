@@ -372,3 +372,176 @@ node verifica-dubluri.js         # nume scrise de doua ori
   cod și merită păstrate.
 - **Commiturile sunt lungi și explică ce s-a măsurat.** `git log` e o parte
   din documentație.
+
+
+## 15. Continuare — 13 septembrie 2026
+
+Prima temnita, Moor Hollow Deep (18–22), are acum purtari proprii:
+- banditii pregatesc atacuri de la distanta, blocate de ziduri;
+- paianjenii vindeca inamici raniti, dupa o pregatire vizibila;
+- creaturile subterane marcheaza cercul unei lovituri puternice;
+- Corvin marcheaza pozitia jucatorului, cu 1,8 secunde pentru evitare.
+
+Logica sta in `comportamente-temnita.js`, incarcat inainte de `game.js`.
+Datele din reteta ajung la inamici prin `zone/generator.js`; textele noi
+stau in `texte.js`. Moartea, frica si vrajirea anuleaza pregatirea.
+Loviturile speciale folosesc aceleasi reguli de damage ca lupta existenta,
+cu un multiplicator optional, inclusiv pentru animal si tovarasi.
+Celelalte temnite si zone nu primesc aceste purtari automat.
+
+Verificari: 16 probe de comportament in browser, verificarea generala
+a datelor, sintaxa fisierelor schimbate si verificarea dublurilor.
+Scena reala a jocului a pornit langa Corvin; cercul si avertizarea
+au fost inspectate vizual. Nu este inca o masuratoare completa de
+echilibru pentru toate cele patru clase sau o proba pe iPhone.
+
+`verifica.js` verifica si tipurile, textele si valorile purtarilor.
+Serverul de test asculta acum pe `127.0.0.1`, doar pe acest Mac;
+nu poate fi accesat de pe iPhone prin reteaua Wi-Fi in aceasta configuratie.
+Multiplayerul nu a fost implementat.
+
+
+### Proba de nivel 20 retrasa
+
+Trial Warden a fost scos din slotul 1 la cererea Sandrei. Linkul
+`?test=moorhollow20` nu mai creeaza personaje. `personaj-test.js`
+permite doar retragerea si recuperarea salvarii de proba, cu o copie
+in `joc-rpg-proba-arhivata`; nu modifica personajele cu alte nume.
+Recuperarea, daca este ceruta: `?restaureaza-test=moorhollow20`,
+in primul slot cu adevarat liber.
+
+### Scrisul de pe harta corectat
+
+Numele de pe harta lumii sunt mai mici si limitate la latimea
+casutei lor. Etichetele hartilor locale sunt mai mici si se muta
+si in lateral pentru a evita alte etichete. Daca nu exista loc,
+nu se deseneaza peste alt text; informatia ramane in panoul hartii.
+
+Verificare in browser pe toate cele 52 de harti: 425 etichete
+desenate, zero suprapuneri intre ele, zero etichete in afara
+hartii. Toate numele zonelor incap in casutele hartii lumii.
+Aspectul hartii lumii si al zonei Stormhollow a fost inspectat
+vizual; verificarea generala a datelor si a dublurilor a trecut.
+
+
+### Sageata galbena pentru misiuni
+
+`ghid-misiuni.js` deseneaza o sageata mica galbena langa personaj.
+Prima misiune acceptata este urmarita automat; in Quests, Track quest
+permite alegerea altei misiuni. Alegerea se pastreaza in salvare.
+Sageata indica inamicul potrivit, obiectele de misiune cazute sau
+locul de explorat; dupa completare indica NPC-ul de predare, inclusiv
+pozitia lui actuala daca se plimba. Pentru alte zone indica iesirea
+urmatoare, inclusiv intrarile si iesirile temnitelor si calatoriile
+intre continente. Este o busola de directie, nu un traseu care ocoleste
+obstacolele. Tinta se actualizeaza la 200 ms; sageata se ascunde fara
+misiuni, la moarte, la schimbarea zonei si foarte aproape de tinta.
+
+Verificari: 21 probe in browser, alegerea altei misiuni din meniu,
+inspectarea vizuala a sagetii in joc, verificarea generala a datelor,
+sintaxa fisierelor schimbate si verificarea dublurilor. Personajul
+folosit pentru probe nu a fost salvat. Pagina temporara a fost retrasa.
+
+
+### Toate instantele au intalniri complete
+
+Sunt 8 temnite cu cate 4 sefi si raidul The Long Account cu 8 sefi
+(9 camere, prima fara sef). Nu au fost adaugate copii ale raidurilor
+din Warcraft. Continutul ramane original si pentru echipa offline.
+
+`intalniri-instante.js` completeaza explicit fiecare camera dupa ce
+s-au incarcat toate retetele si inainte de `verifica.js`. Fiecare sef
+are o rotatie de 2-4 abilitati, avertizari proprii si o faza finala
+la 30% viata (40% pentru ultimul sef). Faza creste puterea abilitatilor
+cu 20% si reduce pauza dintre ele cu 15%. Nu exista un cronometru
+care omoara automat echipa. Viata sefilor este mai mare; obiectele
+proprii sunt albastre in temnitele avansate si mov in raid.
+
+Mecanici in `comportamente-temnita.js`:
+- cerc fix pe tinta, care poate fi evitat;
+- con frontal fix: iesi lateral sau in spate;
+- inel cu centru verde sigur;
+- zone pe sol de 5 secunde, cu damage la o secunda;
+- ajutoare chemate, limitate la 2 in temnita / 3 in raid;
+- atac la distanta blocat de ziduri si vindecare pregatita.
+
+Inamicii obisnuiti sunt in grupuri de 2 (3 in raid), reactioneaza
+impreuna si au roluri diferite. Intrarea ramane sigura. Tovarasii
+si animalul vanatorului cauta un loc sigur si se deplaseaza normal
+pentru a evita pericolele, fara teleportare sau traversarea zidurilor.
+Tovarasii acorda prioritate ajutoarelor chemate.
+
+Panoul instantei arata sefii invinsi, viata sefului din lupta si faza
+finala. Avertizarile sefilor sunt intr-un loc stabil, pe un fundal
+intunecat. Inamicii invinsi nu reapar cat timp ramai in instanta.
+Iesirea si reintrarea ori reincarcarea jocului pornesc o instanta noua;
+progresul unei rulari nu este salvat. Seful se reface daca lupta este
+parasita sau jucatorul moare; pericolele si ajutoarele sunt curatate.
+Ajutoarele nu dau XP, prada, jupuire sau ucideri pentru misiuni.
+O tinta deja moarta nu poate da din nou recompense.
+
+Verificari: `node verifica-instante.js` construieste toate cele 9
+instante, verifica toti cei 40 de sefi, drumurile fizice catre fiecare
+inamic, iesirile, textele, rotatiile si geometria atacurilor. Probele
+de comportament verifica evitarea, timpii, fazele, vindecarea, limita
+ajutoarelor, curatarea, recompensele unice si lipsa reapartiei.
+Verificarea generala in browser, sintaxa si verificarea dublurilor
+au trecut. Au fost inspectate vizual conul, inelul si zona pe sol;
+raidul a pornit cu 5 tovarasi, temnita cu 3. Au fost probate chemarea
+a 3 ajutoare, resetarea si invingerea unui sef fara duplicare.
+Personajele de proba nu au fost salvate; pagina temporara a fost scoasa.
+
+Cifrele sunt o prima reglare pentru echipa offline. Nu este o proba
+completa de echilibru pentru fiecare clasa in fiecare intalnire si
+nu este o verificare pe iPhone. Reglarea fina trebuie facuta pe
+lupte jucate cu echipament si nivel potrivite, nu prin cresterea
+artificiala a nivelului personajului.
+
+
+### Tintire, intrerupere si comenzi pentru echipa
+
+`control-lupta.js` se incarca inainte de game.js. Atingerea unui inamic
+il selecteaza fara sa porneasca mersul ori atacul. Cercul galben si
+panoul de sus arata tinta si viata ei. Target / Tab trece prin
+inamicii apropiati si apoi anuleaza selectia. Atacurile si abilitatile
+cu tinta respecta alegerea, inclusiv cand alt inamic este mai aproape;
+nu sar la altcineva daca tinta aleasa este prea departe. Personajul
+se intoarce spre tinta; zidurile blocheaza atacurile directe.
+
+Stop cast / Q intrerupe atacul pregatit al tintei. Fara selectie,
+cauta cel mai apropiat inamic care pregateste un atac in raza sa.
+Warrior trebuie sa fie aproape (58 px); Hunter, Mage si Priest pot
+folosi actiunea de la distanta (240 px). Abilitatile sunt in ABILITATI,
+cu numele si descrierea in texte.js. Sunt gratuite si primite la
+pornirea scenei inclusiv de personajele existente. Au pauza proprie
+de 12 secunde si nu depind de pauza globala; nu se folosesc in timpul
+incantarii proprii. Nu consuma pauza la esec, prin zid ori dupa ce
+atacul adversarului s-a terminat. O intrerupere reusita trece la
+urmatoarea abilitate adversa si amana atacul special cu 4 secunde.
+Zonele deja puse pe sol raman periculoase. Actiunea are buton propriu;
+poate fi pusa manual si pe bara din Spells, fara a inlocui automat
+abilitatile existente.
+
+Comenzile echipei, sub rama personajului:
+- Follow / F: urmeaza personajul si il apara automat in lupta.
+- Attack / G: ataca tinta selectata; ordinul ramane pe ea daca
+  jucatorul selecteaza ulterior alt inamic. Cere tinta apropiata
+  (300 px) si drum vizual liber.
+- Retreat / R: opreste atacurile si provocarile; echipa vine inapoi
+  la personaj. Vindecatorii continua sa ajute, iar inamicii isi
+  pastreaza amenintarea — comanda nu sterge magic lupta.
+
+Comenzile actioneaza si asupra animalului vanatorului. Evitarea
+pericolelor ramane prioritara. La moartea tintei ori departare se
+revine la Follow. Selectia si ordinele se reseteaza la schimbarea
+zonei / moarte, fara a schimba echipamentul sau lista de angajati.
+Meniurile deschise blocheaza comenzile.
+
+Verificari: `node verifica-control-lupta.js` pentru selectia stabila,
+atingere, ciclare/anulare, toate cele 4 intreruperi, limite de raza,
+ziduri, pauze, esecuri, ordine si retragere fara atac ori provocare.
+`node verifica-instante.js`, verificarea dublurilor si sintaxa au
+trecut. In browser au fost probate selectarea, intreruperea unui
+atac pregatit, numaratoarea pauzei si evidentierea retragerii, fara
+erori in consola. Proba a folosit un personaj nesalvat; pagina
+temporara a fost eliminata. Nu a fost facuta o proba fizica pe iPhone.

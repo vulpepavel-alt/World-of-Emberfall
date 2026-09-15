@@ -746,12 +746,16 @@ function scriePaginaQuests() {
   } else {
     active.forEach(function (m) {
       const gata = starea(personaj, m.id) === 'gata';
+      const urmarita = misiuneaPentruGhid(personaj);
+      const aleasa = urmarita && urmarita.id === m.id;
       html += '<div class="misiune-carnet' + (gata ? ' gata' : '') + '">' +
               '<div class="titlu-misiune">' + m.titlu +
               ' <span class="nivel-misiune">(' + TEXT.LEVEL + ' ' + m.nivel + ')</span></div>' +
               '<div class="text-misiune">' + m.text + '</div>' +
               '<div class="cerinta-misiune' + (gata ? ' gata' : '') + '">' +
               textulCerintei(personaj, m) + '</div>' +
+              '<button class="buton mic urmareste-misiunea" data-urmareste="' + m.id + '"' +
+              (aleasa ? ' disabled' : '') + '>' + (aleasa ? TEXT.TRACKING_QUEST : TEXT.TRACK_QUEST) + '</button>' +
               '</div>';
     });
   }
@@ -765,6 +769,13 @@ function scriePaginaQuests() {
   }
 
   document.getElementById('pagina-quests').innerHTML = html;
+  document.querySelectorAll('[data-urmareste]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      personaj.misiuneUrmarita = b.dataset.urmareste;
+      salveaza();
+      scriePaginaQuests();
+    });
+  });
 }
 
 

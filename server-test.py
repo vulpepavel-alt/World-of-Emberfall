@@ -16,5 +16,6 @@ class FaraCache(http.server.SimpleHTTPRequestHandler):
         pass
 
 socketserver.TCPServer.allow_reuse_address = True
-with socketserver.TCPServer(('', 8765), FaraCache) as s:
+# Testul din browser trebuie sa fie accesibil doar pe acest Mac.
+with socketserver.TCPServer(('127.0.0.1', 8765), FaraCache) as s:
     s.serve_forever()

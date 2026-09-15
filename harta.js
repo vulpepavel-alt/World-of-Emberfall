@@ -235,7 +235,7 @@ function deseneazaLumea() {
 
     // ---- numele continentului ----
     g.fillStyle = '#d9b555';
-    g.font = '600 26px Georgia, serif';
+    g.font = '600 22px Georgia, serif';
     g.textAlign = 'left';
     g.textBaseline = 'alphabetic';
     g.fillText(b.continent.nume, MARGINE_LUME, b.sus - 9);
@@ -482,17 +482,18 @@ function scrieNumeleZonei(g, z, x, y) {
   // siruri de bare negre. Acum e doar cat tine numele.
   const mij = x + CASUTA_LAT / 2;
   g.textAlign = 'center';
-  g.font = '600 17px Georgia, serif';
+  const latDisponibila = CASUTA_LAT - 18;
+  potrivesteScrisulHartii(g, z.nume, 13, latDisponibila);
 
-  const latNume = Math.max(g.measureText(z.nume).width, 54) + 20;
+  const latNume = Math.min(CASUTA_LAT - 6, Math.max(g.measureText(z.nume).width, 44) + 12);
   g.fillStyle = 'rgba(10, 7, 4, .66)';
   g.fillRect(mij - latNume / 2, y + CASUTA_INALT - 42, latNume, 34);
 
   g.fillStyle = aici ? '#ffd34d' : '#f0e4c8';
-  g.fillText(z.nume, mij, y + CASUTA_INALT - 27);
+  g.fillText(z.nume, mij, y + CASUTA_INALT - 27, latDisponibila);
 
   g.fillStyle = CULOAREA_NIVELULUI[culoareaZonei(z)] || '#cdbb9a';
-  g.font = '600 15px Georgia, serif';
+  g.font = '600 11px Georgia, serif';
   g.fillText(z.nivelDeLa + ' – ' + z.nivelPanaLa, mij, y + CASUTA_INALT - 12);
 
   if (aici) {
@@ -790,7 +791,7 @@ function faHartaZonei(id) {
   // In oras totul e desenat la dublu, deci semnele si scrisul pot fi
   // mai mici in casute si sa iasa la fel de mari pe ecran.
   const marimeSemn = (z.esteOras || z.esteTemnita || z.esteRaid) ? 1.0 : 1.9;
-  const marimeScris = (z.esteOras || z.esteTemnita || z.esteRaid) ? 10 : 17;
+  const marimeScris = (z.esteOras || z.esteTemnita || z.esteRaid) ? 8 : 13;
 
   (z.locuri || []).forEach(function (loc) {
     semnulLocului(g, loc.fel, loc.col, loc.rand, marimeSemn);
@@ -839,7 +840,7 @@ function faHartaZonei(id) {
                   ' ' + v.nivelDeLa + '–' + v.nivelPanaLa
                 : ' →');
     eticheta(g, scris, tr.col, tr.rand - (eTemnita ? 24 : 18), COL, RND,
-             (z.esteOras || z.esteTemnita || z.esteRaid) ? 10 : 17);
+             (z.esteOras || z.esteTemnita || z.esteRaid) ? 8 : 13);
   });
 
   // ---- portul ----
@@ -885,7 +886,7 @@ function faHartaZonei(id) {
     g.fillStyle = '#ffd34d';
     g.beginPath(); g.arc(c, r, 5, 0, Math.PI * 2); g.fill();
 
-    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND, (z.esteOras || z.esteTemnita || z.esteRaid) ? 10 : 17);
+    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND, (z.esteOras || z.esteTemnita || z.esteRaid) ? 8 : 13);
   }
 
   g.restore();
@@ -911,36 +912,52 @@ function seLovesc(a, b) {
   return !(a.x2 < b.x1 || b.x2 < a.x1 || a.y2 < b.y1 || b.y2 < a.y1);
 }
 
-function eticheta(g, text, x, y, lat, inalt, marime) {
+// Masuram cu acelasi font cu care desenam. Un nume lung trebuie sa
+// incapa in locul sau, nu sa intre peste zona vecina.
+function potrivesteScrisulHartii(g, text, marime, latMaxima) {
+  let font = marime;
+  do {
+    g.font = '600 ' + font + 'px Georgia, serif';
+    if (g.measureText(text).width <= latMaxima || font <= marime * 0.7) return font;
+    font -= 0.5;
+  } while (true);
+}
 
-  g.font = '600 ' + (marime || 17) + 'px Georgia, serif';
+function eticheta(g, text, x, y, lat, inalt, marime) {
+  const margine = 3;
+  const latText = Math.max(1, Math.min(lat - 20, lat * 0.48));
+  const font = potrivesteScrisulHartii(g, text, marime || 13, latText);
   g.textAlign = 'center';
   g.textBaseline = 'middle';
-
-  const w = g.measureText(text).width + 14;
-  const h = 23;
-
-  // sa nu iasa din harta pe laturi
-  const cx = Math.min(lat - w / 2 - 3, Math.max(w / 2 + 3, x));
-
-  // sa nu cada peste un nume scris mai devreme
-  const incercari = [0, -26, 26, -52, 52, -78, 78];
-  let cy = y;
-  for (const dy of incercari) {
-    const unde = Math.min(inalt - h / 2 - 3, Math.max(h / 2 + 3, y + dy));
-    const cutie = { x1: cx - w / 2, x2: cx + w / 2, y1: unde - h / 2, y2: unde + h / 2 };
-    if (!etichetePuse.some(function (e) { return seLovesc(e, cutie); })) {
+  const w = Math.min(g.measureText(text).width, latText) + 10;
+  const h = Math.ceil(font + 8);
+  const limitaX = function (cx) { return Math.min(lat - w / 2 - margine, Math.max(w / 2 + margine, cx)); };
+  const limitaY = function (cy) { return Math.min(inalt - h / 2 - margine, Math.max(h / 2 + margine, cy)); };
+  const pas = h + 3;
+  // Cautam mai intai aproape de semn, apoi in lateral. Fostul cod
+  // incerca doar sapte pozitii verticale si desena peste ultima
+  // eticheta chiar daca toate cele sapte erau ocupate.
+  for (let inel = 0; inel <= 8; inel++) {
+    const mutari = inel === 0 ? [[0, 0]] : [
+      [0, -inel * pas], [0, inel * pas],
+      [-inel * pas, 0], [inel * pas, 0],
+      [-inel * pas, -inel * pas], [inel * pas, -inel * pas],
+      [-inel * pas, inel * pas], [inel * pas, inel * pas]
+    ];
+    for (const mutare of mutari) {
+      const cx = limitaX(x + mutare[0]), cy = limitaY(y + mutare[1]);
+      const cutie = { x1: cx - w / 2, x2: cx + w / 2, y1: cy - h / 2, y2: cy + h / 2 };
+      if (etichetePuse.some(function (e) { return seLovesc(e, cutie); })) continue;
       etichetePuse.push(cutie);
-      cy = unde;
-      break;
+      g.fillStyle = 'rgba(10, 7, 4, .78)';
+      g.fillRect(cutie.x1, cutie.y1, w, h);
+      g.fillStyle = '#f0e4c8';
+      g.fillText(text, cx, cy, latText);
+      return;
     }
-    cy = unde;
   }
-
-  g.fillStyle = 'rgba(10, 7, 4, .78)';
-  g.fillRect(cx - w / 2, cy - 12, w, h);
-  g.fillStyle = '#f0e4c8';
-  g.fillText(text, cx, cy);
+  // Si intr-o zona foarte deasa, numele ramane in lista din panoul
+  // hartii. Nu desenam un text peste altul daca nu exista loc liber.
 }
 
 

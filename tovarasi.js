@@ -302,16 +302,20 @@ function actualizeazaTovarasii(scena, delta) {
   if (!tovarasii.length || !jucator) return;
 
   // pe cine se bat: cel mai apropiat inamic furios
-  const tinta = mobi.find(function (m) {
+  const tinta = comandaEchipei === 'retrage' ? null : tintaComandataEchipei() || mobi.filter(function (m) {
     return m.viu && m.furios &&
       Phaser.Math.Distance.Between(jucator.x, jucator.y, m.x, m.y) < RAZA_TOVARAS;
-  });
+  }).sort(function (a, b) {
+    return Number(!!b.locul.invocat) - Number(!!a.locul.invocat) ||
+      Math.hypot(a.x - jucator.x, a.y - jucator.y) - Math.hypot(b.x - jucator.x, b.y - jucator.y);
+  })[0];
 
   tovarasii.forEach(function (t) {
 
     if (t.viata <= 0) { t.setAlpha(0.3); return; }
     t.setAlpha(1);
 
+    if (evitaPericolulInstantei(t, scena, delta)) return;
     const f = TOVARASI[t.fel];
 
     // ---- vindecatorul: intai vindeca, si abia pe urma se bate ----
@@ -384,7 +388,7 @@ function actualizeazaTovarasii(scena, delta) {
     // Ca in Classic, nu aduna amenintare: il aseaza pe scutier peste
     // cel mai mare, cu zece la suta. De-aia merge chiar daca n-a
     // apucat sa dea nicio lovitura.
-    if (t.rol === 'tanc' && scena.time.now >= t.urmatoareaProvocare) {
+    if (comandaEchipei !== 'retrage' && t.rol === 'tanc' && scena.time.now >= t.urmatoareaProvocare) {
       // Ii ia pe toti cei care se bat acum si NU sunt deja pe el.
       const deLuat = mobi.filter(function (m) {
         return m.viu && m.furios && m.tintaAleasa !== t &&
@@ -439,9 +443,9 @@ function tovarasulCareTeAcopera(mob) {
 }
 
 
-function mobLovesteTovarasul(scena, mob, t) {
+function mobLovesteTovarasul(scena, mob, t, putere = 1) {
 
-  const brut = Phaser.Math.Between(mob.stats.dmgMin, mob.stats.dmgMax);
+  const brut = Phaser.Math.Between(mob.stats.dmgMin, mob.stats.dmgMax) * putere;
   const damage = Math.max(1, Math.round(dupaArmura(brut, t.stats.armura)));
 
   t.viata -= damage;

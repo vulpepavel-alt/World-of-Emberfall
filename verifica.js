@@ -209,6 +209,24 @@ function verificaTot() {
   //  8. ZONELE: fiecare drum trebuie sa duca undeva
   // ==========================================================
   ZONE.forEach(function (z) {
+    // O purtare necunoscuta nu trebuie sa devina o abilitate care nu face nimic.
+    const purtari = Object.values(z.comportamenteTrash || {}).concat(
+      (z.camere || []).filter(function (cam) { return cam.sef && cam.sef.comportament; })
+        .flatMap(function (cam) { return cam.sef.comportament.abilitati || [cam.sef.comportament]; }));
+    purtari.forEach(function (c) {
+      if (!['aruncator', 'vindecator', 'lovituraSol', 'zonaSol', 'con', 'inel', 'chemare'].includes(c.fel)) rau('purtari', z.id + ': fel necunoscut');
+      if (c.fel === 'con' && !(c.unghi > 0 && c.unghi <= Math.PI * 2)) rau('purtari', z.id + ': unghi invalid');
+      if (c.fel === 'inel' && !(c.razaInterioara > 0 && c.razaInterioara < c.raza)) rau('purtari', z.id + ': inel invalid');
+      if (c.fel === 'zonaSol' && !(c.durata >= 1000)) rau('purtari', z.id + ': durata invalida');
+      if (c.fel === 'chemare' && (!MOBI[c.invoca] || !Number.isInteger(c.cati) || c.cati < 1 || c.cati > 3)) rau('purtari', z.id + ': ajutoare invalide');
+      if (!TEXT[c.text]) rau('purtari', z.id + ': text lipsa');
+      ['pregatire', 'pauza', 'raza'].forEach(function (camp) {
+        if (!Number.isFinite(c[camp]) || c[camp] <= 0) rau('purtari', z.id + ': ' + camp + ' invalid');
+      });
+      if (c.fel === 'vindecator') {
+        if (!(c.parteVindecata > 0 && c.parteVindecata <= 1)) rau('purtari', z.id + ': vindecare invalida');
+      } else if (!Number.isFinite(c.putere) || c.putere <= 0) rau('purtari', z.id + ': putere invalida');
+    });
     if (z.port && !retetaZonei(z.port.catre)) {
       rau('zone', z.id + ': portul duce spre "' + z.port.catre + '", care nu exista');
     }

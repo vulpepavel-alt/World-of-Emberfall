@@ -606,6 +606,13 @@ const ABILITATI = [
     tine: 25000, da: { intoarce: 0.30 }
   }
 ];
+// Actiuni gratuite, disponibile si personajelor existente prin control-lupta.js.
+['warrior','hunter','mage','priest'].forEach(function (clasa) {
+  ABILITATI.push({ id: clasa + '_interrupt_01', clasa: clasa,
+    nume: TEXT[clasa.toUpperCase() + '_INTERRUPT'], descriere: TEXT.INTERRUPT_DESC,
+    fel: 'intrerupere', nivel: 1, laCateNiveluri: 60, ranguri: 1, crestere: 1,
+    costRage: 0, costMana: 0, pauza: 12000, incantare: 0, raza: clasa === 'warrior' ? 58 : 240 });
+});
 
 
 // ----------------------------------------------------------
@@ -960,6 +967,7 @@ function faBaraDeStart(idClasa) {
   const bara = faBaraGoala();
   let i = 0;
   Object.keys(abilitatileDeStart(idClasa)).forEach(function (id) {
+    if (gasesteAbilitatea(id).fel === 'intrerupere') return;
     if (i < LOCURI_IN_BARA) bara[i++] = id;
   });
   return bara;

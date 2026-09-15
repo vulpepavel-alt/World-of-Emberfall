@@ -382,9 +382,19 @@
 
   <!-- Verificarea datelor. Nu face nimic in joc; se porneste
        deschizand pagina cu ?verifica=1 la capatul adresei. -->
+  <!-- Completeaza toate intalnirile dupa retetele zonelor, inaintea verificarii. -->
+  <script src="intalniri-instante.js"></script>
   <script src="verifica.js"></script>
 
+  <!-- Purtarile de temnita folosesc datele de mai sus; game.js le cheama in bucla jocului. -->
+  <script src="comportamente-temnita.js"></script>
+
+  <!-- Ghidul foloseste misiunile si zonele; game.js il actualizeaza in fiecare cadru. -->
+  <script src="ghid-misiuni.js"></script>
+
   <!-- Jocul (asteapta sa fie pornit din meniu) -->
+  <!-- Controlul luptei foloseste comportamentele si abilitatile; game.js il actualizeaza. -->
+  <script src="control-lupta.js"></script>
   <script src="game.js"></script>
 
   <!-- Meniul de creare (porneste jocul cand apesi "Accept") -->
@@ -402,6 +412,9 @@
 
   <!-- Prada de la inamici si taraba negustorului -->
   <script src="prada.js"></script>
+
+  <!-- Gestionarea salvarii de proba retrase foloseste sistemele incarcate mai sus. -->
+  <script src="personaj-test.js"></script>
 
 </body>
 </html>

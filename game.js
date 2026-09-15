@@ -1708,6 +1708,7 @@ function actualizeazaAnimalul(scena, delta) {
   if (!a || !a.chemat || !animalul) return;
 
   if (a.viata <= 0) { stergeAnimalul(); return; }
+  if (evitaPericolulInstantei(animalul, scena, delta)) return;
 
   // fericirea scade incet, cat timp e afara
   scadereFericirii += delta;
@@ -1717,7 +1718,7 @@ function actualizeazaAnimalul(scena, delta) {
   }
 
   // pe cine loveste: cel mai apropiat inamic furios
-  const tinta = mobi.find(function (m) {
+  const tinta = comandaEchipei === 'retrage' ? null : tintaComandataEchipei() || mobi.find(function (m) {
     return m.viu && m.furios &&
       Phaser.Math.Distance.Between(animalul.x, animalul.y, m.x, m.y) < 260;
   });
@@ -1755,7 +1756,7 @@ function actualizeazaAnimalul(scena, delta) {
 }
 
 
-function mobLovesteAnimalul(scena, mob) {
+function mobLovesteAnimalul(scena, mob, putere = 1) {
 
   const a = personaj.animal;
   if (!a) return;
@@ -1767,7 +1768,7 @@ function mobLovesteAnimalul(scena, mob) {
   // nimerea rar, fiindca animalul era lovit doar cand statea el mai
   // aproape de inamic decat tine; cu socoteala amenintarii ar fi iesit
   // des.
-  const brut = Phaser.Math.Between(mob.stats.dmgMin, mob.stats.dmgMax);
+  const brut = Phaser.Math.Between(mob.stats.dmgMin, mob.stats.dmgMax) * putere;
   const damage = Math.max(1, Math.round(brut * 0.8));
   a.viata = Math.max(0, a.viata - damage);
   actualizeazaBaraAnimalului();
@@ -2176,6 +2177,7 @@ function create() {
     // spre locul atins, ci deschidem fereastra lui.
     if (atingiCeva(this, pointer.worldX, pointer.worldY)) return;
 
+    if (selecteazaMobAtins(pointer.worldX, pointer.worldY)) return;
     tinta = { x: pointer.worldX, y: pointer.worldY };
   });
 
@@ -2215,7 +2217,10 @@ function create() {
   // --- Joystick-ul, butoanele si miniharta ---
   faJoystick(this);
   faButoane(this);
+  faControlulLuptei(this);
   faMiniharta(this);
+  faPanoulInstantei(this);
+  faSageataMisiunii(this);
 
   // --- Rama personajului, stanga sus ---
   faRamaPersonaj(this);
@@ -3187,10 +3192,11 @@ function actualizeazaMobii(scena) {
 
   if (!zona || !jucator || !personaj) return;
 
+  mobi = mobi.filter(function (m) { return m.active !== false; });
   // --- ce trebuie sa apara ---
   zona.mobi.forEach(function (loc) {
 
-    if (loc.aparut) return;
+    if (loc.aparut || loc.mortInInstanta) return;
     // Garzile orasului nu exista pentru cine e de-al casei.
     if (loc.doarStraini && !estiStrainAici()) return;
     if (loc.mortPanaLa && scena.time.now < loc.mortPanaLa) return;
@@ -4176,6 +4182,7 @@ function loveaTotInJur(scena, ab) {
 let pauzaGlobalaPanaLa = 0;
 
 function poateFolosi(scena, ab) {
+  if (ab.fel === 'intrerupere') return !mort && !abilitateInCurs && scena.time.now >= (pauzaAbilitati[ab.id] || 0);
   if (mort) return false;
   if (abilitateInCurs) return false;
   if (scena.time.now < pauzaGlobalaPanaLa) return false;
@@ -4202,6 +4209,9 @@ function secundeRamase(scena, ab) {
 
 // Apesi butonul: se verifica totul, apoi porneste.
 function folosesteAbilitate(scena, ab) {
+
+  if (ab.fel === 'intrerupere') { intrerupeAtaculAles(scena); return; }
+  if (tintaAleasaEsteVie()) intoarceTeSpre(tintaAleasaLupta.x,tintaAleasaLupta.y);
 
   if (!poateFolosi(scena, ab)) return;
 
@@ -4268,6 +4278,10 @@ function folosesteAbilitate(scena, ab) {
     aratacuvant(scena, jucator.x, jucator.y - 60,
       cinevaPrinPreajma ? TEXT.TARGET_TOO_FAR : TEXT.NO_TARGET, '#e0b45a');
     return;
+  }
+
+  if (tintaAb && !caleLiberaTemnita(jucator,tintaAb)) {
+    aratacuvant(scena,jucator.x,jucator.y-60,TEXT.INTERRUPT_BLOCKED,'#e0b45a'); return;
   }
 
   // Se plateste, cu reducerea de la talente.
@@ -4765,6 +4779,9 @@ function update(time, delta) {
   actualizeazaCulesul(this);
   actualizeazaPescuitul(this);
   actualizeazaCapcanele(this);
+  actualizeazaPericoleleInstantelor(this);
+  actualizeazaPanoulInstantei(this);
+  actualizeazaControlulLuptei(this);
   actualizeazaAnimalul(this, delta);
   mutaCalul();
   if (typeof actualizeazaTovarasii === 'function') actualizeazaTovarasii(this, delta);
@@ -4783,6 +4800,7 @@ function update(time, delta) {
   stingeIntaririleTrecute(this);
   verificaLocurile(this);
   actualizeazaButonulInteract();
+  actualizeazaSageataMisiunii(this);
   salveazaDinCandInCand();
 
   // Cat timp e meniul deschis, jocul merge mai departe, dar
@@ -4895,7 +4913,7 @@ function ataca(scena) {
     // ---- HUNTER: trage in cel mai apropiat inamic din raza arcului ----
     // Nu conteaza incotro esti intors: te intorci singur spre el.
     const tintaLovita = celMaiApropiatMob(jucator.x, jucator.y, RAZA_ATAC_DISTANTA);
-    if (!tintaLovita) return;          // fara tinta nu se trage degeaba
+    if (!tintaLovita || !caleLiberaTemnita(jucator,tintaLovita)) return;          // fara tinta nu se trage degeaba
 
     urmatorulAtac = scena.time.now + pauzaIntreLovituri(arma);
     intoarceTeSpre(tintaLovita.x, tintaLovita.y);
@@ -4916,9 +4934,10 @@ function ataca(scena) {
     urmatorulAtac = scena.time.now + pauzaIntreLovituri(arma);
     animatiaSabiei(scena);
 
+    if (tintaAleasaEsteVie()) intoarceTeSpre(tintaAleasaLupta.x,tintaAleasaLupta.y);
     const p = punctInFata();
     const tintaLovita = celMaiApropiatMob(p.x, p.y, RAZA_ATAC);
-    if (!tintaLovita) return;
+    if (!tintaLovita || !caleLiberaTemnita(jucator,tintaLovita)) return;
 
     intraInLupta(scena);
 
@@ -5104,6 +5123,7 @@ function dupaArmura(damage, armura) {
 
 // Cel mai apropiat inamic viu fata de un punct, in raza data.
 function celMaiApropiatMob(x, y, raza) {
+  if (tintaAleasaEsteVie()) return Math.hypot(tintaAleasaLupta.x-x,tintaAleasaLupta.y-y)<=raza ? tintaAleasaLupta : null;
   let gasit = null;
   let ceaMaiMica = raza;
 
@@ -5243,11 +5263,13 @@ function creeazaMob(scena, loc) {
   mob.felul = loc.fel;      // 'wolf', 'bandit'... numele scurt, pentru misiuni
   mob.rang = rang;
   mob.stats = stats;
-  mob.viataMaxima = stats.viata;
-  mob.viata = stats.viata;
+  mob.viataMaxima = Math.round(stats.viata * (loc.sporViata || 1));
+  mob.viata = mob.viataMaxima;
   mob.viu = true;
   mob.bara = bara;
   mob.locul = loc;          // de unde a pornit, ca sa reapara tot acolo
+  mob.comportament = loc.comportament || null;
+  mob.once('destroy', function () { reseteazaIntalnireaTemnitei(mob); });
   loc.aparut = true;
   mob.casaX = x;
   mob.casaY = y;
@@ -5426,6 +5448,8 @@ function actualizeazaBaraMob(mob) {
 // lipseste, se intelege ca ai lovit tu.
 function loveste(scena, mob, damageBrut, critic, cine) {
 
+  if (!mob || !mob.viu || mob.active === false) return;
+
   // Armura lui ii taie o parte din damage.
   // Armura lui, mai mica daca i-ai spart-o cu o abilitate.
   let armuraLui = mob.stats.armura;
@@ -5466,32 +5490,34 @@ function loveste(scena, mob, damageBrut, critic, cine) {
 
   if (mob.viata <= 0) {
     mob.viu = false;
+    reseteazaIntalnireaTemnitei(mob);
     suna('mobMoare');
+    if (zona && (zona.esteTemnita || zona.esteRaid) && !mob.locul.invocat) mob.locul.mortInInstanta = true;
 
     // Experienta pentru inamicul ucis.
-    primesteXp(scena, Math.round(xpDeLaMob(mob.stats.nivel, personaj.nivel) * mob.rang.xp));
+    if (!mob.locul.invocat) primesteXp(scena, Math.round(xpDeLaMob(mob.stats.nivel, personaj.nivel) * mob.rang.xp));
 
     // Ce a lasat in urma NU sare singur la tine, ca pana acum.
     // Ramane in trupul lui, iar tu te duci si il iei - ca in WoW.
     // Numele zonei merge si el: un lucru din patru il poarta scris
     // pe el, ca prada dintr-un loc sa se simta ca vine de acolo.
-    const prada = pradaCompleta(mob.stats.nivel, mob.fel.neam === 'umanoid',
+    const prada = mob.locul.invocat ? { obiecte: [], bani: 0 } : pradaCompleta(mob.stats.nivel, mob.fel.neam === 'umanoid',
                                 mob.felul, mob.rang.id,
                                 zona ? zona.nume : null, mob.locul);
 
     // Lucrurile cerute de misiuni cad in acelasi trup.
-    prada.obiecteMisiune = obiecteDeMisiuneDeLa(personaj, mob.felul);
+    prada.obiecteMisiune = mob.locul.invocat ? [] : obiecteDeMisiuneDeLa(personaj, mob.felul);
 
     // O fiara se poate jupui, daca ai meseria. Sacul tine minte ce
     // fel de inamic a fost, ca sa stie fereastra de prada.
-    if (mob.fel.neam === 'fiara') {
+    if (!mob.locul.invocat && mob.fel.neam === 'fiara') {
       prada.deJupuit = { nivel: mob.stats.nivel, nume: mob.fel.nume };
     }
 
     if (pradaAreCeva(prada)) faSac(scena, mob.x, mob.y, prada);
 
     // Misiunile de tip "omoara atatia" isi numara singure.
-    amUcis(personaj, mob.felul, mob.locul && mob.locul.nume).forEach(function (avans) {
+    (mob.locul.invocat ? [] : amUcis(personaj, mob.felul, mob.locul && mob.locul.nume)).forEach(function (avans) {
       aratacuvant(scena, jucator.x, jucator.y - 70,
         avans.terminata ? TEXT.QUEST_COMPLETE
                         : textulCerintei(personaj, avans.misiune),
@@ -5578,13 +5604,30 @@ function miscaMobii(scena, delta) {
       mob.furios = true;
     }
 
+    if (!mob.furios && !mort && mob.locul.grupInstanta && mobi.some(function (altul) {
+      return altul !== mob && altul.viu && altul.furios &&
+        altul.locul.grupInstanta === mob.locul.grupInstanta;
+    })) mob.furios = true;
+
     // --- l-ai tras prea departe, sau ai murit: renunta ---
     if (mob.furios && (departeDeCasa > RAZA_LESA || mort)) {
       mob.furios = false;
+      reseteazaIntalnireaTemnitei(mob);
+      if (mob.locul.sefDeTemnita) { mob.viata = mob.viataMaxima; actualizeazaBaraMob(mob); }
       // S-a linistit: uita cine l-a suparat. Altfel, data viitoare cand
       // dai in el ar sari direct la cine l-a batut acum zece minute.
       if (typeof uitaAmenintarile === 'function') uitaAmenintarile(mob);
     }
+
+    // Oprirea actioneaza inaintea atacurilor, inclusiv a celor pregatite.
+    const oprit = (mob.vrajitPanaLa && scena.time.now < mob.vrajitPanaLa) ||
+                  (mob.speriatPanaLa && scena.time.now < mob.speriatPanaLa);
+    if (!mob.furios || mort || oprit) anuleazaPregatireaTemnitei(mob);
+    if (mob.vrajitPanaLa && scena.time.now < mob.vrajitPanaLa) {
+      mob.furios = false;
+      return;
+    }
+    if (!oprit && actualizeazaPurtareaTemnitei(scena, mob)) return;
 
     // Cand nu mai lupta, isi reface viata INCET, nu dintr-o data:
     // toata bara in REGENERARE_MOB_SECUNDE secunde.
@@ -5594,7 +5637,7 @@ function miscaMobii(scena, delta) {
       actualizeazaBaraMob(mob);
     }
 
-    if (mob.furios) {
+    if (mob.furios && !oprit) {
 
       // --- dupa CINE se duce ---
       //
@@ -5684,7 +5727,7 @@ function miscaMobii(scena, delta) {
 //  Acelasi calcul ca al tau, doar ca acum armura ta
 //  e cea care taie din damage.
 // ================================================
-function mobTeLoveste(scena, mob) {
+function mobTeLoveste(scena, mob, putere = 1) {
 
   if (mort) return;
 
@@ -5703,7 +5746,7 @@ function mobTeLoveste(scena, mob) {
   }
 
   const s = mob.stats;
-  let brut = Phaser.Math.Between(s.dmgMin, s.dmgMax);
+  let brut = Phaser.Math.Between(s.dmgMin, s.dmgMax) * putere;
 
   // Withering Touch: mana care l-a atins loveste mai slab o vreme.
   if (mob.dmgSlabitPanaLa && scena.time.now < mob.dmgSlabitPanaLa) {

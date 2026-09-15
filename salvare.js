@@ -132,6 +132,7 @@ function salveaza() {
     inventar: personaj.inventar || [],
     bani: personaj.bani || 0,
     misiuni: personaj.misiuni || {},
+    misiuneUrmarita: personaj.misiuneUrmarita || null,
     // Ce abilitati ai invatat la antrenor, si cum ti-ai asezat bara.
     stiute: personaj.stiute || {},
     meserii: personaj.meserii || {},
@@ -194,6 +195,7 @@ function faPersonajulDinSalvare(s) {
   p.piatraGataLa = s.piatraGataLa || 0;
   p.bani       = s.bani || 0;
   p.misiuni    = s.misiuni || {};
+  p.misiuneUrmarita = s.misiuneUrmarita || null;
 
   // Abilitatile invatate. O salvare facuta INAINTE de antrenori n-are
   // niciuna: ar fi nedrept sa te trezesti la nivelul 40 cu doua
@@ -226,7 +228,10 @@ function faPersonajulDinSalvare(s) {
   // randul asta personajul s-ar trezi ca nu mai stie nimic.
   mutaIdurileVechi(p);
 
-  Object.keys(p.stiute).forEach(function (id) { asazaPeBaraDacaIncape(p, id); });
+  Object.keys(p.stiute).forEach(function (id) {
+    if (gasesteAbilitatea(id) && gasesteAbilitatea(id).fel === 'intrerupere') return;
+    asazaPeBaraDacaIncape(p, id);
+  });
 
   // Obiectele noi trebuie sa primeasca numere mai mari decat
   // tot ce ai deja, altfel doua obiecte diferite ar avea acelasi

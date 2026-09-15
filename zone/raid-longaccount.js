@@ -14,7 +14,7 @@
 //  poate merge acolo pe jos: e dincolo de apa.
 //
 //  CUM E DIFERIT DE O TEMNITA
-//    - noua sefi in loc de patru
+//    - opt sefi in loc de patru
 //    - vin cu tine CINCI tovarasi, nu trei (un scutier, doi
 //      vindecatori, doi tragatori)
 //    - prada cea mai buna din joc

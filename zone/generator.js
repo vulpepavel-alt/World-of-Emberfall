@@ -1160,6 +1160,8 @@ function asazaSefiiTemnitei(zona, reteta) {
       rang: cam.sef.rang || 'elit',
       nume: cam.sef.nume,
       lasa: cam.sef.lasa || null,
+      comportament: cam.sef.comportament || null,
+      sporViata: cam.sef.sporViata || 1,
       sefDeTemnita: true
     });
   });
@@ -1203,9 +1205,30 @@ function asazaTrashul(zona, reteta, ajuns) {
     // alt nume decat cei de afara.
     const nume = (reteta.numeTrash && reteta.numeTrash[fel]) || null;
 
-    mobi.push({ fel: fel, col: c, rand: r, nume: nume,
-                nivel: reteta.nivelDeLa +
-                       Math.floor(zar() * (reteta.nivelPanaLa - reteta.nivelDeLa + 1)) });
+    // Grupuri de doi-trei; camera de intrare ramane sigura.
+    const intrare = zona.camere && zona.camere[0];
+    if (intrare && Math.hypot(c - intrare.col, r - intrare.rand) < 12) continue;
+    const grup = reteta.id + ':grup:' + mobi.length;
+    const marime = Math.min(cati - mobi.length, reteta.esteRaid ? 3 : 2);
+    for (let i = 0; i < marime; i++) {
+      let col = c, rand = r;
+      if (i) {
+        let gasit = false;
+        for (let pas = 0; pas < 16; pas++) {
+          col = c + Math.round(Math.cos(pas * Math.PI / 8) * 2);
+          rand = r + Math.round(Math.sin(pas * Math.PI / 8) * 2);
+          if (!ajuns[rand] || !ajuns[rand][col]) continue;
+          if (mobi.some(function (m) { return Math.hypot(m.col - col, m.rand - rand) < 1.5; })) continue;
+          gasit = true; break;
+        }
+        if (!gasit) continue;
+      }
+      const tip = i ? feluri[(feluri.indexOf(fel) + i) % feluri.length] : fel;
+      mobi.push({ fel: tip, col: col, rand: rand, nume: (reteta.numeTrash || {})[tip] || nume,
+        grupInstanta: grup, sporViata: reteta.esteRaid ? 1.8 : 1.4,
+        comportament: (reteta.comportamenteTrash || {})[tip] || null,
+        nivel: reteta.nivelDeLa + Math.floor(zar() * (reteta.nivelPanaLa - reteta.nivelDeLa + 1)) });
+    }
   }
 
   return mobi;

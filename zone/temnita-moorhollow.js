@@ -62,6 +62,7 @@ inregistreazaZona({
              ] } },
     { id: 'masa',    nume: 'The Long Table',   c: 0.88, r: 0.68, lat: 40, inalt: 30,
       sef: { fel: 'raider', nume: 'Corvin Ashe, Who Was Paid', nivel: 22, rang: 'elit',
+             comportament: { fel: 'lovituraSol', pregatire: 1800, pauza: 8000, raza: 88, putere: 2.2, text: 'HOLLOW_BOSS_STRIKE' },
              lasa: [
                { nume: 'The Hand That Was Paid', slot: 'armaPrincipala', raritate: 'rar' },
                { nume: 'Corvin\'s Ledger Key', slot: 'talisman', raritate: 'rar' },
@@ -78,6 +79,13 @@ inregistreazaZona({
     bandit:      'Hollow Cutthroat',
     spider:      'Deepweb Spinner',
     burrower:    'Root-Gnawer'
+  },
+
+  // Purtarile proprii ale creaturilor; sefii sunt completati in intalniri-instante.js.
+  comportamenteTrash: {
+    bandit: { fel: 'aruncator', pregatire: 900, pauza: 2800, raza: 180, putere: 1, text: 'HOLLOW_THROW' },
+    spider: { fel: 'vindecator', pregatire: 1400, pauza: 6500, raza: 220, parteVindecata: 0.18, text: 'HOLLOW_MEND' },
+    burrower: { fel: 'lovituraSol', pregatire: 1400, pauza: 6000, raza: 56, putere: 1.6, text: 'HOLLOW_BURST' }
   },
 
   feluriPeNivel: function () {
