@@ -63,10 +63,41 @@ screen with nothing smeared in between. Exactly what the 2D game
 does with `pixelArt: true`. It also costs *less*: a third by a third
 is a ninth of the work.
 
-That is the whole list. There is no combat, no menus, no inventory
-and no saving. The monsters and townspeople are there to look at,
-nothing more — they do not move or fight. Adding any of that before
-the walking feels right would be wasted work.
+- **Tab** — pick the nearest monster, or **click** one
+- **Space** — start and stop swinging at it
+- **Escape** — let go of your target
+
+## It fights now, with the game's real numbers
+
+Monsters wander a few steps from home, notice you within 9 tiles,
+come at you, hit back, die, and come back after 45 seconds. Wander
+too far from home and they give up and walk back, healing on the way
+— as they do in the 2D game.
+
+Not one formula was rewritten for this. The fight calls:
+
+| | |
+|---|---|
+| `statsPentruNivel()` | `mobi.js` — a monster's health, damage and armour for its level and rank |
+| `damageulTau()` | `lupta.js` — how hard you hit |
+| `dupaArmura()` | `lupta.js` — how much armour swallows |
+| `ratezi()` | `lupta.js` — whether you miss |
+| `xpDeLaMob()` | `personaj.js` — what killing it is worth |
+| `xpPentruNivel()` | `personaj.js` — when you level up |
+
+`lupta.js` is new, but nothing in it is: those five functions were
+lifted out of the middle of `game.js`, where the 3D world could not
+reach them. **Both pages load it now.** There is no second copy of
+the damage formula to drift out of step with the first.
+
+Measured: a level 5 warrior kills a level 1 rat (52 health) in about
+9 seconds and gets exactly 26 XP — which is what `xpDeLaMob(1, 5)`
+returns. Die and you lie there 4 seconds, then get up with full
+health at the zone's own resurrection point, with everything calmed
+down.
+
+**Still missing:** no abilities, no loot, no quests, no talents in
+combat. Just a weapon swing, both ways.
 
 ## The point: where the world comes from
 

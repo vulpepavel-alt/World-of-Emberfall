@@ -131,6 +131,37 @@ document.addEventListener('visibilitychange', potrivesteMarimea);
 
 
 // ----------------------------------------------------------
+//  When the browser takes the 3D away
+//
+//  A browser can hand back the graphics card at any moment - a tab
+//  left in the background for a long time, a driver hiccup, too many
+//  3D pages open at once. Everything drawn is gone, and every
+//  attempt to draw again throws.
+//
+//  Without these two lines the page would then throw once per frame,
+//  for ever, and never come back - which is exactly what happened
+//  while testing. Now it waits quietly, and rebuilds when the
+//  browser is ready.
+// ----------------------------------------------------------
+let graficaPierduta = false;
+
+randator.domElement.addEventListener('webglcontextlost', function (e) {
+  e.preventDefault();          // without this, it is never given back
+  graficaPierduta = true;
+});
+
+randator.domElement.addEventListener('webglcontextrestored', function () {
+  graficaPierduta = false;
+  potrivesteMarimea();
+  if (!zona) return;
+  // The boxes and the creatures have to be built again from scratch.
+  uitaToateFapturile();
+  construiesteLumea(Math.round(jucator.position.x), Math.round(jucator.position.z));
+  actualizeazaFapturile();
+});
+
+
+// ----------------------------------------------------------
 //  The character
 //
 //  Boxes, on purpose. The 2D character is a stack of coloured
@@ -305,7 +336,24 @@ function faEticheta(text, culoare, inaltime) {
   const s = new THREE.Sprite(e.material);
   s.scale.set(e.lat, e.inalt, 1);
   s.position.y = inaltime;
+  // Kept so the name can be held at a steady size on screen no
+  // matter how near or far it is - see marimePeEcran().
+  s.latBaza = e.lat;
+  s.inaltBaza = e.inalt;
   return s;
+}
+
+// Anything in perspective grows as you walk up to it. That is right
+// for a wolf and wrong for its name: stand next to one and the
+// writing filled half the screen. A name is a label, not an object,
+// so it is held at roughly the same size however far away it is -
+// by scaling it up in step with its distance.
+//
+// Clamped at both ends: not so small it cannot be read across a
+// field, not so large it covers the thing it belongs to.
+function marimePeEcran(obiectInLume) {
+  const d = camera.position.distanceTo(obiectInLume.getWorldPosition(new THREE.Vector3()));
+  return Math.max(0.45, Math.min(2.6, d * 0.12));
 }
 
 // A townsperson's name is worth reading from across the village.
@@ -334,25 +382,39 @@ function inaltimeaFapturii(grup) {
   return sus;
 }
 
+// Where a creature is standing right now. Monsters walk about, so
+// they carry an x and a z of their own; the square written in the
+// zone's list is only where they started.
+function pozitiaFapturii(intrare) {
+  return {
+    x: (intrare.x === undefined) ? intrare.col : intrare.x,
+    z: (intrare.z === undefined) ? intrare.rand : intrare.z
+  };
+}
+
 function adaugaFaptura(intrare, tabel, numeScris, culoareaNumelui) {
   const d = tabel[intrare.fel];
   if (!d || !d.forme) return;
 
   const grup = sablonulFapturii(tabel, intrare.fel).clone();
-  grup.position.set(intrare.col, inaltimeaSolului(intrare.col, intrare.rand), intrare.rand);
+  const unde = pozitiaFapturii(intrare);
+  grup.position.set(unde.x, inaltimeaSolului(Math.round(unde.x), Math.round(unde.z)), unde.z);
 
   // Facing whichever way their own square says, so a clearing of
   // wolves does not look like a parade. Same square, same way, every
   // time you come back.
   grup.rotation.y = amestecul(intrare.col, intrare.rand) * Math.PI * 2;
 
+  grup.inaltimeaLui = inaltimeaFapturii(grup);
+
   if (numeScris) {
-    grup.numeleScris = faEticheta(numeScris, culoareaNumelui, inaltimeaFapturii(grup) + 0.42);
+    grup.numeleScris = faEticheta(numeScris, culoareaNumelui, grup.inaltimeaLui + 0.42);
     grup.add(grup.numeleScris);
   }
 
   lumea.add(grup);
   fapturiDeFata.set(intrare, grup);
+  if (typeof imbracaFapturaInLupta === 'function') imbracaFapturaInLupta(intrare, grup, tabel);
 }
 
 function uitaFaptura(intrare) {
@@ -378,15 +440,20 @@ function actualizeazaFapturile() {
   });
 
   (zona.mobi || []).forEach(function (m) {
-    if (Math.abs(m.col - x) > RAZA_FAPTURI || Math.abs(m.rand - z) > RAZA_FAPTURI) return;
+    const p = pozitiaFapturii(m);
+    if (Math.abs(p.x - x) > RAZA_FAPTURI || Math.abs(p.z - z) > RAZA_FAPTURI) return;
+
+    // A monster you have killed has no body until it comes back.
+    if (typeof esteMort === 'function' && esteMort(m)) { uitaFaptura(m); return; }
+
     vrute.add(m);
     if (!fapturiDeFata.has(m)) {
       const d = MOBI[m.fel] || {};
-      adaugaFaptura(m, MOBI, (d.nume || m.fel) + ' (' + m.nivel + ')', '#f0d6d0');
+      adaugaFaptura(m, MOBI, (m.nume || d.nume || m.fel) + ' (' + m.nivel + ')', '#f0d6d0');
     }
     const grup = fapturiDeFata.get(m);
     if (grup && grup.numeleScris) {
-      grup.numeleScris.visible = Math.hypot(m.col - x, m.rand - z) <= RAZA_NUMELUI_MOB;
+      grup.numeleScris.visible = Math.hypot(p.x - x, p.z - z) <= RAZA_NUMELUI_MOB;
     }
   });
 
@@ -755,6 +822,7 @@ function intraInZona(id, unde) {
 
     jucator.position.set(c, inaltimeaSolului(c, r), r);
     uitaToateFapturile();
+    if (typeof uitaLupta === 'function') uitaLupta();
     construiesteLumea(c, r);
     actualizeazaFapturile();
 
@@ -926,6 +994,10 @@ function cadru(acum) {
       actualizeazaFapturile();
     }
 
+    // Everything that is alive: wandering, chasing, hitting,
+    // dying, coming back. See lupta3d.js.
+    if (typeof actualizeazaLupta === 'function') actualizeazaLupta(delta, acum);
+
     // Where the camera would like to sit, and where it actually can.
     const ochi = { x: jucator.position.x, y: jucator.position.y + 1.3, z: jucator.position.z };
     const spre = {
@@ -945,7 +1017,8 @@ function cadru(acum) {
     camera.lookAt(ochi.x, ochi.y, ochi.z);
   }
 
-  randator.render(lumea, camera);
+  // Nothing to draw on while the browser has the graphics card back.
+  if (!graficaPierduta) randator.render(lumea, camera);
 }
 
 // The loop runs from the very first moment, but there is no zone in

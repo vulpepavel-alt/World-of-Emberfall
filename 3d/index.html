@@ -38,6 +38,39 @@
       color: #e8dcc0; font-size: 17px; background: #0a0d10;
     }
     #stare.gata { display: none; }
+
+    /* ---- the combat panels: your health, your target ---- */
+    /* Sits below the top bar. How tall that bar is depends on how
+       the text wraps, so its height is measured and set from
+       lupta3d.js rather than guessed at here - guessing it put the
+       target's name behind the bar, where it could not be read. */
+    #panouri { position: fixed; left: 0; right: 0; bottom: 0; top: 0;
+               pointer-events: none; z-index: 4; }
+    .panou-lupta {
+      position: absolute; width: 230px; padding: 7px 9px;
+      background: rgba(20, 16, 12, 0.86); border: 1px solid #8a6a2f;
+      color: #e8dcc0; font-size: 12px;
+    }
+    .panou-lupta.ascuns { display: none; }
+    #panou-tau   { left: 14px; top: 8px; }
+    #panou-tinta { left: 50%; transform: translateX(-50%); top: 8px; }
+    .nume-lupta { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    .nume-lupta span:first-child { color: #d9b555; }
+    .nume-lupta span:last-child { color: #a08a63; font-size: 11px; }
+    .sant {
+      position: relative; height: 15px; background: #0d0a06;
+      border: 1px solid #2e2311; overflow: hidden;
+    }
+    .sant.subtire { height: 7px; margin-top: 4px; }
+    .sant span {
+      display: block; height: 100%; text-align: center; font-size: 10px;
+      line-height: 15px; color: #f2e8d0; white-space: nowrap;
+      transition: width 0.12s linear;
+    }
+    .viata { background: #4a7c2f; }
+    .viata.rosu { background: #8c2f27; }
+    .xp { background: #6a4b9c; }
+
     #stare .mic { display: block; margin-top: 10px; font-size: 13px; color: #a08a63; }
   </style>
 </head>
@@ -278,6 +311,10 @@
        "Loading..." into the Play button - if it runs and something
        below it is broken, the screen would lie about being ready. -->
   <script src="prototip.js"></script>
+
+  <!-- Things that are alive: wandering, chasing, hitting, dying.
+       Uses the real formulas out of lupta.js and mobi.js. -->
+  <script src="lupta3d.js"></script>
 
   <script src="../titlu.js"></script>
 
