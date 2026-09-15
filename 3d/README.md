@@ -316,7 +316,52 @@ worth checking.
 way: it asks whether you have the trade, the skill and the tool,
 which is nothing to do with drawing.
 
-**Still missing:** flight paths, and the two cooking abilities.
+## Getting about
+
+Four ways across a world of 52 zones, all of them already written
+down in `drumuri.js` with no way of being asked for:
+
+- **Flight paths.** 43 stops, one per landmark worth landing at.
+  Walk to one and it is yours; after that the flight master will
+  take you to any you have found. The fare comes from how far apart
+  the two zones sit on the world map.
+- **The hearthstone.** An innkeeper binds it to their village and
+  hands you the stone. It brings you back, once an hour.
+- **Horses.** One at level 40, one at 60. Not in a fight, and a hit
+  knocks you out of the saddle.
+- **Long Step**, the mage's own road to a city.
+
+And the things in your bag do things now: bread, water, bandages,
+recipe sheets. Click one in the bag — something you wear goes on,
+something you use gets used. That also gave the mage's two cooking
+abilities somewhere to put what they make, so **every ability in the
+game now does something**.
+
+Measured: walking into Greenvale village discovers `greenvale:sat`;
+Wren Tallow offers nowhere to go while it is your only stop, which
+is right; after finding Reed Camp, the flight there costs 1800
+copper and lands you on open ground in Gravemoor. Corin Mallow binds
+the stone, and from another zone it brings you home with a 60 minute
+wait. A Valley Horse takes you from 6.5 tiles a second to 10.4 —
+exactly its 1.6×. Drawn Water is made two at a time and drinking one
+fills your mana.
+
+## A bug the horse found
+
+Trying to mount kept saying "Not while fighting" when nothing was
+near me. It turned out to be right twice — both times something
+really was angry — but chasing it turned up a real fault:
+
+**A monster you woke and then ran away from stayed angry for ever.**
+Out of range it stops being given a turn, so nothing ever calmed it
+down. And since "am I in a fight?" asks whether *any* monster in the
+zone is angry, one left behind in a corner quietly stopped your
+health coming back, stopped your rage draining, and made it
+impossible to mount — anywhere in that zone, for the rest of the
+session.
+
+Now a monster that falls out of range goes home and mends, the way
+it would if it had chased you and given up.
 
 ## The point: where the world comes from
 

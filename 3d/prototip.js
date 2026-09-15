@@ -815,6 +815,11 @@ function intraInZona(id, unde, dinspre) {
       unde = undeIntriDinspre(dinspre);
     }
 
+    // Arrived by air, or by hearthstone: you land at the stop.
+    if (!unde && typeof undeCoboriDinZbor === 'function') {
+      unde = undeCoboriDinZbor();
+    }
+
     if (unde && unde.col !== null && unde.col !== undefined) {
       c = Math.max(0, Math.min(zona.COL - 1, Math.round(unde.col)));
       r = Math.max(0, Math.min(zona.RND - 1, Math.round(unde.rand)));
@@ -1018,8 +1023,10 @@ function cadru(acum) {
       // The other one gives (-1, 0), west, and Q and E come out
       // swapped - which is exactly what they were.
       const sin = Math.sin(fataJucatorului), cos = Math.cos(fataJucatorului);
-      const dx = (inainte * sin - lateral * cos) * VITEZA * delta;
-      const dz = (inainte * cos + lateral * sin) * VITEZA * delta;
+      // A horse carries you faster - see drumuri3d.js.
+      const viteza = (typeof vitezaTa3d === 'function') ? vitezaTa3d() : VITEZA;
+      const dx = (inainte * sin - lateral * cos) * viteza * delta;
+      const dz = (inainte * cos + lateral * sin) * viteza * delta;
 
       // Each direction is tried on its own. That is what lets you
       // slide along a wall instead of sticking to it the moment you

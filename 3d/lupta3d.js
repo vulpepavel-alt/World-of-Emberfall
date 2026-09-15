@@ -380,6 +380,7 @@ function teLoveste(m, acum) {
   if (cat <= 0) return;
 
   personaj.viata = Math.max(0, personaj.viata - cat);
+  if (typeof teDaJosDeCal === 'function') teDaJosDeCal();
 
   // And from being hit.
   if (typeof castigaRage === 'function') castigaRage(RAGE_LA_INCASARE);
@@ -625,7 +626,22 @@ function actualizeazaLupta(delta, acum) {
       if (Math.abs(m.col - x) > RAZA_FAPTURI || Math.abs(m.rand - z) > RAZA_FAPTURI) return;
       trezesteMobul(m);
     }
-    if (Math.abs(m.x - x) > RAZA_FAPTURI || Math.abs(m.z - z) > RAZA_FAPTURI) return;
+    // Out of sight, and therefore out of mind. Without this, a
+    // monster you woke and then ran away from stayed angry FOR EVER:
+    // it is no longer close enough to be given a turn, so nothing
+    // ever calms it down again. And because "am I in a fight?" asks
+    // whether ANY monster is angry, one of those left behind in a
+    // corner of the zone quietly stopped your health coming back,
+    // stopped your rage draining, and made it impossible to get on a
+    // horse - anywhere in the zone, for the rest of the session.
+    if (Math.abs(m.x - x) > RAZA_FAPTURI || Math.abs(m.z - z) > RAZA_FAPTURI) {
+      if (m.suparat) {
+        m.suparat = false;
+        m.viata = m.viataMaxima;      // it goes home and mends, as it would
+        m.x = m.col; m.z = m.rand;
+      }
+      return;
+    }
 
     miscaMobul(m, delta, acum);
 

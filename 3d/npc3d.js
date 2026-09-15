@@ -154,6 +154,33 @@ function scrieNpc() {
             (TEXT.SHOP_TITLE || 'Browse goods') + '</button>';
   }
 
+  // The flight master, and the innkeeper who binds your stone.
+  if (d.zbor) {
+    html += '<button class="lat" id="deschide-zbor">' +
+            (TEXT.FLIGHT_TITLE || 'Flight paths') + '</button>';
+  }
+  if (d.han) {
+    html += '<button class="lat" id="leg-piatra">' +
+            (TEXT.HEARTH_BIND || 'Make this your home') + '</button>';
+  }
+
+  // The stable: horses, at level 40 and 60.
+  if (d.grajd) {
+    CAI.forEach(function (c) {
+      const se = potiCumparaCalul(personaj, c.id);
+      if (se.poti) {
+        html += '<button class="lat" data-cal="' + c.id + '">' +
+                c.nume + '  \u00b7  ' + baniText(c.pret) + '</button>';
+      } else {
+        html += '<p class="gol">' + c.nume + ' \u2014 ' +
+                (se.motiv === 'ai' ? 'you have it'
+                 : se.motiv === 'nivel' ? 'comes at level ' + c.nivel
+                 : se.motiv === 'bani' ? 'costs ' + baniText(c.pret)
+                 : 'not yet') + '</p>';
+      }
+    });
+  }
+
   // A trade trainer. Which trade they teach is written on them in
   // meserii.js ('antrenor'), so we look for the one that names them.
   const meserieaLui = meseriaAntrenorului(n.fel);
@@ -187,6 +214,21 @@ function scrieNpc() {
   });
   const b = document.getElementById('deschide-taraba');
   if (b) b.addEventListener('click', function () { deschideTaraba3d(npcDeschis); });
+
+  const bz = document.getElementById('deschide-zbor');
+  if (bz) bz.addEventListener('click', function () { deschideZborul(npcDeschis); });
+
+  const bp = document.getElementById('leg-piatra');
+  if (bp) bp.addEventListener('click', function () { legPiatra3d(npcDeschis); });
+
+  corp.querySelectorAll('[data-cal]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      const r = cumparaCalul(personaj, el.dataset.cal);
+      mesaj3d = r ? (TEXT.MOUNT_BOUGHT || 'Bought {m}').replace('{m}', r.cal.nume)
+                  : (TEXT.NOT_ENOUGH || 'Not enough money');
+      scrieNpc();
+    });
+  });
 
   const im = document.getElementById('invat-meserie');
   if (im) im.addEventListener('click', function () {
@@ -469,6 +511,7 @@ function actualizeazaNpci() {
 
 function uitaNpci() {
   npcDeschis = null;
+  if (typeof zborDeschis !== 'undefined') zborDeschis = false;
   misiuneaDeschisa = null;
   negustorul3d = null;
   semneNpc.clear();

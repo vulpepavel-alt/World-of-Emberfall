@@ -270,8 +270,14 @@ function faceEfectul(ab, acum) {
       invieAnimalul(ab);
       break;
 
-    // Still missing: 'faceMancare' needs cooking, 'teleport' needs
-    // travel between cities. They say so rather than pretending.
+    case 'faceMancare':
+      faceMancare3d(ab);
+      break;
+
+    case 'teleport':
+      teleporteazaTe(ab);
+      break;
+
     default:
       spuneCeva('Not in the 3D world yet');
       break;
@@ -742,6 +748,7 @@ function actualizeazaAbilitatile(delta, acum, inLupta) {
   if (typeof actualizeazaAnimalul === 'function') actualizeazaAnimalul(delta, acum);
   if (typeof actualizeazaNodurile === 'function') actualizeazaNodurile(acum);
   if (typeof actualizeazaCulesul === 'function') actualizeazaCulesul(acum);
+  if (typeof actualizeazaDrumurile === 'function') actualizeazaDrumurile();
   actualizeazaResursa3d(delta, inLupta);
   actualizeazaInterfata(acum);
 }

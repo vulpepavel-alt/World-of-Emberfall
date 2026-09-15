@@ -145,6 +145,7 @@ function inchideFerestrele() {
   rucsaculDeschis = false;
   if (typeof arboriDeschisi !== 'undefined') arboriDeschisi = false;
   if (typeof meseriiDeschise !== 'undefined') meseriiDeschise = false;
+  if (typeof zborDeschis !== 'undefined') zborDeschis = false;
   if (cutiaFerestrei) cutiaFerestrei.classList.remove('lat');
   if (typeof uitaNpci === 'function') uitaNpci();
   if (cutiaFerestrei) cutiaFerestrei.classList.add('ascuns');
@@ -303,7 +304,14 @@ function scrieRucsacul() {
 
   corp.querySelectorAll('[data-slot]').forEach(function (el) {
     el.addEventListener('click', function () {
-      imbracaDinRucsac(Number(el.dataset.slot));
+      const i = Number(el.dataset.slot);
+      const o = (personaj.inventar || [])[i];
+      // Something you wear goes on; something you use gets used.
+      if (o && (o.consumabil || o.piatraAcasa || o.calarie || o.retetaDe)) {
+        folosesteDinRucsac(i);
+      } else {
+        imbracaDinRucsac(i);
+      }
     });
   });
 }
