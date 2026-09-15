@@ -9,7 +9,7 @@
 //                       at. You may fly to any you have walked to
 //                       once. costulZborului() sets the fare by how
 //                       far apart the two zones sit on the map.
-//    the hearthstone    bound at an inn, brings you back, once an
+//    the homeward stone    bound at an inn, brings you back, once an
 //                       hour.
 //    the horses         one at level 40, one at 60.
 //    Long Step          the mage's own way to a city.
@@ -143,7 +143,7 @@ function undeCoboriDinZbor() {
 
 
 // ----------------------------------------------------------
-//  The innkeeper and the hearthstone
+//  The innkeeper and the homeward stone
 // ----------------------------------------------------------
 function legPiatra3d(n) {
   // Which landmark this inn belongs to: the nearest one.

@@ -325,7 +325,7 @@ down in `drumuri.js` with no way of being asked for:
   Walk to one and it is yours; after that the flight master will
   take you to any you have found. The fare comes from how far apart
   the two zones sit on the world map.
-- **The hearthstone.** An innkeeper binds it to their village and
+- **The homeward stone.** An innkeeper binds it to their village and
   hands you the stone. It brings you back, once an hour.
 - **Horses.** One at level 40, one at 60. Not in a fight, and a hit
   knocks you out of the saddle.
@@ -465,3 +465,162 @@ The world is built in a square about 90 tiles around you and built
 again as you walk out of it, the same way the 2D game builds its
 terrain in chunks. A whole zone is up to 860×567 — nearly half a
 million tiles — which is far too many to draw at once.
+
+## The controls, done the way this kind of game does them
+
+They were spread across three files, and it showed: one press of
+Escape both dropped your target *and* threw the settings window
+open, because two files were listening for it and neither knew about
+the other. They all live in `3d/comenzi3d.js` now.
+
+| | |
+|---|---|
+| **W / S** | walk forward and back |
+| **A / D** | turn left and right |
+| **Q / E** | step sideways without turning |
+| **Space** | jump |
+| **X** | sit down; you stand up the moment you move |
+| **left drag** | swing the view around you — you do not turn |
+| **right drag** | turn *yourself*, view following at your back |
+| **both buttons** | walk forward |
+| **wheel** | closer or further away |
+| **left click** | pick something |
+| **right click** | pick it and go at it |
+| **Tab / Shift+Tab** | nearest enemy in front, then the next / previous |
+| **T** | start and stop swinging |
+| **Escape** | shut a window, then drop your target, then the menu |
+
+Three things about it are worth writing down.
+
+**Tab looks in front of you, and not through walls.** It takes
+everything alive within thirty tiles, works out the angle between
+your facing and each one, and sorts those inside a 76° cone ahead of
+the rest — so Tab walks outwards from what is under your nose and
+only turns round to look behind you once it has run out of things
+ahead. It also marches a line to each one and drops any with a wall
+in the way.
+
+**Auto-attack says when it is doing nothing.** Out of reach you do
+not swing, and it tells you — once, not every frame. A silent
+auto-attack that is idle because you are half a step too far away is
+the most confusing thing a fight can do.
+
+**Swapping targets restarts your swing**, as it does in Warcraft.
+Without it you could stand between two wolves and hit both on one
+weapon timer by tabbing back and forth — twice the damage the weapon
+is worth.
+
+Measured from four camera angles: W and S go along your facing, Q
+and E go left and right **of the screen** (0.85–1.0 against the
+camera's own right-hand axis every time), and A/D with the right
+button held do exactly what Q and E do. Right-dragging moves your
+facing and the camera by the same amount; left-dragging moves the
+camera and leaves your facing untouched, to the digit.
+
+## Everything moves now
+
+`3d/animatii3d.js`. Until this, everything slid about like a chess
+piece and a dead wolf simply stopped existing between one moment and
+the next.
+
+- **Walking** — arms and legs swing from the hip and the shoulder,
+  and you bob twice a stride, because both feet come down.
+- **Standing** — you breathe, and so does every wolf and every
+  townsperson, each on its own timing so a row of them is not one
+  row breathing in unison.
+- **Jumping** — legs tuck up, and how far depends on how high you
+  are. It reaches 0.66 tiles and lands clean.
+- **Swinging** — the sword arm comes over and back, on top of the
+  walk rather than instead of it, so you can do both at once.
+- **Being hit** — you flinch back; a wolf jerks and flashes red.
+- **Striking** — a wolf lunges at you along its own facing as it
+  bites.
+- **Dying** — creatures fall over sideways through a full quarter
+  turn and sink into the ground. Measured: the body now stays for
+  about 1.8 seconds and is then cleared.
+
+**The one idea worth keeping:** the phase of a walk is driven by how
+far you have *walked*, not by the clock. Step length then stays the
+same on foot and on a horse at 1.6×, so the feet never skate. Doing
+it from the clock is what makes characters in cheap games look like
+they are on a conveyor belt.
+
+Two things had to be got right to make it safe:
+
+- **The limbs hang from joints.** Turning a box turns it about its
+  own middle, which makes the foot swing forward while the knee
+  swings backward, like a propeller. Each limb now sits inside an
+  empty group at the hip or shoulder, and it is the group that
+  turns.
+- **Creature animation is SET, never ADDED.** `lupta3d.js` has
+  already put each monster where it belongs this frame, so the
+  animation is an offset from that, worked out fresh. Adding to the
+  position would have been fine for monsters — and would have sent
+  the townspeople slowly drifting up into the sky, because nothing
+  ever writes theirs again.
+
+A hundred wolves share one set of colours, which is what makes a
+hundred wolves cheap. So the red flash gives a creature colours of
+its own the first time it is actually hit, and only then. Fight
+three wolves out of a hundred and three wolves pay for it.
+
+## The world got its grain
+
+`3d/texturi3d.js`. Everything drawn in code on a blank canvas at the
+moment the page opens — there is no image file in this project.
+
+- **Every surface carries a pattern that multiplies its colour.** The
+  grass stays exactly the green `climat.js` says it is; it just has
+  speckle in it now, and walls have courses.
+- **A tree is a trunk with a crown on it.** It used to be one solid
+  block from the ground up, which is why a wood looked like a hedge.
+  The bark colour is worked out from that climate's leaf colour, so
+  a pine wood and a dead marsh do not get the same trunks. Trunks
+  are built with the world, out to the full ninety tiles — put with
+  the grass at thirty, a wood in the distance would have been crowns
+  floating with nothing holding them up.
+- **Tufts, flowers and pebbles** are sown over the thirty tiles
+  around you and rebuilt as you walk, positioned from each tile's own
+  numbers — so the same corner of the same field has the same
+  daisies every time you come back to it. Real randomness would make
+  them jump about as you moved, which the eye catches instantly.
+- **Rivers run**: the ripple picture is slid along in both
+  directions at different speeds. Two numbers a frame.
+
+**Grass took three goes.** A blade really is about five centimetres
+across and twenty tall, and that is what the first version drew. It
+looked like a field of little green fence posts — you cannot afford
+one box per real blade, and four posts to the square metre is a
+fence, not a lawn. So the fine grass went into the ground texture as
+short strokes lying every which way, and what stands up out of it
+became low, wide, squat tufts. Squat was the opposite of what seemed
+obvious, and right.
+
+**And distance had to be smoothed.** Left unsmoothed, a wood seen
+from across the valley turned into corduroy: the pattern is finer
+than the screen can show, so the dots beat against the pixels and
+come out as stripes that crawl as you walk. Small copies of the
+picture picked by distance fix it. Up close it is still perfectly
+blocky.
+
+120 frames a second with 6.000 tufts, 33.000 ground slabs and 20.000
+standing boxes in view.
+
+## A bug hiding behind all of it
+
+`amestecul()` — the scrambler that decides how far each tile sits
+between its two shades, and which way each creature faces — **could
+only ever return a number between 0 and a half.**
+
+The last line said `n >> 16`. That shift keeps the sign bit, so
+shifting a negative number right fills the top with ones; the top
+bit of `n` and the top bit of `n >> 16` were therefore always equal,
+and the XOR of two equal bits is zero. The answer's top bit could
+never be one. `>>>` fills with zeros instead, so the bit survives.
+
+Nothing crashed, which is why it sat there: every ground colour
+still mixed, just never past halfway towards its second shade, and
+every creature still turned to face somewhere — in only half the
+compass. Both look right until you know. It surfaced because the
+flowers, which want the top of the range, never appeared at all: 156
+of them where there had been none.

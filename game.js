@@ -1906,6 +1906,56 @@ let textXp;
 let terenMic;               // harta micsorata, din care decupam miniharta
 let minihartaPanza;         // fereastra minihartii
 
+
+// ----------------------------------------------------------
+//  DOUA INTREBARI LA CARE RASPUNDE FIECARE JOC PENTRU EL
+//
+//  harta.js si ghid-misiuni.js sunt folosite si de jocul 2D, si de
+//  lumea 3D. Amandoua au nevoie sa stie unde esti si ce e viu in
+//  jur - numai ca jocul 2D tine astea in PIXELI, pe sprite-uri, iar
+//  lumea 3D in CASUTE, pe insemnarile zonei. Ca sa nu ghiceasca
+//  fisierele comune in ce joc sunt, intreaba, iar fiecare joc
+//  raspunde cu ale lui. Perechea din 3D e la fel, in 3d/busola3d.js.
+//
+//  Amandoua raspund in CASUTE, si o casuta se numara ca in lumea
+//  3D: mijlocul casutei (c, r) este chiar c, r. In jocul 2D mijlocul
+//  casutei sta la col*32+16 pixeli, deci scaderea de o jumatate de
+//  casuta de mai jos nu e o potriveala, ci chiar mutarea din coltul
+//  casutei in mijlocul ei.
+// ----------------------------------------------------------
+function inCasute(x, y) {
+  return { x: x / TILE - 0.5, y: y / TILE - 0.5 };
+}
+
+function casutaTa() {
+  if (!jucator || !zona) return null;
+  const p = inCasute(jucator.x, jucator.y);
+  return { c: p.x, r: p.y };
+}
+
+function viiInZona() {
+  return {
+    npci: (npci || []).filter(function (n) { return n.active !== false; })
+            .map(function (n) {
+              const p = inCasute(n.x, n.y);
+              return { x: p.x, y: p.y, felul: n.felul };
+            }),
+
+    // Cheia e insemnarea din zona.mobi de care tine mobul, ca sa
+    // stim daca lupul din tabel e viu chiar acum sau nu.
+    mobi: new Map((mobi || []).map(function (m) {
+      const p = inCasute(m.x, m.y);
+      return [m.locul, { x: p.x, y: p.y, viu: m.viu }];
+    })),
+
+    saci: (saci || []).filter(function (s) { return s.active !== false; })
+            .map(function (s) {
+              const p = inCasute(s.x, s.y);
+              return { x: p.x, y: p.y, prada: s.prada };
+            })
+  };
+}
+
 // Bucatile din rama personajului, ca sa le putem schimba mai tarziu.
 let barViata;
 let textViata;

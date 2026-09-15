@@ -146,6 +146,7 @@ function inchideFerestrele() {
   if (typeof arboriDeschisi !== 'undefined') arboriDeschisi = false;
   if (typeof meseriiDeschise !== 'undefined') meseriiDeschise = false;
   if (typeof zborDeschis !== 'undefined') zborDeschis = false;
+  if (typeof paginaMeniului3d !== 'undefined') paginaMeniului3d = null;
   if (cutiaFerestrei) cutiaFerestrei.classList.remove('lat');
   if (typeof uitaNpci === 'function') uitaNpci();
   if (cutiaFerestrei) cutiaFerestrei.classList.add('ascuns');
@@ -173,6 +174,9 @@ function scrieFereastra() {
 
   if (saculDeschis3d) scrieSacul();
   else if (rucsaculDeschis) scrieRucsacul();
+  else if (typeof paginaMeniului3d !== 'undefined' && paginaMeniului3d) {
+    scriePaginaMeniului3d();
+  }
 }
 
 
@@ -437,5 +441,7 @@ window.addEventListener('keydown', function (e) {
     return;
   }
 
-  if (e.code === 'Escape') inchideFerestrele();
+  // Escape is in comenzi3d.js, with every other control. It was
+  // here AND in lupta3d.js at the same time, so one press both
+  // dropped your target and opened the settings.
 });

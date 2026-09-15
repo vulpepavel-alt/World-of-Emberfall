@@ -706,6 +706,18 @@ function iaMisiunea(personajul, id) {
 }
 
 
+// Renunti la o misiune luata. Se sterge de tot, deci o poti lua din
+// nou de la cap de la acelasi om, si numaratoarea o ia de la zero.
+// O misiune deja predata nu se atinge.
+function renuntaLaMisiune(personajul, id) {
+  const a = (personajul.misiuni || {})[id];
+  if (!a || a.stare === 'predata') return false;
+  delete personajul.misiuni[id];
+  if (personajul.misiuneUrmarita === id) personajul.misiuneUrmarita = null;
+  return true;
+}
+
+
 function misiuniActive(personajul) {
   return MISIUNI.filter(function (m) {
     const s = starea(personajul, m.id);

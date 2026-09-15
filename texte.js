@@ -411,6 +411,145 @@ const TEXT = {
   KEYS_MENU:    'M — character, bags, talents, quests',
   KEYS_ESCAPE:  'H — world map,   Escape — close a window',
 
+  // ==========================================================
+  //  THE 3D WORLD'S INTERFACE
+  //
+  //  The buttons in the bottom right corner, the map in the top
+  //  right, the arrow at the top of the screen, the settings, and
+  //  the whole of How to play. Everything the player reads.
+  // ==========================================================
+  UI_CHARACTER:    'Character',
+  UI_SPELLS:       'Spells',
+  UI_TALENTS:      'Talents',
+  UI_QUESTS:       'Quests',
+  UI_TRADES:       'Trades',
+  UI_MAP:          'Map',
+  UI_SETTINGS:     'Settings',
+  UI_BAGS:         'Bag',
+  UI_NO_BAG:       'No second bag yet',
+  UI_BAG_FULL:     'Your bag is full',
+
+  UI_RACE:         'Race',
+  UI_CLASS:        'Class',
+  UI_HEALTH:       'Health',
+  UI_MANA:         'Mana',
+  UI_RAGE:         'Rage',
+  UI_EXPERIENCE:   'Experience',
+  UI_MONEY:        'Money',
+  UI_ATTRIBUTES:   'Attributes',
+  UI_STR:          'Strength',
+  UI_AGI:          'Agility',
+  UI_STA:          'Stamina',
+  UI_INT:          'Intellect',
+  UI_SPI:          'Spirit',
+  UI_COMBAT:       'Fighting',
+  UI_ATTACK_POWER: 'Attack power',
+  UI_RANGED_POWER: 'Ranged power',
+  UI_SPELL_POWER:  'Spell power',
+  UI_ARMOR:        'Armour',
+  UI_CRIT:         'Critical',
+  UI_WORN:         'Worn',
+  UI_NOTHING_WORN: 'Nothing yet.',
+  UI_TAKE_OFF:     'Click to take it off',
+
+  UI_SPELLS_HINT:  'Click one to put it on the bar, click it again to take it off.',
+  UI_NO_SPELLS:    'Nothing learned yet.',
+  UI_FREE:         'free',
+  UI_BAR_FULL:     'The bar is full — take something off it first.',
+
+  UI_ABANDON:      'Give up',
+  UI_QUEST_DONE:   'go back',
+  UI_STEPS:        '{n} steps away',
+
+  // ---- settings ----
+  SET_PICTURE:      'Picture',
+  SET_PICTURE_HINT: 'Bigger blocks are quicker to draw. Smaller ones look sharper.',
+  SET_SHARP:        'Sharp',
+  SET_CHUNKY:       '{n}× blocks',
+  SET_ARROW:        'Quest arrow',
+  SET_ARROW_HINT:   'The arrow at the top of the screen that points at what the quest you are following wants next.',
+  SET_ON:           'On',
+  SET_OFF:          'Off',
+  SET_SAVING:       'Saving',
+  SET_SAVING_HINT:  'The game saves itself every fifteen seconds into the slot you picked.',
+  SET_SAVE_NOW:     'Save now',
+  SET_SAVED:        'Saved',
+  SET_NOT_SAVED:    'Could not save',
+
+  // ---- how to play ----
+  HOWTO_TITLE: 'How to play',
+
+  HOWTO_MOVE_H: 'Getting about',
+  HOWTO_MOVE:
+    'W walks forward and S walks back. A and D turn you left and right. ' +
+    'Q and E step sideways without turning, for edging round a corner. ' +
+    'Space jumps. X sits you down, and you stand up again the moment you ' +
+    'move.',
+
+  HOWTO_MOUSE_H: 'The mouse',
+  HOWTO_MOUSE:
+    'Hold the LEFT button and drag to swing the view around you — you do ' +
+    'not turn, so you can look back at where you came from while still ' +
+    'walking away from it. Hold the RIGHT button and drag to turn ' +
+    'yourself, with the view following at your back; while you hold it, A ' +
+    'and D step sideways instead of turning. Hold BOTH buttons to walk ' +
+    'forward. The wheel pulls the view closer or further away.',
+
+  HOWTO_FIGHT_H: 'Fighting',
+  HOWTO_FIGHT:
+    'Left click an enemy to pick it, or press Tab for the nearest one in ' +
+    'front of you — Tab again for the next, Shift+Tab for the one before. ' +
+    'RIGHT click an enemy to pick it and go at it in one motion; T does ' +
+    'the same, and stops you again. Once you start you keep swinging on ' +
+    'your weapon\'s own timer until one of you falls over. Too far away ' +
+    'and you do not swing — it will tell you so. Out of a fight your ' +
+    'health comes back on its own, and if you die you get up again at the ' +
+    'zone\'s stone a few seconds later.',
+
+  HOWTO_ABILITIES_H: 'Abilities',
+  HOWTO_ABILITIES:
+    'The row of buttons along the bottom. Press 1 to 9, then 0, - and = , ' +
+    'or click them. A button that has gone grey means you cannot pay for ' +
+    'it yet; a dark curtain sliding down it means you have just used it ' +
+    'and it needs a moment. Press P for everything you have learned, and ' +
+    'click a spell there to put it on the bar.',
+
+  HOWTO_LOOT_H: 'What they leave behind',
+  HOWTO_LOOT:
+    'A dead enemy leaves a box. Walk up to it and press F, or click it. ' +
+    'Press B for your bag. Clicking a thing in the bag puts it on if it is ' +
+    'clothing, and uses it up if it is food or drink. The number on the ' +
+    'bag in the corner is how many places you have left.',
+
+  HOWTO_QUESTS_H: 'Quests',
+  HOWTO_QUESTS:
+    'A yellow ! over somebody means they have work for you. A yellow ? ' +
+    'means you have finished it and they want to hear about it. Press F to ' +
+    'talk. The arrow at the top of the screen points at whatever the quest ' +
+    'you are following wants next — press L to follow a different one.',
+
+  HOWTO_MAP_H: 'Finding your way',
+  HOWTO_MAP:
+    'The small map in the top right corner shows the ground around you, ' +
+    'with people in yellow, enemies in red and the way out of the zone in ' +
+    'blue. Click it, or press M, for the whole world. Nothing on the map ' +
+    'moves you anywhere — you walk.',
+
+  HOWTO_TRADES_H: 'Making things',
+  HOWTO_TRADES:
+    'Ore, herbs and hides are standing about in the world; walk up and ' +
+    'press F. A trainer in a village teaches you what to do with them, and ' +
+    'K opens what you can make. You can learn two of the gathering and ' +
+    'making trades, plus cooking and first aid.',
+
+  HOWTO_TRAVEL_H: 'Longer journeys',
+  HOWTO_TRAVEL:
+    'Zones join onto each other — walk to the edge and keep going. Walk ' +
+    'up to a flight master once and that stop is yours for good; after ' +
+    'that he will fly you to any stop you have been to. An innkeeper ties ' +
+    'your stone to his inn, and the stone brings you back there once an ' +
+    'hour. From level 40 you can buy a horse.',
+
   // ---- caii, piatra de intoarcere, drumurile de zbor ----
   // Numele sunt ale noastre. In Warcraft piatra se cheama altfel, si
   // numele ala e azi si numele unui joc intreg al lor.

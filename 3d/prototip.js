@@ -171,30 +171,65 @@ randator.domElement.addEventListener('webglcontextrestored', function () {
 //  Boxes, on purpose. The 2D character is a stack of coloured
 //  rectangles; this is the same stack, given a third dimension.
 // ----------------------------------------------------------
+//  The arms and the legs hang from JOINTS, not from the middle of
+//  themselves. A leg is a box, and turning a box turns it about its
+//  own centre - which makes the foot swing forward while the knee
+//  swings backward, like a propeller. So each limb sits inside a
+//  small empty group placed at the hip or the shoulder, and it is
+//  that group which turns. The limb hangs below it and swings from
+//  the top, the way a leg does.
+//
+//  Everything is then hung inside one more group, 'corpul'. That is
+//  what leans, bobs and falls over, so none of it ever has to touch
+//  where the character actually IS on the map.
 function faJucator() {
   const grup = new THREE.Group();
+  const corpul = new THREE.Group();
+  grup.add(corpul);
 
-  function cub(lat, inalt, adanc, culoare, x, y, z) {
+  function cub(parinte, lat, inalt, adanc, culoare, x, y, z) {
     const m = new THREE.Mesh(
       new THREE.BoxGeometry(lat, inalt, adanc),
       new THREE.MeshLambertMaterial({ color: culoare })
     );
     m.position.set(x, y, z);
-    grup.add(m);
+    parinte.add(m);
     return m;
   }
 
-  cub(0.52, 0.60, 0.34, 0x7d2f2f, 0, 1.12, 0);      // chest
-  cub(0.30, 0.46, 0.26, 0x3a3f52, -0.13, 0.55, 0);  // left leg
-  cub(0.30, 0.46, 0.26, 0x3a3f52,  0.13, 0.55, 0);  // right leg
-  cub(0.16, 0.44, 0.16, 0x7d2f2f, -0.34, 1.10, 0);  // left arm
-  cub(0.16, 0.44, 0.16, 0x7d2f2f,  0.34, 1.10, 0);  // right arm
-  cub(0.34, 0.32, 0.30, 0xe0b48a, 0, 1.58, 0);      // head
-  cub(0.36, 0.14, 0.32, 0x4a3524, 0, 1.72, 0);      // hair
+  function incheietura(x, y) {
+    const j = new THREE.Group();
+    j.position.set(x, y, 0);
+    corpul.add(j);
+    return j;
+  }
 
-  // A blade, so you can tell which way they are facing from behind.
-  const sabie = cub(0.07, 0.80, 0.07, 0xb9c2cc, 0.42, 1.15, 0.10);
+  const pieptul = cub(corpul, 0.52, 0.60, 0.34, 0x7d2f2f, 0, 1.12, 0);
+  const capul   = cub(corpul, 0.34, 0.32, 0.30, 0xe0b48a, 0, 1.58, 0);
+  const parul   = cub(corpul, 0.36, 0.14, 0.32, 0x4a3524, 0, 1.72, 0);
+
+  // Hips at the top of the legs, shoulders at the top of the arms.
+  const soldStang  = incheietura(-0.13, 0.78);
+  const soldDrept  = incheietura( 0.13, 0.78);
+  const umarStang  = incheietura(-0.34, 1.32);
+  const umarDrept  = incheietura( 0.34, 1.32);
+
+  cub(soldStang, 0.30, 0.46, 0.26, 0x3a3f52, 0, -0.23, 0);
+  cub(soldDrept, 0.30, 0.46, 0.26, 0x3a3f52, 0, -0.23, 0);
+  cub(umarStang, 0.16, 0.44, 0.16, 0x7d2f2f, 0, -0.22, 0);
+  cub(umarDrept, 0.16, 0.44, 0.16, 0x7d2f2f, 0, -0.22, 0);
+
+  // The blade hangs off the right arm, so it goes where the arm
+  // goes - it swings when you swing instead of floating beside you.
+  const sabie = cub(umarDrept, 0.07, 0.80, 0.07, 0xb9c2cc, 0.08, -0.17, 0.10);
   sabie.rotation.x = 0.35;
+
+  // Named, so animatii3d.js can find them without counting children.
+  grup.parti = {
+    corpul: corpul, pieptul: pieptul, capul: capul, parul: parul,
+    soldStang: soldStang, soldDrept: soldDrept,
+    umarStang: umarStang, umarDrept: umarDrept, sabia: sabie
+  };
 
   return grup;
 }
@@ -230,6 +265,10 @@ const SCARA_FAPTURII = 1 / 24;
 
 // How far away creatures are given a body at all.
 const RAZA_FAPTURI = 55;
+
+// How long a dead one lies there before its body is taken away.
+// Long enough to fall over and settle, and no longer.
+const CAT_ZACE_MORT = 1500;
 
 // One template per kind, built once and then copied. Copies share
 // the same shapes and colours in the computer's memory, so a
@@ -447,8 +486,16 @@ function actualizeazaFapturile() {
     const p = pozitiaFapturii(m);
     if (Math.abs(p.x - x) > RAZA_FAPTURI || Math.abs(p.z - z) > RAZA_FAPTURI) return;
 
-    // A monster you have killed has no body until it comes back.
-    if (typeof esteMort === 'function' && esteMort(m)) { uitaFaptura(m); return; }
+    // A monster you have killed keeps its body for a moment, so that
+    // it can fall over - see animatii3d.js - and only then is taken
+    // away. Removing it the instant it died made a wolf blink out of
+    // existence mid-bite.
+    if (typeof esteMort === 'function' && esteMort(m)) {
+      const deCandEMort = performance.now() - (m.mortPanaLa - REVINE_DUPA);
+      if (fapturiDeFata.has(m) && deCandEMort < CAT_ZACE_MORT) vrute.add(m);
+      else uitaFaptura(m);
+      return;
+    }
 
     vrute.add(m);
     if (!fapturiDeFata.has(m)) {
@@ -521,10 +568,27 @@ function feluTerenului(litera) {
 // Same idea here: a cheap scramble of the tile's own coordinates
 // decides how far between the two colours this tile sits. Same
 // tile, same shade, every time - nothing flickers as you walk.
+//
+// THE LAST LINE USED TO SAY `n >> 16`, AND IT ONLY EVER GAVE BACK
+// NUMBERS BETWEEN 0 AND A HALF.
+//
+// `>>` keeps the sign bit: shifting a negative number right fills
+// the top with ones. So the topmost bit of n and the topmost bit of
+// n >> 16 were always equal, and XOR of two equal bits is zero -
+// the top bit of the answer could never be one, and the answer
+// could never reach past a half.
+//
+// `>>>` fills the top with zeros instead, so the top bit survives.
+//
+// Nothing crashed, which is why it sat here unnoticed: every ground
+// colour still mixed, just never past halfway towards its second
+// shade, and every creature turned to face somewhere in only half
+// the compass. Both look right until you know, and better once
+// fixed.
 function amestecul(c, r) {
   let n = (c * 374761393 + r * 668265263) | 0;
-  n = (n ^ (n >> 13)) * 1274126177 | 0;
-  return ((n ^ (n >> 16)) >>> 0) / 4294967295;
+  n = (n ^ (n >>> 13)) * 1274126177 | 0;
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
 }
 
 const culoareaAlta = new THREE.Color();
@@ -556,11 +620,12 @@ const GROSIMEA_ACOPERISULUI = 0.6;
 
 // Puts one box into the pile and hands back the next free slot.
 // delaLaSol is how far off the ground it starts, inalt how tall.
-function puneCutia(nZid, c, r, jos, delaLaSol, inalt, fel) {
+function puneCutia(nZid, c, r, jos, delaLaSol, inalt, fel, lat) {
   if (nZid >= zidurile.instanceMatrix.count) return nZid;   // pile full
 
+  const latime = (lat === undefined) ? 1 : lat;
   ajutor.position.set(c, jos + delaLaSol + inalt / 2, r);
-  ajutor.scale.set(1, inalt, 1);
+  ajutor.scale.set(latime, inalt, latime);
   ajutor.updateMatrix();
   zidurile.setMatrixAt(nZid, ajutor.matrix);
 
@@ -573,6 +638,23 @@ function puneCutia(nZid, c, r, jos, delaLaSol, inalt, fel) {
   zidurile.setColorAt(nZid, culoareaDeLucru);
 
   return nZid + 1;
+}
+
+
+// Bark for this zone's trees: the leaf colour turned brown and dark.
+// Worked out once per zone, not once per tree.
+let scoartaTinutaMinte = null;
+
+function scoartaZonei(felulFrunzei) {
+  if (scoartaTinutaMinte && scoartaTinutaMinte.dinCuloare === felulFrunzei.culoare) {
+    return scoartaTinutaMinte;
+  }
+  const c = new THREE.Color(felulFrunzei.culoare);
+  const hsl = { h: 0, s: 0, l: 0 };
+  c.getHSL(hsl);
+  c.setHSL(0.075, Math.min(0.5, hsl.s * 0.75 + 0.12), Math.max(0.10, hsl.l * 0.55));
+  scoartaTinutaMinte = { culoare: c.getHex(), dinCuloare: felulFrunzei.culoare };
+  return scoartaTinutaMinte;
 }
 
 
@@ -634,6 +716,23 @@ function construiesteLumea(cMijloc, rMijloc) {
         ? 0.75 + ((c * 7 + r * 13) % 11) / 20
         : 1;
 
+      // A TREE IS A TRUNK WITH A CROWN ON IT. It used to be one solid
+      // block from the ground up, which is why a wood looked like a
+      // hedge: no trunks, no gaps, nothing to walk in among. Now the
+      // crown starts where the trunk ends, and you can see through a
+      // forest at knee height the way you can through a real one.
+      //
+      // The bark colour is worked out from the leaf colour of this
+      // particular climate, so a pine wood and a dead marsh do not
+      // end up with the same trunks.
+      if (litera === 'T') {
+        const inalt = h * variatie;
+        const catTrunchi = Math.min(1.15, inalt * 0.45);
+        nZid = puneCutia(nZid, c, r, jos, 0, catTrunchi, scoartaZonei(fel), 0.3);
+        nZid = puneCutia(nZid, c, r, jos, catTrunchi, inalt - catTrunchi, fel);
+        continue;
+      }
+
       nZid = puneCutia(nZid, c, r, jos, 0, h * variatie, fel);
     }
   }
@@ -644,6 +743,11 @@ function construiesteLumea(cMijloc, rMijloc) {
   zidurile.instanceMatrix.needsUpdate = true;
   podeaua.instanceColor.needsUpdate = true;
   zidurile.instanceColor.needsUpdate = true;
+
+  // Grass, flowers, pebbles and the skin of water on the rivers -
+  // sown over a much smaller patch, because they are things you only
+  // see at your feet. See texturi3d.js.
+  if (typeof semanaDetaliile === 'function') semanaDetaliile(cMijloc, rMijloc);
 
   construitLa = { c: cMijloc, r: rMijloc };
 }
@@ -661,16 +765,17 @@ function tasta(lista) {
   return lista.some(function (k) { return apasate[k]; });
 }
 
-// P cycles how chunky the picture is, so the two looks can be
-// compared side by side instead of argued about.
+// How chunky the picture is. There is a row of buttons for this in
+// the settings now - see meniu3d.js. It used to be the P key and
+// nothing else, which is no use to anyone who has not been told.
 const TREPTE_PIXELARE = [1, 2, 3, 4, 6];
 
-window.addEventListener('keydown', function (e) {
-  if (e.code !== 'KeyP') return;
-  pixelare = TREPTE_PIXELARE[(TREPTE_PIXELARE.indexOf(pixelare) + 1) % TREPTE_PIXELARE.length];
+function schimbaPixelarea(n) {
+  if (TREPTE_PIXELARE.indexOf(n) < 0) return;
+  pixelare = n;
   potrivesteMarimea();
   scrieTreapta();
-});
+}
 
 function scrieTreapta() {
   const el = document.getElementById('treapta-pixeli');
@@ -705,26 +810,9 @@ let fataJucatorului = unghi - Math.PI;
 let inclinare = 0.42;   // how far above you it sits
 let departare = 9;
 
-let trage = false, ultimulX = 0, ultimulY = 0;
-
-randator.domElement.addEventListener('pointerdown', function (e) {
-  trage = true; ultimulX = e.clientX; ultimulY = e.clientY;
-  randator.domElement.setPointerCapture(e.pointerId);
-});
-randator.domElement.addEventListener('pointerup', function (e) {
-  trage = false;
-  try { randator.domElement.releasePointerCapture(e.pointerId); } catch (err) { /* nothing to do */ }
-});
-randator.domElement.addEventListener('pointermove', function (e) {
-  if (!trage) return;
-  unghi -= (e.clientX - ultimulX) * 0.005;
-  inclinare = Math.max(0.05, Math.min(1.2, inclinare + (e.clientY - ultimulY) * 0.004));
-  ultimulX = e.clientX; ultimulY = e.clientY;
-});
-randator.domElement.addEventListener('wheel', function (e) {
-  e.preventDefault();
-  departare = Math.max(3.5, Math.min(24, departare + e.deltaY * 0.01));
-}, { passive: false });
+// The mouse itself is not read here any more. Left drag, right drag,
+// both buttons, the wheel and every click live together in
+// comenzi3d.js, because they only make sense as one set of rules.
 
 
 // How tall whatever stands on this square is, measured from the
@@ -815,7 +903,7 @@ function intraInZona(id, unde, dinspre) {
       unde = undeIntriDinspre(dinspre);
     }
 
-    // Arrived by air, or by hearthstone: you land at the stop.
+    // Arrived by air, or by homeward stone: you land at the stop.
     if (!unde && typeof undeCoboriDinZbor === 'function') {
       unde = undeCoboriDinZbor();
     }
@@ -991,12 +1079,15 @@ function cadru(acum) {
     // (1, 0), so sin f has to become positive. sin(-PI + e) is
     // NEGATIVE and sin(-PI - e) is positive - so a right turn makes
     // f smaller, not bigger. D subtracts.
-    let intoarcere = 0;
-    if (tasta(['KeyA', 'ArrowLeft']))  intoarcere += 1;
-    if (tasta(['KeyD', 'ArrowRight'])) intoarcere -= 1;
+    //
+    // What you are ASKING for is read in comenzi3d.js, which knows
+    // about the mouse buttons too - holding the right one turns you
+    // with the mouse and turns A and D into sideways steps.
+    const vrei = (typeof intentiaDeMers === 'function')
+      ? intentiaDeMers() : { inainte: 0, lateral: 0, intoarcere: 0 };
 
-    if (intoarcere) {
-      const cat = intoarcere * VITEZA_INTOARCERII * delta;
+    if (vrei.intoarcere) {
+      const cat = vrei.intoarcere * VITEZA_INTOARCERII * delta;
       fataJucatorului += cat;
       unghi += cat;
     }
@@ -1006,11 +1097,7 @@ function cadru(acum) {
     // Always along the way you are FACING, never along the way the
     // camera happens to be pointing. Q and E step sideways without
     // turning, for edging round a corner.
-    let inainte = 0, lateral = 0;
-    if (tasta(['KeyW', 'ArrowUp']))   inainte += 1;
-    if (tasta(['KeyS', 'ArrowDown'])) inainte -= 1;
-    if (tasta(['KeyQ']))              lateral -= 1;
-    if (tasta(['KeyE']))              lateral += 1;
+    let inainte = vrei.inainte, lateral = vrei.lateral;
 
     if (inainte || lateral) {
       const lung = Math.hypot(inainte, lateral);
@@ -1037,10 +1124,17 @@ function cadru(acum) {
 
     jucator.rotation.y = fataJucatorului;
 
-    // Follow the lie of the land, gently, so hills do not snap.
+    // Up and down: following the lie of the land, or in the air
+    // after a jump. See comenzi3d.js.
+    //
+    // (This was called 'tinta' - which is ALSO the name of whatever
+    // you have picked to fight. It worked, because a const inside a
+    // function hides the outer one, but it is a trap laid for
+    // whoever reads it next.)
     const c = Math.round(jucator.position.x), r = Math.round(jucator.position.z);
-    const tinta = inaltimeaSolului(c, r);
-    jucator.position.y += (tinta - jucator.position.y) * Math.min(1, delta * 9);
+    const solulDeSubTine = inaltimeaSolului(c, r);
+    if (typeof urcaSauCoboara === 'function') urcaSauCoboara(delta, solulDeSubTine);
+    else jucator.position.y += (solulDeSubTine - jucator.position.y) * Math.min(1, delta * 9);
 
     // Walked far enough? Build the next stretch of world.
     if (Math.abs(c - construitLa.c) >= PAS_RECONSTRUIRE ||
@@ -1060,8 +1154,27 @@ function cadru(acum) {
     // dying, coming back. See lupta3d.js.
     if (typeof actualizeazaLupta === 'function') actualizeazaLupta(delta, acum);
 
+    // ...and then how all of that LOOKS: strides, swings, flinches,
+    // falling over. It runs last on purpose - everything above has
+    // already decided where each body belongs this frame, and
+    // animatii3d.js works from there.
+    if (typeof actualizeazaAnimatiile === 'function') actualizeazaAnimatiile(delta, acum);
+
+    // The rivers run. See texturi3d.js.
+    if (typeof actualizeazaTexturile === 'function') actualizeazaTexturile(acum);
+
     // Standing on a gate to the next zone? See treceri3d.js.
     if (typeof verificaTrecerea3d === 'function') verificaTrecerea3d();
+
+    // The map corner, the quest arrow, and the buttons at the bottom
+    // right. See harta3d.js, busola3d.js and meniu3d.js.
+    if (typeof actualizeazaHarta3d === 'function') actualizeazaHarta3d(acum);
+    if (typeof actualizeazaBusola === 'function') actualizeazaBusola(acum);
+    if (typeof actualizeazaMeniul3d === 'function') actualizeazaMeniul3d();
+
+    // Every fifteen seconds, into the slot you picked at the start.
+    // Until now the 3D world saved nothing at all - see salvare.js.
+    if (typeof salveazaDinCandInCand === 'function') salveazaDinCandInCand();
 
     // Where the camera would like to sit, and where it actually can.
     const ochi = { x: jucator.position.x, y: jucator.position.y + 1.3, z: jucator.position.z };

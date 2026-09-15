@@ -194,6 +194,7 @@ function miscaCifrele(acum) {
 // ----------------------------------------------------------
 let tinta = null;          // the monster you have picked
 let luptiSingur = false;   // are you swinging automatically?
+let spusCaEDeparte = false;   // have we already said "too far" this time?
 let urmatoareaLovituraTa = 0;
 let mortPanaLa = 0;
 
@@ -213,8 +214,16 @@ function faMarcajulTintei() {
 }
 
 function alegeTinta(m) {
+  const alta = (m || null) !== tinta;
   tinta = m || null;
   if (!tinta) luptiSingur = false;
+
+  // Swapping targets starts your swing over, as it does in Warcraft.
+  // Without this you could stand between two wolves and hit both on
+  // one weapon timer by tabbing back and forth, which is twice the
+  // damage the weapon is worth.
+  if (alta && tinta) urmatoareaLovituraTa = performance.now() + pauzaIntreLovituri(armaDeAtac());
+
   scrieFereastraTintei();
 }
 
@@ -223,50 +232,8 @@ function tintaEVie() {
          zona && (zona.mobi || []).indexOf(tinta) >= 0;
 }
 
-// Tab picks the nearest one you have not got already.
-function urmatoareaTinta() {
-  if (!zona || !personaj) return;
-  const x = jucator.position.x, z = jucator.position.z;
-  const aproape = (zona.mobi || [])
-    .filter(function (m) {
-      if (esteMort(m)) return false;
-      const p = pozitiaFapturii(m);
-      return Math.hypot(p.x - x, p.z - z) <= 25;
-    })
-    .sort(function (a, b) {
-      const pa = pozitiaFapturii(a), pb = pozitiaFapturii(b);
-      return Math.hypot(pa.x - x, pa.z - z) - Math.hypot(pb.x - x, pb.z - z);
-    });
-  if (!aproape.length) { alegeTinta(null); return; }
-  alegeTinta(aproape[(aproape.indexOf(tinta) + 1) % aproape.length]);
-}
-
-
-// Clicking on a monster picks it. Three.js shoots a line from where
-// you clicked into the world and tells us what it went through - so
-// we ask which creature's boxes it hit.
-const razaClicului = new THREE.Raycaster();
-const puncteMouse = new THREE.Vector2();
-
-function alegeCeAiApasat(ev) {
-  if (!zona || !personaj) return;
-  puncteMouse.x = (ev.clientX / window.innerWidth) * 2 - 1;
-  puncteMouse.y = -(ev.clientY / window.innerHeight) * 2 + 1;
-  razaClicului.setFromCamera(puncteMouse, camera);
-
-  const grupuri = [];
-  fapturiDeFata.forEach(function (grup, intrare) {
-    if ((zona.mobi || []).indexOf(intrare) >= 0) { grup.intrareaLui = intrare; grupuri.push(grup); }
-  });
-
-  const lovite = razaClicului.intersectObjects(grupuri, true);
-  for (const l of lovite) {
-    let o = l.object;
-    while (o && !o.intrareaLui) o = o.parent;
-    if (o && o.intrareaLui) { alegeTinta(o.intrareaLui); return; }
-  }
-  alegeTinta(null);
-}
+// Which enemy Tab picks, and what the mouse hits, are both in
+// comenzi3d.js now - along with every other control.
 
 
 // ----------------------------------------------------------
@@ -289,6 +256,10 @@ function loveteMobul(m, acum) {
   // the air behind you.
   fataJucatorului = Math.atan2(p.x - jucator.position.x, p.z - jucator.position.z);
 
+  // The arm comes over whether or not the blow lands - a miss is
+  // still a swing. See animatii3d.js.
+  if (typeof aiLovit === 'function') aiLovit();
+
   if (ratezi()) { aratacifra(p.x, sus, p.z, 'Miss', '#cfd6e0', false); return; }
 
   const lovitura = damageulTau(arma, personaj.attackPower);
@@ -298,6 +269,9 @@ function loveteMobul(m, acum) {
   m.suparat = true;
   // Hitting something charmed wakes it up, as it should.
   m.farmecPanaLa = 0;
+
+  // It jerks back and flashes red.
+  if (typeof fapturaAFostLovita === 'function') fapturaAFostLovita(m);
 
   // Rage comes from swinging, split the same way the damage is.
   if (typeof castigaRage === 'function') castigaRage(RAGE_PE_LOVITURA / LOVITURI_MAI_DESE);
@@ -342,7 +316,11 @@ function moareMobul(m, acum) {
     } catch (e) { /* a quest we cannot count is not worth a crash */ }
   }
 
-  uitaFaptura(m);
+  // The body is NOT taken away here any more. It stays for a moment
+  // and falls over - animatii3d.js turns it, and
+  // actualizeazaFapturile() in prototip.js clears it up once it has
+  // settled. Removing it on this line was why a wolf used to blink
+  // out of the world mid-bite.
   if (tinta === m) alegeTinta(null);
 }
 
@@ -350,6 +328,9 @@ function moareMobul(m, acum) {
 function teLoveste(m, acum) {
 
   m.urmatoareaLovitura = acum + m.vitezaLovirii;
+
+  // It lunges at you as it strikes, whether or not it connects.
+  if (typeof fapturaLoveste === 'function') fapturaLoveste(m);
 
   // Talents that teach you to slip a blow, and the Duskborn who are
   // born knowing how.
@@ -381,6 +362,7 @@ function teLoveste(m, acum) {
 
   personaj.viata = Math.max(0, personaj.viata - cat);
   if (typeof teDaJosDeCal === 'function') teDaJosDeCal();
+  if (typeof aiFostLovit === 'function') aiFostLovit();
 
   // And from being hit.
   if (typeof castigaRage === 'function') castigaRage(RAGE_LA_INCASARE);
@@ -675,10 +657,19 @@ function actualizeazaLupta(delta, acum) {
   });
 
   // Your own swing.
+  //
+  // Out of reach you simply do not swing - and it SAYS so, once,
+  // instead of going quiet. A silent auto-attack that is doing
+  // nothing because you are half a step too far away is the single
+  // most confusing thing a fight can do.
   if (luptiSingur && tintaEVie()) {
     const p = pozitiaFapturii(tinta);
-    if (Math.hypot(p.x - x, p.z - z) <= RAZA_TA && acum >= urmatoareaLovituraTa) {
-      loveteMobul(tinta, acum);
+    if (Math.hypot(p.x - x, p.z - z) <= RAZA_TA) {
+      spusCaEDeparte = false;
+      if (acum >= urmatoareaLovituraTa) loveteMobul(tinta, acum);
+    } else if (!spusCaEDeparte) {
+      spusCaEDeparte = true;
+      spuneCeva(TEXT.TARGET_TOO_FAR);
     }
   } else if (luptiSingur) {
     luptiSingur = false;
@@ -720,38 +711,4 @@ function uitaLupta() {
 }
 
 
-// ----------------------------------------------------------
-//  The keys and the mouse
-// ----------------------------------------------------------
-window.addEventListener('keydown', function (e) {
-  if (!personaj || !zona) return;
-
-  if (e.code === 'Tab') { e.preventDefault(); urmatoareaTinta(); return; }
-
-  if (e.code === 'Space') {
-    e.preventDefault();
-    if (mortPanaLa) return;
-    if (!tintaEVie()) urmatoareaTinta();
-    if (tintaEVie()) luptiSingur = !luptiSingur;
-    return;
-  }
-
-  if (e.code === 'Escape') { luptiSingur = false; alegeTinta(null); }
-});
-
-// A click picks what you clicked on - but not when you were dragging
-// the camera around, which uses the same button.
-let apasatLa = null;
-
-window.addEventListener('pointerdown', function (e) {
-  apasatLa = { x: e.clientX, y: e.clientY };
-});
-
-window.addEventListener('pointerup', function (e) {
-  if (!apasatLa || !personaj || !zona) return;
-  const catAiTras = Math.hypot(e.clientX - apasatLa.x, e.clientY - apasatLa.y);
-  apasatLa = null;
-  if (catAiTras > 5) return;                       // that was a camera drag
-  if (e.target !== randator.domElement) return;    // that was a button or a menu
-  alegeCeAiApasat(e);
-});
+// Tab, Escape, the mouse and everything else you press: comenzi3d.js.

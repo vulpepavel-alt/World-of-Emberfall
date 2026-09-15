@@ -506,9 +506,10 @@ function scrieNumeleZonei(g, z, x, y) {
 
     // Si UNDE anume in zona. Casuta zonei e mica, dar tot e altceva
     // sa vezi ca esti in coltul de miazazi fata de doar "esti aici".
-    if (typeof jucator !== 'undefined' && jucator && zona.COL) {
-      const px = x + (jucator.x / TILE / zona.COL) * CASUTA_LAT;
-      const py = y + (jucator.y / TILE / zona.RND) * CASUTA_INALT;
+    const eu = casutaTa();
+    if (eu && zona.COL) {
+      const px = x + (eu.c / zona.COL) * CASUTA_LAT;
+      const py = y + (eu.r / zona.RND) * CASUTA_INALT;
       g.fillStyle = '#1a1206';
       g.beginPath(); g.arc(px, py, 6, 0, Math.PI * 2); g.fill();
       g.fillStyle = '#ffd34d';
@@ -796,7 +797,7 @@ function faHartaZonei(id) {
   (z.locuri || []).forEach(function (loc) {
     semnulLocului(g, loc.fel, loc.col, loc.rand, marimeSemn);
     // Numele lui adevarat - acelasi pe care ti-l spune si misiunea.
-    eticheta(g, loc.nume || numeleStructurii(loc.fel), loc.col, loc.rand + 18,
+    etichetaHartii(g, loc.nume || numeleStructurii(loc.fel), loc.col, loc.rand + 18,
              COL, RND, marimeScris);
   });
 
@@ -839,7 +840,7 @@ function faHartaZonei(id) {
       (eTemnita ? '  ' + (v.esteRaid ? TEXT.RAID_SIGN : TEXT.DUNGEON_SIGN) +
                   ' ' + v.nivelDeLa + '–' + v.nivelPanaLa
                 : ' →');
-    eticheta(g, scris, tr.col, tr.rand - (eTemnita ? 24 : 18), COL, RND,
+    etichetaHartii(g, scris, tr.col, tr.rand - (eTemnita ? 24 : 18), COL, RND,
              (z.esteOras || z.esteTemnita || z.esteRaid) ? 8 : 13);
   });
 
@@ -850,14 +851,15 @@ function faHartaZonei(id) {
     g.beginPath();
     g.arc(z.portul.col, z.portul.rand, 8, 0, Math.PI * 2);
     g.fill();
-    eticheta(g, (z.portul.fel === 'corabie' ? 'Ship to ' : 'Zeppelin to ') +
+    etichetaHartii(g, (z.portul.fel === 'corabie' ? 'Ship to ' : 'Zeppelin to ') +
                 (v ? v.nume : z.portul.catre), z.portul.col, z.portul.rand - 20, COL, RND);
   }
 
   // ---- unde esti tu ----
-  if (zona && zona.id === id && typeof jucator !== 'undefined' && jucator) {
+  const eu = casutaTa();
+  if (zona && zona.id === id && eu) {
 
-    const c = Math.round(jucator.x / TILE), r = Math.round(jucator.y / TILE);
+    const c = Math.round(eu.c), r = Math.round(eu.r);
 
     // O cruce care taie toata harta, ca sa gasesti punctul dintr-o
     // privire chiar si cand harta e micsorata pe un ecran de telefon.
@@ -886,7 +888,7 @@ function faHartaZonei(id) {
     g.fillStyle = '#ffd34d';
     g.beginPath(); g.arc(c, r, 5, 0, Math.PI * 2); g.fill();
 
-    eticheta(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND, (z.esteOras || z.esteTemnita || z.esteRaid) ? 8 : 13);
+    etichetaHartii(g, TEXT.YOU_ARE_HERE, c, r - 34, COL, RND, (z.esteOras || z.esteTemnita || z.esteRaid) ? 8 : 13);
   }
 
   g.restore();
@@ -923,7 +925,7 @@ function potrivesteScrisulHartii(g, text, marime, latMaxima) {
   } while (true);
 }
 
-function eticheta(g, text, x, y, lat, inalt, marime) {
+function etichetaHartii(g, text, x, y, lat, inalt, marime) {
   const margine = 3;
   const latText = Math.max(1, Math.min(lat - 20, lat * 0.48));
   const font = potrivesteScrisulHartii(g, text, marime || 13, latText);

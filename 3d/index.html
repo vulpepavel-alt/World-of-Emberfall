@@ -52,8 +52,12 @@
       color: #e8dcc0; font-size: 12px;
     }
     .panou-lupta.ascuns { display: none; }
+    /* Your frame, and the thing you are fighting immediately to the
+       right of it. They belong side by side: in a fight you are
+       reading both bars at once, and a target frame parked in the
+       middle of the screen made that two separate glances. */
     #panou-tau   { left: 14px; top: 8px; }
-    #panou-tinta { left: 50%; transform: translateX(-50%); top: 8px; }
+    #panou-tinta { left: 262px; top: 8px; }
     .nume-lupta { display: flex; justify-content: space-between; margin-bottom: 5px; }
     .nume-lupta span:first-child { color: #d9b555; }
     .nume-lupta span:last-child { color: #a08a63; font-size: 11px; }
@@ -241,8 +245,137 @@
 
 
 
+    /* ==========================================================
+         THE MAP CORNER, top right.  See 3d/harta3d.js.
+       ========================================================== */
+    #coltul-hartii {
+      position: fixed; right: 14px; top: 8px; z-index: 5;
+      width: 152px; text-align: center; color: #e8dcc0; font-size: 11px;
+    }
+    #coltul-hartii .nume-locului {
+      padding: 3px 4px; background: rgba(20, 16, 12, 0.88);
+      border: 1px solid #8a6a2f; border-bottom: none;
+      color: #d9b555; font-size: 12px; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+    }
+    #coltul-hartii .rama-hartii {
+      position: relative; border: 1px solid #8a6a2f; background: #07090b;
+      line-height: 0; cursor: pointer;
+    }
+    #coltul-hartii canvas { display: block; }
+    #coltul-hartii .nord {
+      position: absolute; left: 4px; top: 2px; line-height: 1;
+      font-size: 11px; color: #f2e8d0; text-shadow: 0 0 3px #000, 0 0 3px #000;
+    }
+    #coltul-hartii .lupa {
+      position: absolute; right: 2px; bottom: 2px; display: flex; gap: 2px;
+    }
+    #coltul-hartii .lupa button {
+      width: 18px; height: 18px; padding: 0; line-height: 1; cursor: pointer;
+      font-family: inherit; font-size: 12px;
+      color: #e8dcc0; background: rgba(20, 16, 12, 0.85); border: 1px solid #6b5326;
+    }
+    #coltul-hartii .lupa button:hover { border-color: #d9b555; }
+    #coltul-hartii .sub-harta {
+      padding: 2px 4px; background: rgba(20, 16, 12, 0.88);
+      border: 1px solid #8a6a2f; border-top: none; color: #a08a63;
+    }
+
+    /* ==========================================================
+         THE QUEST ARROW, top middle.  See 3d/busola3d.js.
+       ========================================================== */
+    #busola {
+      position: fixed; left: 50%; transform: translateX(-50%); top: 8px;
+      z-index: 5; display: flex; align-items: center; gap: 9px;
+      padding: 5px 12px; cursor: pointer; max-width: 42vw;
+      background: rgba(20, 16, 12, 0.82); border: 1px solid #6b5326;
+      color: #e8dcc0; font-size: 12px;
+    }
+    #busola.ascuns { display: none; }
+    #busola:hover { border-color: #d9b555; }
+    #busola .ac { width: 26px; height: 26px; flex: none; transition: transform 0.12s linear; }
+    #busola .scrisul { text-align: left; min-width: 0; }
+    #busola .misiunea {
+      color: #ffd34d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #busola .departe { color: #a08a63; font-size: 11px; }
+
+    /* ==========================================================
+         THE MENU CORNER, bottom right.  See 3d/meniu3d.js.
+       ========================================================== */
+    #meniu-colt {
+      position: fixed; right: 14px; bottom: 16px; z-index: 7;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 5px;
+    }
+    #meniu-colt .genti { display: flex; gap: 4px; }
+    #meniu-colt .geanta {
+      position: relative; width: 34px; height: 34px; cursor: pointer;
+      background: #120e0a; border: 1px solid #6b5326;
+    }
+    #meniu-colt .geanta:hover { border-color: #d9b555; }
+    #meniu-colt .geanta .semn { position: absolute; inset: 5px; opacity: 0.9; }
+    #meniu-colt .geanta .libere {
+      position: absolute; right: 1px; bottom: 0; font-size: 10px;
+      color: #ffe3a3; text-shadow: 0 0 2px #000, 0 0 2px #000;
+    }
+    #meniu-colt .geanta .libere.plin { color: #ff8a7a; }
+    #meniu-colt .geanta.goala {
+      background: #0e0b07; border-color: #332814; cursor: default;
+    }
+    #meniu-colt .butonase { display: flex; gap: 3px; }
+    #meniu-colt .butonas {
+      width: 28px; height: 28px; padding: 4px; cursor: pointer; line-height: 0;
+      background: rgba(16, 13, 9, 0.85); border: 1px solid #6b5326;
+    }
+    #meniu-colt .butonas:hover { border-color: #d9b555; background: rgba(138,106,47,0.2); }
+    /* The action bar is centred on the window and the twelve of them
+       are 595 pixels wide. On a narrow screen the corner would sit on
+       top of the last few buttons, so it steps up out of the way. */
+    @media (max-width: 1100px) { #meniu-colt { bottom: 74px; } }
+
+    /* ---- the pages those buttons open ---- */
+    #fereastra3d .doua-coloane {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; align-items: start;
+    }
+    #fereastra3d .cutie {
+      border: 1px solid #4b3a1c; padding: 6px 8px; margin-bottom: 8px;
+    }
+    #fereastra3d .cutie h3 { margin: 0 0 5px; }
+    #fereastra3d .rand-cifra {
+      display: flex; justify-content: space-between; gap: 10px; padding: 1px 0;
+      color: #cbbfa4;
+    }
+    #fereastra3d .rand-cifra span:last-child { color: #e8dcc0; }
+    #fereastra3d .nume-vraja { color: #e8dcc0; }
+    #fereastra3d .vraja.pusa { border-color: #4a7c2f; }
+    #fereastra3d .vraja .pret { color: #ffe3a3; font-size: 13px; }
+    #fereastra3d .carnet {
+      border: 1px solid #332814; padding: 6px 8px; margin-bottom: 7px;
+    }
+    #fereastra3d .carnet.urmarita { border-color: #d9b555; }
+    #fereastra3d .titlu-carnet { color: #d9b555; }
+    #fereastra3d .carnet .cerinta { margin: 5px 0 0; color: #cbbfa4; }
+    #fereastra3d .carnet .cerinta.gata { color: #8fd48a; }
+    #fereastra3d .butoanele-misiunii { display: flex; gap: 5px; margin-top: 6px; }
+    #fereastra3d .butoanele-misiunii button {
+      flex: 1; padding: 3px; cursor: pointer; font-family: inherit; font-size: 11px;
+      color: #e8dcc0; background: #241c12; border: 1px solid #8a6a2f;
+    }
+    #fereastra3d .butoanele-misiunii button:hover { border-color: #d9b555; }
+    #fereastra3d .butoanele-misiunii button[disabled] {
+      color: #7c6c50; border-color: #332814; cursor: default;
+    }
+    #fereastra3d .trepte { display: flex; flex-wrap: wrap; gap: 4px; }
+    #fereastra3d .treapta-poza {
+      flex: 1; padding: 4px 6px; cursor: pointer; white-space: nowrap;
+      font-family: inherit; font-size: 11px;
+      color: #e8dcc0; background: #241c12; border: 1px solid #6b5326;
+    }
+    #fereastra3d .treapta-poza:hover { border-color: #d9b555; }
+    #fereastra3d .treapta-poza.aleasa { border-color: #d9b555; background: rgba(217,181,85,0.18); }
+
     #stare .mic { display: block; margin-top: 10px; font-size: 13px; color: #a08a63; }
-  </style>
+</style>
 </head>
 <body>
 
@@ -366,11 +499,26 @@
   <div id="bara" class="ascuns">
     <span><b>Zone</b> <select id="alege-zona"></select></span>
     <span id="unde"></span>
-    <span><b>P</b> <span id="treapta-pixeli">2&times; chunky</span></span>
-    <span id="taste">W S &mdash; walk &nbsp;&middot;&nbsp; A D &mdash; turn &nbsp;&middot;&nbsp; Q E &mdash; step sideways &nbsp;&middot;&nbsp; drag the mouse &mdash; look around &nbsp;&middot;&nbsp; scroll &mdash; closer or further</span>
+    <span><b>Picture</b> <span id="treapta-pixeli">2&times; chunky</span></span>
+    <span id="taste">Right-drag &mdash; turn &nbsp;&middot;&nbsp; Tab &mdash; pick an enemy &nbsp;&middot;&nbsp; T &mdash; attack &nbsp;&middot;&nbsp; Escape &mdash; the menu and how to play</span>
   </div>
 
   <div id="stare" class="gata"></div>
+
+  <!-- ============ THE WORLD MAP ============
+       The same screen the 2D game has, drawn by the same harta.js.
+       The markup has to be here before that file loads, because it
+       finds these four by name the moment it runs. -->
+  <div id="ecran-harta" class="ascuns">
+    <div class="cap-harta">
+      <select class="alege-harta" id="alege-harta"></select>
+      <button class="buton inchide" id="inchide-harta">Close</button>
+    </div>
+    <div class="corp-harta">
+      <div class="plansa-harta" id="plansa-harta"></div>
+      <div class="detalii-zona" id="detalii-zona"></div>
+    </div>
+  </div>
 
   <!-- Three.js: the toolbox that draws 3D in a browser page, the way
        Phaser draws the 2D game. Fetched from the internet like Phaser
@@ -398,6 +546,7 @@
   <script src="../tovarasi.js"></script>
   <script src="../amenintare.js"></script>
   <script src="../misiuni.js"></script>
+  <script src="../ghid-misiuni.js"></script>
   <script src="../npc.js"></script>
   <script src="../zone/climat.js"></script>
   <script src="../zone/generator.js"></script>
@@ -486,6 +635,16 @@
        Uses the real formulas out of lupta.js and mobi.js. -->
   <script src="lupta3d.js"></script>
 
+  <!-- Every key and every mouse button, in one place. -->
+  <script src="comenzi3d.js"></script>
+
+  <!-- Strides, swings, flinches and falling over. -->
+  <script src="animatii3d.js"></script>
+
+  <!-- Grain on every surface, grass and flowers underfoot, trunks
+       under the trees, water that runs. All drawn in code. -->
+  <script src="texturi3d.js"></script>
+
   <!-- The action bar, the cast bar and the icons - all drawn here
        out of shapes, nothing taken from anywhere. -->
   <script src="interfata.js"></script>
@@ -497,6 +656,17 @@
   <script src="talente3d.js"></script>
   <script src="meserii3d.js"></script>
   <script src="drumuri3d.js"></script>
+
+  <!-- The map screen. The 2D game's own file, unchanged apart from
+       asking casutaTa() where you are standing instead of reading a
+       Phaser sprite. Plain canvas drawing, no Phaser in it. -->
+  <script src="../harta.js"></script>
+
+  <!-- The small map in the corner, the quest arrow at the top, and
+       the row of buttons at the bottom right. -->
+  <script src="harta3d.js"></script>
+  <script src="busola3d.js"></script>
+  <script src="meniu3d.js"></script>
 
   <script src="../titlu.js"></script>
 
