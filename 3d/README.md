@@ -10,6 +10,27 @@ Nothing here is meant to be kept. If the answer turns out to be no,
 this folder gets deleted and the 2D game is untouched — it does not
 load a single file from here.
 
+## It is a whole game's front door now, not just a test page
+
+The title screen, the three save slots and the character creation
+screen are **the 2D game's own files**, loaded unchanged — same
+`meniu.css`, same `titlu.js`, same `meniu.js`, same markup. Pick a
+race, a class, a face, a name, press Accept, and you walk into the
+3D world.
+
+Those files ask exactly one thing of whatever comes after them: a
+function called `porneste()`. In the 2D game that function lives in
+`game.js` and starts Phaser. Here it lives in `prototip.js` and walks
+you into the 3D world instead. Neither file knows the other exists.
+
+Saves are shared, and in both directions: positions are written in
+the 2D game's own units (32 pixels to a tile), so a character you
+leave in one can be picked up in the other.
+
+**All 52 zones** are loaded — 41 of the world, 2 cities, 8 dungeons
+and the raid — and the box at the top left drops you into any of
+them.
+
 ## How to open it
 
 Start the test server, from the game folder:
@@ -26,8 +47,11 @@ same way Phaser is.
 
 ## What you can do
 
-- **W A S D** or the **arrow keys** — walk
-- **drag with the mouse** — swing the camera around your character
+- **W S** or **up/down** — walk forwards and back
+- **A D** or **left/right** — turn, the way they do in Warcraft. The
+  camera swings round with you and stays at your back.
+- **Q E** — step sideways without turning
+- **drag with the mouse** — look around without turning your character
 - **scroll wheel** — pull the camera in or push it out
 - **the Zone box, top left** — drop into a different zone
 - **P** — how chunky the picture is: smooth, 2×, 3×, 4×, 6×
@@ -118,7 +142,29 @@ Measured in Chrome on this Mac, on 15 September 2026:
 | Ground tiles drawn at once | 32.761 |
 | Trees, rocks, walls and roofs at once | 6.900–16.600 |
 | Creatures with bodies at once | 6–83 |
-| Zones tried | 6 outdoor, 1 city, 1 dungeon — all loaded, no errors |
+| Zones | all 52 built, entered and drawn — no errors, and you stand on walkable ground in every one |
+| Monsters placed across all 52 | 72.980 |
+| Townspeople placed across all 52 | 306 |
+| Building all 52 zones back to back | 9,8 seconds (303 ms for the largest) |
+
+## Keeping the two pages honest
+
+Both pages load the same data files, so two things can break quietly:
+a new file added to one page and not the other, and two files using
+the same name. The second one is nasty — every script shares one
+namespace, so a repeated `const` is a syntax error that stops the
+whole page before a single line runs. Black screen, no message. It
+happened while building this.
+
+So there is a check:
+
+```bash
+node verifica-3d.js
+```
+
+It reports the file count, and fails if a script is missing, loaded
+twice, points at a file that does not exist, or shares a top-level
+name with another file.
 
 The world is built in a square about 90 tiles around you and built
 again as you walk out of it, the same way the 2D game builds its

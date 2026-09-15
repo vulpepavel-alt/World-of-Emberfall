@@ -55,14 +55,15 @@ const RAZA_LUMII = 90;          // in tiles
 const PAS_RECONSTRUIRE = 22;    // rebuild after you walk this far
 
 const VITEZA = 6.5;             // tiles per second
+const VITEZA_INTOARCERII = 2.6; // radians per second - a full turn in 2,4 s
 const RAZA_JUCATOR = 0.32;      // how wide you are, for bumping into things
 
 
 // ----------------------------------------------------------
 //  Setting up the picture
 // ----------------------------------------------------------
-const scena = new THREE.Scene();
-scena.background = new THREE.Color(0x8fb6d8);
+const lumea = new THREE.Scene();
+lumea.background = new THREE.Color(0x8fb6d8);
 
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 400);
 
@@ -76,10 +77,10 @@ document.body.appendChild(randator.domElement);
 // strong light from the side, so a box has a lit face and a dark
 // face and you can tell which way it is turned.
 const luminaDeSus = new THREE.HemisphereLight(0xcfe3f5, 0x3b4a30, 0.95);
-scena.add(luminaDeSus);
+lumea.add(luminaDeSus);
 const soare = new THREE.DirectionalLight(0xfff0d0, 0.85);
 soare.position.set(-40, 70, 30);
-scena.add(soare);
+lumea.add(soare);
 
 // ----------------------------------------------------------
 //  The pixelated look
@@ -164,7 +165,7 @@ function faJucator() {
 }
 
 const jucator = faJucator();
-scena.add(jucator);
+lumea.add(jucator);
 
 
 // ==========================================================
@@ -350,14 +351,14 @@ function adaugaFaptura(intrare, tabel, numeScris, culoareaNumelui) {
     grup.add(grup.numeleScris);
   }
 
-  scena.add(grup);
+  lumea.add(grup);
   fapturiDeFata.set(intrare, grup);
 }
 
 function uitaFaptura(intrare) {
   const grup = fapturiDeFata.get(intrare);
   if (!grup) return;
-  scena.remove(grup);
+  lumea.remove(grup);
   fapturiDeFata.delete(intrare);
 }
 
@@ -395,7 +396,7 @@ function actualizeazaFapturile() {
 }
 
 function uitaToateFapturile() {
-  fapturiDeFata.forEach(function (grup) { scena.remove(grup); });
+  fapturiDeFata.forEach(function (grup) { lumea.remove(grup); });
   fapturiDeFata.clear();
 }
 
@@ -420,7 +421,7 @@ function faGramada(geometrie, catIncap) {
   g.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(catIncap * 3), 3);
   g.count = 0;
   g.frustumCulled = false;
-  scena.add(g);
+  lumea.add(g);
   return g;
 }
 
@@ -626,6 +627,10 @@ function poatiSta(x, z) {
 //  and out.
 // ----------------------------------------------------------
 let unghi = 0;          // how far the camera has swung around you
+
+// Which way the character is facing. The camera sits opposite it, so
+// facing starts at half a turn from the camera's own angle.
+let fataJucatorului = unghi - Math.PI;
 let inclinare = 0.42;   // how far above you it sits
 let departare = 9;
 
@@ -696,7 +701,7 @@ const cutiaStare = document.getElementById('stare');
 const scrisUnde = document.getElementById('unde');
 const alegeZona = document.getElementById('alege-zona');
 
-function intraInZona(id) {
+function intraInZona(id, unde) {
 
   cutiaStare.classList.remove('gata');
   cutiaStare.innerHTML = 'Building the zone&hellip;<span class="mic">Same recipe, same seed as the 2D game.</span>';
@@ -724,14 +729,19 @@ function intraInZona(id) {
     soare.color.setHex(subPamant ? 0xffca8a : 0xfff0d0);
     soare.intensity = subPamant ? 0.55 : 0.85;
 
-    scena.background = new THREE.Color(departe);
-    scena.fog = new THREE.Fog(departe,
+    lumea.background = new THREE.Color(departe);
+    lumea.fog = new THREE.Fog(departe,
       subPamant ? 14 : RAZA_LUMII * 0.45,
       subPamant ? 46 : RAZA_LUMII * 0.92);
 
-    // You start exactly where the 2D game starts you.
+    // You start exactly where the 2D game starts you - or, coming
+    // back from a save, on the very square you left from.
     let c = zona.start ? zona.start.col : Math.round(zona.COL / 2);
     let r = zona.start ? zona.start.rand : Math.round(zona.RND / 2);
+    if (unde && unde.col !== null && unde.col !== undefined) {
+      c = Math.max(0, Math.min(zona.COL - 1, Math.round(unde.col)));
+      r = Math.max(0, Math.min(zona.RND - 1, Math.round(unde.rand)));
+    }
     if (esteBlocat(c, r)) {
       // Should not happen, but a prototype that drops you inside a
       // rock and says nothing is worse than one that walks you out.
@@ -757,16 +767,76 @@ function intraInZona(id) {
 }
 
 
-// The list of zones in the bar. Only the handful this page loads -
-// the prototype does not need all 52 to answer its question.
+// Every zone the game has, in the bar - all 52 of them, plus the two
+// cities, the eight dungeons and the raid.
 ZONE.forEach(function (z) {
   const o = document.createElement('option');
   o.value = z.id;
   o.textContent = z.nume + '  (' + z.nivelDeLa + '–' + z.nivelPanaLa + ')';
   alegeZona.appendChild(o);
 });
-alegeZona.value = 'greenvale';
 alegeZona.addEventListener('change', function () { intraInZona(alegeZona.value); });
+
+
+// ==========================================================
+//  STARTING THE GAME
+//
+//  The title screen, the three save slots and the whole character
+//  creation screen are the 2D game's own files, loaded unchanged.
+//  They only ask one thing of whatever comes after them: a function
+//  called porneste() - "start" - which they call with the character
+//  you made, or the one they loaded out of a save.
+//
+//  In the 2D game that function is in game.js and it starts Phaser.
+//  Here it is this one, and it walks you into the 3D world instead.
+//  Neither file knows the other exists.
+// ==========================================================
+
+// The 2D game measures positions in pixels, at 32 pixels to a tile.
+// We measure in tiles. Saving in the 2D game's units means a
+// character saved here can still be opened there, and the other way
+// round.
+const PIXELI_PE_CASUTA_SALVATA = 32;
+
+// salvare.js writes `jucator.x` and `jucator.y` straight into the
+// save. Our jucator is a 3D object, whose place lives somewhere else
+// and counts Z where the 2D game counts Y. These two lines let the
+// old file read the new object without either of them being changed.
+Object.defineProperty(jucator, 'x', {
+  get: function () { return jucator.position.x * PIXELI_PE_CASUTA_SALVATA; }
+});
+Object.defineProperty(jucator, 'y', {
+  get: function () { return jucator.position.z * PIXELI_PE_CASUTA_SALVATA; }
+});
+
+let personaj = null;
+const bara = document.getElementById('bara');
+
+function porneste(personajAles, salvarea) {
+
+  personaj = personajAles;
+  window.personaj = personaj;      // salvare.js looks for it by name
+
+  // Every screen of the menu goes away, and the world's bar appears.
+  ['ecran-titlu', 'ecran-sloturi', 'ecran-creare'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('ascuns');
+  });
+  bara.classList.remove('ascuns');
+
+  // Out of a save you go back where you were. Otherwise you start in
+  // your own people's home zone, exactly as in the 2D game.
+  const idZonei = (salvarea && salvarea.zona && retetaZonei(salvarea.zona))
+    ? salvarea.zona
+    : (ZONA_DE_START[personaj.idRasa] || ZONE[0].id);
+
+  const unde = (salvarea && salvarea.x !== null && salvarea.x !== undefined)
+    ? { col: salvarea.x / PIXELI_PE_CASUTA_SALVATA,
+        rand: salvarea.y / PIXELI_PE_CASUTA_SALVATA }
+    : null;
+
+  intraInZona(idZonei, unde);
+}
 
 
 // ----------------------------------------------------------
@@ -778,42 +848,64 @@ let ultimaVerificareFapturi = 0;
 function cadru(acum) {
   requestAnimationFrame(cadru);
 
-  const delta = Math.min(0.05, (acum - cand) / 1000);
+  // Never below zero, never above a twentieth of a second. Zero,
+  // because a clock that jumps backwards would walk you backwards;
+  // the cap, because if the tab is asleep for a minute we do not
+  // want to wake up and teleport a minute's worth of walking.
+  const delta = Math.max(0, Math.min(0.05, (acum - cand) / 1000));
   cand = acum;
 
   if (zona) {
 
-    // Which way you asked to go, in camera terms: "forward" means
-    // away from the camera, whichever way it happens to be turned.
+    // ---- turning ----
+    //
+    // A and D TURN you, the way they do in Warcraft, and the camera
+    // swings round with you so it stays at your back. Before this,
+    // they slid you sideways while the camera stared straight ahead,
+    // which is why walking anywhere felt like being dragged.
+    //
+    // The camera gets the very same amount added to it, so if you
+    // have dragged it off to one side with the mouse, it keeps that
+    // offset instead of snapping back behind you mid-turn.
+    let intoarcere = 0;
+    if (tasta(['KeyA', 'ArrowLeft']))  intoarcere -= 1;
+    if (tasta(['KeyD', 'ArrowRight'])) intoarcere += 1;
+
+    if (intoarcere) {
+      const cat = intoarcere * VITEZA_INTOARCERII * delta;
+      fataJucatorului += cat;
+      unghi += cat;
+    }
+
+    // ---- walking ----
+    //
+    // Always along the way you are FACING, never along the way the
+    // camera happens to be pointing. Q and E step sideways without
+    // turning, for edging round a corner.
     let inainte = 0, lateral = 0;
-    if (tasta(['KeyW', 'ArrowUp']))    inainte += 1;
-    if (tasta(['KeyS', 'ArrowDown']))  inainte -= 1;
-    if (tasta(['KeyA', 'ArrowLeft']))  lateral -= 1;
-    if (tasta(['KeyD', 'ArrowRight'])) lateral += 1;
+    if (tasta(['KeyW', 'ArrowUp']))   inainte += 1;
+    if (tasta(['KeyS', 'ArrowDown'])) inainte -= 1;
+    if (tasta(['KeyQ']))              lateral -= 1;
+    if (tasta(['KeyE']))              lateral += 1;
 
     if (inainte || lateral) {
       const lung = Math.hypot(inainte, lateral);
       inainte /= lung; lateral /= lung;
 
-      // The camera sits at (sin, cos) x distance away from you. So
-      // "forward" - away from the camera - is the opposite of that,
-      // (-sin, -cos), and "right" is that turned a quarter turn,
-      // (cos, -sin). Get one sign wrong here and the keys feel fine
-      // from one camera angle and backwards from another, which is
-      // exactly how it felt: W and S reversed with the camera behind
-      // you, A and D reversed once you swung it round.
-      const sin = Math.sin(unghi), cos = Math.cos(unghi);
-      const dx = ( lateral * cos - inainte * sin) * VITEZA * delta;
-      const dz = (-lateral * sin - inainte * cos) * VITEZA * delta;
+      // Facing is (sin, cos); a quarter turn from it - your right -
+      // is (cos, -sin).
+      const sin = Math.sin(fataJucatorului), cos = Math.cos(fataJucatorului);
+      const dx = (inainte * sin + lateral * cos) * VITEZA * delta;
+      const dz = (inainte * cos - lateral * sin) * VITEZA * delta;
 
       // Each direction is tried on its own. That is what lets you
       // slide along a wall instead of sticking to it the moment you
       // touch it at an angle.
       if (poatiSta(jucator.position.x + dx, jucator.position.z)) jucator.position.x += dx;
       if (poatiSta(jucator.position.x, jucator.position.z + dz)) jucator.position.z += dz;
-
-      jucator.rotation.y = Math.atan2(dx, dz);
     }
+
+    jucator.rotation.y = fataJucatorului;
 
     // Follow the lie of the land, gently, so hills do not snap.
     const c = Math.round(jucator.position.x), r = Math.round(jucator.position.z);
@@ -853,8 +945,10 @@ function cadru(acum) {
     camera.lookAt(ochi.x, ochi.y, ochi.z);
   }
 
-  randator.render(scena, camera);
+  randator.render(lumea, camera);
 }
 
+// The loop runs from the very first moment, but there is no zone in
+// it until porneste() is called from the menu. Until then it just
+// draws an empty sky behind the title screen, which costs nothing.
 requestAnimationFrame(cadru);
-intraInZona('greenvale');
