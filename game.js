@@ -3550,6 +3550,10 @@ function aplicaTalentele() {
   personaj.attackPower = calculeazaAttackPower(atr, clasa) + dinIntariri('attackPower');
   personaj.attackPowerDistanta = calculeazaAttackPowerDistanta(atr, clasa) +
                                  dinIntariri('attackPower');
+
+  // Puterea vrajii se reface odata cu restul: si ea creste din
+  // Intellect, deci se schimba cand schimbi echipamentul.
+  personaj.putereVrajii = calculeazaPutereaVrajii(atr, clasa);
   personaj.armura   = Math.round((calculeazaArmura(atr.agi) + dinEchipament.armura +
                                   dinIntariri('armura')) *
                                  inmultitorTalent(personaj, 'armura'));
@@ -4065,7 +4069,11 @@ function puneRana(scena, mob, ab) {
     panaCand: scena.time.now + ab.tine,
     urmatorul: scena.time.now + ab.laCat,
     laCat: ab.laCat,
-    catDoare: ab.peTura,
+    // Sporul din puterea vrajii se socoteste ACUM, o data, si ramane
+    // lipit de rana. Daca l-am socoti la fiecare tic, o rana pusa
+    // inainte sa schimbi echipamentul si-ar schimba damage-ul in
+    // mijlocul ei, ceea ce n-are nicio noima.
+    catDoare: ab.peTura + (typeof sporulRanii === 'function' ? sporulRanii(ab) : 0),
     iaViata: !!ab.iaViata,
     culoare: ab.culoare || null
   });
@@ -4160,7 +4168,7 @@ function loveaTotInJur(scena, ab) {
     if (Phaser.Math.Distance.Between(jucator.x, jucator.y, m.x, m.y) > ab.raza) return;
 
     cati++;
-    const cat = Phaser.Math.Between(ab.dmgMin, ab.dmgMax) *
+    const cat = (Phaser.Math.Between(ab.dmgMin, ab.dmgMax) + sporulVrajii(ab)) *
                 inmultitorTalent(personaj, 'dmgAbilitate');
     loveste(scena, m, Math.round(cat), false);
     if (ab.incetineste) incetinesteMobul(scena, m, ab.incetineste, ab.tineIncetinirea);
@@ -4385,12 +4393,12 @@ function porneisteEfectul(scena, ab, tintaAb) {
   } else if (ab.fel === 'vraja') {
     if (!tintaAb || !tintaAb.viu) return;
     intoarceTeSpre(tintaAb.x, tintaAb.y);
-    const damageVraja = Phaser.Math.Between(ab.dmgMin, ab.dmgMax) *
+    const damageVraja = (Phaser.Math.Between(ab.dmgMin, ab.dmgMax) + sporulVrajii(ab)) *
                         inmultitorTalent(personaj, 'dmgAbilitate');
     trimiteGlob(scena, tintaAb, Math.round(damageVraja), ab.culoare);
 
   } else if (ab.fel === 'vindecare') {
-    const cat = Math.round(Phaser.Math.Between(ab.vindecaMin, ab.vindecaMax) *
+    const cat = Math.round((Phaser.Math.Between(ab.vindecaMin, ab.vindecaMax) + sporulVrajii(ab)) *
                            inmultitorTalent(personaj, 'vindecare'));
     personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + cat);
     actualizeazaBaraViata();
@@ -4411,7 +4419,7 @@ function porneisteEfectul(scena, ab, tintaAb) {
     intoarceTeSpre(tintaAb.x, tintaAb.y);
     if (ab.deLaDistanta) animatiaArcului(scena); else animatiaSabiei(scena);
     puneRana(scena, tintaAb, ab);
-    loveste(scena, tintaAb, ab.peTura, false);
+    loveste(scena, tintaAb, ab.peTura + sporulRanii(ab), false);
 
   } else if (ab.fel === 'alinare') {
     // "Tend Companion" vindeca animalul; restul te vindeca pe tine.
@@ -4637,6 +4645,50 @@ function porneisteBloodFury(scena) {
 }
 
 // Attack Power-ul de folosit ACUM, cu Red Surge daca e pornita.
+// ==========================================================
+//  PUTEREA VRAJII, in lupta
+//
+//  Merge la fel ca Attack Power, dar pentru vraji. Regula de cat
+//  primeste fiecare vraja e cea din Classic: cu cat o vraja e mai
+//  incet de aruncat, cu atat primeste mai mult din puterea ta. Altfel
+//  o vraja instant si ieftina ar creste la fel de mult ca una mare, si
+//  ai apasa toata ziua acelasi buton.
+//
+//    incantare de 3,5 secunde sau mai mult -> primeste tot
+//    instant (se socoteste ca 1,5 secunde) -> primeste 43%
+//
+//  Cele care lovesc TOT in jur primesc jumatate: lovesc mai multi
+//  deodata, deci n-au nevoie de aceeasi crestere pe tinta.
+//  Cele care rod in timp (arsura) primesc dupa cat tin, impartit la
+//  ticurile lor.
+// ==========================================================
+const INCANTARE_DEPLINA = 3500;    // de la cat primeste o vraja tot
+const INCANTARE_MINIMA  = 1500;    // cat se socoteste o vraja instant
+
+function putereaVrajiiFolosita() {
+  return (personaj && personaj.putereVrajii) || 0;
+}
+
+function coeficientulVrajii(ab) {
+  const timp = Math.max(INCANTARE_MINIMA, ab.incantare || 0);
+  let c = Math.min(1, timp / INCANTARE_DEPLINA);
+  if (ab.fel === 'val') c = c * 0.5;              // loveste tot in jur
+  return c;
+}
+
+// Cat adauga puterea vrajii la o aruncare.
+function sporulVrajii(ab) {
+  return putereaVrajiiFolosita() * coeficientulVrajii(ab);
+}
+
+// Pentru ranile care rod in timp: totalul se imparte la ticuri.
+function sporulRanii(ab) {
+  const ticuri = (ab.tine && ab.laCat) ? Math.max(1, ab.tine / ab.laCat) : 1;
+  const cat = Math.min(1, (ab.tine || 0) / 15000);
+  return (putereaVrajiiFolosita() * cat) / ticuri;
+}
+
+
 function attackPowerFolosit(scena, laDistanta) {
   let ap = laDistanta ? personaj.attackPowerDistanta : personaj.attackPower;
   if (personaj.idRasa === 'orc' && scena.time.now <= bloodFuryPanaLa) {

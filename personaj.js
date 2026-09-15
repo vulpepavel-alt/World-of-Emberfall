@@ -136,6 +136,7 @@ const CLASE = {
     resursa: 'furie',
     apPerStr: 2,
     apPerAgi: 0,
+    vrajaPerInt: 0,
     arme: {
       corpLaCorp: { nume: 'Sword', dmgMin: 3, dmgMax: 6, viteza: 2.0 }
     },
@@ -164,6 +165,7 @@ const CLASE = {
     resursa: 'mana',
     apPerStr: 1,
     apPerAgi: 2,
+    vrajaPerInt: 0,
     // Hunter lupta DOAR cu arcul. Pumnalul a fost scos: nu-l mai
     // foloseste nicaieri, deci n-are ce cauta scris in meniu.
     arme: {
@@ -194,6 +196,7 @@ const CLASE = {
     resursa: 'mana',
     apPerStr: 1,
     apPerAgi: 0,
+    vrajaPerInt: 1.2,
     arme: {
       corpLaCorp: { nume: 'Staff', dmgMin: 2, dmgMax: 4, viteza: 2.6 }
     },
@@ -222,6 +225,7 @@ const CLASE = {
     resursa: 'mana',
     apPerStr: 1,
     apPerAgi: 0,
+    vrajaPerInt: 0.3,
     arme: {
       corpLaCorp: { nume: 'Staff', dmgMin: 2, dmgMax: 4, viteza: 2.4 }
     },
@@ -333,6 +337,42 @@ function calculeazaAttackPower(atribute, clasa) {
 function calculeazaAttackPowerDistanta(atribute, clasa) {
   if (clasa.apPerAgi === 0) return null;
   return atribute.str * clasa.apPerStr + atribute.agi * clasa.apPerAgi;
+}
+
+// ==========================================================
+//  PUTEREA VRAJII
+//
+//  DE CE EXISTA.
+//  Masurat in joc, la nivelul 60, cu echipament de nivel: razboinicul
+//  facea 93 de damage pe secunda, vanatorul 109, preotul 51 si magul
+//  34. Adica magul, care e clasa de damage prin vraji, facea o treime
+//  din cat face o clasa cu arma - si a doua sursa de damage a lui era
+//  chiar lovitura cu toiagul.
+//
+//  Cauza nu era in temnite, ci in formule. Loviturile razboinicului si
+//  ale vanatorului INMULTESC damage-ul armei, deci cresc de fiecare
+//  data cand gasesti echipament mai bun. Vrajile erau cifre fixe scrise
+//  in tabel, care cresteau doar cu rangul abilitatii - cam de doua ori
+//  pe tot parcursul celor 60 de niveluri. Intellect nu facea nimic
+//  pentru damage.
+//
+//  Acum vrajile au propria lor "putere", exact cum loviturile au Attack
+//  Power: iese din Intellect, deci creste cu echipamentul, la fel ca la
+//  celelalte clase.
+// ==========================================================
+// Cifrele 'vrajaPerInt' de la clase nu-s ghicite. Masurat cu acelasi
+// echipament pentru toti, damage pe secunda impotriva unui sef elit:
+//
+//   nivel        20     40     60
+//   warrior      65     83     97
+//   hunter       73     94     110
+//   mage  (1,2)  48     95     109      <- slab devreme, la fel la 60
+//   priest (0,3) 61     73     82       <- sub clasele de damage, ca vindeca
+//
+// Magul ramane mai slab la inceput si ajunge din urma spre 60. Asa e si
+// in Classic: o clasa de vraji e firava pana strange echipament.
+function calculeazaPutereaVrajii(atribute, clasa) {
+  return Math.round(atribute.int * (clasa.vrajaPerInt || 0));
 }
 
 // Armura = Agility x 2.
@@ -505,6 +545,7 @@ function calculeazaPersonaj(idRasa, idClasa, infatisare, nivel) {
 
     attackPower: calculeazaAttackPower(atribute, clasa),
     attackPowerDistanta: calculeazaAttackPowerDistanta(atribute, clasa),
+    putereVrajii: calculeazaPutereaVrajii(atribute, clasa),
 
     armura: calculeazaArmura(atribute.agi),
     critical: calculeazaCritical(atribute.agi),
