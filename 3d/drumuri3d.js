@@ -39,15 +39,15 @@ function descoperaOpririle() {
 
     const idNod = zona.id + ':' + loc.id;
     if (descoperaZborul(personaj, idNod)) {
-      spuneCeva((TEXT.FLIGHT_FOUND || 'Flight stop found: {p}')
-                  .replace('{p}', loc.nume || zona.nume));
+      spuneCeva((TEXT.FLIGHT_FOUND || 'Flight stop found: {l}')
+                  .replace('{l}', loc.nume || zona.nume));
     }
   });
 
   // A whole city is its own stop.
   if (retetaZonei(zona.id) && retetaZonei(zona.id).esteOras) {
     if (descoperaZborul(personaj, zona.id + ':oras')) {
-      spuneCeva((TEXT.FLIGHT_FOUND || 'Flight stop found: {p}').replace('{p}', zona.nume));
+      spuneCeva((TEXT.FLIGHT_FOUND || 'Flight stop found: {l}').replace('{l}', zona.nume));
     }
   }
 }
@@ -162,7 +162,7 @@ function legPiatra3d(n) {
     pomeneInRucsac(personaj, faPiatraDeIntoarcere());
   }
 
-  mesaj3d = (TEXT.HEARTH_BOUND || 'Your stone is bound to {p}').replace('{p}', numeLoc);
+  mesaj3d = (TEXT.HEARTH_BOUND || 'Your stone is bound to {l}').replace('{l}', numeLoc);
   scrieNpc();
 }
 

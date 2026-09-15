@@ -490,20 +490,32 @@ function miscaMobul(m, delta, acum) {
 //  need to be made of boxes.
 // ----------------------------------------------------------
 let panouTau = null, panouTinta = null;
+let felulDinPortret = null;      // whose picture is in the target frame
+let cumEraiImbracat = null;      // and what you were wearing in yours
 
 function faPanourileLuptei() {
   const gazda = document.createElement('div');
   gazda.id = 'panouri';
+  // Each frame is a portrait and, beside it, the bars. The portrait
+  // is not decoration: yours shows what you are actually wearing,
+  // and your target's is drawn from that creature's own shapes, so
+  // you can tell a rat from a bandit without reading the name.
   gazda.innerHTML =
     '<div id="panou-tau" class="panou-lupta">' +
-      '<div class="nume-lupta"><span id="nume-tau"></span><span id="nivel-tau"></span></div>' +
-      '<div class="sant"><span id="viata-ta" class="viata"></span></div>' +
-      '<div class="sant"><span id="resursa-ta" class="mana"></span></div>' +
-      '<div class="sant subtire"><span id="xp-tau" class="xp"></span></div>' +
+      '<div class="portret"><div class="inauntru" id="portret-tau"></div></div>' +
+      '<div class="cifrele">' +
+        '<div class="nume-lupta"><span id="nume-tau"></span><span id="nivel-tau"></span></div>' +
+        '<div class="sant"><span id="viata-ta" class="viata"></span></div>' +
+        '<div class="sant"><span id="resursa-ta" class="mana"></span></div>' +
+        '<div class="sant subtire"><span id="xp-tau" class="xp"></span></div>' +
+      '</div>' +
     '</div>' +
     '<div id="panou-tinta" class="panou-lupta ascuns">' +
-      '<div class="nume-lupta"><span id="nume-tinta"></span><span id="nivel-tinta"></span></div>' +
-      '<div class="sant"><span id="viata-tintei" class="viata rosu"></span></div>' +
+      '<div class="portret"><div class="inauntru" id="portret-tinta"></div></div>' +
+      '<div class="cifrele">' +
+        '<div class="nume-lupta"><span id="nume-tinta"></span><span id="nivel-tinta"></span></div>' +
+        '<div class="sant"><span id="viata-tintei" class="viata rosu"></span></div>' +
+      '</div>' +
     '</div>';
   document.body.appendChild(gazda);
   panouTau = document.getElementById('panou-tau');
@@ -532,10 +544,38 @@ function scrieFereastraTintei() {
   document.getElementById('nume-tinta').textContent = tinta.nume || d.nume || tinta.fel;
   document.getElementById('nivel-tinta').textContent =
     'Level ' + tinta.nivel + (tinta.rang && tinta.rang !== 'normal' ? ' · ' + tinta.rang : '');
+
+  // Redrawn only when you pick something different, not every time
+  // its health moves.
+  if (felulDinPortret !== tinta.fel && typeof portretulFapturii === 'function') {
+    felulDinPortret = tinta.fel;
+    document.getElementById('portret-tinta').innerHTML = portretulFapturii(d.forme);
+  }
+
+  // How hard it is going to be, in the colour the map already uses
+  // for zones that are over your head.
+  const fataDe = tinta.nivel - personaj.nivel;
+  panouTinta.className = 'panou-lupta ' +
+    (fataDe >= 3 ? 'greu' : fataDe >= 1 ? 'cam-greu' : fataDe <= -4 ? 'usor' : 'potrivit');
 }
 
 function scriePanourileLuptei() {
   if (!panouTau || !personaj) return;
+
+  // Your own portrait, out of the same shapes the character creation
+  // screen draws you from - so it changes when you put a helmet on.
+  // Redrawn only when what you are wearing changes; it is a couple of
+  // dozen boxes, and doing that sixty times a second would be daft.
+  if (typeof htmlSilueta === 'function') {
+    const imbracat = Object.keys(personaj.echipament || {}).map(function (s) {
+      return s + ':' + (personaj.echipament[s] ? personaj.echipament[s].id : '');
+    }).join();
+    if (imbracat !== cumEraiImbracat) {
+      cumEraiImbracat = imbracat;
+      document.getElementById('portret-tau').innerHTML = htmlSilueta(personaj);
+    }
+  }
+
   document.getElementById('nume-tau').textContent = personaj.nume || '';
   document.getElementById('nivel-tau').textContent = 'Level ' + personaj.nivel;
   document.getElementById('viata-ta').style.width =

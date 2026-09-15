@@ -452,7 +452,11 @@ const TEXT = {
   UI_NOTHING_WORN: 'Nothing yet.',
   UI_TAKE_OFF:     'Click to take it off',
 
-  UI_SPELLS_HINT:  'Click one to put it on the bar, click it again to take it off.',
+  UI_ATTACK:       'Attack',
+  UI_ATTACK_DESC:  'Swing what is in your main hand, over and over, until the thing is dead or you stop. It will not swing while you are out of reach.',
+  UI_BARE_HANDS:   'Bare hands',
+
+  UI_SPELLS_HINT:  'Click one to put it on the bar, click it again to take it off. The first button is always your weapon.',
   UI_NO_SPELLS:    'Nothing learned yet.',
   UI_FREE:         'free',
   UI_BAR_FULL:     'The bar is full — take something off it first.',
@@ -466,6 +470,8 @@ const TEXT = {
   SET_PICTURE_HINT: 'Bigger blocks are quicker to draw. Smaller ones look sharper.',
   SET_SHARP:        'Sharp',
   SET_CHUNKY:       '{n}× blocks',
+  SET_CAMERA:       'The view follows you',
+  SET_CAMERA_HINT:  'Walking forward eases the view back behind you. Turn it off and it stays wherever you drag it.',
   SET_ARROW:        'Quest arrow',
   SET_ARROW_HINT:   'The arrow at the top of the screen that points at what the quest you are following wants next.',
   SET_ON:           'On',

@@ -118,10 +118,48 @@ window.addEventListener('blur', function () {
   deUndeAmTras = null;
 });
 
+// The wheel runs all the way in to nothing, and the last notch puts
+// you inside your own head - see prototip.js. Warcraft does the
+// same, and it is worth having: it is the only way to properly look
+// up at a thing.
 randator.domElement.addEventListener('wheel', function (e) {
   e.preventDefault();
-  departare = Math.max(3.5, Math.min(24, departare + e.deltaY * 0.01));
+  departare = Math.max(0, Math.min(24, departare + e.deltaY * 0.01));
 }, { passive: false });
+
+
+// ----------------------------------------------------------
+//  The view settling back behind you
+//
+//  Left-dragging swings the view round and LEAVES it there, which is
+//  what you want while you are standing still looking at something.
+//  It is not what you want the moment you walk off: you then spend
+//  the whole journey looking at your own shoulder.
+//
+//  So walking FORWARD eases the view back behind you. Only forward -
+//  backing up and stepping sideways leave it alone, because those
+//  are the times you are deliberately watching something that is not
+//  in front of you. And never while a button is held down, because
+//  then you are aiming it by hand and it should stay where you put
+//  it. It can be turned off in the settings.
+// ----------------------------------------------------------
+const VITEZA_REVENIRII = 2.4;     // radians a second
+
+function asazaCameraLaSpate(delta, mergiInainte) {
+  if (typeof urmarireCamera !== 'undefined' && !urmarireCamera) return;
+  if (butoaneleMouse.stanga || butoaneleMouse.dreapta) return;
+  if (!mergiInainte) return;
+
+  // The shortest way round. Both numbers grow without limit as you
+  // turn, so the difference has to be folded back into half a turn
+  // either way, or the view would take the long way round the houses.
+  let cat = (fataJucatorului + Math.PI) - unghi;
+  while (cat >  Math.PI) cat -= Math.PI * 2;
+  while (cat < -Math.PI) cat += Math.PI * 2;
+
+  if (Math.abs(cat) < 0.003) { unghi += cat; return; }
+  unghi += Math.sign(cat) * Math.min(Math.abs(cat), VITEZA_REVENIRII * delta);
+}
 
 
 // ----------------------------------------------------------

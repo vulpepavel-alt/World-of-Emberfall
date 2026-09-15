@@ -301,9 +301,15 @@ function scrieCaracterul3d() {
 //  Clicking one puts it on the bar, and clicking it again takes it
 //  off, which is this world's answer to dragging it there.
 // ----------------------------------------------------------
+// Only the slots this bar can actually reach. The first button of
+// the twelve is your weapon, so eleven ability slots are pressable -
+// and putting something in a twelfth would be putting it where no
+// key goes.
 function loculDinBara(id) {
   const bara = personaj.bara || [];
-  for (let i = 0; i < bara.length; i++) if (bara[i] === id) return i;
+  for (let i = 0; i < Math.min(bara.length, LOCURI_PE_BARA_3D); i++) {
+    if (bara[i] === id) return i;
+  }
   return -1;
 }
 
@@ -315,7 +321,10 @@ function puneInBara3d(id) {
     scrieVrajile3d();
     return;
   }
-  const gol = personaj.bara.indexOf(null);
+  let gol = -1;
+  for (let i = 0; i < LOCURI_PE_BARA_3D; i++) {
+    if (!personaj.bara[i]) { gol = i; break; }
+  }
   if (gol < 0) { mesajMeniului3d = TEXT.UI_BAR_FULL; scrieVrajile3d(); return; }
   personaj.bara[gol] = id;
   mesajMeniului3d = '';
@@ -354,7 +363,7 @@ function scrieVrajile3d() {
               (ab.pauza ? ' · ' + (ab.pauza / 1000) + 's' : '') + '</span>' +
               '<br><span class="ce-face">' + (ab.descriere || '') + '</span></div>' +
               '<div class="pret">' +
-              (unde >= 0 ? TASTELE_BAREI[unde] : '') + '</div>' +
+              (unde >= 0 ? TASTELE_BAREI[butonulSlotului(unde)] : '') + '</div>' +
             '</div>';
   });
 
@@ -426,6 +435,7 @@ function scrieMisiunile3d() {
 //  4. SETTINGS
 // ----------------------------------------------------------
 let sageataPornita = true;
+let urmarireCamera = true;
 
 function scrieSetarile3d() {
   document.getElementById('titlu3d').textContent = TEXT.UI_SETTINGS;
@@ -439,6 +449,11 @@ function scrieSetarile3d() {
             (n === 1 ? TEXT.SET_SHARP : TEXT.SET_CHUNKY.replace('{n}', n)) + '</button>';
   });
   html += '</div></div>';
+
+  html += '<div class="cutie"><h3>' + TEXT.SET_CAMERA + '</h3>' +
+          '<p class="mic">' + TEXT.SET_CAMERA_HINT + '</p>' +
+          '<button class="lat" id="comuta-camera">' +
+          (urmarireCamera ? TEXT.SET_ON : TEXT.SET_OFF) + '</button></div>';
 
   html += '<div class="cutie"><h3>' + TEXT.SET_ARROW + '</h3>' +
           '<p class="mic">' + TEXT.SET_ARROW_HINT + '</p>' +
@@ -459,6 +474,11 @@ function scrieSetarile3d() {
       schimbaPixelarea(Number(b.dataset.pixeli));
       scrieSetarile3d();
     });
+  });
+
+  document.getElementById('comuta-camera').addEventListener('click', function () {
+    urmarireCamera = !urmarireCamera;
+    scrieSetarile3d();
   });
 
   document.getElementById('comuta-sageata').addEventListener('click', function () {

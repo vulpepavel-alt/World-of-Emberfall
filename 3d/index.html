@@ -46,12 +46,46 @@
        target's name behind the bar, where it could not be read. */
     #panouri { position: fixed; left: 0; right: 0; bottom: 0; top: 0;
                pointer-events: none; z-index: 4; }
+    /* A frame is a portrait and, beside it, the bars. Both halves sit
+       on a raised panel: two inset shadows do the whole job of making
+       it look like a plate of metal rather than a rectangle of CSS. */
     .panou-lupta {
-      position: absolute; width: 230px; padding: 7px 9px;
-      background: rgba(20, 16, 12, 0.86); border: 1px solid #8a6a2f;
+      position: absolute; width: 238px; padding: 6px 8px;
+      display: flex; gap: 8px; align-items: center;
+      background: linear-gradient(180deg, rgba(38,30,21,0.94), rgba(16,12,8,0.94));
+      border: 1px solid #8a6a2f; border-radius: 3px;
+      box-shadow: inset 0 1px 0 rgba(255,235,190,0.16),
+                  inset 0 -1px 0 rgba(0,0,0,0.5),
+                  0 2px 6px rgba(0,0,0,0.45);
       color: #e8dcc0; font-size: 12px;
     }
     .panou-lupta.ascuns { display: none; }
+    .panou-lupta .cifrele { flex: 1; min-width: 0; }
+
+    .panou-lupta .portret {
+      position: relative; width: 46px; height: 46px; flex: none; overflow: hidden;
+      background: radial-gradient(circle at 40% 30%, #3b3222, #120d08 70%);
+      border: 1px solid #8a6a2f; border-radius: 3px;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.75);
+    }
+    /* htmlSilueta() draws you at its own size and its own origin:
+       measured, the whole figure lands between x 19-241 and y 34-316.
+       A portrait wants the head and shoulders, so this frames the
+       120x116 box at the top of that and shrinks it to fit. Measured
+       rather than guessed - guessed, the box came out empty. */
+    .panou-lupta .portret .inauntru {
+      position: absolute; left: 0; top: 0; width: 260px; height: 340px;
+      transform: scale(0.38) translate(-72px, -32px); transform-origin: 0 0;
+    }
+    #panou-tinta .portret .inauntru {
+      transform: none; left: 3px; top: 3px; width: 40px; height: 40px;
+    }
+
+    /* How hard your target is, in the colours the world map already
+       uses for zones that are over your head. */
+    #panou-tinta.greu      { border-color: #b8534a; }
+    #panou-tinta.cam-greu  { border-color: #c9a83f; }
+    #panou-tinta.usor      { border-color: #6b7f8f; }
     /* Your frame, and the thing you are fighting immediately to the
        right of it. They belong side by side: in a fight you are
        reading both bars at once, and a target frame parked in the
@@ -61,73 +95,143 @@
     .nume-lupta { display: flex; justify-content: space-between; margin-bottom: 5px; }
     .nume-lupta span:first-child { color: #d9b555; }
     .nume-lupta span:last-child { color: #a08a63; font-size: 11px; }
+    /* A groove with something filling it. The dark inset at the top
+       and the pale one at the bottom are what make it read as cut
+       INTO the panel rather than laid on top of it. */
     .sant {
-      position: relative; height: 15px; background: #0d0a06;
-      border: 1px solid #2e2311; overflow: hidden;
+      position: relative; height: 15px; margin-bottom: 3px;
+      background: linear-gradient(180deg, #060500, #14100a);
+      border: 1px solid #241b0e; border-radius: 2px; overflow: hidden;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
     }
-    .sant.subtire { height: 7px; margin-top: 4px; }
+    .sant.subtire { height: 6px; margin-top: 3px; margin-bottom: 0; }
     .sant span {
+      position: relative;
       display: block; height: 100%; text-align: center; font-size: 10px;
       line-height: 15px; color: #f2e8d0; white-space: nowrap;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.9);
       transition: width 0.12s linear;
+    }
+    /* One band of light across the top of whatever is in the groove,
+       so a full bar looks rounded instead of painted flat. */
+    .sant span::after {
+      content: ''; position: absolute; inset: 0 0 50% 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0));
+      pointer-events: none;
     }
     /* Tied to .sant on purpose: these are the fills INSIDE a bar's
        groove. Left loose, '.xp' also painted the experience line in
        the quest window purple, right across the panel. */
-    .sant .viata { background: #4a7c2f; }
-    .sant .viata.rosu { background: #8c2f27; }
-    .sant .xp { background: #6a4b9c; }
+    .sant .viata { background: linear-gradient(180deg, #67a541, #2f5a1c); }
+    .sant .viata.rosu { background: linear-gradient(180deg, #b64236, #6b1f19); }
+    .sant .xp { background: linear-gradient(180deg, #8a67c4, #462f70); }
+    .sant .mana { background: linear-gradient(180deg, #4a83d4, #1d3c72); }
 
     /* ---- the action bar and the cast bar ----
        Every border, every glow and every icon below is drawn here
        out of colours and shapes. Nothing is a picture from anywhere. */
     #interfata { position: fixed; inset: 0; pointer-events: none; z-index: 6; }
 
+    /* The bar sits on a plate with a lit top edge and a dark bottom
+       one - the whole trick to making flat CSS look like a thing
+       bolted onto the screen. */
     #bara-actiuni {
-      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 5px; padding: 6px;
-      background: rgba(16, 13, 9, 0.82); border: 1px solid #6b5326;
-      border-radius: 3px; pointer-events: auto;
+      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 4px; padding: 6px 7px 7px;
+      background: linear-gradient(180deg, rgba(44,35,24,0.95), rgba(14,11,7,0.95));
+      border: 1px solid #6b5326; border-radius: 4px; pointer-events: auto;
+      box-shadow: inset 0 1px 0 rgba(255,235,190,0.18),
+                  inset 0 -1px 0 rgba(0,0,0,0.6),
+                  0 3px 10px rgba(0,0,0,0.5);
     }
+
+    /* A button is three layers: a dark socket, a raised rim, and the
+       picture sunk into it. */
     #bara-actiuni .slot {
-      position: relative; width: 44px; height: 44px; cursor: pointer;
-      background: #120e0a; border: 1px solid #6b5326; overflow: hidden;
+      position: relative; width: 42px; height: 42px; cursor: pointer;
+      background: #0b0805; border-radius: 3px;
+      box-shadow: 0 0 0 1px #12100c,
+                  0 0 0 2px #7a5f2c,
+                  inset 0 0 5px rgba(0,0,0,0.9);
+      transition: box-shadow 0.08s linear;
     }
-    #bara-actiuni .slot:hover { border-color: #d9b555; }
-    #bara-actiuni .slot.gol { background: #0e0b07; border-color: #332814; cursor: default; }
-    #bara-actiuni .slot.gol:hover { border-color: #332814; }
-    #bara-actiuni .icoana { position: absolute; inset: 0; }
+    #bara-actiuni .slot:hover {
+      box-shadow: 0 0 0 1px #12100c,
+                  0 0 0 2px #e8c96a,
+                  0 0 9px rgba(232,201,106,0.45),
+                  inset 0 0 5px rgba(0,0,0,0.9);
+    }
+    #bara-actiuni .slot.gol {
+      box-shadow: 0 0 0 1px #12100c, 0 0 0 2px #3a2e17, inset 0 0 6px rgba(0,0,0,0.95);
+      cursor: default;
+    }
+    #bara-actiuni .slot.gol:hover {
+      box-shadow: 0 0 0 1px #12100c, 0 0 0 2px #3a2e17, inset 0 0 6px rgba(0,0,0,0.95);
+    }
+    #bara-actiuni .icoana {
+      position: absolute; inset: 2px; border-radius: 2px; overflow: hidden;
+    }
     /* dims when you cannot afford it */
-    #bara-actiuni .slot.sarac .icoana { filter: grayscale(0.8) brightness(0.5); }
-    /* the dark curtain that sinks as the cooldown runs out */
+    #bara-actiuni .slot.sarac .icoana { filter: grayscale(0.85) brightness(0.45); }
+
+    /* The weapon, while you are swinging: a light that breathes. */
+    #bara-actiuni .slot.atacul.pornit {
+      box-shadow: 0 0 0 1px #12100c, 0 0 0 2px #ffd34d,
+                  0 0 12px rgba(255,211,77,0.6), inset 0 0 5px rgba(0,0,0,0.9);
+      animation: pulsul-atacului 1.1s ease-in-out infinite;
+    }
+    @keyframes pulsul-atacului {
+      0%, 100% { filter: brightness(1); }
+      50%      { filter: brightness(1.35); }
+    }
+
+    /* THE COOLDOWN IS A CLOCK HAND, not a curtain.
+       A wedge of shadow that sweeps round as the time runs out - one
+       conic gradient, no pictures and no script beyond setting the
+       angle. A curtain sliding down tells you how much is left but
+       not how fast it is coming; a hand tells you both. */
     #bara-actiuni .perdea {
-      position: absolute; left: 0; right: 0; top: 0; height: 0%;
-      background: rgba(6, 5, 4, 0.72); transition: height 0.08s linear;
+      position: absolute; inset: 2px; border-radius: 2px; pointer-events: none;
+      --sweep: 0deg;
+      background: conic-gradient(from 0deg,
+                  rgba(8,6,4,0.72) var(--sweep), rgba(0,0,0,0) 0);
     }
     #bara-actiuni .secunde {
       position: absolute; inset: 0; display: flex; align-items: center;
-      justify-content: center; font-size: 17px; color: #ffe3a3;
-      text-shadow: 0 0 3px #000, 0 0 3px #000;
+      justify-content: center; font-size: 18px; color: #ffe3a3;
+      text-shadow: 0 0 3px #000, 0 0 3px #000, 0 1px 2px #000;
+      pointer-events: none;
     }
+    /* Top right, where a keybind goes. */
     #bara-actiuni .tasta {
-      position: absolute; right: 2px; bottom: 1px; font-size: 10px;
-      color: #cbb98f; text-shadow: 0 0 2px #000, 0 0 2px #000;
+      position: absolute; right: 3px; top: 1px; font-size: 10px;
+      color: #e3d3aa; pointer-events: none;
+      text-shadow: 0 0 2px #000, 0 0 2px #000, 0 1px 1px #000;
     }
 
     #incantare {
-      position: absolute; bottom: 82px; left: 50%; transform: translateX(-50%);
-      width: 250px; height: 18px; background: #0d0a06; border: 1px solid #8a6a2f;
+      position: absolute; bottom: 84px; left: 50%; transform: translateX(-50%);
+      width: 260px; height: 19px; border-radius: 2px;
+      background: linear-gradient(180deg, #060500, #14100a);
+      border: 1px solid #8a6a2f;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.8), 0 2px 6px rgba(0,0,0,0.5);
+      overflow: hidden;
     }
     #incantare.ascuns { display: none; }
-    #incantare-plina { display: block; height: 100%; width: 0%; background: #c4922e; }
+    #incantare-plina {
+      display: block; height: 100%; width: 0%;
+      background: linear-gradient(180deg, #e8b850, #9a6d1c);
+    }
     #incantare-nume {
-      position: absolute; inset: 0; text-align: center; line-height: 18px;
-      font-size: 11px; color: #f2e8d0; text-shadow: 0 0 3px #000;
+      position: absolute; inset: 0; text-align: center; line-height: 19px;
+      font-size: 11px; color: #f7efdc; text-shadow: 0 1px 2px #000, 0 0 3px #000;
     }
 
     #fisa-abilitate {
-      position: absolute; width: 220px; padding: 8px 10px;
-      background: rgba(12, 10, 7, 0.95); border: 1px solid #8a6a2f;
+      position: absolute; width: 230px; padding: 9px 11px; border-radius: 3px;
+      background: linear-gradient(180deg, rgba(26,21,14,0.97), rgba(10,8,5,0.97));
+      border: 1px solid #8a6a2f;
+      box-shadow: inset 0 1px 0 rgba(255,235,190,0.12), 0 4px 12px rgba(0,0,0,0.55);
       color: #e8dcc0; font-size: 11px; line-height: 1.45;
     }
     #fisa-abilitate.ascuns { display: none; }
@@ -135,7 +239,7 @@
     #fisa-abilitate i { display: block; color: #a08a63; font-style: normal; margin: 2px 0 5px; }
     #fisa-abilitate p { margin: 0; color: #cbbfa4; }
 
-    .sant .rage { background: #9c3323; }
+    .sant .rage { background: linear-gradient(180deg, #c04a34, #6e2114); }
 
     /* ---- the loot sack and the bag ---- */
     #fereastra3d {
@@ -500,7 +604,7 @@
     <span><b>Zone</b> <select id="alege-zona"></select></span>
     <span id="unde"></span>
     <span><b>Picture</b> <span id="treapta-pixeli">2&times; chunky</span></span>
-    <span id="taste">Right-drag &mdash; turn &nbsp;&middot;&nbsp; Tab &mdash; pick an enemy &nbsp;&middot;&nbsp; T &mdash; attack &nbsp;&middot;&nbsp; Escape &mdash; the menu and how to play</span>
+    <span id="taste">Escape &mdash; the menu and how to play</span>
   </div>
 
   <div id="stare" class="gata"></div>

@@ -624,3 +624,89 @@ every creature still turned to face somewhere — in only half the
 compass. Both look right until you know. It surfaced because the
 flowers, which want the top of the range, never appeared at all: 156
 of them where there had been none.
+
+## The view follows you
+
+Left-dragging swings the view round and leaves it there, which is
+what you want standing still and looking at something. It is not
+what you want the moment you walk off — you then spend the whole
+journey looking at your own shoulder.
+
+So **walking forward eases the view back behind you**, at 2.4
+radians a second. Only forward: backing up and stepping sideways
+leave it alone, because those are exactly the times you are
+deliberately watching something that is not in front of you. And
+never while a mouse button is held, because then you are aiming it
+by hand. There is a switch for it in the settings.
+
+The shortest way round matters here. Both the view angle and your
+facing grow without limit as you turn, so the difference between
+them has to be folded back into half a turn either way — otherwise
+the view takes the long way round the houses to get back behind you.
+
+**And the wheel now runs all the way in.** Past the last notch the
+camera has nowhere left to pull to, and you are looking out of your
+own eyes: the body is hidden, because from in there you would be
+looking at the inside of your own chest. Measured: camera 0.00 tiles
+from your feet, 1.62 up, body hidden; zoom back out and it all
+returns.
+
+## The bar starts with your weapon
+
+Button **1** is not a spell. It is the swing of whatever is actually
+in your main hand, drawn from that item through the same
+`formeleIconitei()` that draws it in your bag, and pressing it starts
+and stops your auto-attack. Bare-handed, it is a fist. The tooltip's
+numbers come from `armaDeAtac()` in `lupta.js` — the same function
+the fight itself asks, so it cannot say one thing while the blows say
+another.
+
+Abilities therefore start at **2**. That is the trade this kind of
+bar has always made: one of the twelve buttons is your weapon, so
+eleven ability slots are reachable.
+
+While you are swinging, button 1 lights and breathes.
+
+## The interface, made to look like something
+
+None of this is anybody's artwork — it is gradients, shadows and
+shapes, written out in the stylesheet and in `interfata.js`.
+
+- **Buttons are three layers**: a dark socket, a raised brass rim,
+  and the picture sunk into it. Hovering lights the rim; an ability
+  you cannot pay for goes grey.
+- **Icons sit on a lit tile** instead of a flat square. Two
+  gradients — one warm glow up in the top left, one fall of shadow
+  down the face — is the whole of it, and it is the difference
+  between a button and a sticker.
+- **The cooldown is a clock hand, not a curtain.** A wedge of shadow
+  that sweeps round as the time runs out, made from a single conic
+  gradient with its angle set from script. A curtain sliding down
+  tells you how much is left but not how fast it is coming; a hand
+  tells you both.
+- **Keybinds moved to the top right** of each button, where the eye
+  looks for them.
+- **Bars are grooves cut into the panel** — a dark inset above, a
+  band of light across the top of the fill — rather than coloured
+  rectangles laid on top.
+- **Both frames have portraits.** Yours is drawn by `htmlSilueta()`,
+  the same function the character creation screen uses, so it
+  changes when you put a helmet on; it is redrawn only when what you
+  are wearing changes. Your target's is drawn from that creature's
+  own rectangles in `mobi.js`, with the frame worked out from the
+  shapes themselves so a rat and a bear both fill it. And the
+  target's border carries how hard it is, in the colours the world
+  map already uses.
+
+Framing the portrait had to be measured, not guessed: `htmlSilueta()`
+draws you between x 19–241 and y 34–316 in its own units, and the
+head-and-shoulders box is the 120×116 at the top of that. Guessed, it
+came out empty.
+
+## A message that showed the player its own plumbing
+
+`FLIGHT_FOUND` in `texte.js` reads `New stop found: {l}`, and
+`drumuri3d.js` was replacing `{p}`. So discovering a flight stop
+printed **"New stop found: {l}"** across the screen. There is now a
+check that reads every `TEXT.X` used with a `.replace()` in the 3D
+files and compares the mark against what `texte.js` actually writes.

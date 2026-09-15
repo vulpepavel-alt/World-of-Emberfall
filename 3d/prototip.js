@@ -830,6 +830,10 @@ function inaltimeaObstacolului(c, r) {
 // stop it at the first thing tall enough to be in the way.
 const DISTANTA_MINIMA_CAMERA = 1.6;
 
+// Pull the wheel in past this and you are looking out of your own
+// eyes instead of over your own shoulder.
+const PRIMA_PERSOANA = 1.2;
+
 function catIncapeCamera(ochi, spre) {
   const dx = spre.x - ochi.x, dy = spre.y - ochi.y, dz = spre.z - ochi.z;
   const lung = Math.hypot(dx, dy, dz);
@@ -1176,23 +1180,51 @@ function cadru(acum) {
     // Until now the 3D world saved nothing at all - see salvare.js.
     if (typeof salveazaDinCandInCand === 'function') salveazaDinCandInCand();
 
-    // Where the camera would like to sit, and where it actually can.
+    // Walking forward eases the view back behind you. See comenzi3d.js.
+    if (typeof asazaCameraLaSpate === 'function') {
+      asazaCameraLaSpate(delta, vrei.inainte > 0);
+    }
+
     const ochi = { x: jucator.position.x, y: jucator.position.y + 1.3, z: jucator.position.z };
-    const spre = {
-      x: ochi.x + Math.sin(unghi) * departare * Math.cos(inclinare),
-      y: jucator.position.y + departare * Math.sin(inclinare) + 1.2,
-      z: ochi.z + Math.cos(unghi) * departare * Math.cos(inclinare)
-    };
 
-    const incape = catIncapeCamera(ochi, spre) /
-                   Math.max(0.001, Math.hypot(spre.x - ochi.x, spre.y - ochi.y, spre.z - ochi.z));
+    // ---- the last notch of the wheel puts you inside your own head ----
+    //
+    // Not a separate mode with its own rules: it is simply what it
+    // looks like when the camera has nowhere left to pull in to. The
+    // body is hidden, because from in here you would be looking at
+    // the inside of your own chest.
+    if (departare <= PRIMA_PERSOANA) {
+      jucator.visible = false;
+      const inaltimeaOchilor = jucator.position.y + 1.62;
+      // Straight ahead at the resting tilt, up or down as you drag.
+      const panta = -(inclinare - 0.42) * 1.4;
+      camera.position.set(ochi.x, inaltimeaOchilor, ochi.z);
+      camera.lookAt(
+        ochi.x - Math.sin(unghi) * 4 * Math.cos(panta),
+        inaltimeaOchilor + Math.sin(panta) * 4,
+        ochi.z - Math.cos(unghi) * 4 * Math.cos(panta)
+      );
 
-    camera.position.set(
-      ochi.x + (spre.x - ochi.x) * incape,
-      ochi.y + (spre.y - ochi.y) * incape,
-      ochi.z + (spre.z - ochi.z) * incape
-    );
-    camera.lookAt(ochi.x, ochi.y, ochi.z);
+    } else {
+      jucator.visible = true;
+
+      // Where the camera would like to sit, and where it actually can.
+      const spre = {
+        x: ochi.x + Math.sin(unghi) * departare * Math.cos(inclinare),
+        y: jucator.position.y + departare * Math.sin(inclinare) + 1.2,
+        z: ochi.z + Math.cos(unghi) * departare * Math.cos(inclinare)
+      };
+
+      const incape = catIncapeCamera(ochi, spre) /
+                     Math.max(0.001, Math.hypot(spre.x - ochi.x, spre.y - ochi.y, spre.z - ochi.z));
+
+      camera.position.set(
+        ochi.x + (spre.x - ochi.x) * incape,
+        ochi.y + (spre.y - ochi.y) * incape,
+        ochi.z + (spre.z - ochi.z) * incape
+      );
+      camera.lookAt(ochi.x, ochi.y, ochi.z);
+    }
   }
 
   // Nothing to draw on while the browser has the graphics card back.
