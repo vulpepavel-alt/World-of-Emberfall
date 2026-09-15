@@ -143,6 +143,7 @@ function faFereastra() {
 function inchideFerestrele() {
   saculDeschis3d = null;
   rucsaculDeschis = false;
+  if (typeof uitaNpci === 'function') uitaNpci();
   if (cutiaFerestrei) cutiaFerestrei.classList.add('ascuns');
 }
 
@@ -390,6 +391,7 @@ function recalculeazaPersonajul3d() {
 function actualizeazaPrada(acum) {
   if (!personaj || !zona) return;
   actualizeazaSacurile(acum);
+  if (typeof actualizeazaNpci === 'function') actualizeazaNpci();
 
   // A sack you have walked away from closes itself.
   if (saculDeschis3d &&
@@ -410,10 +412,15 @@ window.addEventListener('keydown', function (e) {
 
   if (e.code === 'KeyB' || e.code === 'KeyI') { deschideRucsacul(); return; }
 
+  // F is the one key for "deal with what is in front of me". A sack
+  // first - if you have just killed something you almost certainly
+  // want its pockets, not a chat with the farmer standing behind it.
   if (e.code === 'KeyF') {
     const s = saculDeLangaTine();
-    if (s) deschideSacul(s);
-    else spuneCeva('Nothing to pick up');
+    if (s) { deschideSacul(s); return; }
+    const n = (typeof npcDeLangaTine === 'function') ? npcDeLangaTine() : null;
+    if (n) { vorbesteCu(n); return; }
+    spuneCeva('Nobody here, nothing to pick up');
     return;
   }
 

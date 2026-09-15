@@ -293,57 +293,9 @@ function dupaCeAiLuat() {
 
 // Ce tine pe taraba. Se face o data, cand intri in zona, si
 // ramane la fel cat timp joci.
-function faMarfa(ceVinde) {
-
-  // Negustorul de unelte din oras tine exact cele trei unelte de
-  // meserie, fiecare intr-un singur exemplar pe taraba. E singurul
-  // loc din afara antrenorilor de unde se iau.
-  if (ceVinde === 'unelte') {
-    return Object.keys(UNELTE).map(function (nume) {
-      return faUnealta(UNELTE[nume].nume, UNELTE[nume].valoare);
-    });
-  }
-
-  // Negustorul de materiale tine cateva foi de reteta din cele care
-  // nu se iau de la antrenor. Nu le tine pe toate: restul se gasesc
-  // de la inamici, si asa ramane ceva de cautat.
-  if (ceVinde === 'retete') {
-
-    // Intai materialele care nu se gasesc nicaieri altundeva. Alea
-    // sunt mereu pe raft, toate, in fiecare oras: daca ar lipsi, o
-    // reteta n-ar mai putea fi facuta deloc.
-    const marfa = MATERIALE_DE_VANZARE.map(function (m) {
-      return faMaterial(m.nume, m.valoare);
-    });
-
-    // Apoi cateva foi de reteta, altele la fiecare intrare in zona.
-    const amestecate = RETETE_DIN_OBIECTE.slice().sort(function () {
-      return Math.random() - 0.5;
-    });
-    amestecate.slice(0, 5).forEach(function (id) {
-      const foaie = faFoaieDeReteta(id);
-      if (foaie) marfa.push(foaie);
-    });
-
-    return marfa;
-  }
-
-  const sloturi = SLOTURI.filter(function (s) {
-    const eArma = (s.id === 'armaPrincipala' || s.id === 'armaSecundara');
-    return (ceVinde === 'arma') ? eArma : !eArma;
-  });
-
-  const marfa = [];
-  for (let i = 0; i < 12; i++) {
-    const slot = sloturi[i % sloturi.length];
-    const nivel = 1 + Math.floor(i * 11 / 12);          // de la 1 pana la 11
-    // Negustorul tine mai ales lucruri simple. Ceva rar, rar de tot.
-    const zar = Math.random() * 100;
-    const raritate = (zar < 62) ? 'comun' : (zar < 93) ? 'bun' : 'rar';
-    marfa.push(faObiect(slot.id, nivel, raritate));
-  }
-  return marfa;
-}
+// faMarfa a plecat in obiecte.js: ce tine un negustor pe raft e o
+// regula despre obiecte, nu despre fereastra care le arata, si o
+// foloseste si lumea 3D.
 
 
 function deschideTaraba(npcul) {

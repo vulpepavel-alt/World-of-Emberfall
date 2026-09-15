@@ -321,23 +321,25 @@ function moareMobul(m, acum) {
   if (typeof lasaPrada === 'function') lasaPrada(m, acum);
 
   const xp = xpDeLaMob(m.nivel, personaj.nivel);
-  personaj.xp = (personaj.xp || 0) + xp;
 
   const p = pozitiaFapturii(m);
   aratacifra(p.x, inaltimeaSolului(Math.round(p.x), Math.round(p.z)) + 1.8,
              p.z, '+' + xp + ' XP', '#a8d98a', false);
 
-  // Level up, by the game's own table.
-  while (personaj.nivel < NIVEL_MAXIM && personaj.xp >= xpPentruNivel(personaj.nivel)) {
-    personaj.xp -= xpPentruNivel(personaj.nivel);
-    const nou = calculeazaPersonaj(personaj.idRasa, personaj.idClasa,
-                                  personaj.infatisare, personaj.nivel + 1);
-    ['nivel','atribute','viataMaxima','manaMaxima','attackPower','attackPowerDistanta',
-     'armura','critical','putereVrajii'].forEach(function (c) { personaj[c] = nou[c]; });
-    personaj.viata = personaj.viataMaxima;
-    if (personaj.resursa === RESURSA_MANA) personaj.mana = personaj.manaMaxima;
-    aratacifra(jucator.position.x, jucator.position.y + 2.4, jucator.position.z,
-               'Level ' + personaj.nivel, '#ffd34d', true);
+  // The levelling lives in npc3d.js, because handing in a quest has
+  // to be able to take you up a level too, by exactly the same path.
+  if (typeof daXp === 'function') daXp(xp);
+
+  // Quests that count kills count themselves, through misiuni.js.
+  if (typeof amUcis === 'function') {
+    try {
+      amUcis(personaj, m.fel, m.nume || null).forEach(function (avans) {
+        aratacifra(jucator.position.x, jucator.position.y + 2.6, jucator.position.z,
+                   avans.terminata ? (TEXT.QUEST_COMPLETE || 'Quest complete')
+                                   : textulCerintei(personaj, avans.misiune),
+                   avans.terminata ? '#ffd34d' : '#e8dcc0', false);
+      });
+    } catch (e) { /* a quest we cannot count is not worth a crash */ }
   }
 
   uitaFaptura(m);

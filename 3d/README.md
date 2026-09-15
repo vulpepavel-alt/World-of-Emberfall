@@ -168,8 +168,37 @@ own calculators (`calculeazaViata`, `calculeazaAttackPower`,
 `bonusEchipament` and the rest), so a helmet changes exactly what it
 should.
 
-**Still missing:** no quests, no talents in combat, no pet, no
-merchants.
+## Quests and merchants
+
+People with something for you carry a **!** over their head, a **?**
+when you have finished it, and **···** while you are still on it.
+Walk up and press **F**, or click them.
+
+None of that is decided in the 3D code either. `misiuni.js` already
+knew every quest — who gives it, what it asks for, what it pays,
+whether your level is high enough, and how far along you are. It
+even works out the `!` and `?` itself. Killing something reports to
+`amUcis()` and the count moves.
+
+Merchants sell from `faMarfa()`, which decides what is on the shelf,
+and `bani.js` sets what things cost. Sell something back and it sits
+on their shelf so you can change your mind — at full price. Junk
+does not: nobody buys back a wolf's tooth.
+
+`faMarfa` used to live inside `prada.js`, the 2D merchant *window*.
+What a merchant keeps on the shelf is a rule about items, not about
+the window showing them, so it moved to `obiecte.js` where both
+games can read it. Same twelve items, same rarities.
+
+Measured end to end: talk to Marshal Bren, accept "Rats in the
+Cellar", kill 8 field rats — the objective moves 0/8 → 8/8 and his
+mark turns from ! to ? — hand it in for 90 copper and 140 XP, level
+up, and his mark turns back to ! because the next quest has opened.
+At the merchant: buy for 19 copper, sell back for 5 (the game's own
+25% cut), and with an empty purse it says so and takes nothing.
+
+**Still missing:** no talents in combat, no pet, no professions, no
+travel between zones.
 
 ## The point: where the world comes from
 
