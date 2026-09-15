@@ -4670,31 +4670,8 @@ function porneisteBloodFury(scena) {
 //  Cele care rod in timp (arsura) primesc dupa cat tin, impartit la
 //  ticurile lor.
 // ==========================================================
-const INCANTARE_DEPLINA = 3500;    // de la cat primeste o vraja tot
-const INCANTARE_MINIMA  = 1500;    // cat se socoteste o vraja instant
-
-function putereaVrajiiFolosita() {
-  return (personaj && personaj.putereVrajii) || 0;
-}
-
-function coeficientulVrajii(ab) {
-  const timp = Math.max(INCANTARE_MINIMA, ab.incantare || 0);
-  let c = Math.min(1, timp / INCANTARE_DEPLINA);
-  if (ab.fel === 'val') c = c * 0.5;              // loveste tot in jur
-  return c;
-}
-
-// Cat adauga puterea vrajii la o aruncare.
-function sporulVrajii(ab) {
-  return putereaVrajiiFolosita() * coeficientulVrajii(ab);
-}
-
-// Pentru ranile care rod in timp: totalul se imparte la ticuri.
-function sporulRanii(ab) {
-  const ticuri = (ab.tine && ab.laCat) ? Math.max(1, ab.tine / ab.laCat) : 1;
-  const cat = Math.min(1, (ab.tine || 0) / 15000);
-  return (putereaVrajiiFolosita() * cat) / ticuri;
-}
+// Puterea vrajii si coeficientii ei stau acum in lupta.js: sunt
+// reguli, nu desen, si le foloseste si lumea 3D.
 
 
 function attackPowerFolosit(scena, laDistanta) {

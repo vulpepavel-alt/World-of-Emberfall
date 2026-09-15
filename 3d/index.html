@@ -71,6 +71,66 @@
     .viata.rosu { background: #8c2f27; }
     .xp { background: #6a4b9c; }
 
+    /* ---- the action bar and the cast bar ----
+       Every border, every glow and every icon below is drawn here
+       out of colours and shapes. Nothing is a picture from anywhere. */
+    #interfata { position: fixed; inset: 0; pointer-events: none; z-index: 6; }
+
+    #bara-actiuni {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 5px; padding: 6px;
+      background: rgba(16, 13, 9, 0.82); border: 1px solid #6b5326;
+      border-radius: 3px; pointer-events: auto;
+    }
+    #bara-actiuni .slot {
+      position: relative; width: 44px; height: 44px; cursor: pointer;
+      background: #120e0a; border: 1px solid #6b5326; overflow: hidden;
+    }
+    #bara-actiuni .slot:hover { border-color: #d9b555; }
+    #bara-actiuni .slot.gol { background: #0e0b07; border-color: #332814; cursor: default; }
+    #bara-actiuni .slot.gol:hover { border-color: #332814; }
+    #bara-actiuni .icoana { position: absolute; inset: 0; }
+    /* dims when you cannot afford it */
+    #bara-actiuni .slot.sarac .icoana { filter: grayscale(0.8) brightness(0.5); }
+    /* the dark curtain that sinks as the cooldown runs out */
+    #bara-actiuni .perdea {
+      position: absolute; left: 0; right: 0; top: 0; height: 0%;
+      background: rgba(6, 5, 4, 0.72); transition: height 0.08s linear;
+    }
+    #bara-actiuni .secunde {
+      position: absolute; inset: 0; display: flex; align-items: center;
+      justify-content: center; font-size: 17px; color: #ffe3a3;
+      text-shadow: 0 0 3px #000, 0 0 3px #000;
+    }
+    #bara-actiuni .tasta {
+      position: absolute; right: 2px; bottom: 1px; font-size: 10px;
+      color: #cbb98f; text-shadow: 0 0 2px #000, 0 0 2px #000;
+    }
+
+    #incantare {
+      position: absolute; bottom: 82px; left: 50%; transform: translateX(-50%);
+      width: 250px; height: 18px; background: #0d0a06; border: 1px solid #8a6a2f;
+    }
+    #incantare.ascuns { display: none; }
+    #incantare-plina { display: block; height: 100%; width: 0%; background: #c4922e; }
+    #incantare-nume {
+      position: absolute; inset: 0; text-align: center; line-height: 18px;
+      font-size: 11px; color: #f2e8d0; text-shadow: 0 0 3px #000;
+    }
+
+    #fisa-abilitate {
+      position: absolute; width: 220px; padding: 8px 10px;
+      background: rgba(12, 10, 7, 0.95); border: 1px solid #8a6a2f;
+      color: #e8dcc0; font-size: 11px; line-height: 1.45;
+    }
+    #fisa-abilitate.ascuns { display: none; }
+    #fisa-abilitate b { display: block; color: #d9b555; font-size: 12px; font-weight: normal; }
+    #fisa-abilitate i { display: block; color: #a08a63; font-style: normal; margin: 2px 0 5px; }
+    #fisa-abilitate p { margin: 0; color: #cbbfa4; }
+
+    .rage { background: #9c3323; }
+
+
     #stare .mic { display: block; margin-top: 10px; font-size: 13px; color: #a08a63; }
   </style>
 </head>
@@ -315,6 +375,11 @@
   <!-- Things that are alive: wandering, chasing, hitting, dying.
        Uses the real formulas out of lupta.js and mobi.js. -->
   <script src="lupta3d.js"></script>
+
+  <!-- The action bar, the cast bar and the icons - all drawn here
+       out of shapes, nothing taken from anywhere. -->
+  <script src="interfata.js"></script>
+  <script src="abilitati3d.js"></script>
 
   <script src="../titlu.js"></script>
 

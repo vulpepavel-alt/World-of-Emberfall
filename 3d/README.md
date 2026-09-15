@@ -96,8 +96,56 @@ returns. Die and you lie there 4 seconds, then get up with full
 health at the zone's own resurrection point, with everything calmed
 down.
 
-**Still missing:** no abilities, no loot, no quests, no talents in
-combat. Just a weapon swing, both ways.
+## The action bar
+
+A row of twelve buttons along the bottom, on keys **1–9, 0, − and
+=**, with your own frame top left and your target's beside it, and a
+cast bar above the buttons. That arrangement is a convention — it is
+what a player's hands already know.
+
+**Every picture in it is drawn by us, in code, out of shapes.** Not
+one icon, border or colour is taken from any other game. The icons
+are one drawing per *kind* of ability — a slash for a weapon blow, a
+flame for a burn, rings for something that hits everything around
+you, a shield for something that holds — tinted with the colour the
+ability already carries in `abilitati.js`. The names come from
+`abilitati.js` and `texte.js`, which are ours as well. Nothing here
+needs anyone's permission.
+
+The buttons do what buttons in these games do: an icon, the key
+printed in the corner, a dark curtain that sinks as the cooldown
+runs out with the seconds left across it, dimming when you cannot
+afford it, and a tooltip on hover with the cost, the cast time and
+the cooldown.
+
+The bar went from 8 slots to 12 **in both games** — three pages of
+four in the 2D one, all twelve at once in 3D. Old saves are padded
+to 12 rather than thrown away, so nobody loses the arrangement they
+had.
+
+## The abilities
+
+There are **22 kinds** of ability in `abilitati.js`, not the nine
+the file first claimed — I only found that out by firing all 67 of
+them one at a time and looking at which did nothing. **Seventeen are
+done**, covering 61 abilities: weapon blows, shots, spells, heals,
+heals over time, wounds over time, things that hit everything
+around you, strengthenings, leaps that close or open the gap,
+weakenings, absorb shields, fear, charm, playing dead, mana
+restores, and traps that wait on the ground.
+
+**Five are not, and say so when pressed rather than pretending:**
+`cheama`, `invie` and `imblanzire` need the hunter's pet;
+`faceMancare` needs bags; `teleport` needs city travel. None of
+those exist in the 3D world yet. The four interrupts run, but there
+is nothing casting to interrupt yet.
+
+Rage and mana both work, in opposite directions: rage fills by
+hitting and being hit and drains out of combat, mana starts full and
+comes back at Spirit ÷ 5 per second. Both numbers are the game's,
+not new ones.
+
+**Still missing:** no loot, no quests, no talents in combat, no pet.
 
 ## The point: where the world comes from
 

@@ -221,7 +221,14 @@ function faPersonajulDinSalvare(s) {
     });
   }
   p.animal = s.animal || null;
-  p.bara = (s.bara && s.bara.length === LOCURI_IN_BARA) ? s.bara : faBaraGoala();
+  // Bara s-a lungit de la 8 locuri la 12. O salvare veche are opt, si
+  // ar fi fost nedrept sa-si piarda tot aranjamentul din atat: o
+  // completam cu locuri goale pana la lungimea de acum. Daca e mai
+  // lunga decat trebuie (cine stie ce viitor), taiem coada.
+  p.bara = faBaraGoala();
+  if (s.bara && s.bara.length) {
+    for (let i = 0; i < Math.min(s.bara.length, LOCURI_IN_BARA); i++) p.bara[i] = s.bara[i];
+  }
 
   // Cateva id-uri de abilitati s-au schimbat (vezi ID_VECHI_NOI in
   // abilitati.js). O salvare mai veche le are pe cele vechi, si fara

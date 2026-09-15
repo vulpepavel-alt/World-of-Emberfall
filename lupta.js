@@ -116,3 +116,41 @@ function ratezi() {
   if (personaj.idRasa === 'human') sansa = sansa - WEAPON_TRAINING;
   return (Math.random() * 100) < sansa;
 }
+
+
+// ==========================================================
+//  PUTEREA VRAJII
+//
+//  Mutate tot din game.js, din acelasi motiv: o vraja face acelasi
+//  damage indiferent cine deseneaza jocul.
+//
+//  O vraja lunga primeste tot sporul, una instant doar o parte -
+//  altfel ar fi mereu mai bune cele scurte. O vraja care loveste tot
+//  in jur primeste jumatate, fiindca loveste mai multi deodata. Iar
+//  la ranile care rod in timp, sporul se imparte la ticuri.
+// ==========================================================
+const INCANTARE_DEPLINA = 3500;    // de la cat primeste o vraja tot
+const INCANTARE_MINIMA  = 1500;    // cat se socoteste o vraja instant
+
+function putereaVrajiiFolosita() {
+  return (personaj && personaj.putereVrajii) || 0;
+}
+
+function coeficientulVrajii(ab) {
+  const timp = Math.max(INCANTARE_MINIMA, ab.incantare || 0);
+  let c = Math.min(1, timp / INCANTARE_DEPLINA);
+  if (ab.fel === 'val') c = c * 0.5;              // loveste tot in jur
+  return c;
+}
+
+// Cat adauga puterea vrajii la o aruncare.
+function sporulVrajii(ab) {
+  return putereaVrajiiFolosita() * coeficientulVrajii(ab);
+}
+
+// Pentru ranile care rod in timp: totalul se imparte la ticuri.
+function sporulRanii(ab) {
+  const ticuri = (ab.tine && ab.laCat) ? Math.max(1, ab.tine / ab.laCat) : 1;
+  const cat = Math.min(1, (ab.tine || 0) / 15000);
+  return (putereaVrajiiFolosita() * cat) / ticuri;
+}

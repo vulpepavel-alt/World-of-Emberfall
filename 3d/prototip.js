@@ -173,7 +173,7 @@ function faJucator() {
   function cub(lat, inalt, adanc, culoare, x, y, z) {
     const m = new THREE.Mesh(
       new THREE.BoxGeometry(lat, inalt, adanc),
-      new THREE.MeshLambertMaterial({ color: culoare, flatShading: true })
+      new THREE.MeshLambertMaterial({ color: culoare })
     );
     m.position.set(x, y, z);
     grup.add(m);
@@ -248,7 +248,7 @@ function fapturaDinForme(forme) {
   });
 
   forme.forEach(function (f) {
-    const material = new THREE.MeshLambertMaterial({ color: f.culoare, flatShading: true });
+    const material = new THREE.MeshLambertMaterial({ color: f.culoare });
     let bucata;
 
     if (f.fel === 'cerc') {
@@ -482,7 +482,7 @@ const MAX_CUTII = (RAZA_LUMII * 2 + 1) * (RAZA_LUMII * 2 + 1);
 function faGramada(geometrie, catIncap) {
   const g = new THREE.InstancedMesh(
     geometrie,
-    new THREE.MeshLambertMaterial({ vertexColors: false, flatShading: true }),
+    new THREE.MeshLambertMaterial({ vertexColors: false }),
     catIncap
   );
   g.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(catIncap * 3), 3);
@@ -884,6 +884,31 @@ function porneste(personajAles, salvarea) {
 
   personaj = personajAles;
   window.personaj = personaj;      // salvare.js looks for it by name
+
+  // There are no trainers in the 3D world yet, so you are given
+  // everything your class and level allows - by the game's own rule,
+  // daTotCeSeCuvine(), not by any list written here.
+  //
+  // Topped up, not replaced: a character made at level 20 already
+  // knows the three you start with, so "only fill this in if it is
+  // empty" left them with three buttons at level 20. Now each
+  // ability takes whichever rank is higher, so nothing you learnt
+  // is ever taken away or knocked back a rank.
+  personaj.stiute = personaj.stiute || {};
+  const secuvine = daTotCeSeCuvine(personaj);
+  Object.keys(secuvine).forEach(function (id) {
+    personaj.stiute[id] = Math.max(personaj.stiute[id] || 0, secuvine[id]);
+  });
+  personaj.bara = personaj.bara || faBaraGoala();
+  Object.keys(personaj.stiute).forEach(function (id) {
+    asazaPeBaraDacaIncape(personaj, id);
+  });
+
+  // Rage starts empty, mana starts full. Two opposite habits sharing
+  // one bar, exactly as in the 2D game.
+  personaj.viata = personaj.viataMaxima;
+  if (personaj.resursa === RESURSA_MANA) personaj.mana = personaj.manaMaxima;
+  else personaj.rage = 0;
 
   // Every screen of the menu goes away, and the world's bar appears.
   ['ecran-titlu', 'ecran-sloturi', 'ecran-creare'].forEach(function (id) {

@@ -53,6 +53,24 @@ const MORT_CAT = 4000;
 //  left at half health is still at half health when you walk back
 //  into view and it gets a body again.
 // ----------------------------------------------------------
+// Is this one unable to act at all? Frozen in a trap, or charmed
+// into something harmless. Both are "it stands there and does
+// nothing", so they are asked about together.
+function mobulEImpiedicat(m, acum) {
+  return (m.ingheatatPanaLa > acum) || (m.farmecPanaLa > acum);
+}
+
+// Its armour and its damage, after anything that has weakened it.
+function armuraMobului(m, acum) {
+  const slabit = (m.slabitPanaLa > acum) ? (m.slabireArmura || 0) : 0;
+  return m.armura * (1 - slabit);
+}
+
+function damageMobului(m, acum) {
+  const slabit = (m.slabitPanaLa > acum) ? (m.slabireDmg || 0) : 0;
+  return 1 - slabit;
+}
+
 function trezesteMobul(m) {
   if (m.viataMaxima !== undefined) return m;
 
@@ -274,10 +292,15 @@ function loveteMobul(m, acum) {
   if (ratezi()) { aratacifra(p.x, sus, p.z, 'Miss', '#cfd6e0', false); return; }
 
   const lovitura = damageulTau(arma, personaj.attackPower);
-  const cat = Math.max(1, Math.round(dupaArmura(lovitura.damage, m.armura)));
+  const cat = Math.max(1, Math.round(dupaArmura(lovitura.damage, armuraMobului(m, acum))));
 
   m.viata = Math.max(0, m.viata - cat);
   m.suparat = true;
+  // Hitting something charmed wakes it up, as it should.
+  m.farmecPanaLa = 0;
+
+  // Rage comes from swinging, split the same way the damage is.
+  if (typeof castigaRage === 'function') castigaRage(RAGE_PE_LOVITURA / LOVITURI_MAI_DESE);
 
   aratacifra(p.x, sus, p.z, String(cat), lovitura.critic ? '#ffd34d' : '#ffe9c8', lovitura.critic);
 
@@ -308,7 +331,7 @@ function moareMobul(m, acum) {
     ['nivel','atribute','viataMaxima','manaMaxima','attackPower','attackPowerDistanta',
      'armura','critical','putereVrajii'].forEach(function (c) { personaj[c] = nou[c]; });
     personaj.viata = personaj.viataMaxima;
-    if (personaj.resursa === 'mana') personaj.mana = personaj.manaMaxima;
+    if (personaj.resursa === RESURSA_MANA) personaj.mana = personaj.manaMaxima;
     aratacifra(jucator.position.x, jucator.position.y + 2.4, jucator.position.z,
                'Level ' + personaj.nivel, '#ffd34d', true);
   }
@@ -329,12 +352,21 @@ function teLoveste(m, acum) {
     return;
   }
 
-  let brut = intreDoua(m.dmgMin, m.dmgMax);
+  let brut = intreDoua(m.dmgMin, m.dmgMax) * damageMobului(m, acum);
   const critic = (Math.random() * 100) < SANSA_CRITIC_MOB;
   if (critic) brut = brut * 2;
 
-  const cat = Math.max(1, Math.round(dupaArmura(brut, personaj.armura)));
+  let cat = Math.max(1, Math.round(dupaArmura(brut, personaj.armura)));
+
+  // A shield swallows the blow before your health does, and only
+  // what is left over reaches you.
+  if (typeof inghiteScutul === 'function') cat = inghiteScutul(cat);
+  if (cat <= 0) return;
+
   personaj.viata = Math.max(0, personaj.viata - cat);
+
+  // And from being hit.
+  if (typeof castigaRage === 'function') castigaRage(RAGE_LA_INCASARE);
 
   aratacifra(jucator.position.x, jucator.position.y + 2, jucator.position.z,
              '-' + cat, critic ? '#ff9a6a' : '#f0a0a0', critic);
@@ -356,7 +388,7 @@ function moriTu(acum) {
 
 function teIntorciLaViata() {
   personaj.viata = personaj.viataMaxima;
-  if (personaj.resursa === 'mana') personaj.mana = personaj.manaMaxima;
+  if (personaj.resursa === RESURSA_MANA) personaj.mana = personaj.manaMaxima;
   const unde = zona.reinviere || zona.start;
   jucator.position.set(unde.col, inaltimeaSolului(unde.col, unde.rand), unde.rand);
   construiesteLumea(unde.col, unde.rand);
@@ -378,8 +410,27 @@ function miscaMobul(m, delta, acum) {
   const panaLaTine = Math.hypot(catreTineX, catreTineZ);
   const deAcasa = Math.hypot(m.x - m.col, m.z - m.rand);
 
+  // Frozen solid, or charmed into something harmless: it does not
+  // move and it does not swing.
+  if (mobulEImpiedicat(m, acum)) return;
+
+  // Frightened: it turns and runs, and cannot be reasoned with
+  // until it wears off.
+  if (m.fricaPanaLa > acum) {
+    const fugaX = m.x + (m.x - jucator.position.x);
+    const fugaZ = m.z + (m.z - jucator.position.z);
+    const dxF = fugaX - m.x, dzF = fugaZ - m.z;
+    const catF = Math.hypot(dxF, dzF) || 1;
+    const pasF = VITEZA_MOBULUI * delta;
+    if (poateCalcaMobul(m.x + (dxF / catF) * pasF, m.z)) m.x += (dxF / catF) * pasF;
+    if (poateCalcaMobul(m.x, m.z + (dzF / catF) * pasF)) m.z += (dzF / catF) * pasF;
+    return;
+  }
+
   // Do you matter to it?
   if (!m.suparat && mortPanaLa < acum && panaLaTine <= RAZA_SUPARARII) m.suparat = true;
+  // Playing dead: nothing has any interest in you.
+  if (teFaciMort(acum)) m.suparat = false;
   if (m.suparat && (deAcasa > RAZA_LESEI || mortPanaLa > acum)) {
     m.suparat = false;
     m.viata = m.viataMaxima;      // it heals on the way home, as in the 2D game
@@ -392,6 +443,9 @@ function miscaMobul(m, delta, acum) {
   if (m.suparat) {
     if (panaLaTine > RAZA_LOVITURII) { tintaX = jucator.position.x; tintaZ = jucator.position.z; }
     viteza = VITEZA_MOBULUI;
+
+    // Cut its leg and it limps, for as long as the ability says.
+    if (m.incetinitPanaLa > acum) viteza = viteza * (m.catDeIncetinit || 1);
 
     if (panaLaTine <= RAZA_LOVITURII && acum >= m.urmatoareaLovitura) {
       if (!m.urmatoareaLovitura) m.urmatoareaLovitura = acum + m.vitezaLovirii;
@@ -445,6 +499,7 @@ function faPanourileLuptei() {
     '<div id="panou-tau" class="panou-lupta">' +
       '<div class="nume-lupta"><span id="nume-tau"></span><span id="nivel-tau"></span></div>' +
       '<div class="sant"><span id="viata-ta" class="viata"></span></div>' +
+      '<div class="sant"><span id="resursa-ta" class="mana"></span></div>' +
       '<div class="sant subtire"><span id="xp-tau" class="xp"></span></div>' +
     '</div>' +
     '<div id="panou-tinta" class="panou-lupta ascuns">' +
@@ -488,6 +543,19 @@ function scriePanourileLuptei() {
     (100 * personaj.viata / personaj.viataMaxima) + '%';
   document.getElementById('viata-ta').textContent =
     Math.ceil(personaj.viata) + ' / ' + personaj.viataMaxima;
+
+  // Rage or mana. They fill in opposite directions, but they are the
+  // same bar - as they are in the 2D game.
+  const bara = document.getElementById('resursa-ta');
+  if (personaj.resursa === RESURSA_FURIE) {
+    bara.className = 'rage';
+    bara.style.width = Math.round(personaj.rage || 0) + '%';
+    bara.textContent = Math.round(personaj.rage || 0) + ' / 100';
+  } else {
+    bara.className = 'mana';
+    bara.style.width = (100 * (personaj.mana || 0) / personaj.manaMaxima) + '%';
+    bara.textContent = Math.round(personaj.mana || 0) + ' / ' + personaj.manaMaxima;
+  }
 
   const trebuie = xpPentruNivel(personaj.nivel);
   document.getElementById('xp-tau').style.width =
@@ -592,6 +660,12 @@ function actualizeazaLupta(delta, acum) {
     marcajulTintei.visible = false;
   }
 
+  // Casting, wounds that keep burning, rage and mana, and the
+  // buttons along the bottom. See abilitati3d.js and interfata.js.
+  if (typeof actualizeazaAbilitatile === 'function') {
+    actualizeazaAbilitatile(delta, acum, inLupta);
+  }
+
   miscaCifrele(acum);
   scriePanourileLuptei();
 }
@@ -602,6 +676,7 @@ function uitaLupta() {
   tinta = null;
   luptiSingur = false;
   mortPanaLa = 0;
+  if (typeof uitaAbilitatile === 'function') uitaAbilitatile();
   for (let i = cifreZburatoare.length - 1; i >= 0; i--) lumea.remove(cifreZburatoare[i].s);
   cifreZburatoare.length = 0;
   if (marcajulTintei) marcajulTintei.visible = false;

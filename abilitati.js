@@ -33,9 +33,19 @@ const PAUZA_GLOBALA = 1500;               // milisecunde
 // Rangul nou ia locul celui vechi pe bara. Pe true, le tii pe toate.
 const PASTREAZA_RANGURILE_VECHI = false;
 
-// Bara de abilitati: doua pagini a cate patru butoane.
+// Bara de abilitati: TREI pagini a cate patru butoane, deci 12 locuri.
+//
+// Erau doua pagini, adica opt locuri, fiindca pe un telefon culcat
+// nu incap mai multe degete pe ecran. Pe calculator incape o bara
+// intreaga de 12, cu tastele 1-9, 0, - si = deasupra ei, si ala e
+// numarul cu care s-a obisnuit oricine a jucat un joc din astea.
+//
+// Jocul 2D nu se schimba la fata: tot patru butoane arata odata,
+// doar ca tasta care schimba pagina trece acum prin trei, nu prin
+// doua. Salvarile vechi cu opt locuri se completeaza pana la 12 in
+// salvare.js, nu se arunca.
 const BUTOANE_PE_PAGINA = 4;
-const PAGINI_BARA = 2;
+const PAGINI_BARA = 3;
 const LOCURI_IN_BARA = BUTOANE_PE_PAGINA * PAGINI_BARA;
 
 // Cat costa la antrenor un rang invatat la nivelul N.
