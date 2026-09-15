@@ -137,6 +137,11 @@ toateFisiereleJs(__dirname).forEach(function (drum) {
   const scurt = path.relative(__dirname, drum);
   // Verificatoarele si fisierele de proba n-ajung in joc.
   if (scurt.indexOf('verifica') === 0 || scurt.indexOf('test-') === 0) return;
+  // Proba 3D e o PAGINA SEPARATA (3d/index.html). Nu se incarca
+  // niciodata odata cu game.js, deci nu se poate calca pe el chiar
+  // daca amandoua au o functie cu acelasi nume. Regula "un singur
+  // spatiu de nume" e adevarata inauntrul unei pagini, nu intre doua.
+  if (scurt.indexOf('3d' + path.sep) === 0) return;
 
   fs.readFileSync(drum, 'utf8').split('\n').forEach(function (rand, i) {
     const m = rand.match(/^function\s+([A-Za-z_$][\w$]*)\s*\(/);

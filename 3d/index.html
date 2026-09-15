@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D prototype — World of Emberfall</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #0a0d10; overflow: hidden;
+                 font-family: Georgia, "Palatino Linotype", "Times New Roman", serif; }
+    canvas { display: block; }
+
+    /* The thin bar along the top: which zone, and how to walk. */
+    #bara {
+      position: fixed; left: 0; right: 0; top: 0; z-index: 5;
+      display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
+      padding: 8px 14px; color: #e8dcc0; font-size: 13px;
+      background: rgba(20, 16, 12, 0.88); border-bottom: 1px solid #8a6a2f;
+    }
+    #bara b { color: #d9b555; font-weight: normal; }
+    #bara select {
+      font-family: inherit; font-size: 13px; padding: 3px 6px;
+      color: #e8dcc0; background: #241c12; border: 1px solid #8a6a2f;
+    }
+    #taste { color: #a08a63; }
+
+    /* The message in the middle of the screen while a zone is being built. */
+    #stare {
+      position: fixed; inset: 0; z-index: 10; display: flex;
+      align-items: center; justify-content: center; text-align: center;
+      color: #e8dcc0; font-size: 17px; background: #0a0d10;
+    }
+    #stare.gata { display: none; }
+    #stare .mic { display: block; margin-top: 10px; font-size: 13px; color: #a08a63; }
+  </style>
+</head>
+<body>
+
+  <div id="bara">
+    <span><b>Zone</b> <select id="alege-zona"></select></span>
+    <span id="unde"></span>
+    <span id="taste">W A S D or arrows &mdash; walk &nbsp;·&nbsp; drag with the mouse &mdash; turn the camera &nbsp;·&nbsp; scroll &mdash; closer or further</span>
+  </div>
+
+  <div id="stare">Loading&hellip;<span class="mic">The zone is being built from the same recipe the 2D game uses.</span></div>
+
+  <!-- Three.js: the toolbox that draws 3D in a browser page, the way
+       Phaser draws the 2D game. Brought in from the internet, like
+       Phaser is, so there is nothing to install. -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- ====== THE 2D GAME'S OWN FILES, UNCHANGED ======
+       This is the whole point of the prototype: the world you walk
+       around in is not drawn by hand here. It is the same recipe,
+       the same random seed and the same colours as the 2D game. If
+       these files were to change, this page would change with them. -->
+  <script src="../texte.js"></script>
+  <script src="../personaj.js"></script>
+  <script src="../talente.js"></script>
+  <script src="../abilitati.js"></script>
+  <script src="../meserii.js"></script>
+  <script src="../retete.js"></script>
+  <script src="../bani.js"></script>
+  <script src="../obiecte.js"></script>
+  <script src="../seturi.js"></script>
+  <script src="../drumuri.js"></script>
+  <script src="../infatisare.js"></script>
+  <script src="../mobi.js"></script>
+  <script src="../tovarasi.js"></script>
+  <script src="../misiuni.js"></script>
+  <script src="../npc.js"></script>
+
+  <script src="../zone/climat.js"></script>
+  <script src="../zone/generator.js"></script>
+  <script src="../zone/lista-zone.js"></script>
+  <script src="../zone/zona-greenvale.js"></script>
+  <script src="../zone/zona-gravemoor.js"></script>
+  <script src="../zone/zona-duskvale.js"></script>
+  <script src="../zone/zona-cinderpeak.js"></script>
+  <script src="../zone/zona-coldspine.js"></script>
+  <script src="../zone/zona-redwaste.js"></script>
+  <script src="../zone/oras-ambervault.js"></script>
+  <script src="../zone/temnita-moorhollow.js"></script>
+
+  <!-- The prototype itself -->
+  <script src="prototip.js"></script>
+
+</body>
+</html>

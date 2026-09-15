@@ -15,7 +15,7 @@ Am un RPG 2D terminat, scris în JavaScript + Phaser 3, jucabil pe telefon. Vrea
 - Explică-mi codul în 2–3 propoziții simple **înainte** să-l scrii. Tu scrii codul.
 - **Nu presupune că eu am greșit.** Întreabă ce văd, cere-mi eroarea, rezolvă pas cu pas.
 - **Fii sincer** când ceva e prea complicat sau imposibil.
-- Vorbește cu mine în **română**. Tot textul **care apare în joc** trebuie să fie în **engleză**, ținut într-un singur fișier de texte.
+- Vorbește cu mine în **engleză** (cerut pe 14 septembrie 2026 — înainte scria „română"; scriu în continuare în română, dar răspunsurile și tot ce livrezi le vreau în engleză). Tot textul **care apare în joc** trebuie să fie tot în **engleză**, ținut într-un singur fișier de texte.
 
 ### Limitare importantă de drepturi de autor
 Mecanicile sunt luate din World of Warcraft Classic și reimplementate. **Nu copia conținut Blizzard**: nici arta, nici arborii de talente reali, nici numele de obiecte sau de zone, nici harta din Classic. Numele, poveștile și desenele din documentul ăsta sunt ale mele — folosește-le pe ele.
@@ -23,7 +23,7 @@ Mecanicile sunt luate din World of Warcraft Classic și reimplementate. **Nu cop
 ### Ce vreau de la varianta 3D
 - Aceleași formule și același echilibru, cu aceleași cifre.
 - Cameră din spate-sus (third person), personajul văzut din spate.
-- Comenzi pe telefon: joystick virtual stânga, butoane de abilități dreapta.
+- Comenzi pe **calculator, în browser**: tastatură pentru mers și abilități, mouse pentru cameră și țintă. (Scria „joystick virtual pe telefon"; pe 15 septembrie 2026 am hotărât că jocul se mută pe browser, nu pe telefon.)
 - Stil vizual: low-poly, culori plate, fără texturi fotografice. Vreau să semene cu pixel-artul din varianta 2D: simplu, citibil, anii '90.
 - Spune-mi tu ce tehnologie e cea mai potrivită (Three.js? Babylon.js? Godot? Unity?) și **de ce**, cu argumente pentru un telefon și pentru cineva care învață.
 
