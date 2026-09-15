@@ -145,7 +145,31 @@ hitting and being hit and drains out of combat, mana starts full and
 comes back at Spirit ÷ 5 per second. Both numbers are the game's,
 not new ones.
 
-**Still missing:** no loot, no quests, no talents in combat, no pet.
+## Loot and bags
+
+Kill something and it leaves a sack on the ground with a ring of
+light under it. Walk up and press **F**, or click it. **B** or **I**
+opens your bag — twenty slots, click a piece to put it on.
+
+Nothing about *what* drops is decided in the 3D code.
+`pradaCompleta()` in `obiecte.js` already knew all of it: how much
+money, how likely an item is, what a wolf leaves versus a bandit,
+that only humanoids carry coins, that a rare one always leaves
+something good. The 3D world only picks it up and shows it.
+
+The item pictures are the 2D game's own as well.
+`formeleIconitei()` hands back a list of coloured rectangles on a
+16×16 grid — the very same list the 2D game paints from — and here
+they become rectangles in an SVG. One description, drawn twice by
+two different pieces of code.
+
+Putting something on works the numbers out again through the game's
+own calculators (`calculeazaViata`, `calculeazaAttackPower`,
+`bonusEchipament` and the rest), so a helmet changes exactly what it
+should.
+
+**Still missing:** no quests, no talents in combat, no pet, no
+merchants.
 
 ## The point: where the world comes from
 

@@ -130,6 +130,47 @@
 
     .rage { background: #9c3323; }
 
+    /* ---- the loot sack and the bag ---- */
+    #fereastra3d {
+      position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+      width: 330px; max-height: 76vh; z-index: 8; display: flex; flex-direction: column;
+      background: rgba(14, 11, 8, 0.96); border: 1px solid #8a6a2f;
+      color: #e8dcc0; font-size: 12px;
+    }
+    #fereastra3d.ascuns { display: none; }
+    #fereastra3d .cap {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 10px; border-bottom: 1px solid #6b5326; color: #d9b555;
+    }
+    #fereastra3d .cap button {
+      font-family: inherit; font-size: 11px; padding: 2px 8px; cursor: pointer;
+      color: #e8dcc0; background: #241c12; border: 1px solid #8a6a2f;
+    }
+    #fereastra3d .corp { padding: 8px 10px; overflow-y: auto; }
+    #fereastra3d .rand {
+      display: flex; align-items: center; gap: 8px; padding: 4px;
+      cursor: pointer; border: 1px solid transparent;
+    }
+    #fereastra3d .rand:hover { border-color: #8a6a2f; background: rgba(138,106,47,0.12); }
+    #fereastra3d .ic { width: 30px; height: 30px; flex: none; border: 1px solid #4b3a1c; }
+    #fereastra3d .gol { color: #7c6c50; font-style: italic; }
+    #fereastra3d #ia-tot {
+      width: 100%; margin-top: 8px; padding: 5px; cursor: pointer;
+      font-family: inherit; font-size: 12px;
+      color: #e8dcc0; background: #241c12; border: 1px solid #8a6a2f;
+    }
+    #fereastra3d .grila {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px;
+    }
+    #fereastra3d .cutiuta {
+      aspect-ratio: 1; background: #120e0a; border: 1px solid #4b3a1c; cursor: pointer;
+    }
+    #fereastra3d .cutiuta:hover { border-color: #d9b555; }
+    #fereastra3d .cutiuta.gol { cursor: default; border-color: #2a2113; }
+    #fereastra3d .purtate { margin-top: 10px; border-top: 1px solid #4b3a1c; padding-top: 8px; }
+    #fereastra3d .purtate b { color: #d9b555; font-weight: normal; }
+
+
 
     #stare .mic { display: block; margin-top: 10px; font-size: 13px; color: #a08a63; }
   </style>
@@ -380,6 +421,7 @@
        out of shapes, nothing taken from anywhere. -->
   <script src="interfata.js"></script>
   <script src="abilitati3d.js"></script>
+  <script src="prada3d.js"></script>
 
   <script src="../titlu.js"></script>
 

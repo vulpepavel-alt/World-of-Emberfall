@@ -567,27 +567,32 @@ function puneAlinarea(ab, acum) {
   spuneCeva(ab.nume);
 }
 
+// A strengthening does NOT add its bonus onto the character. It
+// goes on the list, and the character's numbers are worked out
+// again from scratch - base, plus what you are wearing, plus
+// everything on this list.
+//
+// It used to add straight onto the character, which is the same
+// thing right up until something else works the numbers out from
+// scratch. Putting on a helmet does exactly that, and it quietly
+// swallowed the buff; taking the helmet off afterwards handed the
+// bonus back a second time, for nothing.
 function puneIntarirea(ab, acum) {
-  // Take off an older copy of the same one first, so it does not
-  // stack with itself.
-  scoateIntarirea(ab.id);
-
-  const da = ab.da || {};
-  Object.keys(da).forEach(function (c) { personaj[c] = (personaj[c] || 0) + da[c]; });
+  scoateIntarirea(ab.id);      // no stacking with itself
 
   lucruriCareTin.push({
-    fel: 'intarire', ab: ab, id: ab.id, da: da,
+    fel: 'intarire', ab: ab, id: ab.id, da: ab.da || {},
     pana: acum + (ab.tine || 0), urmatorul: Infinity
   });
+  recalculeazaPersonajul3d();
   spuneCeva(ab.nume);
 }
 
 function scoateIntarirea(id) {
   for (let i = lucruriCareTin.length - 1; i >= 0; i--) {
-    const l = lucruriCareTin[i];
-    if (l.fel !== 'intarire' || l.id !== id) continue;
-    Object.keys(l.da).forEach(function (c) { personaj[c] = (personaj[c] || 0) - l.da[c]; });
-    lucruriCareTin.splice(i, 1);
+    if (lucruriCareTin[i].fel === 'intarire' && lucruriCareTin[i].id === id) {
+      lucruriCareTin.splice(i, 1);
+    }
   }
 }
 
@@ -596,10 +601,10 @@ function actualizeazaLucrurileCareTin(acum) {
     const l = lucruriCareTin[i];
 
     if (acum >= l.pana) {
-      if (l.fel === 'intarire') {
-        Object.keys(l.da).forEach(function (c) { personaj[c] = (personaj[c] || 0) - l.da[c]; });
-      }
       lucruriCareTin.splice(i, 1);
+      // Off the list, then work the numbers out again - never by
+      // subtracting, which is what drifts.
+      if (l.fel === 'intarire') recalculeazaPersonajul3d();
       continue;
     }
 
@@ -698,6 +703,7 @@ function actualizeazaResursa3d(delta, inLupta) {
 
 // Everything above, once a frame. Called from lupta3d.js.
 function actualizeazaAbilitatile(delta, acum, inLupta) {
+  if (typeof actualizeazaPrada === "function") actualizeazaPrada(acum);
   actualizeazaIncantarea(acum);
   actualizeazaLucrurileCareTin(acum);
   actualizeazaCapcanele(acum);
@@ -713,11 +719,6 @@ function uitaAbilitatile() {
   scutulPanaLa = 0;
   teFaciMortPanaLa = 0;
   uitaCapcanele();
-  for (let i = lucruriCareTin.length - 1; i >= 0; i--) {
-    const l = lucruriCareTin[i];
-    if (l.fel === 'intarire') {
-      Object.keys(l.da).forEach(function (c) { personaj[c] = (personaj[c] || 0) - l.da[c]; });
-    }
-  }
   lucruriCareTin.length = 0;
+  if (personaj) recalculeazaPersonajul3d();
 }

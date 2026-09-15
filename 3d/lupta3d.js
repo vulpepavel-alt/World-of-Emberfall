@@ -316,6 +316,10 @@ function moareMobul(m, acum) {
   m.mortPanaLa = acum + REVINE_DUPA;
   m.suparat = false;
 
+  // What it leaves behind. pradaCompleta() in obiecte.js decides
+  // what that is; see prada3d.js.
+  if (typeof lasaPrada === 'function') lasaPrada(m, acum);
+
   const xp = xpDeLaMob(m.nivel, personaj.nivel);
   personaj.xp = (personaj.xp || 0) + xp;
 
@@ -673,6 +677,7 @@ function actualizeazaLupta(delta, acum) {
 
 // Leaving a zone: forget who you were fighting.
 function uitaLupta() {
+  if (typeof uitaPrada === 'function') uitaPrada();
   tinta = null;
   luptiSingur = false;
   mortPanaLa = 0;
