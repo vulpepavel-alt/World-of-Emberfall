@@ -31,8 +31,9 @@ same way Phaser is.
 - **scroll wheel** — pull the camera in or push it out
 - **the Zone box, top left** — drop into a different zone
 
-That is the whole list. There is no combat, no menus, no inventory,
-no saving, no enemies, no other people. Adding any of those before
+That is the whole list. There is no combat, no menus, no inventory
+and no saving. The monsters and townspeople are there to look at,
+nothing more — they do not move or fight. Adding any of that before
 the walking feels right would be wasted work.
 
 ## The point: where the world comes from
@@ -53,15 +54,50 @@ data layer really does survive. Around 13.000 of the game's 21.000
 lines are rules, items, quests, zones and tables that never knew
 whether the game was 2D or 3D.
 
+## The monsters and the townspeople come from the data too
+
+This was the surprise. Every creature in the game is already stored
+as **a list of coloured rectangles** — `MOBI['wolf'].forme` is 23 of
+them, `NPC['hangiu'].forme` is 20 — each with an x, a y, a width and
+a height. That is a flat side view. All it needs to become a body is
+a depth.
+
+So nothing here is modelled by hand. The wolves in the prototype are
+the wolves from `mobi.js`. Repaint one there and it changes here.
+Where they stand comes from the data as well: `faZona()` placed 1300
+monsters and 9 townspeople around Greenvale, and this page just reads
+the list.
+
+A creature gets a body when you come within 55 tiles and gives it
+back when you walk away. Monster names only show within 22 tiles —
+fifty of them at once is noise.
+
 ## What it does not do yet, on purpose
 
+- **Nothing moves.** Creatures stand where they were placed. No
+  combat, no wandering, no reacting to you.
 - **No ceiling on the dungeons.** You can see out over the walls.
-- **Houses look wrong.** In the 2D map a house is drawn top-down: a
-  band of roof, then a band of front wall, side by side. In 3D that
-  becomes two blocks next to each other instead of a roof sitting on
-  top of walls. Buildings would need real shapes, not tiles.
-- **Nothing is alive.** No enemies, no townspeople, no animals.
+- **Wolves are front-on.** A creature drawn in profile in 2D ends up
+  facing sideways in 3D. Only a problem once they need to face you.
 - **No phone controls.** Keyboard and mouse only.
+
+## Fixed after the first look
+
+- **W A S D were wrong.** The camera sits at `(sin, cos)` away from
+  you, so forward is `(-sin, -cos)` — the Z half of that had the
+  wrong sign, mirroring everything. With the camera behind you W and
+  S were reversed; swing it a quarter turn and A and D were instead.
+  Verified since: all 16 key-and-camera-angle combinations match
+  exactly.
+- **Houses were two slabs.** In the 2D map a house is drawn from
+  above — a band of roof, and in front of it a band of front wall.
+  Stood up as-is that made a red slab beside a cream slab. Now every
+  tile of a building gets a wall from the ground up with the roof
+  colour laid across the top, and the doorway stays a hole.
+- **The camera went through walls.** It now walks the line from your
+  head outwards and stops at the first thing tall enough to be in the
+  way. Spinning all the way round in the village street, it pulls in
+  at 7 of 18 angles and ends up inside a wall at none of them.
 
 ## The numbers, measured
 
@@ -69,10 +105,11 @@ Measured in Chrome on this Mac, on 15 September 2026:
 
 | | |
 |---|---|
-| Frame rate | 120 per second (as fast as the screen refreshes) |
+| Work per frame | 0,04–1,23 milliseconds (the budget at 60 frames a second is 16,7) |
 | Building one outdoor zone | 180–300 milliseconds |
 | Ground tiles drawn at once | 32.761 |
-| Trees, rocks and walls drawn at once | 4.500–16.600 |
+| Trees, rocks, walls and roofs at once | 6.900–16.600 |
+| Creatures with bodies at once | 6–83 |
 | Zones tried | 6 outdoor, 1 city, 1 dungeon — all loaded, no errors |
 
 The world is built in a square about 90 tiles around you and built

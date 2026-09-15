@@ -26,15 +26,14 @@
 //
 //  A tile is 1 unit wide, and the character is about 1.7 units
 //  tall - so these numbers read like metres. Anything not in this
-//  list is flat ground.
+//  list is flat ground. Roofs ('R') and house walls ('H') are not
+//  here: buildings are stacked in two parts further down.
 // ----------------------------------------------------------
 const INALTIMI = {
   T: 2.6,    // thick forest
   s: 0.9,    // low scrub
   r: 1.5,    // rock
   X: 3.4,    // the wall around the edge of the zone
-  R: 2.9,    // roof
-  H: 2.1,    // house wall
   S: 1.1,    // standing stone
   w: 1.9,    // palisade
   A: 1.7,    // tent
@@ -126,6 +125,239 @@ const jucator = faJucator();
 scena.add(jucator);
 
 
+// ==========================================================
+//  THE LIVING WORLD
+//
+//  This is the part that surprised me. Every monster and every
+//  townsperson in the game is ALREADY a list of coloured
+//  rectangles - MOBI['wolf'].forme, NPC['hangiu'].forme - each with
+//  an x, a y, a width and a height in pixels of the 2D picture.
+//  A wolf is 23 rectangles. The innkeeper is 20.
+//
+//  That is a flat side view, so all it needs is a depth to become
+//  a body. Nothing here is modelled by hand: the wolves in this
+//  prototype are the wolves from mobi.js, and if somebody repaints
+//  one there, it changes here too.
+//
+//  The same goes for where they stand. faZona() placed 1300
+//  monsters and 9 townspeople in Greenvale, on walkable ground, in
+//  the right spots - and this page just reads that list.
+// ==========================================================
+
+// 24 pixels of the 2D drawing make one tile here. Not the 16 the
+// 2D game uses: it draws people deliberately larger than life
+// against its own tiles, and at that scale a townsman in 3D would
+// stand two and a half metres tall next to a house.
+const SCARA_FAPTURII = 1 / 24;
+
+// How far away creatures are given a body at all.
+const RAZA_FAPTURI = 55;
+
+// One template per kind, built once and then copied. Copies share
+// the same shapes and colours in the computer's memory, so a
+// hundred wolves cost about as much to keep as one.
+const sabloaneFapturi = {};
+
+function fapturaDinForme(forme) {
+
+  const grup = new THREE.Group();
+  if (!forme || !forme.length) return grup;
+
+  // Where the feet are, in the 2D drawing. In that drawing y grows
+  // DOWNWARDS - the head is a negative number - so the feet are the
+  // largest y of all the rectangles. Everything is measured up from
+  // there, which is what stands the creature on the ground instead
+  // of sinking it or floating it.
+  let talpa = -Infinity;
+  forme.forEach(function (f) {
+    talpa = Math.max(talpa, f.fel === 'cerc' ? f.y + f.r : f.y + f.h / 2);
+  });
+
+  forme.forEach(function (f) {
+    const material = new THREE.MeshLambertMaterial({ color: f.culoare });
+    let bucata;
+
+    if (f.fel === 'cerc') {
+      // Circles are heads, almost always. A ball reads better than
+      // a cube for those, and there are never many of them.
+      bucata = new THREE.Mesh(new THREE.SphereGeometry(f.r * SCARA_FAPTURII, 10, 8), material);
+    } else {
+      // A rectangle has no depth of its own, so it gets one: as deep
+      // as it is wide, up to a limit. A torso comes out square-ish,
+      // an arm stays an arm.
+      const adanc = Math.max(3, Math.min(f.w, 12));
+      bucata = new THREE.Mesh(new THREE.BoxGeometry(
+        f.w * SCARA_FAPTURII, f.h * SCARA_FAPTURII, adanc * SCARA_FAPTURII
+      ), material);
+    }
+
+    bucata.position.set(f.x * SCARA_FAPTURII, (talpa - f.y) * SCARA_FAPTURII, 0);
+    grup.add(bucata);
+  });
+
+  return grup;
+}
+
+function sablonulFapturii(tabel, fel) {
+  const cheie = tabel === MOBI ? 'm:' + fel : 'n:' + fel;
+  if (!sabloaneFapturi[cheie]) {
+    const d = tabel[fel];
+    sabloaneFapturi[cheie] = fapturaDinForme(d && d.forme);
+  }
+  return sabloaneFapturi[cheie];
+}
+
+
+// ----------------------------------------------------------
+//  The name floating above them
+//
+//  The 2D game writes a name over every creature. Here that is a
+//  "sprite": a small flat picture that always turns to face you,
+//  however the camera moves - like a shop sign that swivels.
+//
+//  The picture is drawn once per piece of text and then shared, so
+//  forty wolves called "Wolf (Level 4)" cost one drawing, not forty.
+// ----------------------------------------------------------
+const etichete = {};
+
+function eticheta(text, culoare) {
+  const cheie = culoare + '|' + text;
+  if (etichete[cheie]) return etichete[cheie];
+
+  const panza = document.createElement('canvas');
+  const ctx = panza.getContext('2d');
+  const font = '26px Georgia, "Times New Roman", serif';
+  ctx.font = font;
+  panza.width = Math.ceil(ctx.measureText(text).width) + 16;
+  panza.height = 38;
+
+  const c2 = panza.getContext('2d');
+  c2.font = font;
+  c2.textAlign = 'center';
+  c2.textBaseline = 'middle';
+  // A dark outline first, then the text. Without it, a pale name
+  // over pale ground is unreadable, and over dark ground a dark one.
+  c2.lineWidth = 5;
+  c2.strokeStyle = 'rgba(8,8,10,0.85)';
+  c2.strokeText(text, panza.width / 2, panza.height / 2);
+  c2.fillStyle = culoare;
+  c2.fillText(text, panza.width / 2, panza.height / 2);
+
+  const textura = new THREE.CanvasTexture(panza);
+  textura.minFilter = THREE.LinearFilter;
+
+  etichete[cheie] = {
+    // depthTest stays ON, so a name goes behind a house the way the
+    // creature does. With it off, every name in the village floated
+    // on top of the walls and you could read the whole street at once.
+    material: new THREE.SpriteMaterial({ map: textura, transparent: true }),
+    lat: panza.width / 90,
+    inalt: panza.height / 90
+  };
+  return etichete[cheie];
+}
+
+function faEticheta(text, culoare, inaltime) {
+  const e = eticheta(text, culoare);
+  const s = new THREE.Sprite(e.material);
+  s.scale.set(e.lat, e.inalt, 1);
+  s.position.y = inaltime;
+  return s;
+}
+
+// A townsperson's name is worth reading from across the village.
+// Fifty monster names at once is just noise, so those only show up
+// close - the same distance the 2D game shows them from.
+const RAZA_NUMELUI_MOB = 22;
+
+
+// ----------------------------------------------------------
+//  Keeping only what is near you
+//
+//  Greenvale holds 1300 monsters. Building all of them would take
+//  longer than building the ground. So a creature gets a body when
+//  you come within RAZA_FAPTURI tiles of it, and gives it back when
+//  you walk away - the entry in the zone's list is what lasts, not
+//  the boxes.
+// ----------------------------------------------------------
+const fapturiDeFata = new Map();     // the zone's entry -> its boxes
+
+function inaltimeaFapturii(grup) {
+  let sus = 0;
+  grup.children.forEach(function (b) {
+    const g = b.geometry.parameters;
+    sus = Math.max(sus, b.position.y + (g.height ? g.height / 2 : (g.radius || 0)));
+  });
+  return sus;
+}
+
+function adaugaFaptura(intrare, tabel, numeScris, culoareaNumelui) {
+  const d = tabel[intrare.fel];
+  if (!d || !d.forme) return;
+
+  const grup = sablonulFapturii(tabel, intrare.fel).clone();
+  grup.position.set(intrare.col, inaltimeaSolului(intrare.col, intrare.rand), intrare.rand);
+
+  // Facing whichever way their own square says, so a clearing of
+  // wolves does not look like a parade. Same square, same way, every
+  // time you come back.
+  grup.rotation.y = amestecul(intrare.col, intrare.rand) * Math.PI * 2;
+
+  if (numeScris) {
+    grup.numeleScris = faEticheta(numeScris, culoareaNumelui, inaltimeaFapturii(grup) + 0.42);
+    grup.add(grup.numeleScris);
+  }
+
+  scena.add(grup);
+  fapturiDeFata.set(intrare, grup);
+}
+
+function uitaFaptura(intrare) {
+  const grup = fapturiDeFata.get(intrare);
+  if (!grup) return;
+  scena.remove(grup);
+  fapturiDeFata.delete(intrare);
+}
+
+function actualizeazaFapturile() {
+  if (!zona) return;
+
+  const x = jucator.position.x, z = jucator.position.z;
+  const vrute = new Set();
+
+  (zona.npci || []).forEach(function (n) {
+    if (Math.abs(n.col - x) > RAZA_FAPTURI || Math.abs(n.rand - z) > RAZA_FAPTURI) return;
+    vrute.add(n);
+    if (!fapturiDeFata.has(n)) {
+      const d = NPC[n.fel] || {};
+      adaugaFaptura(n, NPC, d.nume || n.fel, '#ffe9b0');
+    }
+  });
+
+  (zona.mobi || []).forEach(function (m) {
+    if (Math.abs(m.col - x) > RAZA_FAPTURI || Math.abs(m.rand - z) > RAZA_FAPTURI) return;
+    vrute.add(m);
+    if (!fapturiDeFata.has(m)) {
+      const d = MOBI[m.fel] || {};
+      adaugaFaptura(m, MOBI, (d.nume || m.fel) + ' (' + m.nivel + ')', '#f0d6d0');
+    }
+    const grup = fapturiDeFata.get(m);
+    if (grup && grup.numeleScris) {
+      grup.numeleScris.visible = Math.hypot(m.col - x, m.rand - z) <= RAZA_NUMELUI_MOB;
+    }
+  });
+
+  fapturiDeFata.forEach(function (grup, intrare) {
+    if (!vrute.has(intrare)) uitaFaptura(intrare);
+  });
+}
+
+function uitaToateFapturile() {
+  fapturiDeFata.forEach(function (grup) { scena.remove(grup); });
+  fapturiDeFata.clear();
+}
+
+
 // ----------------------------------------------------------
 //  The world, built out of two piles of boxes
 //
@@ -137,21 +369,23 @@ scena.add(jucator);
 // ----------------------------------------------------------
 const MAX_CUTII = (RAZA_LUMII * 2 + 1) * (RAZA_LUMII * 2 + 1);
 
-function faGramada(geometrie) {
+function faGramada(geometrie, catIncap) {
   const g = new THREE.InstancedMesh(
     geometrie,
     new THREE.MeshLambertMaterial({ vertexColors: false }),
-    MAX_CUTII
+    catIncap
   );
-  g.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(MAX_CUTII * 3), 3);
+  g.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(catIncap * 3), 3);
   g.count = 0;
   g.frustumCulled = false;
   scena.add(g);
   return g;
 }
 
-const podeaua = faGramada(new THREE.BoxGeometry(1, GROSIME_PODEA, 1));
-const zidurile = faGramada(new THREE.BoxGeometry(1, 1, 1));
+const podeaua = faGramada(new THREE.BoxGeometry(1, GROSIME_PODEA, 1), MAX_CUTII);
+// Twice the room: a building tile puts up TWO boxes, a wall and the
+// roof on top of it.
+const zidurile = faGramada(new THREE.BoxGeometry(1, 1, 1), MAX_CUTII * 2);
 
 const ajutor = new THREE.Object3D();
 const culoareaDeLucru = new THREE.Color();
@@ -201,6 +435,33 @@ function inaltimeaSolului(c, r) {
 }
 
 
+// How a building is stacked: wall from the ground up to here, then
+// the roof colour laid across the top of it.
+const INALTIMEA_PERETELUI = 2.3;
+const GROSIMEA_ACOPERISULUI = 0.6;
+
+// Puts one box into the pile and hands back the next free slot.
+// delaLaSol is how far off the ground it starts, inalt how tall.
+function puneCutia(nZid, c, r, jos, delaLaSol, inalt, fel) {
+  if (nZid >= zidurile.instanceMatrix.count) return nZid;   // pile full
+
+  ajutor.position.set(c, jos + delaLaSol + inalt / 2, r);
+  ajutor.scale.set(1, inalt, 1);
+  ajutor.updateMatrix();
+  zidurile.setMatrixAt(nZid, ajutor.matrix);
+
+  // The top of a box catches the light and the sides fall into
+  // shadow on their own, but a whole forest in one flat green reads
+  // as a wall. So each box is nudged a shade lighter or darker,
+  // again from its own coordinates.
+  culoareaTerenului(fel, c, r);
+  culoareaDeLucru.multiplyScalar(0.82 + ((c * 3 + r * 5) % 7) / 20);
+  zidurile.setColorAt(nZid, culoareaDeLucru);
+
+  return nZid + 1;
+}
+
+
 function construiesteLumea(cMijloc, rMijloc) {
 
   let nPodea = 0;
@@ -226,7 +487,28 @@ function construiesteLumea(cMijloc, rMijloc) {
       podeaua.setColorAt(nPodea, culoareaTerenului(fel, c, r));
       nPodea++;
 
-      // ---- and, if something stands on it, the box above ----
+      // ---- buildings ----
+      //
+      // This was the ugly part. In the 2D map a house is drawn from
+      // straight above: a band of roof tiles ('R'), and in front of
+      // it a band of front-wall tiles ('H'), side by side. Stood up
+      // as they are, that becomes a red slab standing NEXT TO a
+      // cream slab - two low walls, not a house.
+      //
+      // What the map actually means is: this whole patch is a
+      // building. So every tile of it gets a wall from the ground up
+      // and the roof colour laid across the top. The doorway 'D' is
+      // not in this list, so it stays the hole in the wall it is.
+      if (litera === 'R' || litera === 'H') {
+        const zid = feluTerenului('H') || fel;
+        const acoperis = feluTerenului('R') || fel;
+
+        nZid = puneCutia(nZid, c, r, jos, 0, INALTIMEA_PERETELUI, zid);
+        nZid = puneCutia(nZid, c, r, jos, INALTIMEA_PERETELUI, GROSIMEA_ACOPERISULUI, acoperis);
+        continue;
+      }
+
+      // ---- and, if something else stands on it, the box above ----
       const h = INALTIMI[litera];
       if (!h) continue;
 
@@ -237,22 +519,8 @@ function construiesteLumea(cMijloc, rMijloc) {
       const variatie = (litera === 'T' || litera === 's' || litera === 'r')
         ? 0.75 + ((c * 7 + r * 13) % 11) / 20
         : 1;
-      const inalt = h * variatie;
 
-      ajutor.position.set(c, jos + inalt / 2, r);
-      ajutor.scale.set(1, inalt, 1);
-      ajutor.updateMatrix();
-      zidurile.setMatrixAt(nZid, ajutor.matrix);
-
-      // The top of a box catches the light and the sides fall into
-      // shadow on their own, but a whole forest in one flat green
-      // reads as a wall. So each box is nudged a shade lighter or
-      // darker, again from its own coordinates.
-      culoareaTerenului(fel, c, r);
-      const umbra = 0.82 + ((c * 3 + r * 5) % 7) / 20;
-      culoareaDeLucru.multiplyScalar(umbra);
-      zidurile.setColorAt(nZid, culoareaDeLucru);
-      nZid++;
+      nZid = puneCutia(nZid, c, r, jos, 0, h * variatie, fel);
     }
   }
 
@@ -325,6 +593,44 @@ randator.domElement.addEventListener('wheel', function (e) {
 }, { passive: false });
 
 
+// How tall whatever stands on this square is, measured from the
+// ground. Nothing there: zero.
+function inaltimeaObstacolului(c, r) {
+  if (!zona || r < 0 || c < 0 || r >= zona.RND || c >= zona.COL) return 99;
+  const litera = zona.harta[r][c];
+  if (litera === 'R' || litera === 'H') return INALTIMEA_PERETELUI + GROSIMEA_ACOPERISULUI;
+  return INALTIMI[litera] || 0;
+}
+
+// Walking into a village used to put the camera inside a wall and
+// you saw nothing but plaster. So before the camera is placed, we
+// walk the line from your head out to where it wants to sit, and
+// stop it at the first thing tall enough to be in the way.
+const DISTANTA_MINIMA_CAMERA = 1.6;
+
+function catIncapeCamera(ochi, spre) {
+  const dx = spre.x - ochi.x, dy = spre.y - ochi.y, dz = spre.z - ochi.z;
+  const lung = Math.hypot(dx, dy, dz);
+  const pasi = Math.max(4, Math.ceil(lung / 0.35));
+
+  for (let i = 1; i <= pasi; i++) {
+    const t = i / pasi;
+    const x = ochi.x + dx * t, y = ochi.y + dy * t, z = ochi.z + dz * t;
+    const c = Math.round(x), r = Math.round(z);
+    const sol = ADANCIMI[(zona.harta[r] || '')[c]] || 0;
+
+    // Only things the camera would actually be inside count. A
+    // campfire is solid but half a metre tall; the camera flies
+    // over it without complaint.
+    if (y < sol + inaltimeaObstacolului(c, r)) {
+      const inapoi = (i - 1) / pasi * lung - 0.25;
+      return Math.max(DISTANTA_MINIMA_CAMERA, Math.min(lung, inapoi));
+    }
+  }
+  return lung;
+}
+
+
 // ----------------------------------------------------------
 //  Entering a zone
 // ----------------------------------------------------------
@@ -380,7 +686,9 @@ function intraInZona(id) {
     }
 
     jucator.position.set(c, inaltimeaSolului(c, r), r);
+    uitaToateFapturile();
     construiesteLumea(c, r);
+    actualizeazaFapturile();
 
     scrisUnde.innerHTML = '<b>' + zona.nume + '</b> &nbsp;levels ' +
       zona.nivelDeLa + '&ndash;' + zona.nivelPanaLa + ' &nbsp;·&nbsp; ' +
@@ -407,6 +715,7 @@ alegeZona.addEventListener('change', function () { intraInZona(alegeZona.value);
 //  The loop: once per frame, for ever
 // ----------------------------------------------------------
 let cand = performance.now();
+let ultimaVerificareFapturi = 0;
 
 function cadru(acum) {
   requestAnimationFrame(cadru);
@@ -428,9 +737,16 @@ function cadru(acum) {
       const lung = Math.hypot(inainte, lateral);
       inainte /= lung; lateral /= lung;
 
+      // The camera sits at (sin, cos) x distance away from you. So
+      // "forward" - away from the camera - is the opposite of that,
+      // (-sin, -cos), and "right" is that turned a quarter turn,
+      // (cos, -sin). Get one sign wrong here and the keys feel fine
+      // from one camera angle and backwards from another, which is
+      // exactly how it felt: W and S reversed with the camera behind
+      // you, A and D reversed once you swung it round.
       const sin = Math.sin(unghi), cos = Math.cos(unghi);
-      const dx = (lateral * cos - inainte * sin) * VITEZA * delta;
-      const dz = (lateral * sin + inainte * cos) * VITEZA * delta;
+      const dx = ( lateral * cos - inainte * sin) * VITEZA * delta;
+      const dz = (-lateral * sin - inainte * cos) * VITEZA * delta;
 
       // Each direction is tried on its own. That is what lets you
       // slide along a wall instead of sticking to it the moment you
@@ -452,12 +768,31 @@ function cadru(acum) {
       construiesteLumea(c, r);
     }
 
+    // Twice a second is plenty for deciding who is close enough to
+    // be given a body. Doing it every frame would be 1300 distance
+    // sums sixty times a second for no gain.
+    if (acum - ultimaVerificareFapturi > 500) {
+      ultimaVerificareFapturi = acum;
+      actualizeazaFapturile();
+    }
+
+    // Where the camera would like to sit, and where it actually can.
+    const ochi = { x: jucator.position.x, y: jucator.position.y + 1.3, z: jucator.position.z };
+    const spre = {
+      x: ochi.x + Math.sin(unghi) * departare * Math.cos(inclinare),
+      y: jucator.position.y + departare * Math.sin(inclinare) + 1.2,
+      z: ochi.z + Math.cos(unghi) * departare * Math.cos(inclinare)
+    };
+
+    const incape = catIncapeCamera(ochi, spre) /
+                   Math.max(0.001, Math.hypot(spre.x - ochi.x, spre.y - ochi.y, spre.z - ochi.z));
+
     camera.position.set(
-      jucator.position.x + Math.sin(unghi) * departare * Math.cos(inclinare),
-      jucator.position.y + departare * Math.sin(inclinare) + 1.2,
-      jucator.position.z + Math.cos(unghi) * departare * Math.cos(inclinare)
+      ochi.x + (spre.x - ochi.x) * incape,
+      ochi.y + (spre.y - ochi.y) * incape,
+      ochi.z + (spre.z - ochi.z) * incape
     );
-    camera.lookAt(jucator.position.x, jucator.position.y + 1.3, jucator.position.z);
+    camera.lookAt(ochi.x, ochi.y, ochi.z);
   }
 
   randator.render(scena, camera);
