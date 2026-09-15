@@ -388,6 +388,19 @@ const TEXT = {
   DUNGEON_SIGN:     'Dungeon',
   RAID_SIGN:        'Raid',
 
+  // ---- playing on a computer (see desktop.js) ----
+  KEYS_TITLE:   'Keyboard and mouse',
+  KEYS_HINT:    'K — controls',
+  KEYS_CLOSE:   'Press K again to close',
+  KEYS_MOVE:    'W A S D  or the arrow keys — walk',
+  KEYS_CLICK:   'Left click — walk there, or pick an enemy',
+  KEYS_ATTACK:  'Space — attack',
+  KEYS_ABILITY: '1 2 3 4 — abilities,   5 — next page of the bar',
+  KEYS_TARGET:  'Tab — next enemy,   Q — stop an enemy cast',
+  KEYS_TEAM:    'F — follow,   G — attack,   R — retreat',
+  KEYS_MENU:    'M — character, bags, talents, quests',
+  KEYS_ESCAPE:  'H — world map,   Escape — close a window',
+
   // ---- caii, piatra de intoarcere, drumurile de zbor ----
   // Numele sunt ale noastre. In Warcraft piatra se cheama altfel, si
   // numele ala e azi si numele unui joc intreg al lor.

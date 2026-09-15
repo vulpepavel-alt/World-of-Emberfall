@@ -1920,6 +1920,7 @@ let etichetaNume;
 let bucatiCorp = [];
 let directie = 'jos';       // incotro e intors personajul
 let taste;
+let tasteSageti;            // aceleasi patru directii, dar de pe sagetile tastaturii
 let tinta = null;
 
 let mobi = [];              // toti inamicii de pe harta
@@ -1927,6 +1928,7 @@ let urmatorulAtac = 0;      // momentul cand ai voie sa lovesti din nou
 let mort = false;           // esti mort si astepti sa te intorci?
 let butoane = [];           // butoanele din dreapta jos
 let manetaJoystick;         // bila din mijlocul joystick-ului
+let pieseleJoystickului = [];  // toate cercurile lui, ca sa le putem ascunde pe calculator
 let degetJoystick = null;   // ce deget tine joystick-ul (pe telefon poti avea mai multe)
 let mersJoystick = { x: 0, y: 0 };
 let npci = [];              // personajele prietenoase, ca sa le punem pe miniharta
@@ -2128,6 +2130,16 @@ function create() {
     dreapta: Phaser.Input.Keyboard.KeyCodes.D
   });
 
+  // Aceleasi patru directii si de pe sagetile tastaturii. Pe telefon
+  // n-aveau rost; pe calculator, multi pun mana pe sageti inainte sa
+  // se uite ce taste are jocul.
+  tasteSageti = this.input.keyboard.addKeys({
+    sus:     Phaser.Input.Keyboard.KeyCodes.UP,
+    stanga:  Phaser.Input.Keyboard.KeyCodes.LEFT,
+    jos:     Phaser.Input.Keyboard.KeyCodes.DOWN,
+    dreapta: Phaser.Input.Keyboard.KeyCodes.RIGHT
+  });
+
   // Tasta Spatiu = atac (pe calculator).
   this.input.keyboard.on('keydown-SPACE', () => ataca(this));
 
@@ -2138,8 +2150,9 @@ function create() {
   // Click / deget: intai joystick-ul, apoi butoanele, apoi harta.
   this.input.on('pointerdown', (pointer) => {
 
-    // Ai pus degetul pe joystick?
-    if (degetJoystick === null &&
+    // Ai pus degetul pe joystick? (Pe calculator joystick-ul nu se
+    // vede, si atunci coltul ala e pamant ca oricare altul.)
+    if (degetJoystick === null && seVedeJoystickul() &&
         Phaser.Math.Distance.Between(pointer.x, pointer.y, JOY_X, JOY_Y) <= JOY_RAZA + 14) {
       degetJoystick = pointer.id;
       mutaJoystick(pointer);
@@ -2216,6 +2229,7 @@ function create() {
 
   // --- Joystick-ul, butoanele si miniharta ---
   faJoystick(this);
+  pregatesteCalculatorul(this);   // vezi desktop.js
   faButoane(this);
   faControlulLuptei(this);
   faMiniharta(this);
@@ -3339,7 +3353,8 @@ function faJoystick(scena) {
   const lucire = scena.add.circle(JOY_X, JOY_Y, JOY_RAZA_MANETA - 8, UI.alamaLucioasa, 0.5);
   manetaJoystick.lucire = lucire;
 
-  [fundal, inel, gaura, manetaJoystick, lucire].forEach(function (b) {
+  pieseleJoystickului = [fundal, inel, gaura, manetaJoystick, lucire];
+  pieseleJoystickului.forEach(function (b) {
     b.setScrollFactor(0).setDepth(1000);
   });
 }
@@ -4887,10 +4902,10 @@ function update(time, delta) {
   let dx = 0;
   let dy = 0;
 
-  if (taste.stanga.isDown)  dx -= 1;
-  if (taste.dreapta.isDown) dx += 1;
-  if (taste.sus.isDown)     dy -= 1;
-  if (taste.jos.isDown)     dy += 1;
+  if (taste.stanga.isDown  || tasteSageti.stanga.isDown)  dx -= 1;
+  if (taste.dreapta.isDown || tasteSageti.dreapta.isDown) dx += 1;
+  if (taste.sus.isDown     || tasteSageti.sus.isDown)     dy -= 1;
+  if (taste.jos.isDown     || tasteSageti.jos.isDown)     dy += 1;
 
   // Daca nu apesi nicio tasta, ne uitam la joystick.
   if (dx === 0 && dy === 0 && (mersJoystick.x !== 0 || mersJoystick.y !== 0)) {
