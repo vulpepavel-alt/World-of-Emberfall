@@ -97,9 +97,13 @@ lumea.add(soare);
 //  It also costs less, not more: drawing a third as wide and a third
 //  as tall is a ninth of the work.
 //
-//  1 = smooth and modern. 4 = very chunky. Press P to cycle.
+//  1 = smooth and modern. 6 = very chunky. Press P to cycle.
+//
+//  Started at 3, which turned out to be too coarse to look at for
+//  long - faces and distant trees dissolved. 2 keeps the blocky
+//  edge without losing the picture.
 // ----------------------------------------------------------
-let pixelare = 3;
+let pixelare = 2;
 
 function potrivesteMarimea() {
   const lat = window.innerWidth, inalt = window.innerHeight;
@@ -960,9 +964,22 @@ function cadru(acum) {
     // The camera gets the very same amount added to it, so if you
     // have dragged it off to one side with the mouse, it keeps that
     // offset instead of snapping back behind you mid-turn.
+    // WHICH WAY IS RIGHT. Worth writing down, because I got it
+    // backwards once and a test that only checked "A and D are
+    // opposite, and the camera follows" happily passed anyway.
+    //
+    // Facing is the vector (sin f, cos f). You start facing away
+    // from the camera, which is (0, -1) - call it north. On screen,
+    // +x is to your right, because the camera sits on the +z side
+    // looking towards -z.
+    //
+    // Turning right means going from north (0, -1) towards east
+    // (1, 0), so sin f has to become positive. sin(-PI + e) is
+    // NEGATIVE and sin(-PI - e) is positive - so a right turn makes
+    // f smaller, not bigger. D subtracts.
     let intoarcere = 0;
-    if (tasta(['KeyA', 'ArrowLeft']))  intoarcere -= 1;
-    if (tasta(['KeyD', 'ArrowRight'])) intoarcere += 1;
+    if (tasta(['KeyA', 'ArrowLeft']))  intoarcere += 1;
+    if (tasta(['KeyD', 'ArrowRight'])) intoarcere -= 1;
 
     if (intoarcere) {
       const cat = intoarcere * VITEZA_INTOARCERII * delta;
@@ -985,11 +1002,15 @@ function cadru(acum) {
       const lung = Math.hypot(inainte, lateral);
       inainte /= lung; lateral /= lung;
 
-      // Facing is (sin, cos); a quarter turn from it - your right -
-      // is (cos, -sin).
+      // Facing is (sin f, cos f). Your right is a quarter turn from
+      // it - and it is (-cos f, sin f), NOT (cos f, -sin f). Check
+      // it at the start, facing north (0, -1): (-cos(-PI), sin(-PI))
+      // is (1, 0), which is east, which is the right of the screen.
+      // The other one gives (-1, 0), west, and Q and E come out
+      // swapped - which is exactly what they were.
       const sin = Math.sin(fataJucatorului), cos = Math.cos(fataJucatorului);
-      const dx = (inainte * sin + lateral * cos) * VITEZA * delta;
-      const dz = (inainte * cos - lateral * sin) * VITEZA * delta;
+      const dx = (inainte * sin - lateral * cos) * VITEZA * delta;
+      const dz = (inainte * cos + lateral * sin) * VITEZA * delta;
 
       // Each direction is tried on its own. That is what lets you
       // slide along a wall instead of sticking to it the moment you
