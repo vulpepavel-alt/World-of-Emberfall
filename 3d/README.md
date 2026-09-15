@@ -30,6 +30,14 @@ same way Phaser is.
 - **drag with the mouse** — swing the camera around your character
 - **scroll wheel** — pull the camera in or push it out
 - **the Zone box, top left** — drop into a different zone
+- **P** — how chunky the picture is: smooth, 2×, 3×, 4×, 6×
+
+The chunky look is not a filter laid over the top. The picture is
+drawn **small** — at 3× it is a third of the window wide and a third
+tall — and then blown up, each small dot becoming a square block of
+screen with nothing smeared in between. Exactly what the 2D game
+does with `pixelArt: true`. It also costs *less*: a third by a third
+is a ninth of the work.
 
 That is the whole list. There is no combat, no menus, no inventory
 and no saving. The monsters and townspeople are there to look at,

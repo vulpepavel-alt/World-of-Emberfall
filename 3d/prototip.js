@@ -66,9 +66,10 @@ scena.background = new THREE.Color(0x8fb6d8);
 
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 400);
 
-const randator = new THREE.WebGLRenderer({ antialias: true });
-randator.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-randator.setSize(window.innerWidth, window.innerHeight);
+// antialias OFF on purpose. It exists to smooth the staircase edges
+// of a diagonal line, and a smooth edge is exactly what we do not
+// want here.
+const randator = new THREE.WebGLRenderer({ antialias: false });
 document.body.appendChild(randator.domElement);
 
 // Flat colours, no photographs: one soft light from above and one
@@ -80,11 +81,52 @@ const soare = new THREE.DirectionalLight(0xfff0d0, 0.85);
 soare.position.set(-40, 70, 30);
 scena.add(soare);
 
-window.addEventListener('resize', function () {
-  camera.aspect = window.innerWidth / window.innerHeight;
+// ----------------------------------------------------------
+//  The pixelated look
+//
+//  There is no clever trick to this, and that is the good news.
+//  The picture is drawn SMALL - a third of the size of the window -
+//  and then blown up to fill it. Blown up the honest way: each small
+//  dot becomes a square block of screen, with nothing smeared or
+//  blended in between. That is what "image-rendering: pixelated"
+//  asks the browser for.
+//
+//  It is the same thing the 2D game does with `pixelArt: true`.
+//
+//  It also costs less, not more: drawing a third as wide and a third
+//  as tall is a ninth of the work.
+//
+//  1 = smooth and modern. 4 = very chunky. Press P to cycle.
+// ----------------------------------------------------------
+let pixelare = 3;
+
+function potrivesteMarimea() {
+  const lat = window.innerWidth, inalt = window.innerHeight;
+
+  // A window of no size at all - the tab is in the background, or
+  // hidden. Setting the canvas to zero here would leave it blank
+  // even after the tab came back, so we simply wait.
+  if (!lat || !inalt) return;
+
+  camera.aspect = lat / inalt;
   camera.updateProjectionMatrix();
-  randator.setSize(window.innerWidth, window.innerHeight);
-});
+
+  // Draw at this many actual dots...
+  randator.setPixelRatio(1);
+  randator.setSize(Math.max(160, Math.round(lat / pixelare)),
+                   Math.max(90, Math.round(inalt / pixelare)),
+                   false);           // false = do not touch the size on screen
+
+  // ...but take up the whole window on screen, blocks and all.
+  const panza = randator.domElement;
+  panza.style.width = lat + 'px';
+  panza.style.height = inalt + 'px';
+  panza.style.imageRendering = 'pixelated';
+}
+
+potrivesteMarimea();
+window.addEventListener('resize', potrivesteMarimea);
+document.addEventListener('visibilitychange', potrivesteMarimea);
 
 
 // ----------------------------------------------------------
@@ -99,7 +141,7 @@ function faJucator() {
   function cub(lat, inalt, adanc, culoare, x, y, z) {
     const m = new THREE.Mesh(
       new THREE.BoxGeometry(lat, inalt, adanc),
-      new THREE.MeshLambertMaterial({ color: culoare })
+      new THREE.MeshLambertMaterial({ color: culoare, flatShading: true })
     );
     m.position.set(x, y, z);
     grup.add(m);
@@ -174,7 +216,7 @@ function fapturaDinForme(forme) {
   });
 
   forme.forEach(function (f) {
-    const material = new THREE.MeshLambertMaterial({ color: f.culoare });
+    const material = new THREE.MeshLambertMaterial({ color: f.culoare, flatShading: true });
     let bucata;
 
     if (f.fel === 'cerc') {
@@ -372,7 +414,7 @@ const MAX_CUTII = (RAZA_LUMII * 2 + 1) * (RAZA_LUMII * 2 + 1);
 function faGramada(geometrie, catIncap) {
   const g = new THREE.InstancedMesh(
     geometrie,
-    new THREE.MeshLambertMaterial({ vertexColors: false }),
+    new THREE.MeshLambertMaterial({ vertexColors: false, flatShading: true }),
     catIncap
   );
   g.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(catIncap * 3), 3);
@@ -545,6 +587,22 @@ window.addEventListener('blur',    function () { for (const k in apasate) apasat
 
 function tasta(lista) {
   return lista.some(function (k) { return apasate[k]; });
+}
+
+// P cycles how chunky the picture is, so the two looks can be
+// compared side by side instead of argued about.
+const TREPTE_PIXELARE = [1, 2, 3, 4, 6];
+
+window.addEventListener('keydown', function (e) {
+  if (e.code !== 'KeyP') return;
+  pixelare = TREPTE_PIXELARE[(TREPTE_PIXELARE.indexOf(pixelare) + 1) % TREPTE_PIXELARE.length];
+  potrivesteMarimea();
+  scrieTreapta();
+});
+
+function scrieTreapta() {
+  const el = document.getElementById('treapta-pixeli');
+  if (el) el.textContent = pixelare === 1 ? 'smooth' : pixelare + '× chunky';
 }
 
 // You are a small circle, not a point: this checks the four corners
