@@ -282,7 +282,41 @@ been showing Romanian to a player whose game is meant to be entirely
 in English. They are in `texte.js` now, in English, which fixes both
 games at once.
 
-**Still missing:** no professions, no flight paths, no cooking.
+## Trades
+
+Ore and herbs were already scattered across every zone — `faZona()`
+placed them, on walkable ground, at levels that suit the zone.
+Greenvale alone has **70**. They simply were not being drawn.
+
+Now they are: a lump of rock, a tuft of leaves, built from the
+node's own colour, with the material's name over it **in the colour
+of what it is still worth to you** — orange, yellow, green, grey,
+the game's own four thresholds. Walk up and press **F**; it takes a
+couple of seconds and walking away stops it.
+
+**K** opens your trades: what you know, your skill, and the recipes
+you can make. Trainers in the towns teach a trade for money.
+
+Everything is the game's own: which trade a node belongs to, what it
+gives and how much, `deCeNuPotiCulege()` for why you cannot,
+`adaugaSkill()` for whether you earn a point, `retete.js` for what a
+recipe costs and makes, and the rule that an anvil or a rune table
+or a cooking fire has to be within three squares.
+
+Measured, end to end: standing on a vein without the trade says "You
+need Delving"; learning Delving asks for a Pick; with the pick it
+gathers Dull Ore and the skill goes 1 → 2 and the vein empties. In
+Ambervault the Forge Master teaches Smithing and hands over its
+first recipe; at an anvil that recipe makes a Dull Ingot and the
+skill goes 1 → 2. Away from an anvil it says "Needs Anvil", makes
+nothing — **and leaves your materials alone**, which is the part
+worth checking.
+
+`deCeNuPotiCulege` moved out of `game.js` into `meserii.js` on the
+way: it asks whether you have the trade, the skill and the tool,
+which is nothing to do with drawing.
+
+**Still missing:** flight paths, and the two cooking abilities.
 
 ## The point: where the world comes from
 

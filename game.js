@@ -1099,25 +1099,8 @@ function nodulDeLangaTine() {
 
 
 // De ce NU poti culege nodul asta. Null inseamna ca poti.
-function deCeNuPotiCulege(loc) {
-
-  const fel = NODURI[loc.fel];
-  if (!fel) return TEXT.CANNOT_GATHER;
-
-  const meserie = MESERII[fel.meserie];
-  if (!aiMeseria(personaj, fel.meserie)) {
-    return TEXT.NEED_PROFESSION.replace('{p}', meserie.nume);
-  }
-  if (skillulTau(personaj, fel.meserie) < fel.minim) {
-    return TEXT.NEED_SKILL.replace('{n}', fel.minim);
-  }
-  // Mineritul cere tarnacop. Culesul de plante nu cere nimic, deci
-  // pentru el uneltaCareItiLipseste intoarce null si trecem mai departe.
-  const lipsa = uneltaCareItiLipseste(personaj, fel.meserie);
-  if (lipsa) return TEXT.NEED_TOOL.replace('{t}', lipsa);
-
-  return null;
-}
+// deCeNuPotiCulege a trecut in meserii.js: e o regula despre
+// meserii, si o intreaba si lumea 3D.
 
 
 // ----------------------------------------------------------

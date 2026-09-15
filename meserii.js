@@ -563,3 +563,31 @@ function pestelePrins(skill) {
   if (zar < 0.55) return potriviti[potriviti.length - 1];
   return potriviti[Math.floor(Math.random() * potriviti.length)];
 }
+
+
+// ==========================================================
+//  DE CE NU POTI CULEGE DE AICI
+//
+//  Mutata din game.js. N-are nimic de-a face cu desenul: intreaba
+//  daca ai meseria, daca ai skill-ul cerut si daca ai unealta. Da
+//  inapoi motivul scris omeneste, sau null daca poti.
+// ==========================================================
+function deCeNuPotiCulege(loc) {
+
+  const fel = NODURI[loc.fel];
+  if (!fel) return TEXT.CANNOT_GATHER;
+
+  const meserie = MESERII[fel.meserie];
+  if (!aiMeseria(personaj, fel.meserie)) {
+    return TEXT.NEED_PROFESSION.replace('{p}', meserie.nume);
+  }
+  if (skillulTau(personaj, fel.meserie) < fel.minim) {
+    return TEXT.NEED_SKILL.replace('{n}', fel.minim);
+  }
+  // Mineritul cere tarnacop. Culesul de plante nu cere nimic, deci
+  // pentru el uneltaCareItiLipseste intoarce null si trecem mai departe.
+  const lipsa = uneltaCareItiLipseste(personaj, fel.meserie);
+  if (lipsa) return TEXT.NEED_TOOL.replace('{t}', lipsa);
+
+  return null;
+}

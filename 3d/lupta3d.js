@@ -692,6 +692,7 @@ function actualizeazaLupta(delta, acum) {
 function uitaLupta() {
   if (typeof uitaPrada === 'function') uitaPrada();
   if (typeof uitaAnimalul === 'function') uitaAnimalul();
+  if (typeof uitaMeseriile === 'function') uitaMeseriile();
   tinta = null;
   luptiSingur = false;
   mortPanaLa = 0;

@@ -154,6 +154,25 @@ function scrieNpc() {
             (TEXT.SHOP_TITLE || 'Browse goods') + '</button>';
   }
 
+  // A trade trainer. Which trade they teach is written on them in
+  // meserii.js ('antrenor'), so we look for the one that names them.
+  const meserieaLui = meseriaAntrenorului(n.fel);
+  if (meserieaLui) {
+    const m = MESERII[meserieaLui];
+    const se = potiLuaMeseria(personaj, meserieaLui);
+    if (aiMeseria(personaj, meserieaLui)) {
+      html += '<p class="cerinta">' + m.nume + ': ' +
+              skillulTau(personaj, meserieaLui) + ' / ' +
+              plafonulTau(personaj, meserieaLui) + '</p>';
+    } else if (se.poti) {
+      html += '<button class="lat" id="invat-meserie">' +
+              (TEXT.LEARN_TRADE || 'Learn {m} ({c})')
+                .replace('{m}', m.nume).replace('{c}', baniText(se.cost)) + '</button>';
+    } else {
+      html += '<p class="gol">' + motivulMeseriei(m, se) + '</p>';
+    }
+  }
+
   if (!html) html = '<p class="gol">' + (d.nume || 'They') + ' has nothing for you.</p>';
 
   const corp = document.getElementById('corp3d');
@@ -168,6 +187,33 @@ function scrieNpc() {
   });
   const b = document.getElementById('deschide-taraba');
   if (b) b.addEventListener('click', function () { deschideTaraba3d(npcDeschis); });
+
+  const im = document.getElementById('invat-meserie');
+  if (im) im.addEventListener('click', function () {
+    const id = meseriaAntrenorului(npcDeschis.fel);
+    const luata = invataMeseria(personaj, id);
+    mesaj3d = luata ? (TEXT.TRADE_LEARNED || 'Learned {m}').replace('{m}', luata.meserie.nume)
+                    : (TEXT.NOT_ENOUGH || 'Not enough money');
+    scrieNpc();
+  });
+}
+
+
+// Which trade this person teaches, if any. MESERII says who teaches
+// each one; this is the same question asked from the other end.
+function meseriaAntrenorului(felNpc) {
+  return Object.keys(MESERII).find(function (id) {
+    return MESERII[id].antrenor === felNpc;
+  }) || null;
+}
+
+function motivulMeseriei(m, se) {
+  if (se.motiv === 'known')  return 'You already know ' + m.nume + '.';
+  if (se.motiv === 'level')  return 'Comes at level ' + se.nivel + '.';
+  if (se.motiv === 'full')   return 'You already keep as many main trades as you may.';
+  if (se.motiv === 'money')  return 'It costs ' + baniText(se.cost) + '.';
+  if (se.motiv === 'soon')   return 'Not ready yet.';
+  return '';
 }
 
 

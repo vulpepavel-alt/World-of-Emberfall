@@ -249,13 +249,20 @@ function actualizeazaInterfata(acum) {
     s.el.classList.toggle('sarac', !aiCuCePlati(ab));
   });
 
-  // The cast bar.
-  if (incantareaInCurs) {
-    const trecut = acum - incantareaInCurs.dela;
-    const parte = Math.max(0, Math.min(1, trecut / incantareaInCurs.cat));
+  // The cast bar - which also shows gathering, because waiting for
+  // an ore vein is the same thing to look at as waiting for a spell.
+  const inCurs = incantareaInCurs ||
+    ((typeof culesulInCurs3d !== 'undefined' && culesulInCurs3d)
+      ? { dela: culesulInCurs3d.dela, cat: culesulInCurs3d.cat,
+          nume: (NODURI[culesulInCurs3d.loc.fel] || {}).material || 'Gathering' }
+      : null);
+
+  if (inCurs) {
+    const trecut = acum - inCurs.dela;
+    const parte = Math.max(0, Math.min(1, trecut / inCurs.cat));
     cutiaIncantarii.classList.remove('ascuns');
     document.getElementById('incantare-plina').style.width = (parte * 100) + '%';
-    document.getElementById('incantare-nume').textContent = incantareaInCurs.nume;
+    document.getElementById('incantare-nume').textContent = inCurs.nume;
   } else {
     cutiaIncantarii.classList.add('ascuns');
   }

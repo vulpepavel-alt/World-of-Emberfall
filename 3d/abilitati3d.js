@@ -740,6 +740,8 @@ function actualizeazaAbilitatile(delta, acum, inLupta) {
   actualizeazaLucrurileCareTin(acum);
   actualizeazaCapcanele(acum);
   if (typeof actualizeazaAnimalul === 'function') actualizeazaAnimalul(delta, acum);
+  if (typeof actualizeazaNodurile === 'function') actualizeazaNodurile(acum);
+  if (typeof actualizeazaCulesul === 'function') actualizeazaCulesul(acum);
   actualizeazaResursa3d(delta, inLupta);
   actualizeazaInterfata(acum);
 }

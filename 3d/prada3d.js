@@ -144,6 +144,7 @@ function inchideFerestrele() {
   saculDeschis3d = null;
   rucsaculDeschis = false;
   if (typeof arboriDeschisi !== 'undefined') arboriDeschisi = false;
+  if (typeof meseriiDeschise !== 'undefined') meseriiDeschise = false;
   if (cutiaFerestrei) cutiaFerestrei.classList.remove('lat');
   if (typeof uitaNpci === 'function') uitaNpci();
   if (cutiaFerestrei) cutiaFerestrei.classList.add('ascuns');
@@ -420,9 +421,11 @@ window.addEventListener('keydown', function (e) {
   if (e.code === 'KeyF') {
     const s = saculDeLangaTine();
     if (s) { deschideSacul(s); return; }
+    const nod = (typeof nodulDeLangaTine === 'function') ? nodulDeLangaTine() : null;
+    if (nod) { incepeCulesul3d(nod); return; }
     const n = (typeof npcDeLangaTine === 'function') ? npcDeLangaTine() : null;
     if (n) { vorbesteCu(n); return; }
-    spuneCeva('Nobody here, nothing to pick up');
+    spuneCeva('Nothing here to take or talk to');
     return;
   }
 
