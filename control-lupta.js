@@ -92,13 +92,30 @@ function intrerupeAtaculAles(scena) {
   return true;
 }
 
+// ==========================================================
+//  BUTOANELE DE CONTROL, pe telefon
+//
+//  Prima oara aveau cercul de 23 si zona de atins de 25. Masurat pe un
+//  iPhone tinut culcat (844x390 puncte, panza se scaleaza cu 0,867):
+//  se vedeau 40 de puncte si se puteau atinge 43. Minimul recomandat de
+//  Apple e 44, iar celelalte butoane din joc au intre 69 si 111 - deci
+//  astea cinci erau cele mai mici lucruri de pe ecran, exact alea pe
+//  care trebuie sa le nimeresti in mijlocul unei batai.
+//
+//  Acum: cerc de 30, zona de atins 34. Pe acelasi telefon iese 52 de
+//  puncte vazute si 59 de atins - peste minim, si aproape cat butonul
+//  TALK (69).
+// ==========================================================
+const RAZA_CONTROL_VAZUTA = 30;
+const RAZA_CONTROL_ATINSA = 34;
+
 function faButonControlLupta(scena, x, y, text, actiune) {
   const cerc = scena.add.container(x,y).setScrollFactor(0).setDepth(1000);
-  cerc.add(scena.add.circle(0,0,23,0x8b7043));
-  cerc.add(scena.add.circle(0,0,20,0x282016));
-  const eticheta = scena.add.text(0,0,text,{fontFamily:UI.FONT,fontSize:'9px',color:'#ffe3a3',align:'center'}).setOrigin(0.5);
+  cerc.add(scena.add.circle(0,0,RAZA_CONTROL_VAZUTA,0x8b7043));
+  cerc.add(scena.add.circle(0,0,RAZA_CONTROL_VAZUTA-3,0x282016));
+  const eticheta = scena.add.text(0,0,text,{fontFamily:UI.FONT,fontSize:'11px',color:'#ffe3a3',align:'center',wordWrap:{width:RAZA_CONTROL_VAZUTA*2-6}}).setOrigin(0.5);
   cerc.add(eticheta);
-  butoane.push({ x,y,raza:25,cerc,apasa:actiune });
+  butoane.push({ x,y,raza:RAZA_CONTROL_ATINSA,cerc,apasa:actiune });
   return { cerc,eticheta };
 }
 
@@ -107,12 +124,24 @@ function faControlulLuptei(scena) {
   const ab=abilitateaDeIntrerupere();
   personaj.stiute=personaj.stiute||{};
   if (ab) personaj.stiute[ab.id]=1;
-  scena.butonIntrerupere=faButonControlLupta(scena,650,232,TEXT.STOP_CAST,()=>intrerupeAtaculAles(scena));
-  faButonControlLupta(scena,650,178,TEXT.TARGET_BUTTON,urmatoareaTintaLupta);
+  // UNDE STAU. Ecranul are 800x450. Locurile libere sunt putine:
+  //   miniharta   x 656-788, y  12-144
+  //   MENU        x 680-764, y 132-216
+  //   TALK        x 684-788, y 232-336
+  //   ATTACK      x 672-800, y 322-450
+  //   abilitatile y 330-442, de la x 240 pana la 676
+  //   joystick    x  58-174, y 288-404
+  //
+  // Cele doua de lupta (tinta si intreruperea) stau in coloana libera
+  // din dreapta, la indemana degetului care sta pe ATTACK. Cele trei de
+  // echipa stau in stanga, SUB panoul de viata si DEASUPRA joystickului
+  // - nu langa el, ca sa nu le atingi din greseala cand mergi.
+  faButonControlLupta(scena,606,176,TEXT.TARGET_BUTTON,urmatoareaTintaLupta);
+  scena.butonIntrerupere=faButonControlLupta(scena,606,250,TEXT.STOP_CAST,()=>intrerupeAtaculAles(scena));
   scena.butoaneComanda={};
   ['urmeaza','ataca','retrage'].forEach(function (c,i) {
     const text={urmeaza:TEXT.TEAM_FOLLOW,ataca:TEXT.TEAM_ATTACK,retrage:TEXT.TEAM_RETREAT}[c];
-    scena.butoaneComanda[c]=faButonControlLupta(scena,32+i*56,134,text,()=>daComandaEchipei(c,scena));
+    scena.butoaneComanda[c]=faButonControlLupta(scena,46+i*74,180,text,()=>daComandaEchipei(c,scena));
   });
   scena.marcajTinta=scena.add.circle(0,0,30,0xffd34d,0.08).setStrokeStyle(2,0xffd34d).setDepth(8).setVisible(false);
   scena.panouTinta=scena.add.text(400,12,'',{fontFamily:UI.FONT,fontSize:'11px',color:'#ffe3a3',align:'center',backgroundColor:'#17130e',padding:{x:8,y:5},wordWrap:{width:320}})
