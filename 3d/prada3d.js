@@ -143,6 +143,8 @@ function faFereastra() {
 function inchideFerestrele() {
   saculDeschis3d = null;
   rucsaculDeschis = false;
+  if (typeof arboriDeschisi !== 'undefined') arboriDeschisi = false;
+  if (cutiaFerestrei) cutiaFerestrei.classList.remove('lat');
   if (typeof uitaNpci === 'function') uitaNpci();
   if (cutiaFerestrei) cutiaFerestrei.classList.add('ascuns');
 }
@@ -376,7 +378,7 @@ function recalculeazaPersonajul3d() {
   personaj.putereVrajii = calculeazaPutereaVrajii(atr, clasa);
   personaj.armura = Math.round((calculeazaArmura(atr.agi) + dinEchipament.armura +
                                 dinIntariri3d('armura')) * inmultitorTalent(personaj, 'armura'));
-  personaj.critical = calculeazaCritical(atr.agi);
+  personaj.critical = calculeazaCritical(atr.agi) + bonusTalent(personaj, 'critic');
 
   personaj.viata = Math.max(1, Math.round(personaj.viataMaxima * parteViata));
   if (personaj.resursa === RESURSA_MANA) {

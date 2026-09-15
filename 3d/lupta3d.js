@@ -351,8 +351,11 @@ function teLoveste(m, acum) {
 
   m.urmatoareaLovitura = acum + m.vitezaLovirii;
 
-  // Duskborn slip aside entirely, sometimes.
-  if (personaj.idRasa === 'nightelf' && (Math.random() * 100) < QUICKNESS_DODGE) {
+  // Talents that teach you to slip a blow, and the Duskborn who are
+  // born knowing how.
+  let sansaDeEvitare = bonusTalent(personaj, 'dodge');
+  if (personaj.idRasa === 'nightelf') sansaDeEvitare += QUICKNESS_DODGE;
+  if ((Math.random() * 100) < sansaDeEvitare) {
     aratacifra(jucator.position.x, jucator.position.y + 2, jucator.position.z,
                'Dodge', '#cfd6e0', false);
     return;
@@ -362,7 +365,8 @@ function teLoveste(m, acum) {
   const critic = (Math.random() * 100) < SANSA_CRITIC_MOB;
   if (critic) brut = brut * 2;
 
-  let cat = Math.max(1, Math.round(dupaArmura(brut, personaj.armura)));
+  let cat = Math.max(1, Math.round(dupaArmura(brut, personaj.armura) *
+                                   reducereTalent(personaj, 'damageIncasat')));
 
   // If your companion is at its throat, roughly half the bites land
   // on it instead of you. That is the whole point of having one.
@@ -608,7 +612,8 @@ function actualizeazaLupta(delta, acum) {
   const inLupta = (zona.mobi || []).some(function (m) { return m.suparat; });
   if (!inLupta && personaj.viata < personaj.viataMaxima) {
     personaj.viata = Math.min(personaj.viataMaxima,
-      personaj.viata + (personaj.atribute.spi / 10) * delta);
+      personaj.viata + (personaj.atribute.spi / 10) * delta *
+      inmultitorTalent(personaj, 'regen'));
   }
 
   // Monsters near enough to matter. The ones far away do nothing at

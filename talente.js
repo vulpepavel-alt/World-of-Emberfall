@@ -402,29 +402,31 @@ function gasesteTalent(idClasa, idTalent) {
 }
 
 // Poti pune un punct in talentul asta? Da inapoi motivul, daca nu.
+// Motivul se ARATA jucatorului, deci vine din texte.js, in engleza.
 function poateInvata(personajul, idTalent) {
 
   const gasit = gasesteTalent(personajul.idClasa, idTalent);
-  if (!gasit) return { poate: false, motiv: 'talentul nu exista' };
+  if (!gasit) return { poate: false, motiv: TEXT.TALENT_NO_SUCH };
 
   const talente = personajul.talente || {};
   const rangAcum = talente[idTalent] || 0;
 
-  if (rangAcum >= gasit.talent.maxRang) return { poate: false, motiv: 'e deja pe tot' };
-  if (puncteRamase(personajul) <= 0) return { poate: false, motiv: 'nu mai ai puncte' };
+  if (rangAcum >= gasit.talent.maxRang) return { poate: false, motiv: TEXT.TALENT_MAXED };
+  if (puncteRamase(personajul) <= 0) return { poate: false, motiv: TEXT.TALENT_NO_POINTS };
 
   // Treapta se deschide dupa cate puncte ai in ACEST arbore.
   const inArbore = puncteInArbore(talente, gasit.arbore);
   const cerute = gasit.talent.treapta * PUNCTE_PE_TREAPTA;
   if (inArbore < cerute) {
-    return { poate: false, motiv: 'iti trebuie ' + cerute + ' puncte in acest arbore' };
+    return { poate: false, motiv: TEXT.TALENT_NEED_IN_TREE.replace('{n}', cerute) };
   }
 
   // Talentul dinainte, daca e cerut, trebuie luat pe tot.
   if (gasit.talent.cere) {
     const inainte = gasesteTalent(personajul.idClasa, gasit.talent.cere);
     if (!inainte || (talente[gasit.talent.cere] || 0) < inainte.talent.maxRang) {
-      return { poate: false, motiv: 'trebuie intai ' + (inainte ? inainte.talent.nume : '?') + ' pe tot' };
+      return { poate: false,
+               motiv: TEXT.TALENT_NEED_FIRST.replace('{t}', inainte ? inainte.talent.nume : '?') };
     }
   }
 

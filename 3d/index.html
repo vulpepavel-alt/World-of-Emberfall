@@ -201,6 +201,31 @@
     #fereastra3d button.lat:hover { border-color: #d9b555; }
     #fereastra3d button.inapoi { background: #1a1510; color: #a08a63; }
 
+    /* ---- the talent trees ---- */
+    #fereastra3d.lat { width: 720px; }
+    #fereastra3d .arbori { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    #fereastra3d .arbore { border: 1px solid #4b3a1c; padding: 5px; }
+    #fereastra3d .cap-arbore {
+      color: #d9b555; text-align: center; padding-bottom: 4px;
+      border-bottom: 1px solid #4b3a1c; margin-bottom: 5px;
+    }
+    #fereastra3d .cap-arbore span { color: #a08a63; }
+    #fereastra3d .treapta { position: relative; display: grid; gap: 4px; margin-bottom: 5px; }
+    #fereastra3d .treapta.inchisa { opacity: 0.4; }
+    #fereastra3d .lacat {
+      position: absolute; right: 2px; top: -2px; font-size: 10px; color: #8a6a2f;
+    }
+    #fereastra3d .talent {
+      padding: 4px 5px; background: #120e0a; border: 1px solid #332814; cursor: default;
+    }
+    #fereastra3d .talent.poti { cursor: pointer; border-color: #6b5326; }
+    #fereastra3d .talent.poti:hover { border-color: #d9b555; background: rgba(138,106,47,0.14); }
+    #fereastra3d .talent.luat { border-color: #4a7c2f; }
+    #fereastra3d .nume-talent { color: #e8dcc0; }
+    #fereastra3d .rang { float: right; color: #d9b555; font-size: 11px; }
+    #fereastra3d .ce-face { color: #a08a63; font-size: 11px; line-height: 1.35; }
+
+
 
 
 
@@ -457,6 +482,7 @@
   <script src="npc3d.js"></script>
   <script src="treceri3d.js"></script>
   <script src="animal3d.js"></script>
+  <script src="talente3d.js"></script>
 
   <script src="../titlu.js"></script>
 

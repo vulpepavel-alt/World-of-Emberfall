@@ -388,6 +388,16 @@ const TEXT = {
   DUNGEON_SIGN:     'Dungeon',
   RAID_SIGN:        'Raid',
 
+  // ---- de ce nu poti pune un punct in talentul asta ----
+  // Se ARATA jucatorului, si in meniul 2D si in fereastra 3D, deci
+  // trebuie sa fie in engleza si sa stea aici. Pana acum erau scrise
+  // de mana in talente.js, in romana, si se vedeau ca atare.
+  TALENT_NO_SUCH:      'No such talent',
+  TALENT_MAXED:        'Already at full rank',
+  TALENT_NO_POINTS:    'No points left to spend',
+  TALENT_NEED_IN_TREE: 'Needs {n} points in this tree',
+  TALENT_NEED_FIRST:   'Needs {t} at full rank first',
+
   // ---- playing on a computer (see desktop.js) ----
   KEYS_TITLE:   'Keyboard and mouse',
   KEYS_HINT:    'K — controls',

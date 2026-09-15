@@ -237,8 +237,52 @@ instead. That is the whole point of having one.
 Measured: a tamed wolf bites every 2 seconds for 3–6 — its base 2–5
 times the contentment bonus.
 
-**Still missing:** no talents in combat, no professions, no flight
-paths, no cooking.
+## Talents
+
+**N** opens the three trees. From level 10 you get a point a level,
+51 by level 60, and what you spend them on is the difference between
+two warriors of the same level. Locked tiers show how many points
+they still want; a talent that needs another one first says so.
+
+`talente.js` knew all of that already — the trees, the ranks, the
+tiers, the prerequisites — and `poateInvata()` answers whether you
+may take one and why not.
+
+The real work was not the window. It was that **eight of the twelve
+effects were not being read by anything in the 3D world**, so half
+of every tree was decoration. Each is now applied exactly where the
+2D game applies it:
+
+| Effect | Where it lands |
+|---|---|
+| `dmgArma` | your weapon damage |
+| `viteza` | how often you swing |
+| `viata`, `armura`, `critic` | worked out with your stats |
+| `dmgAbilitate` | every ability's damage |
+| `costResursa` | what an ability costs — asked once, for both "can you afford it" and "what are you charged" |
+| `pauza` | how long until you can use it again |
+| `damageIncasat` | what reaches you through armour |
+| `dodge` | your chance to slip a blow |
+| `regen` | health and mana out of combat |
+| `vindecare` | how much a heal mends |
+
+Measured one at a time, each talent taken to full rank on its own:
+armour 110→132, ability cost 25→20 rage, critical 7.75→10.75%,
+damage taken ×0.90, ability damage ×1.15, weapon damage ×1.10, dodge
+0→3%, cooldowns ×0.82, regeneration ×1.30, health 760→836, swing
+667→600 ms. Healing, averaged over 400 casts: **×1.195 against
+×1.200 expected.**
+
+## One thing this turned up in the 2D game
+
+The reasons a talent refuses you — "needs 15 points in this tree" —
+were written by hand in `talente.js`, **in Romanian**, and
+`meniu-joc.js` shows them straight to the player. So the 2D game has
+been showing Romanian to a player whose game is meant to be entirely
+in English. They are in `texte.js` now, in English, which fixes both
+games at once.
+
+**Still missing:** no professions, no flight paths, no cooking.
 
 ## The point: where the world comes from
 

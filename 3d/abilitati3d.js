@@ -75,15 +75,28 @@ function pauzaAbilitatii(id) {
   return Math.max(pauzeAbilitati[id] || 0, pauzaGlobalaPanaLa);
 }
 
+// What it actually costs you, after the talents that make things
+// cheaper. Asked in both places - what you can afford and what you
+// are charged - so the two can never disagree.
+function costulAbilitatii(ab) {
+  const scade = reducereTalent(personaj, 'costResursa');
+  return {
+    rage: Math.round((ab.costRage || 0) * scade),
+    mana: Math.round((ab.costMana || 0) * scade)
+  };
+}
+
 function aiCuCePlati(ab) {
-  if (ab.costRage) return (personaj.rage || 0) >= ab.costRage;
-  if (ab.costMana) return (personaj.mana || 0) >= ab.costMana;
+  const c = costulAbilitatii(ab);
+  if (c.rage) return (personaj.rage || 0) >= c.rage;
+  if (c.mana) return (personaj.mana || 0) >= c.mana;
   return true;
 }
 
 function plateste(ab) {
-  if (ab.costRage) personaj.rage = Math.max(0, (personaj.rage || 0) - ab.costRage);
-  if (ab.costMana) personaj.mana = Math.max(0, (personaj.mana || 0) - ab.costMana);
+  const c = costulAbilitatii(ab);
+  if (c.rage) personaj.rage = Math.max(0, (personaj.rage || 0) - c.rage);
+  if (c.mana) personaj.mana = Math.max(0, (personaj.mana || 0) - c.mana);
 }
 
 
@@ -174,7 +187,7 @@ function actualizeazaIncantarea(acum) {
 function faceEfectul(ab, acum) {
 
   plateste(ab);
-  pauzeAbilitati[ab.id] = acum + (ab.pauza || 0);
+  pauzeAbilitati[ab.id] = acum + (ab.pauza || 0) * reducereTalent(personaj, 'pauza');
   pauzaGlobalaPanaLa = acum + PAUZA_GLOBALA;
 
   switch (ab.fel) {
@@ -482,6 +495,7 @@ function lovesteCuAbilitatea(ab, acum) {
   const lovitura = damageulTau(arma, attackPowerFolosit(ab));
   let brut = lovitura.damage * (ab.inmultit || 1);
   if (ab.dmgMin) brut = brut + intreDoua(ab.dmgMin, ab.dmgMax);
+  brut = brut * inmultitorTalent(personaj, 'dmgAbilitate');
 
   daiDamage(tinta, brut, lovitura.critic, acum);
   if (ab.incetineste) incetinesteMobul(tinta, ab, acum);
@@ -503,7 +517,8 @@ function aruncaVraja(ab, acum) {
   const p = pozitiaFapturii(tinta);
   fataJucatorului = Math.atan2(p.x - jucator.position.x, p.z - jucator.position.z);
 
-  const brut = intreDoua(ab.dmgMin, ab.dmgMax) + sporulVrajii(ab);
+  const brut = (intreDoua(ab.dmgMin, ab.dmgMax) + sporulVrajii(ab)) *
+               inmultitorTalent(personaj, 'dmgAbilitate');
   const critic = (Math.random() * 100) < personaj.critical;
   daiDamage(tinta, critic ? brut * 2 : brut, critic, acum);
   if (ab.incetineste) incetinesteMobul(tinta, ab, acum);
@@ -522,6 +537,7 @@ function loveaTotInJur3d(ab, acum) {
 
     let brut = intreDoua(ab.dmgMin, ab.dmgMax) + sporulVrajii(ab);
     if (ab.inmultit) brut = brut * ab.inmultit;
+    brut = brut * inmultitorTalent(personaj, 'dmgAbilitate');
     const critic = (Math.random() * 100) < personaj.critical;
 
     m.suparat = true;
@@ -535,7 +551,8 @@ function loveaTotInJur3d(ab, acum) {
 
 
 function teVindeci(ab) {
-  const cat = Math.round(intreDoua(ab.vindecaMin, ab.vindecaMax) + sporulVrajii(ab));
+  const cat = Math.round((intreDoua(ab.vindecaMin, ab.vindecaMax) + sporulVrajii(ab)) *
+                         inmultitorTalent(personaj, 'vindecare'));
   const inainte = personaj.viata;
   personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + cat);
   aratacifra(jucator.position.x, jucator.position.y + 2.2, jucator.position.z,
@@ -709,7 +726,8 @@ function actualizeazaResursa3d(delta, inLupta) {
     // per second - the same rule the 2D game uses.
     if (!inLupta && personaj.mana < personaj.manaMaxima) {
       personaj.mana = Math.min(personaj.manaMaxima,
-        (personaj.mana || 0) + (personaj.atribute.spi / 5) * delta);
+        (personaj.mana || 0) + (personaj.atribute.spi / 5) * delta *
+        inmultitorTalent(personaj, 'regen'));
     }
   }
 }
