@@ -260,7 +260,11 @@ function loveteMobul(m, acum) {
   // still a swing. See animatii3d.js.
   if (typeof aiLovit === 'function') aiLovit();
 
-  if (ratezi()) { aratacifra(p.x, sus, p.z, 'Miss', '#cfd6e0', false); return; }
+  if (ratezi()) {
+    suna('ratat');
+    aratacifra(p.x, sus, p.z, 'Miss', '#cfd6e0', false);
+    return;
+  }
 
   const lovitura = damageulTau(arma, personaj.attackPower);
   const cat = Math.max(1, Math.round(dupaArmura(lovitura.damage, armuraMobului(m, acum))));
@@ -270,12 +274,16 @@ function loveteMobul(m, acum) {
   // Hitting something charmed wakes it up, as it should.
   m.farmecPanaLa = 0;
 
+  // It remembers who did it. See amenintare.js.
+  if (typeof adaugaAmenintare === 'function') adaugaAmenintare(m, jucator, cat);
+
   // It jerks back and flashes red.
   if (typeof fapturaAFostLovita === 'function') fapturaAFostLovita(m);
 
   // Rage comes from swinging, split the same way the damage is.
   if (typeof castigaRage === 'function') castigaRage(RAGE_PE_LOVITURA / LOVITURI_MAI_DESE);
 
+  suna(lovitura.critic ? 'critic' : 'lovitura');
   aratacifra(p.x, sus, p.z, String(cat), lovitura.critic ? '#ffd34d' : '#ffe9c8', lovitura.critic);
 
   const grup = fapturiDeFata.get(m);
@@ -287,8 +295,10 @@ function loveteMobul(m, acum) {
 
 function moareMobul(m, acum) {
 
+  suna('mobMoare');
   m.mortPanaLa = acum + REVINE_DUPA;
   m.suparat = false;
+  if (typeof uitaAmenintarile === 'function') uitaAmenintarile(m);
 
   // What it leaves behind. pradaCompleta() in obiecte.js decides
   // what that is; see prada3d.js.
@@ -325,6 +335,30 @@ function moareMobul(m, acum) {
 }
 
 
+// It swings at whoever it has decided on: you, one of the hired, or
+// the hunter's companion. Each of those takes a blow differently, so
+// this is the one place that sorts them out.
+function mobLoveste(m, pe, acum) {
+  if (pe === jucator) { teLoveste(m, acum); return; }
+
+  if (typeof tovarasii !== 'undefined' && tovarasii.indexOf(pe) >= 0) {
+    mobLovesteTovarasul3d(m, pe, acum);
+    return;
+  }
+
+  if (typeof animalulDesenat !== 'undefined' && pe === animalulDesenat) {
+    m.urmatoareaLovitura = acum + m.vitezaLovirii;
+    if (typeof fapturaLoveste === 'function') fapturaLoveste(m);
+    const brut = intreDoua(m.dmgMin, m.dmgMax) * damageMobului(m, acum);
+    loveaAnimalul(m, Math.max(1, Math.round(brut)));
+    return;
+  }
+
+  // Somebody we no longer know about: it comes back to you.
+  teLoveste(m, acum);
+}
+
+
 function teLoveste(m, acum) {
 
   m.urmatoareaLovitura = acum + m.vitezaLovirii;
@@ -349,11 +383,12 @@ function teLoveste(m, acum) {
   let cat = Math.max(1, Math.round(dupaArmura(brut, personaj.armura) *
                                    reducereTalent(personaj, 'damageIncasat')));
 
-  // If your companion is at its throat, roughly half the bites land
-  // on it instead of you. That is the whole point of having one.
-  if (typeof loveaAnimalul === 'function' && Math.random() < 0.5) {
-    if (loveaAnimalul(m, cat)) return;
-  }
+  // (Your companion used to soak roughly half your blows by a coin
+  // toss, because there was no other way for it to hold anything.
+  // There is now: it builds a tally like everybody else, and a
+  // monster that has decided on it never reaches this function at
+  // all. A coin toss would have been a second, invisible rule on top
+  // of the real one.)
 
   // A shield swallows the blow before your health does, and only
   // what is left over reaches you.
@@ -364,9 +399,21 @@ function teLoveste(m, acum) {
   if (typeof teDaJosDeCal === 'function') teDaJosDeCal();
   if (typeof aiFostLovit === 'function') aiFostLovit();
 
+  // One piece of armour in four blows takes a point of wear, and a
+  // piece worn right through stops giving you anything at all until
+  // it is mended. The rule is in obiecte.js; this is where it bites.
+  if (typeof tocesteOPiesa === 'function') {
+    const rupt = tocesteOPiesa(personaj);
+    if (rupt) {
+      spuneCeva(TEXT.BROKE.replace('{o}', rupt.nume));
+      recalculeazaPersonajul3d();
+    }
+  }
+
   // And from being hit.
   if (typeof castigaRage === 'function') castigaRage(RAGE_LA_INCASARE);
 
+  suna('incasezi');
   aratacifra(jucator.position.x, jucator.position.y + 2, jucator.position.z,
              '-' + cat, critic ? '#ff9a6a' : '#f0a0a0', critic);
 
@@ -375,9 +422,13 @@ function teLoveste(m, acum) {
 
 
 function moriTu(acum) {
+  suna('moarte');
   mortPanaLa = acum + MORT_CAT;
   luptiSingur = false;
   alegeTinta(null);
+  // Your body stays where you fell, and your gear pays for it.
+  // See moarte3d.js.
+  if (typeof cazi3d === 'function') cazi3d();
   // Everything loses interest in a corpse.
   (zona.mobi || []).forEach(function (m) { m.suparat = false; });
   aratacifra(jucator.position.x, jucator.position.y + 2.4, jucator.position.z,
@@ -427,11 +478,15 @@ function miscaMobul(m, delta, acum) {
   }
 
   // Do you matter to it?
-  if (!m.suparat && mortPanaLa < acum && panaLaTine <= RAZA_SUPARARII) m.suparat = true;
+  const esteDuhAcum = (typeof estiDuh === 'function') && estiDuh();
+  if (!m.suparat && mortPanaLa < acum && !esteDuhAcum && panaLaTine <= RAZA_SUPARARII) {
+    m.suparat = true;
+  }
   // Playing dead: nothing has any interest in you.
   if (teFaciMort(acum)) m.suparat = false;
-  if (m.suparat && (deAcasa > RAZA_LESEI || mortPanaLa > acum)) {
+  if (m.suparat && (deAcasa > RAZA_LESEI || mortPanaLa > acum || esteDuhAcum)) {
     m.suparat = false;
+    if (typeof uitaAmenintarile === 'function') uitaAmenintarile(m);
     m.viata = m.viataMaxima;      // it heals on the way home, as in the 2D game
     const grup = fapturiDeFata.get(m);
     if (grup && grup.baraLui) potrivesteBara(grup.baraLui, 1);
@@ -440,15 +495,26 @@ function miscaMobul(m, delta, acum) {
   let tintaX = null, tintaZ = null, viteza = VITEZA_PLIMBARII;
 
   if (m.suparat) {
-    if (panaLaTine > RAZA_LOVITURII) { tintaX = jucator.position.x; tintaZ = jucator.position.z; }
+
+    // WHO IT IS GOING FOR. Not you, necessarily - whoever has hurt it
+    // most, which is the whole point of having a shield-bearer. With
+    // nobody hired and no companion out, that is always you, so this
+    // behaves exactly as it used to until you hire someone.
+    const pe = (typeof tintaMobului === 'function') ? tintaMobului(m) : jucator;
+    const undeE = (typeof pozitiaCelui === 'function') ? pozitiaCelui(pe) : null;
+    if (!undeE) { m.suparat = false; return; }
+
+    const panaLaEl = Math.hypot(undeE.x - m.x, undeE.y - m.z);
+
+    if (panaLaEl > RAZA_LOVITURII) { tintaX = undeE.x; tintaZ = undeE.y; }
     viteza = VITEZA_MOBULUI;
 
     // Cut its leg and it limps, for as long as the ability says.
     if (m.incetinitPanaLa > acum) viteza = viteza * (m.catDeIncetinit || 1);
 
-    if (panaLaTine <= RAZA_LOVITURII && acum >= m.urmatoareaLovitura) {
+    if (panaLaEl <= RAZA_LOVITURII && acum >= m.urmatoareaLovitura) {
       if (!m.urmatoareaLovitura) m.urmatoareaLovitura = acum + m.vitezaLovirii;
-      else teLoveste(m, acum);
+      else mobLoveste(m, pe, acum);
     }
 
   } else if (deAcasa > 0.6) {
@@ -631,7 +697,14 @@ function actualizeazaLupta(delta, acum) {
   // Dead: you lie there a few seconds and come back at the zone's
   // own resurrection point.
   if (mortPanaLa) {
-    if (acum >= mortPanaLa) { mortPanaLa = 0; teIntorciLaViata(); }
+    if (acum >= mortPanaLa) {
+      mortPanaLa = 0;
+      if (typeof teFaciDuh === 'function' && typeof estiDuh === 'function' && estiDuh()) {
+        teFaciDuh();
+      } else {
+        teIntorciLaViata();
+      }
+    }
     miscaCifrele(acum);
     scriePanourileLuptei();
     return;
@@ -666,6 +739,7 @@ function actualizeazaLupta(delta, acum) {
     if (Math.abs(m.x - x) > RAZA_FAPTURI || Math.abs(m.z - z) > RAZA_FAPTURI) {
       if (m.suparat) {
         m.suparat = false;
+        if (typeof uitaAmenintarile === 'function') uitaAmenintarile(m);
         m.viata = m.viataMaxima;      // it goes home and mends, as it would
         m.x = m.col; m.z = m.rand;
       }
@@ -731,6 +805,22 @@ function actualizeazaLupta(delta, acum) {
     marcajulTintei.visible = false;
   }
 
+  // Bosses winding up, and whatever is still burning on the floor.
+  // See temnita3d.js.
+  if (typeof actualizeazaTemnita3d === 'function') actualizeazaTemnita3d(delta, acum);
+
+  // Walking back to your own body. See moarte3d.js.
+  if (typeof actualizeazaMoartea3d === 'function') actualizeazaMoartea3d();
+
+  // The people you hired: walking, swinging, mending, taunting.
+  // See tovarasi3d.js.
+  if (typeof actualizeazaTovarasii3d === 'function') {
+    actualizeazaTovarasii3d(delta, acum);
+    // Out of a fight the fallen get up again. They are hired, not
+    // killed, and you would otherwise be paying for a corpse.
+    if (!inLupta) ridicaTovarasiiCazuti3d();
+  }
+
   // Casting, wounds that keep burning, rage and mana, and the
   // buttons along the bottom. See abilitati3d.js and interfata.js.
   if (typeof actualizeazaAbilitatile === 'function') {
@@ -746,6 +836,8 @@ function actualizeazaLupta(delta, acum) {
 function uitaLupta() {
   if (typeof uitaPrada === 'function') uitaPrada();
   if (typeof uitaAnimalul === 'function') uitaAnimalul();
+  if (typeof uitaTovarasii3d === 'function') uitaTovarasii3d();
+  if (typeof uitaTemnita3d === 'function') uitaTemnita3d();
   if (typeof uitaMeseriile === 'function') uitaMeseriile();
   tinta = null;
   luptiSingur = false;

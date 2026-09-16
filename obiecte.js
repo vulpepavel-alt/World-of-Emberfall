@@ -334,6 +334,42 @@ function reparaTot(personajul) {
 
 
 // Toceste un lucru. Intoarce true daca tocmai s-a stricat de tot.
+// Ce se toceste cand incasezi. Arma principala nu e in lista: ea se
+// toceste lovind, nu incasand. Statea in game.js, deci lumea 3D nu
+// avea de unde s-o stie.
+const SLOTURI_CARE_SE_TOCESC = ['cap', 'umeri', 'piept', 'incheieturi',
+                                'maini', 'brau', 'picioare', 'talpi', 'armaSecundara'];
+
+
+// O piesa de armura la patru lovituri incasate. Da inapoi obiectul
+// care tocmai s-a rupt de tot, sau null.
+function tocesteOPiesa(personajul) {
+  if (Math.random() > 0.25) return null;
+  const ale = SLOTURI_CARE_SE_TOCESC
+    .map(function (sl) { return (personajul.echipament || {})[sl]; })
+    .filter(function (o) { return o && o.durabilitate > 0; });
+  if (!ale.length) return null;
+
+  const o = ale[Math.floor(Math.random() * ale.length)];
+  return toceste(o, 1) ? o : null;
+}
+
+
+// Moartea toceste TOT ce porti cu zece la suta. Asta e jumatatea
+// pedepsei care costa bani; cealalta jumatate costa drum.
+// Da inapoi cate lucruri s-au rupt de tot.
+function tocesteTotLaMoarte(personajul) {
+  let stricate = 0;
+  Object.keys(personajul.echipament || {}).forEach(function (sl) {
+    const o = personajul.echipament[sl];
+    if (!o || !o.durabilitateMaxima) return;
+    const cat = Math.max(1, Math.round(o.durabilitateMaxima * 0.10));
+    if (toceste(o, cat)) stricate++;
+  });
+  return stricate;
+}
+
+
 function toceste(obiect, cat) {
   if (!obiect || !obiect.durabilitateMaxima) return false;
   if (obiect.durabilitate <= 0) return false;

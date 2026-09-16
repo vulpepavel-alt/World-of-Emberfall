@@ -1933,6 +1933,28 @@ function casutaTa() {
   return { c: p.x, r: p.y };
 }
 
+
+// ---- si cele patru la care intreaba amenintare.js ----
+//
+// Tot in casute. Aici orice se bate - tu, un tovaras, un inamic - are
+// x si y in pixeli pe el, deci raspunsul e acelasi impartit la 32.
+function pozitiaCelui(cine) {
+  if (!cine || cine.x === undefined || cine.y === undefined) return null;
+  return inCasute(cine.x, cine.y);
+}
+
+function mobiiCareSeBat() {
+  return (mobi || []).filter(function (m) { return m.viu && m.furios; });
+}
+
+function mobSeBate(mob) {
+  return !!(mob && mob.viu);
+}
+
+function jucatorulEMort() {
+  return !!mort;
+}
+
 function viiInZona() {
   return {
     npci: (npci || []).filter(function (n) { return n.active !== false; })
@@ -5842,35 +5864,13 @@ function aratacifraRosie(scena, x, y, damage) {
 // ================================================
 //  MOARTEA SI INTOARCEREA IN TABARA
 // ================================================
-// O piesa de armura la intamplare se toceste cand incasezi. Nu toate
-// deodata: altfel s-ar strica tot echipamentul in aceeasi zi.
-const SLOTURI_CARE_SE_TOCESC = ['cap', 'umeri', 'piept', 'incheieturi',
-                                'maini', 'brau', 'picioare', 'talpi', 'armaSecundara'];
-
+// Regulile tocirii sunt in obiecte.js acum, ca sa le aiba si lumea
+// 3D. Astea doua sunt doar ce se vede pe ecran.
 function tocesteOPiesaDeArmura(scena) {
-  if (Math.random() > 0.25) return;
-  const ale = SLOTURI_CARE_SE_TOCESC
-    .map(function (sl) { return (personaj.echipament || {})[sl]; })
-    .filter(function (o) { return o && o.durabilitate > 0; });
-  if (!ale.length) return;
-
-  const o = ale[Math.floor(Math.random() * ale.length)];
-  if (toceste(o, 1)) {
-    aratacuvant(scena, jucator.x, jucator.y - 58, TEXT.BROKE.replace('{o}', o.nume), '#c94a3a');
-    aplicaTalentele();
-  }
-}
-
-
-function tocesteTotLaMoarte(scena) {
-  let vreunulStricat = false;
-  Object.keys(personaj.echipament || {}).forEach(function (sl) {
-    const o = personaj.echipament[sl];
-    if (!o || !o.durabilitateMaxima) return;
-    const cat = Math.max(1, Math.round(o.durabilitateMaxima * 0.10));
-    if (toceste(o, cat)) vreunulStricat = true;
-  });
-  if (vreunulStricat) aplicaTalentele();
+  const rupt = tocesteOPiesa(personaj);
+  if (!rupt) return;
+  aratacuvant(scena, jucator.x, jucator.y - 58, TEXT.BROKE.replace('{o}', rupt.nume), '#c94a3a');
+  aplicaTalentele();
 }
 
 
@@ -5883,7 +5883,7 @@ function mori(scena) {
 
   // Moartea strica echipamentul: 10% din fiecare lucru purtat. Asta e
   // a doua jumatate a pedepsei, cea care costa bani, nu timp.
-  tocesteTotLaMoarte(scena);
+  if (tocesteTotLaMoarte(personaj)) aplicaTalentele();
 
   // Trupul ramane acolo unde ai cazut.
   cadavrul = { x: jucator.x, y: jucator.y, zona: zona ? zona.id : null };

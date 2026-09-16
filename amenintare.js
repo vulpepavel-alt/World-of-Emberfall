@@ -27,6 +27,21 @@
 //
 //  De ce conteaza: asa o temnita se joaca cum trebuie. Tancul tine,
 //  tu dai, vindecatorul are grija sa nu iasa in fata.
+//
+//  ---------------------------------------------------------
+//  FISIERUL ASTA E FOLOSIT DE AMANDOUA JOCURILE, deci nu stie nimic
+//  despre lume. Tot ce are nevoie, intreaba - si fiecare joc
+//  raspunde cu ale lui:
+//
+//    pozitiaCelui(cine)   unde sta, IN CASUTE
+//    mobiiCareSeBat()     inamicii care se bat chiar acum
+//    mobSeBate(mob)       asta se bate acum?
+//    jucatorulEMort()     esti mort?
+//
+//  Perechea din 2D e in game.js, cea din 3D in 3d/tovarasi3d.js.
+//  Socoteala se face in CASUTE, ca in ghid-misiuni.js: jocul 2D
+//  imparte pixelii la 32, lumea 3D nu are ce imparti.
+//  ---------------------------------------------------------
 // ==========================================================
 
 
@@ -45,8 +60,9 @@ const SPOR_AMENINTARE = {
 // Cat din vindecare se face amenintare.
 const AMENINTARE_DIN_VINDECARE = 0.5;
 
-// La cata departare inamicul renunta la tinta lui si se uita la altul.
-const RAZA_TINTEI = 700;
+// La cata departare inamicul renunta la tinta lui si se uita la
+// altul. In casute (erau 700 de pixeli de-ai jocului 2D).
+const RAZA_TINTEI = 22;
 
 
 // Cine poate fi lovit: tu, un tovaras, animalul. Le tinem ca obiecte,
@@ -61,8 +77,11 @@ function rolulCelui(cine) {
 // Mai e bun de lovit? Un mort sau unul sters din joc nu e.
 function maiEDeLovit(cine) {
   if (!cine) return false;
-  if (cine === jucator) return !mort;
+  if (cine === jucator) return !jucatorulEMort();
   if (typeof animalul !== 'undefined' && cine === animalul) {
+    return !!(personaj.animal && personaj.animal.viata > 0);
+  }
+  if (typeof animalulDesenat !== 'undefined' && cine === animalulDesenat) {
     return !!(personaj.animal && personaj.animal.viata > 0);
   }
   return cine.viata > 0 && typeof tovarasii !== 'undefined' && tovarasii.indexOf(cine) >= 0;
@@ -77,7 +96,7 @@ function listaAmenintarii(mob) {
 
 function adaugaAmenintare(mob, cine, cat) {
 
-  if (!mob || !mob.viu || !cine || cat <= 0) return;
+  if (!mob || !mobSeBate(mob) || !cine || cat <= 0) return;
 
   const spor = SPOR_AMENINTARE[rolulCelui(cine)] || 1;
   const lista = listaAmenintarii(mob);
@@ -91,8 +110,8 @@ function adaugaAmenintare(mob, cine, cat) {
 // Vindecatul face amenintare la TOTI inamicii care se bat acum, nu doar
 // la unul: vindecatorul n-a lovit pe nimeni, dar toti il vad.
 function amenintareDinVindecare(cine, cat) {
-  if (!cine || cat <= 0 || typeof mobi === 'undefined') return;
-  const inLupta = mobi.filter(function (m) { return m.viu && m.furios; });
+  if (!cine || cat <= 0) return;
+  const inLupta = mobiiCareSeBat();
   if (!inLupta.length) return;
   const peFiecare = (cat * AMENINTARE_DIN_VINDECARE) / inLupta.length;
   inLupta.forEach(function (m) { adaugaAmenintare(m, cine, peFiecare); });
@@ -101,9 +120,9 @@ function amenintareDinVindecare(cine, cat) {
 
 // PROVOCAREA. Nu aduna: te aseaza peste cel mai mare, cu zece la suta.
 // Exact ca in Classic, si de-aia merge chiar daca ai stat deoparte.
-function provoaca(scena, mob, cine) {
+function provoaca(mob, cine) {
 
-  if (!mob || !mob.viu || !cine) return false;
+  if (!mob || !mobSeBate(mob) || !cine) return false;
 
   const lista = listaAmenintarii(mob);
   let celMaiMare = 0;
@@ -125,14 +144,18 @@ function provoaca(scena, mob, cine) {
 // cand doi sunt aproape la fel, si s-ar invarti pe loc.
 function tintaMobului(mob) {
 
+  const alMobului = pozitiaCelui(mob);
+
   const lista = listaAmenintarii(mob).filter(function (a) {
     if (!maiEDeLovit(a.cine)) return false;
-    return Phaser.Math.Distance.Between(mob.x, mob.y, a.cine.x, a.cine.y) < RAZA_TINTEI;
+    const alLui = pozitiaCelui(a.cine);
+    if (!alLui || !alMobului) return false;
+    return Math.hypot(alMobului.x - alLui.x, alMobului.y - alLui.y) < RAZA_TINTEI;
   });
 
   // Nimeni nu i-a facut nimic inca: vine dupa tine, ca pana acum.
   if (!lista.length) {
-    mob.tintaAleasa = (!mort && jucator) ? jucator : null;
+    mob.tintaAleasa = (!jucatorulEMort() && jucator) ? jucator : null;
     return mob.tintaAleasa;
   }
 
@@ -165,16 +188,20 @@ function tintaMobului(mob) {
 // cand scutierul loveste pe cineva, toti ceilalti din jurul lui simt
 // si ei o parte. Nu e damage - e doar socoteala.
 const AMENINTARE_IN_JUR = 0.8;     // cat din lovitura simt ceilalti
-const RAZA_AMENINTARII_IN_JUR = 150;
+const RAZA_AMENINTARII_IN_JUR = 4.7;   // casute (erau 150 de pixeli)
 
 function amenintareInJur(celCareLoveste, tintaLui, damage) {
 
   if (!celCareLoveste || rolulCelui(celCareLoveste) !== 'tanc') return;
-  if (typeof mobi === 'undefined') return;
 
-  mobi.forEach(function (m) {
-    if (!m.viu || !m.furios || m === tintaLui) return;
-    if (Phaser.Math.Distance.Between(celCareLoveste.x, celCareLoveste.y, m.x, m.y)
+  const alLui = pozitiaCelui(celCareLoveste);
+  if (!alLui) return;
+
+  mobiiCareSeBat().forEach(function (m) {
+    if (m === tintaLui) return;
+    const alMobului = pozitiaCelui(m);
+    if (!alMobului) return;
+    if (Math.hypot(alLui.x - alMobului.x, alLui.y - alMobului.y)
         > RAZA_AMENINTARII_IN_JUR) return;
     adaugaAmenintare(m, celCareLoveste, damage * AMENINTARE_IN_JUR);
   });

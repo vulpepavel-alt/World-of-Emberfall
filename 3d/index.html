@@ -482,6 +482,31 @@
     #fereastra3d .treapta-poza:hover { border-color: #d9b555; }
     #fereastra3d .treapta-poza.aleasa { border-color: #d9b555; background: rgba(217,181,85,0.18); }
 
+    /* ==========================================================
+         THE BOX THAT COMES UP WHEN YOU ARE A SPIRIT.
+         See 3d/moarte3d.js.
+       ========================================================== */
+    #cutia-mortii {
+      position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%);
+      z-index: 8; width: 280px; padding: 12px 14px; text-align: center;
+      background: linear-gradient(180deg, rgba(38,24,21,0.95), rgba(14,9,8,0.95));
+      border: 1px solid #8a4a3f; border-radius: 3px;
+      box-shadow: inset 0 1px 0 rgba(255,200,190,0.14), 0 4px 14px rgba(0,0,0,0.6);
+      color: #e8dcc0; font-size: 12px;
+    }
+    #cutia-mortii.ascuns { display: none; }
+    #cutia-mortii .titlu-mortii {
+      color: #e0776a; font-size: 16px; margin-bottom: 4px;
+    }
+    #cutia-mortii .scrisul-mortii { color: #cbbfa4; margin-bottom: 9px; }
+    #cutia-mortii button {
+      width: 100%; padding: 6px; cursor: pointer;
+      font-family: inherit; font-size: 12px;
+      color: #e8dcc0; background: #2e1c18; border: 1px solid #8a4a3f; border-radius: 2px;
+    }
+    #cutia-mortii button:hover { border-color: #e0a090; }
+    #cutia-mortii .nota-mortii { margin-top: 5px; color: #a08a63; font-size: 11px; }
+
     #stare .mic { display: block; margin-top: 10px; font-size: 13px; color: #a08a63; }
 </style>
 </head>
@@ -648,6 +673,7 @@
   <script src="../obiecte.js"></script>
   <script src="../seturi.js"></script>
   <script src="../drumuri.js"></script>
+  <script src="../sunete.js"></script>
   <script src="../icoane.js"></script>
   <script src="../infatisare.js"></script>
   <script src="../mobi.js"></script>
@@ -761,6 +787,17 @@
   <script src="npc3d.js"></script>
   <script src="treceri3d.js"></script>
   <script src="animal3d.js"></script>
+
+  <!-- The people you hire, and the tally that decides who the
+       monster actually walks at. -->
+  <script src="tovarasi3d.js"></script>
+
+  <!-- Dying, the walk back to your own body, and the price of it. -->
+  <script src="moarte3d.js"></script>
+
+  <!-- What the things in a dungeon actually do: the wedges, the
+       rings, the pools on the floor, and calling for help. -->
+  <script src="temnita3d.js"></script>
   <script src="talente3d.js"></script>
   <script src="meserii3d.js"></script>
   <script src="drumuri3d.js"></script>

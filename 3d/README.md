@@ -809,3 +809,131 @@ code as broken:
   "You have found no other city yet" — the test now makes those
   things true before pressing the button, so the ability is tested
   rather than the absence of a pet.
+
+## The five things that were written but never reached the 3D world
+
+All five were finished code sitting in the project, loaded by the 3D
+page in three cases, and read by nothing.
+
+### 1. Threat, and the people you hire
+
+A shield-bearer who cannot hold a monster off you is not a tank, he
+is a second sword. Holding something off you means the monster
+keeping a tally of who has hurt it — which is `amenintare.js`, used
+by the 2D game and by nothing here. **Every monster in this world
+walked at YOU, always, whatever anybody else did to it.**
+
+`amenintare.js` no longer knows anything about the world. It asks
+four questions — where somebody is, who is in the fight, is this one
+fighting, are you dead — and each game answers with its own, in
+tiles. The 2D copies are in `game.js`, the 3D ones in
+`3d/tovarasi3d.js`. That is the same shape as `casutaTa()` and
+`viiInZona()`, and it is the fourth time this pattern has paid for
+itself.
+
+The hirelings then get bodies, built from the same `forme` lists
+every creature here is built from. One comes along in the open
+world, three in a dungeon, five in a raid — `tovarasiiDeFata()`
+decides, not this file. The medic mends whoever is lowest, the
+archer shoots from the back, and the shield-bearer taunts anything
+that has wandered off him.
+
+Measured: I hit a monster for 100 and it came for me. The
+shield-bearer's 40 damage became 100 (2.5× — that is all "being a
+tank" means) and it did **not** switch, because you have to beat the
+current holder by 10%, not merely match him. Eight more and it
+turned. Then, in a real fight over eight seconds: **the shield-bearer
+took the blows and I took zero.**
+
+The companion also stopped soaking blows by coin toss. It used to
+take roughly half of everything aimed at you on `Math.random() < 0.5`,
+because there was no other way for it to hold anything. Now it
+builds a tally like everyone else and a monster that has decided on
+it never reaches you at all.
+
+### 2. Dying properly
+
+You fell over, waited four seconds and stood up at the camp with
+full health. You lost nothing — and if dying costs nothing, not
+dying is worth nothing, which quietly takes the point out of every
+fight in the game.
+
+Now: your **body stays where you fell**, your gear takes 10%, and
+you get up as a **spirit** at the zone's stone — see-through, 1.6×
+faster, and invisible to everything. Walk back to your body and rise
+there at a third of your health. Or give up the walk and rise where
+you stand with **resurrection sickness: half of everything, two
+minutes.**
+
+So you are never stuck, but dying costs you either the walk or two
+minutes of being no use.
+
+Measured: gear went 98→88, 67→60, 92→83, 86→77 — exactly a tenth.
+Giving up halved attack power 120→60, armour 170→85, health 430→215,
+and all three came back exactly when it wore off. The sickness is
+applied at the END of `recalculeazaPersonajul3d()`, where every other
+number is worked out — not subtracted somewhere else, which is the
+mistake the strengthenings already taught us once.
+
+### 3. Gear that wears out
+
+The rules were in `obiecte.js` and the effects already worked —
+broken gear gives nothing, a broken weapon is not used. What was
+missing was anything that ever wore it down. One piece of armour in
+four blows takes a point; dying takes a tenth of everything; a
+merchant mends the lot for what `costulReparatiei()` says.
+
+`tocesteOPiesa()` and `tocesteTotLaMoarte()` moved out of `game.js`
+into `obiecte.js` on the way, so both games now wear gear out by one
+copy of the rule.
+
+### 4. Sound
+
+`sunete.js` was not on the 3D page at all. Twenty-four sounds, every
+one of them built out of tones and noise as it plays — there is not
+an audio file in this project and there never will be. Swings,
+crits, misses, taking a hit, spells, casting, shots, mending,
+shields, death, a monster dying, loot, quests. There is a switch in
+the settings.
+
+### 5. Dungeons that are dungeons
+
+Nine instances, thirty-six bosses and an eight-boss raid have been
+written down in `intalniri-instante.js` all along — which ability
+each one uses, how hard, how often, how long it winds up for. **None
+of it had ever been read.** Every boss in every dungeon walked up and
+hit you with a sword, exactly like a field rat with more health.
+
+Not one number is invented in `3d/temnita3d.js`. The table is
+already hung on every boss by the time the file loads. Six things
+they do:
+
+| | |
+|---|---|
+| **cone** | a wedge in front of it — walk out of the wedge |
+| **slam** | a circle at YOUR feet — walk off the circle |
+| **ring** | safe in the middle, safe outside, hurt in the band — run **in** |
+| **pool** | stays on the floor and burns while you stand in it |
+| **bolt** | from across the room; nowhere to stand |
+| **call** | it shouts for help, and real monsters arrive |
+
+Every one draws its shape on the floor first and only lands when the
+wind-up runs out. That is the whole game of a dungeon: the floor
+tells you where not to be, and you get a second and a half to be
+somewhere else.
+
+Measured, on the three shapes: the cone is 60° and 4.69 tiles — it
+catches you in front and at the edge, and misses you behind it and
+beside it. The ring is safe at the centre and at 1.5 tiles, hurts
+between 2.25 and 5.78, and is safe again at 7. The pool hurts inside
+2 tiles and not outside.
+
+And a wind-up **is a cast**, so the interrupt in your action bar
+finally has something to interrupt. Until this file there was
+nothing in the world that prepared anything — which is exactly why
+that ability was found lying two turns ago.
+
+Fought for real: *Wren Alder, Who Keeps the Watch*, an elite at the
+top of Moor Hollow Deep, summoned two bandits, wound a cone up over
+1.8 seconds and took 111 health off me with it, while the
+shield-bearer shouted at him and the archer dealt with a Root-Gnawer.

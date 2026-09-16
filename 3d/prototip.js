@@ -940,6 +940,11 @@ function intraInZona(id, unde, dinspre) {
 
     if (typeof gataDeTrecere === 'function') gataDeTrecere();
 
+    // Whoever you have hired and fits in HERE comes along - one in
+    // the open world, three in a dungeon, five in a raid. You do not
+    // summon them; tovarasiiDeFata() decides. See tovarasi3d.js.
+    if (typeof cheamaTovarasii3d === 'function') cheamaTovarasii3d();
+
     cutiaStare.classList.add('gata');
   }, 30);
 }

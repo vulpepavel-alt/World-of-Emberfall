@@ -130,6 +130,10 @@ function scrieNpc() {
     (d.nume || n.fel) + (d.titlu ? '  ·  ' + d.titlu : '');
 
   if (misiuneaDeschisa) { scrieMisiunea(); return; }
+  if (typeof angajareaDeschisa !== 'undefined' && angajareaDeschisa) {
+    scrieAngajarea3d();
+    return;
+  }
 
   let html = '';
   if (mesaj3d) html += '<p class="mesaj">' + mesaj3d + '</p>';
@@ -200,6 +204,11 @@ function scrieNpc() {
     }
   }
 
+  // The one who keeps people for hire.
+  if (d.angajeaza) {
+    html += '<button class="lat" id="deschide-angajare">' + TEXT.HIRE_TITLE + '</button>';
+  }
+
   if (!html) html = '<p class="gol">' + (d.nume || 'They') + ' has nothing for you.</p>';
 
   const corp = document.getElementById('corp3d');
@@ -220,6 +229,9 @@ function scrieNpc() {
 
   const bp = document.getElementById('leg-piatra');
   if (bp) bp.addEventListener('click', function () { legPiatra3d(npcDeschis); });
+
+  const ba = document.getElementById('deschide-angajare');
+  if (ba) ba.addEventListener('click', function () { angajareaDeschisa = true; scrieNpc(); });
 
   corp.querySelectorAll('[data-cal]').forEach(function (el) {
     el.addEventListener('click', function () {
@@ -314,6 +326,7 @@ function scrieMisiunea() {
   const ia = document.getElementById('ia');
   if (ia) ia.addEventListener('click', function () {
     iaMisiunea(personaj, m.id);
+    suna('misiuneLuata');
     spuneCeva(TEXT.QUEST_TAKEN || 'Quest taken');
     misiuneaDeschisa = null;
     scrieNpc();
@@ -408,8 +421,27 @@ function scrieTaraba3d() {
   if (!(personaj.inventar || []).length) html += '<p class="gol">Empty.</p>';
   html += '</div>';
 
+  // Mending. Gear wears out as you take blows and loses ten per cent
+  // of itself every time you die; worn right through it gives you
+  // nothing at all until it is seen to. See obiecte.js.
+  const deReparat = (typeof ceAiDeReparat === 'function') ? ceAiDeReparat(personaj) : [];
+  if (deReparat.length) {
+    html += '<button class="lat" id="repara-tot">' + TEXT.REPAIR + '  ' +
+            baniText(costulReparatiilorTuturor(personaj)) + '</button>';
+  }
+
   const corp = document.getElementById('corp3d');
   corp.innerHTML = html;
+
+  const br = document.getElementById('repara-tot');
+  if (br) br.addEventListener('click', function () {
+    const r = reparaTot(personaj);
+    mesaj3d = r.nimic ? TEXT.REPAIR_NOTHING
+            : r.faraBani ? (TEXT.NOT_ENOUGH || 'Not enough money')
+            : TEXT.REPAIR_DONE + '  ' + baniText(r.cost);
+    recalculeazaPersonajul3d();
+    scrieTaraba3d();
+  });
 
   corp.querySelectorAll('[data-cumpar]').forEach(function (el) {
     el.addEventListener('click', function () { cumpara3d(Number(el.dataset.cumpar)); });
@@ -470,6 +502,7 @@ function vinde3d(id) {
 //  here and moareMobul() calls it too.
 // ----------------------------------------------------------
 function daXp(cat) {
+  suna('prada');
   personaj.xp = (personaj.xp || 0) + cat;
 
   while (personaj.nivel < NIVEL_MAXIM && personaj.xp >= xpPentruNivel(personaj.nivel)) {
@@ -511,6 +544,7 @@ function actualizeazaNpci() {
 
 function uitaNpci() {
   npcDeschis = null;
+  if (typeof angajareaDeschisa !== 'undefined') angajareaDeschisa = false;
   if (typeof zborDeschis !== 'undefined') zborDeschis = false;
   misiuneaDeschisa = null;
   negustorul3d = null;

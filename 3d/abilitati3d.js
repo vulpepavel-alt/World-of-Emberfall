@@ -153,6 +153,7 @@ function folosesteAbilitatea3d(ab) {
   const acum = performance.now();
 
   if (mortPanaLa) return;
+  if (typeof estiDuh === 'function' && estiDuh()) return;   // a spirit does nothing
   if (incantareaInCurs) { spuneCeva('Already casting'); return; }
   if (acum < pauzaAbilitatii(ab.id)) return;
   if (!aiCuCePlati(ab)) { spuneCeva(ab.costRage ? 'Not enough rage' : 'Not enough mana'); return; }
@@ -170,6 +171,7 @@ function folosesteAbilitatea3d(ab) {
   if (!ab.incantare) { faceEfectul(ab, acum); return; }
 
   // A cast: remember where you stood, so a step cancels it.
+  suna('incantare');
   incantareaInCurs = {
     ab: ab, nume: ab.nume, dela: acum, cat: ab.incantare,
     unde: { x: jucator.position.x, z: jucator.position.z }
@@ -205,6 +207,12 @@ function faceEfectul(ab, acum) {
   plateste(ab);
   pauzeAbilitati[ab.id] = acum + (ab.pauza || 0) * reducereTalent(personaj, 'pauza');
   pauzaGlobalaPanaLa = acum + PAUZA_GLOBALA;
+
+  // Each kind has its own noise, all of them made out of tones and
+  // noise in sunete.js - there is not an audio file in the project.
+  suna({ vraja: 'vraja', sageata: 'sageata', vindecare: 'vindecare',
+         alinare: 'vindecare', scut: 'scut', intarire: 'scut',
+         arsura: 'vraja', val: 'vraja' }[ab.fel] || 'lovitura');
 
   switch (ab.fel) {
 
@@ -579,6 +587,13 @@ function teVindeci(ab) {
   personaj.viata = Math.min(personaj.viataMaxima, personaj.viata + cat);
   aratacifra(jucator.position.x, jucator.position.y + 2.2, jucator.position.z,
              '+' + Math.round(personaj.viata - inainte), '#8fd48a', false);
+
+  // Mending is noticed by everything in the fight - half of what you
+  // heal, spread across all of them. It is why a healer who is not
+  // careful ends up being chased. See amenintare.js.
+  if (typeof amenintareDinVindecare === 'function') {
+    amenintareDinVindecare(jucator, personaj.viata - inainte);
+  }
 }
 
 
@@ -718,12 +733,23 @@ function incetinesteMobul(m, ab, acum) {
 // ----------------------------------------------------------
 //  Doing the damage, wherever it came from
 // ----------------------------------------------------------
-function daiDamage(m, brut, critic, acum) {
+// 'cine' is whoever dealt it - you unless somebody says otherwise.
+// It matters because the monster keeps a tally of who has hurt it and
+// goes for whoever is highest; see amenintare.js.
+function daiDamage(m, brut, critic, acum, cine) {
   if (!m || m.viataMaxima === undefined || esteMort(m)) return;
 
   const cat = Math.max(1, Math.round(dupaArmura(brut, m.armura)));
   m.viata = Math.max(0, m.viata - cat);
   m.suparat = true;
+
+  const autorul = cine || jucator;
+  if (typeof adaugaAmenintare === 'function') {
+    adaugaAmenintare(m, autorul, cat);
+    // A shield-bearer's blow is felt by everything around him, which
+    // is the only way one man can hold a room.
+    amenintareInJur(autorul, m, cat);
+  }
 
   cifraPeMob(m, String(cat), critic ? '#ffd34d' : '#ffe9c8', critic);
 

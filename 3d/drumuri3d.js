@@ -208,6 +208,9 @@ function urciSauCobori3d(o) {
 // How fast you walk. Called by prototip.js instead of the bare
 // constant, so a horse actually carries you faster.
 function vitezaTa3d() {
+  // A spirit is quicker on its feet - the walk back should not be a
+  // punishment twice over.
+  if (typeof estiDuh === 'function' && estiDuh()) return VITEZA * VITEZA_DUHULUI;
   if (!caliaresti || !personaj) return VITEZA;
   const cal = celMaiBunCal(personaj);
   return VITEZA * (cal ? cal.spor : 1);

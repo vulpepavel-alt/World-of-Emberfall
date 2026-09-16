@@ -470,6 +470,7 @@ const TEXT = {
   SET_PICTURE_HINT: 'Bigger blocks are quicker to draw. Smaller ones look sharper.',
   SET_SHARP:        'Sharp',
   SET_CHUNKY:       '{n}× blocks',
+  SET_SOUND_HINT:   'Every sound in the game is made out of tones as it plays. There are no sound files.',
   SET_CAMERA:       'The view follows you',
   SET_CAMERA_HINT:  'Walking forward eases the view back behind you. Turn it off and it stays wherever you drag it.',
   SET_ARROW:        'Quest arrow',

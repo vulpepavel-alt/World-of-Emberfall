@@ -450,6 +450,11 @@ function scrieSetarile3d() {
   });
   html += '</div></div>';
 
+  html += '<div class="cutie"><h3>' + TEXT.SOUND + '</h3>' +
+          '<p class="mic">' + TEXT.SET_SOUND_HINT + '</p>' +
+          '<button class="lat" id="comuta-sunetul">' +
+          (sunetulPornit ? TEXT.SET_ON : TEXT.SET_OFF) + '</button></div>';
+
   html += '<div class="cutie"><h3>' + TEXT.SET_CAMERA + '</h3>' +
           '<p class="mic">' + TEXT.SET_CAMERA_HINT + '</p>' +
           '<button class="lat" id="comuta-camera">' +
@@ -474,6 +479,12 @@ function scrieSetarile3d() {
       schimbaPixelarea(Number(b.dataset.pixeli));
       scrieSetarile3d();
     });
+  });
+
+  document.getElementById('comuta-sunetul').addEventListener('click', function () {
+    porneisteOpresteSunetul();
+    suna('buton');
+    scrieSetarile3d();
   });
 
   document.getElementById('comuta-camera').addEventListener('click', function () {

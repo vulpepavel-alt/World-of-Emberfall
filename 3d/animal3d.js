@@ -117,6 +117,11 @@ function scoateAnimalul() {
   grup.numeleScris = faEticheta(a.nume, '#a8d98a', grup.inaltimeaLui + 0.5);
   grup.add(grup.numeleScris);
 
+  // Marked so amenintare.js knows what it is looking at: a companion
+  // builds 1.3x the tally from the same bite, which is what lets it
+  // hold something off you at all.
+  grup.rol = 'animal';
+
   lumea.add(grup);
   animalulDesenat = grup;
 }

@@ -153,6 +153,7 @@ function inchideFerestrele() {
 }
 
 function deschideSacul(s) {
+  suna('fereastra');
   if (!cutiaFerestrei) faFereastra();
   saculDeschis3d = s;
   rucsaculDeschis = false;
@@ -392,6 +393,21 @@ function recalculeazaPersonajul3d() {
   personaj.armura = Math.round((calculeazaArmura(atr.agi) + dinEchipament.armura +
                                 dinIntariri3d('armura')) * inmultitorTalent(personaj, 'armura'));
   personaj.critical = calculeazaCritical(atr.agi) + bonusTalent(personaj, 'critic');
+
+  // RESURRECTION SICKNESS. Half of everything for two minutes, if you
+  // gave up the walk back to your body. Applied HERE, at the end,
+  // where every other number is worked out - not subtracted somewhere
+  // else, which is the mistake the strengthenings taught us.
+  const slabit = (typeof slabiciuneaDeInviere3d === 'function')
+    ? slabiciuneaDeInviere3d() : 1;
+  if (slabit !== 1) {
+    personaj.viataMaxima = Math.max(1, Math.round(personaj.viataMaxima * slabit));
+    personaj.attackPower = Math.round(personaj.attackPower * slabit);
+    personaj.attackPowerDistanta = Math.round(personaj.attackPowerDistanta * slabit);
+    personaj.putereVrajii = Math.round(personaj.putereVrajii * slabit);
+    personaj.armura = Math.round(personaj.armura * slabit);
+    if (personaj.manaMaxima) personaj.manaMaxima = Math.round(personaj.manaMaxima * slabit);
+  }
 
   personaj.viata = Math.max(1, Math.round(personaj.viataMaxima * parteViata));
   if (personaj.resursa === RESURSA_MANA) {

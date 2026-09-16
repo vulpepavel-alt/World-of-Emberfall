@@ -396,7 +396,7 @@ function actualizeazaTovarasii(scena, delta) {
       });
       if (deLuat.length) {
         t.urmatoareaProvocare = scena.time.now + PAUZA_PROVOCARE;
-        deLuat.forEach(function (m) { provoaca(scena, m, t); });
+        deLuat.forEach(function (m) { provoaca(m, t); });
         aratacuvant(scena, t.x, t.y - 50, TEXT.TAUNT, '#e0b45a');
         suna('lovitura');
       }
